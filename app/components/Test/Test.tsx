@@ -6,17 +6,17 @@ import { Subject } from '../../backend/proccess-manager/subject.interface';
 
 class Listener implements Observer {
   public update(subject: Subject, payload: any) {
-    console.log(payload.msg);
+    console.log(`${subject.state}/${subject.actions.length}`, payload.msg);
   }
 }
 
-const Test = async () => {
+const Test = () => {
   const storeName = 'blox';
   const conf = new Configstore(storeName);
-  conf.set('otp', 'test-otp');
+  conf.set('otp', 'c559dcbc-f3ab-42b7-8478-d076e600d049');
   conf.set('credentials', {
-    accessKeyId: 'test',
-    secretAccessKey: 'test',
+    accessKeyId: 'AKIARYXLX53R3PWVRMNX',
+    secretAccessKey: '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',
   });
   const installService = new InstallService(storeName);
   return (
@@ -24,10 +24,10 @@ const Test = async () => {
       <h1>CLI commands</h1>
       <button
         onClick={async () => {
-          console.log('test');
           const listener = new Listener();
           installService.subscribe(listener);
           await installService.run();
+          console.log('+ Congratulations. Installation is done!');
         }}
       >
         Install

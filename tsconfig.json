@@ -20,7 +20,7 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "allowJs": true,
-
+    "experimentalDecorators": true,
     "typeRoots": []
   },
   "exclude": [

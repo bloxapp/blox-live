@@ -1,5 +1,6 @@
 import Configstore from 'configstore';
 import * as AWS from 'aws-sdk';
+import { step } from '../decorators';
 
 export default class AwsService {
   public ec2!: AWS.EC2;
@@ -21,13 +22,20 @@ export default class AwsService {
     }
   }
 
-  async setAWSCredentials(): Promise<void> {
+  @step({
+    name: 'Set AWS Credentials',
+    requiredConfig: ['credentials'],
+  })
+  async setAWSCredentials(): Promise<any> {
     this.ec2 = new AWS.EC2({
       ...this.defaultAwsOptions,
       credentials: this.conf.get('credentials'),
     });
   }
 
+  @step({
+    name: 'Check AWS keys permissions',
+  })
   async validateAWSPermissions() {
     try {
       await this.ec2.describeInstances().promise();
@@ -38,26 +46,41 @@ export default class AwsService {
     }
   }
 
+  @step({
+    name: 'Create EC2 Key Pair',
+    requiredConfig: ['otp'],
+  })
   async createEc2KeyPair() {
-    // this.flow.validate('otp');
     if (this.conf.get('keyPair')) return;
 
-    const { KeyPairId: pairId, KeyMaterial: privateKey } = await this.ec2
+    const {
+      KeyPairId: pairId,
+      KeyMaterial: privateKey,
+    } = await this.ec2
       .createKeyPair({ KeyName: `${this.keyName}-${this.conf.get('otp')}` })
       .promise();
     this.conf.set('keyPair', { pairId, privateKey });
   }
 
+  @step({
+    name: 'Allocate Elastic IP',
+  })
   async createElasticIp() {
     if (this.conf.get('addressId')) return;
 
-    const { AllocationId: addressId, PublicIp: publicIp } = await this.ec2.allocateAddress({ Domain: 'vpc' }).promise();
+    const {
+      AllocationId: addressId,
+      PublicIp: publicIp,
+    } = await this.ec2.allocateAddress({ Domain: 'vpc' }).promise();
     this.conf.set('addressId', addressId);
     this.conf.set('publicIp', publicIp);
   }
 
+  @step({
+    name: 'Create Security Group',
+    requiredConfig: ['otp'],
+  })
   async createSecurityGroup() {
-    // this.flow.validate('otp');
     if (this.conf.get('securityGroupId')) return;
 
     const vpcList = await this.ec2.describeVpcs().promise();
@@ -92,10 +115,11 @@ export default class AwsService {
     this.conf.set('securityGroupId', securityGroupId);
   }
 
+  @step({
+    name: 'Setup VPC Linux Instance',
+    requiredConfig: ['otp', 'securityGroupId', 'addressId'],
+  })
   async createInstance() {
-    // this.flow.validate('otp');
-    // this.flow.validate('securityGroupId');
-    // this.flow.validate('addressId');
     if (this.conf.get('instanceId')) return;
 
     const data = await this.ec2
@@ -109,30 +133,31 @@ export default class AwsService {
       })
       .promise();
     const instanceId = data.Instances![0].InstanceId;
+    await this.ec2
+      .waitFor('instanceRunning', { InstanceIds: [instanceId] })
+      .promise();
     this.conf.set('instanceId', instanceId);
-
     // await this.flow.delay(60000); // need to improve
 
     const tagsOptions: AWS.EC2.Types.CreateTagsRequest = {
-      Resources: [instanceId!],
+      Resources: [instanceId],
       Tags: [{ Key: 'Name', Value: 'Blox-Infra-Server' }],
     };
     await this.ec2.createTags(tagsOptions).promise();
-
     await this.ec2
       .associateAddress({
         AllocationId: this.conf.get('addressId'),
         InstanceId: instanceId,
       })
       .promise();
+    await new Promise((resolve) => setTimeout(resolve, 25000)); // hard delay for 25sec
   }
 
+  @step({
+    name: 'Delete all EC2 items',
+    requiredConfig: ['instanceId', 'securityGroupId', 'addressId', 'keyPair'],
+  })
   async uninstallItems() {
-    // this.flow.validate('instanceId');
-    // this.flow.validate('securityGroupId');
-    // this.flow.validate('addressId');
-    // this.flow.validate('keyPair');
-
     await this.ec2.terminateInstances({ InstanceIds: [this.conf.get('instanceId')] }).promise();
     await this.ec2.waitFor('instanceTerminated', { InstanceIds: [this.conf.get('instanceId')] }).promise();
     await this.ec2.deleteSecurityGroup({ GroupId: this.conf.get('securityGroupId'), DryRun: false }).promise();
@@ -140,6 +165,10 @@ export default class AwsService {
     await this.ec2.deleteKeyPair({ KeyPairId: this.conf.get('keyPair').pairId }).promise();
   }
 
+  @step({
+    name: 'Truncate Old EC2 instance',
+    requiredConfig: ['instanceId', 'addressId'],
+  })
   async truncateServer() {
     // this.flow.validate('instanceId');
     // this.flow.validate('addressId');
@@ -148,6 +177,10 @@ export default class AwsService {
     await this.ec2.releaseAddress({ AllocationId: this.conf.get('addressId') }).promise();
   }
 
+  @step({
+    name: 'Reboot instance',
+    requiredConfig: ['instanceId'],
+  })
   async rebootInstance() {
     // this.flow.validate('instanceId');
     await this.ec2.rebootInstances({ InstanceIds: [this.conf.get('instanceId')], DryRun: true }).promise();

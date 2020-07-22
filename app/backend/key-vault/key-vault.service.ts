@@ -1,6 +1,7 @@
 import Configstore from 'configstore';
 import got from 'got';
 import ServerService from './server.service';
+import { step } from '../decorators';
 
 export default class KeyVaultService {
   public readonly conf: Configstore;
@@ -11,6 +12,9 @@ export default class KeyVaultService {
     this.serverService = new ServerService(storeName);
   }
 
+  @step({
+    name: 'Run docker container',
+  })
   async runDockerContainer(): Promise<void> {
     const ssh = await this.serverService.getConnection();
     const { stdout } = await ssh.execCommand('docker ps -a | grep bloxstaking', {});
@@ -22,10 +26,11 @@ export default class KeyVaultService {
       `curl -L "https://raw.githubusercontent.com/bloxapp/vault-plugin-secrets-eth2.0/${keyVaultVersion}/docker-compose.yml" -o docker-compose.yml && UNSEAL=false docker-compose up -d vault-image`,
       {},
     );
-
-    // await this.flow.delay(30000);
   }
 
+  @step({
+    name: 'Run key vault scripts',
+  })
   async runScripts(): Promise<void> {
     const ssh = await this.serverService.getConnection();
     const { stdout: containerId } = await ssh.execCommand('docker ps -aq -f "status=running" -f "name=vault"', {});

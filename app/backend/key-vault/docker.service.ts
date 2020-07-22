@@ -1,15 +1,16 @@
-import Configstore from 'configstore';
 import ServerService from './server.service';
+import { step } from '../decorators';
 
 export default class DockerService {
-  public readonly conf: Configstore;
   public readonly serverService: ServerService;
 
   constructor(storeName: string) {
-    this.conf = new Configstore(storeName);
     this.serverService = new ServerService(storeName);
   }
 
+  @step({
+    name: 'Install docker on a server',
+  })
   async installDockerScope(): Promise<void> {
     const ssh = await this.serverService.getConnection();
     const { stdout } = await ssh.execCommand('docker -v', {});

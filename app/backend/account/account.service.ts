@@ -1,5 +1,6 @@
 import Configstore from 'configstore';
 import ServerService from '../key-vault/server.service';
+import { step } from '../decorators';
 
 export default class AccountService {
   public readonly conf: Configstore;
@@ -10,6 +11,10 @@ export default class AccountService {
     this.serverService = new ServerService(storeName);
   }
 
+  @step({
+    name: 'Sync vault with blox api',
+    requiredConfig: ['publicIp', 'otp'],
+  })
   async syncVaultWithBlox(): Promise<void> {
     // this.flow.validate('otp');
     // this.flow.validate('publicIp');
@@ -22,7 +27,7 @@ export default class AccountService {
         'otp',
       )}", "url": "http://${this.conf.get(
         'publicIp',
-      )}:8200", "accessToken": "${rootToken}"}' http://api.stage.bloxstaking.com/wallets/root`,
+      )}:8200", "accessToken": "${rootToken}"}' https://api.stage.bloxstaking.com/wallets/root`,
       {},
     );
     if (+statusCode > 201) {
@@ -30,6 +35,10 @@ export default class AccountService {
     }
   }
 
+  @step({
+    name: 'Resync vault with blox api',
+    requiredConfig: ['publicIp', 'otp'],
+  })
   async resyncNewVaultWithBlox(): Promise<void> {
     // this.flow.validate('otp');
     // this.flow.validate('publicIp');
@@ -42,7 +51,7 @@ export default class AccountService {
         'otp',
       )}", "url": "http://${this.conf.get(
         'publicIp',
-      )}:8200", "accessToken": "${rootToken}"}' http://api.stage.bloxstaking.com/wallets/root`,
+      )}:8200", "accessToken": "${rootToken}"}' https://api.stage.bloxstaking.com/wallets/root`,
       {},
     );
     if (+statusCode > 201) {
@@ -50,11 +59,15 @@ export default class AccountService {
     }
   }
 
+  @step({
+    name: 'Remove blox staking account',
+    requiredConfig: ['otp'],
+  })
   async deleteBloxAccount(): Promise<void> {
     // this.flow.validate('otp');
     const ssh = await this.serverService.getConnection();
     const { stdout: statusCode, stderr } = await ssh.execCommand(
-      `curl -s -o /dev/null -w "%{http_code}" --header "Content-Type: application/json" --request DELETE http://api.stage.bloxstaking.com/organizations/otp/${this.conf.get(
+      `curl -s -o /dev/null -w "%{http_code}" --header "Content-Type: application/json" --request DELETE https://api.stage.bloxstaking.com/organizations/otp/${this.conf.get(
         'otp',
       )}`,
       {},

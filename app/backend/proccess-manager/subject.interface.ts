@@ -5,6 +5,12 @@ import { Observer } from './observer.interface';
  * The Subject interface declares a set of methods for managing subscribers.
  */
 export interface Subject {
+  // current action step
+  state: number;
+
+  // describe all steps inside subject
+  actions: Array<any>;
+
   // Attach an observer to the subject.
   subscribe(observer: Observer): void;
 
