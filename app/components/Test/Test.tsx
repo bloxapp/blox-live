@@ -15,8 +15,8 @@ const Test = () => {
   const conf = new Configstore(storeName);
   conf.set('otp', 'c559dcbc-f3ab-42b7-8478-d076e600d049');
   conf.set('credentials', {
-    accessKeyId: 'AKIARYXLX53R3PWVRMNX',
-    secretAccessKey: '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',
+    accessKeyId: 'test',
+    secretAccessKey: 'test',
   });
   const installService = new InstallService(storeName);
   return (

@@ -1,4 +1,3 @@
-import Configstore from 'configstore';
 import AwsService from '../aws/aws.service';
 import AccountService from '../account/account.service';
 import KeyVaultService from '../key-vault/key-vault.service';
@@ -6,7 +5,6 @@ import DockerService from '../key-vault/docker.service';
 import ProcessClass from './process.class';
 
 export default class InstallService extends ProcessClass {
-  public readonly conf: Configstore;
   public readonly awsService: AwsService;
   public readonly keyVaultService: KeyVaultService;
   public readonly dockerService: DockerService;
@@ -16,7 +14,6 @@ export default class InstallService extends ProcessClass {
 
   constructor(storeName: string) {
     super();
-    this.conf = new Configstore(storeName);
     this.keyVaultService = new KeyVaultService(storeName);
     this.awsService = new AwsService(storeName);
     this.dockerService = new DockerService(storeName);
