@@ -10,7 +10,6 @@ export default class InstallProcess extends ProcessClass {
   public readonly dockerService: DockerService;
   public readonly accountService: AccountService;
   public readonly actions: Array<any>;
-  public state: number;
 
   constructor(storeName: string) {
     super();

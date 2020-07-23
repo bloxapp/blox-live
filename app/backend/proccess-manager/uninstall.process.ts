@@ -4,7 +4,6 @@ import ProcessClass from './process.class';
 export default class UninstallProcess extends ProcessClass {
   public readonly awsService: AwsService;
   public readonly actions: Array<any>;
-  public state: number;
 
   constructor(storeName: string) {
     super();

@@ -4,7 +4,6 @@ import ProcessClass from './process.class';
 export default class AccountRemoveProcess extends ProcessClass {
   public readonly accountService: AccountService;
   public readonly actions: Array<any>;
-  public state: number;
 
   constructor(storeName: string) {
     super();
