@@ -4,7 +4,7 @@ import KeyVaultService from '../key-vault/key-vault.service';
 import DockerService from '../key-vault/docker.service';
 import ProcessClass from './process.class';
 
-export default class InstallService extends ProcessClass {
+export default class InstallProcess extends ProcessClass {
   public readonly awsService: AwsService;
   public readonly keyVaultService: KeyVaultService;
   public readonly dockerService: DockerService;
