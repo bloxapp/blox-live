@@ -5,6 +5,7 @@ import { ConnectedRouter } from 'connected-react-router';
 import { ThemeProvider } from 'styled-components';
 import { hot } from 'react-hot-loader/root';
 import { History } from 'history';
+import App from '../components/App';
 import Test from '../components/Test/Test';
 import theme from '../theme';
 
@@ -17,7 +18,7 @@ const Root = ({ store, history }: Props) => (
   <Provider store={store}>
     <ConnectedRouter history={history}>
       <ThemeProvider theme={theme}>
-        <Test />
+        {process.env.BACKEND ? <Test /> : <App />}
       </ThemeProvider>
     </ConnectedRouter>
   </Provider>
