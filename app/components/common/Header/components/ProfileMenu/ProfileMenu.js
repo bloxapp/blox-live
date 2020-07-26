@@ -55,24 +55,26 @@ const Separator = styled.div`
   background-color: ${({ theme }) => theme.gray300};
 `;
 
-const ProfileMenu = ({ isOpen, toggleOpen, profile, logout }, ref) => (
-  <Wrapper ref={ref}>
-    <Button isOpen={isOpen} onClick={() => toggleOpen(!isOpen)}>
-      <Image src={profile.picture} />
-    </Button>
-    {isOpen && (
-      <Menu>
-        <MenuItem>
-          <Name>{profile.name}</Name>
-          <Email>{profile.email}</Email>
-        </MenuItem>
-        <Separator />
-        <MenuItem>
-          <LogoutButton onClick={logout}>Log Out</LogoutButton>
-        </MenuItem>
-      </Menu>
-    )}
-  </Wrapper>
+const ProfileMenu = forwardRef(
+  ({ isOpen, toggleOpen, profile, logout }, ref) => (
+    <Wrapper ref={ref}>
+      <Button isOpen={isOpen} onClick={() => toggleOpen(!isOpen)}>
+        <Image src={profile.picture} />
+      </Button>
+      {isOpen && (
+        <Menu>
+          <MenuItem>
+            <Name>{profile.name}</Name>
+            <Email>{profile.email}</Email>
+          </MenuItem>
+          <Separator />
+          <MenuItem>
+            <LogoutButton onClick={logout}>Log Out</LogoutButton>
+          </MenuItem>
+        </Menu>
+      )}
+    </Wrapper>
+  )
 );
 
 ProfileMenu.propTypes = {
@@ -82,4 +84,4 @@ ProfileMenu.propTypes = {
   logout: PropTypes.func,
 };
 
-export default forwardRef(ProfileMenu);
+export default ProfileMenu;

@@ -6,8 +6,8 @@ import { Template } from '../common';
 import * as WalletPages from '../Wallet';
 import * as ValidatorPages from '../Validators';
 
-const walletImage = 'components/Wizard/assets/img-key-vault.svg';
-const validatorImage = 'components/Wizard/assets/img-validator-test-net.svg';
+import walletImage from 'components/Wizard/assets/img-key-vault.svg';
+import validatorImage from 'components/Wizard/assets/img-validator-test-net.svg';
 
 const Wrapper = styled.div`
   height: 100%;

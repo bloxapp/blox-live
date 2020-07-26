@@ -8,6 +8,7 @@
     "jsx": "react",
     "strict": false,
     "pretty": true,
+    "baseUrl": "./app",
     "sourceMap": true,
     /* Additional Checks */
     "noUnusedLocals": true,

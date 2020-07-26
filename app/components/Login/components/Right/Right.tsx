@@ -128,10 +128,9 @@ const AlreadyHaveLink = styled.a`
   }
 `;
 
-const Right = ({ actions, isLoggedIn }: Props) => {
+const Right = ({ actions }: Props) => {
   useInjectSaga({ key, saga, mode: '' });
   const [isSignUp, toggleSignUp] = useState(1);
-  console.log('isLoggedIn', isLoggedIn);
   return (
     <Wrapper>
       <InnerWrapper>
@@ -140,14 +139,14 @@ const Right = ({ actions, isLoggedIn }: Props) => {
           {socialAppsList.map((socialApp, index) => {
             const { label } = socialApp;
             const lowerCaseLabel = label.toLowerCase();
-            const currentIcon = `components/Login/images/${lowerCaseLabel}-icon.png`;
+            const currentIcon = require(`components/Login/images/${lowerCaseLabel}-icon.png`);
             return (
               <SocialAppButton
                 key={index}
                 type="button"
                 onClick={() => actions.login(lowerCaseLabel)}
               >
-                <SocialButtonIcon src={currentIcon} />
+                <SocialButtonIcon src={currentIcon.default} />
                 <SocialButtonText>
                   {BUTTONS_TEXTS[isSignUp].socialApp} {label}
                 </SocialButtonText>

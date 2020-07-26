@@ -62,6 +62,9 @@
       "main.prod.js.map",
       "package.json"
     ],
+    "extraFiles": [
+      "bin/"
+    ],
     "dmg": {
       "contents": [
         {

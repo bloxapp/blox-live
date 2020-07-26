@@ -8,8 +8,7 @@ import * as selectors from '../../../selectors';
 import { ButtonInnerWrapper, MetaMaskButton } from './components';
 import { getTxHash } from '../../../../MetaMask/selectors';
 
-const ethImage =
-  'components/Wizard/components/Validators/StakingDeposit/assets/eth-logo.svg';
+import ethImage from 'components/Wizard/components/Validators/StakingDeposit/assets/eth-logo.svg';
 
 const Wrapper = styled.div``;
 

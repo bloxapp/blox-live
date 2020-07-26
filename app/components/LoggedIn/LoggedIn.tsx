@@ -12,7 +12,7 @@ import { Loader } from '../../common/components';
 import Settings from '../SettingsPage';
 import NotFoundPage from '../NotFoundPage';
 import Wizard from '../Wizard';
-import Dashboard from '../Dashboard';
+import EntryPage from '../EntryPage';
 
 import { useInjectSaga } from '../../utils/injectSaga';
 
@@ -120,7 +120,7 @@ const LoggedIn = (props: Props) => {
         exact
         path="/"
         render={(routeProps) =>
-          isFinishedWizard ? <Dashboard {...routeProps} /> : <Wizard />
+          isFinishedWizard ? <EntryPage {...routeProps} /> : <Wizard />
         }
       />
       <Route

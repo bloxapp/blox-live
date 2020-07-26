@@ -16,8 +16,13 @@ function* onLoginSuccess(authResult) {
 }
 
 function* onLoginFailure(error: Record<string, any>) {
-  yield put(loginFailure(error));
+  yield put(loginFailure(error.message));
   notification.error({ message: 'Error', description: error.message });
+  yield put(push('/login'));
+}
+
+function* onCheckIfTokenExistFailure(error: Record<string, any>) {
+  yield put(loginFailure(error.message));
   yield put(push('/login'));
 }
 
@@ -36,7 +41,7 @@ export function* checkIfTokenExist() {
     const authResult = yield call(auth.checkIfTokensExist);
     yield call(onLoginSuccess, authResult);
   } catch (error) {
-    yield error && call(onLoginFailure, error);
+    yield error && call(onCheckIfTokenExistFailure, error);
   }
 }
 

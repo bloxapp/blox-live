@@ -89,7 +89,7 @@ const CopyToBox = (props) => {
         </IconWrapper>
       </CopyToClipboard>
       <CopyToClipboard text={text} onCopy={onCopy}>
-        <Textarea value={text} />
+        <Textarea defaultValue={text} />
       </CopyToClipboard>
       <Paragraph>{text}</Paragraph>
     </Wrapper>

@@ -23,7 +23,7 @@ const menuItems = [
   { name: 'Documentation', onClick: () => false, color: false },
 ];
 
-const FaqMenu = ({ isOpen, onClick, showOrangeDot }, ref) => (
+const FaqMenu = forwardRef(({ isOpen, onClick, showOrangeDot }, ref) => (
   <Wrapper ref={ref}>
     {showOrangeDot && <AlertDot />}
     <Button
@@ -33,7 +33,7 @@ const FaqMenu = ({ isOpen, onClick, showOrangeDot }, ref) => (
     />
     {isOpen && <DropDown items={menuItems} />}
   </Wrapper>
-);
+));
 
 FaqMenu.propTypes = {
   isOpen: PropTypes.bool,
@@ -41,4 +41,4 @@ FaqMenu.propTypes = {
   showOrangeDot: PropTypes.bool,
 };
 
-export default forwardRef(FaqMenu);
+export default FaqMenu;

@@ -27,21 +27,21 @@ const App = (props: Props) => {
   const [didInitApp, setAppInitialised] = useState(false);
   useInjectSaga({ key, saga, mode: '' });
   const { isLoggedIn, isLoading, isTokensExist } = props;
+
   useEffect(() => {
     const init = async () => {
       if (!didInitApp) {
+        await setAppInitialised(true);
         await isTokensExist();
         await initApp(isLoggedIn, auth);
-        setAppInitialised(true);
       }
     };
     init();
-  }, [didInitApp, !isLoggedIn]);
+  }, [didInitApp, isLoggedIn, isLoading]);
 
   if (!didInitApp || isLoading) {
     return <Loader />;
   }
-
   return (
     <AppWrapper>
       {isLoggedIn ? <LoggedIn auth={auth} /> : <NotLoggedIn />}

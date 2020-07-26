@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { ClickAwayListener } from '@material-ui/core';
+import imageSrc from 'assets/images/staking-logo.svg';
 import HeaderLink from './HeaderLink';
 import { FaqMenu, ProfileMenu } from './components';
 import { logout } from '../../CallbackPage/actions';
@@ -74,7 +75,7 @@ const Header = (props: Props) => {
     <Wrapper>
       <Left>
         <a href="/">
-          <Logo src={'assets/images/staking-logo.svg'} />
+          <Logo src={imageSrc} />
         </a>
       </Left>
       {withMenu && (

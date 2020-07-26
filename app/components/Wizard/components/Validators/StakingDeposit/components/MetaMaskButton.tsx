@@ -9,8 +9,7 @@ import saga from '../../../../../MetaMask/saga';
 import ButtonInnerWrapper from './ButtonInnerWrapper';
 import { useInjectSaga } from '../../../../../../utils/injectSaga';
 
-const metaMaskImage =
-  'components/Wizard/components/Validators/StakingDeposit/assets/mm-logo.svg';
+import metaMaskImage from 'components/Wizard/components/Validators/StakingDeposit/assets/mm-logo.svg';
 
 const metamask = new MetaMask();
 const key = 'metaMask';

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import imageSrc from 'assets/images/info.svg';
 import Tooltip from '../Tooltip';
 
 const Image = styled.img`
@@ -11,7 +12,7 @@ const Image = styled.img`
 
 const InfoWithTooltip = ({ title, placement }) => (
   <Tooltip title={title} placement={placement}>
-    <Image src={'assets/images/info.svg'} />
+    <Image src={imageSrc} />
   </Tooltip>
 );
 

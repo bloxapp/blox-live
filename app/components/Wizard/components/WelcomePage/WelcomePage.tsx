@@ -10,6 +10,10 @@ import * as selectors from '../../selectors';
 import saga from '../../saga';
 import ButtonWithIcon from './ButtonWithIcon';
 
+import bgImage from 'assets/images/bg_staking.jpg';
+import keyVaultImg from 'components/Wizard/assets/img-key-vault.svg';
+import mainNetImg from 'components/Wizard/assets/img-validator-main-net.svg';
+
 const Wrapper = styled.div`
   width: 100%;
   height: 100%;
@@ -22,7 +26,7 @@ const Left = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url('assets/images/bg_staking.jpg');
+  background-image: url(${bgImage});
   background-size: cover;
   color: ${({ theme }) => theme.gray50};
   font-size: 54px;
@@ -105,7 +109,7 @@ const WelcomePage = (props: Props) => {
         <ButtonWithIcon
           title="Step 1"
           subTitle="KeyVault Setup"
-          image={'components/Wizard/assets/img-key-vault.svg'}
+          image={keyVaultImg}
           isDisabled={showStep2}
           onClick={onStep1Click}
           isLoading={isLoading}
@@ -113,7 +117,7 @@ const WelcomePage = (props: Props) => {
         <ButtonWithIcon
           title="Step 2"
           subTitle="Create A Validator"
-          image={'components/Wizard/assets/img-validator-main-net.svg'}
+          image={mainNetImg}
           isDisabled={!showStep2}
           onClick={onStep2Click}
         />

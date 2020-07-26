@@ -16,7 +16,7 @@ export default {
         test: /\.(js|jsx|ts|tsx)$/,
         exclude: /node_modules/,
         use: {
-          loader: 'ts-loader',
+          loader: 'babel-loader',
         },
       },
     ],
@@ -39,6 +39,12 @@ export default {
   plugins: [
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'production',
+      AUTH0_DOMAIN: 'blox-infra.eu.auth0.com',
+      AUTH0_CLIENT_ID: 'jzPv6jHUpv7xQfmkNqL8bITplzvI5Bib',
+      AUTH0_LOGOUT_URL: 'http://localhost',
+      AUTH0_CALLBACK_URL: 'http://localhost/callback',
+      API_URL: 'http://api.stage.bloxstaking.com',
+      // BACKEND: true
     }),
 
     new webpack.NamedModulesPlugin(),

@@ -67,7 +67,7 @@ export default class Auth {
             idTokenPayload: userProfile,
           });
         }
-        reject(new Error('Error in login'));
+        reject(new Error(response));
       };
       this.refreshTokens(callBack);
     });

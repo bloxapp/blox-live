@@ -33,3 +33,5 @@ jobs:
           release: 'true'
 
           max_attempts: '2'
+          #mac_certs: ${{ secrets.mac_certs }}
+          #mac_certs_password: ${{ secrets.mac_certs_password }}

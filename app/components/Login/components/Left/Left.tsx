@@ -1,8 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Icon } from 'common/components';
-
-const logo = 'assets/images/staking-logo.svg';
+import logo from 'assets/images/staking-logo.svg';
 
 const Wrapper = styled.div`
   width: 60%;
