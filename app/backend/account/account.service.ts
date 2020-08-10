@@ -112,4 +112,11 @@ export default class AccountService {
       throw new Error(`Vault plugin api error: ${error}`);
     }
   }
+
+  @step({
+    name: 'Clean local storage',
+  })
+  public cleanLocalStorage(): void {
+    this.conf.clear();
+  }
 }

@@ -7,8 +7,9 @@ export default class RebootProcess extends ProcessClass {
   public readonly keyVaultService: KeyVaultService;
   public readonly actions: Array<any>;
 
-  constructor(storeName: string) {
+  constructor() {
     super();
+    const storeName = 'blox';
     this.awsService = new AwsService(storeName);
     this.keyVaultService = new KeyVaultService(storeName);
     this.actions = [

@@ -1,32 +1,65 @@
-import AwsService from '../aws/aws.service';
-import AccountService from '../account/account.service';
-import KeyVaultService from '../key-vault/key-vault.service';
-import DockerService from '../key-vault/docker.service';
+import ElectronStore from 'electron-store';
 import ProcessClass from './process.class';
+import ReinstallSubProcess from './reinstall-sub.process';
+import UninstallProcess from './uninstall.process';
+import { Observer } from './observer.interface';
 
 export default class ReinstallProcess extends ProcessClass {
-  public readonly awsService: AwsService;
-  public readonly keyVaultService: KeyVaultService;
-  public readonly dockerService: DockerService;
-  public readonly accountService: AccountService;
-  public readonly actions: Array<any>;
+  private reinstallProcess: ReinstallSubProcess;
+  private uninstallProcess: UninstallProcess;
+  private tmpStoreName;
+  private mainStoreName;
 
-  constructor(storeName: string) {
+  constructor() {
     super();
-    this.keyVaultService = new KeyVaultService(storeName);
-    this.awsService = new AwsService(storeName);
-    this.dockerService = new DockerService(storeName);
-    this.accountService = new AccountService(storeName);
-    this.actions = [
-      { instance: this.awsService, method: 'createElasticIp' },
-      { instance: this.awsService, method: 'createInstance' },
-      { instance: this.dockerService, method: 'installDockerScope' },
-      { instance: this.keyVaultService, method: 'runDockerContainer' },
-      { instance: this.keyVaultService, method: 'runScripts' },
-      { instance: this.accountService, method: 'getKeyVaultRootToken' },
-      { instance: this.keyVaultService, method: 'updateVaultStorage' },
-      { instance: this.accountService, method: 'resyncNewVaultWithBlox' },
-      { instance: this.keyVaultService, method: 'getKeyVaultStatus' },
-    ];
+    this.mainStoreName = 'blox';
+    this.tmpStoreName = 'blox-tmp';
+    this.reinstallProcess = new ReinstallSubProcess(this.tmpStoreName);
+    this.uninstallProcess = new UninstallProcess(this.mainStoreName);
   }
+  public async run(): Promise<void> {
+    const confMain = new ElectronStore({ name: this.mainStoreName });
+
+    this.setClientStorageParams(this.tmpStoreName, {
+      uuid: confMain.get('uuid'),
+      authToken: confMain.get('authToken'),
+      credentials: confMain.get('credentials'),
+      keyPair: confMain.get('keyPair'),
+      securityGroupId: confMain.get('securityGroupId'),
+      keyVaultStorage: confMain.get('keyVaultStorage'),
+    });
+
+    await this.reinstallProcess.run();
+    await this.uninstallProcess.run();
+
+    const confTmpStore = new ElectronStore({ name: this.tmpStoreName });
+    console.log('confTmpStore====', confTmpStore);
+    this.setClientStorageParams(this.mainStoreName, {
+      uuid: confTmpStore.get('uuid'),
+      authToken: confTmpStore.get('authToken'),
+      addressId: confTmpStore.get('addressId'),
+      publicIp: confTmpStore.get('publicIp'),
+      instanceId: confTmpStore.get('instanceId'),
+      vaultRootToken: confTmpStore.get('vaultRootToken'),
+      keyVaultVersion: confTmpStore.get('keyVaultVersion'),
+      keyVaultStorage: confTmpStore.get('keyVaultStorage'),
+    });
+    confTmpStore.clear();
+    const testmain = new ElectronStore({ name: this.mainStoreName });
+    console.log('confTmpStore====', testmain);
+    console.log('+ Congratulations. Reinstallation is done!');
+  }
+
+  public subscribe(observer: Observer): void {
+    this.reinstallProcess.subscribe(observer);
+    this.uninstallProcess.subscribe(observer);
+  }
+
+  private setClientStorageParams(storeName: string, params: any): void {
+    const conf = new ElectronStore({ name: storeName });
+    Object.keys(params).forEach((key) => {
+      params[key] && conf.set(key, params[key]);
+    });
+  };
+
 }

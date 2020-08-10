@@ -9,8 +9,9 @@ export default class AccountCreateProcess extends ProcessClass {
   public readonly keyVaultService: KeyVaultService;
   public readonly actions: Array<any>;
 
-  constructor(storeName: string) {
+  constructor() {
     super();
+    const storeName = 'blox';
     this.accountKeyVaultService = new AccountKeyVaultService(storeName);
     this.keyVaultService = new KeyVaultService(storeName);
     this.accountService = new AccountService(storeName);
