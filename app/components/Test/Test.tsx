@@ -5,7 +5,7 @@ import { getIdToken } from '../CallbackPage/selectors';
 import ElectronStore from 'electron-store';
 import InstallProcess from '../../backend/proccess-manager/install.process';
 import ReinstallProcess from '../../backend/proccess-manager/reinstall.process';
-import DestroyProcess from '../../backend/proccess-manager/destroy.process';
+import UninstallProcess from '../../backend/proccess-manager/uninstall.process';
 import RebootProcess from '../../backend/proccess-manager/reboot.process';
 import { Observer } from '../../backend/proccess-manager/observer.interface';
 import { Subject } from '../../backend/proccess-manager/subject.interface';
@@ -142,11 +142,11 @@ const Test = (props) => {
         </button>
         <button
           onClick={async () => {
-            const destroyProcess = new DestroyProcess();
+            const uninstallProcess = new UninstallProcess();
             const listener = new Listener(setProcessStatus);
-            destroyProcess.subscribe(listener);
+            uninstallProcess.subscribe(listener);
             try {
-              await destroyProcess.run();
+              await uninstallProcess.run();
               accessKeyId = '';
               secretAccessKey = '';
               mnemonic = '';
