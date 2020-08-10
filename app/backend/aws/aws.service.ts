@@ -156,12 +156,26 @@ export default class AwsService {
     name: 'Delete all EC2 items',
     requiredConfig: ['instanceId', 'securityGroupId', 'addressId', 'keyPair'],
   })
-  async uninstallItems() {
-    await this.ec2.terminateInstances({ InstanceIds: [this.conf.get('instanceId')] }).promise();
-    await this.ec2.waitFor('instanceTerminated', { InstanceIds: [this.conf.get('instanceId')] }).promise();
-    await this.ec2.deleteSecurityGroup({ GroupId: this.conf.get('securityGroupId'), DryRun: false }).promise();
-    await this.ec2.releaseAddress({ AllocationId: this.conf.get('addressId') }).promise();
-    await this.ec2.deleteKeyPair({ KeyPairId: this.conf.get('keyPair').pairId }).promise();
+  async uninstallItems(opts?: any) {
+    const actions = {
+      instance: async () => {
+        await this.ec2.terminateInstances({ InstanceIds: [this.conf.get('instanceId')] }).promise()
+      },
+      securityGroup: async () => {
+        await this.ec2.deleteSecurityGroup({ GroupId: this.conf.get('securityGroupId'), DryRun: false }).promise();
+      },
+      address: async () => {
+        await this.ec2.releaseAddress({ AllocationId: this.conf.get('addressId') }).promise();
+      },
+      keyPair: async () => {
+        await this.ec2.deleteKeyPair({ KeyPairId: this.conf.get('keyPair.pairId') }).promise();
+      },
+    };
+    for (const actionName of Object.keys(actions)) {
+      const pass = !Array.isArray(opts) || opts.includes(actionName);
+      // eslint-disable-next-line no-await-in-loop
+      pass && await actions[actionName]();
+    }
   }
 
   @step({

@@ -10,12 +10,12 @@ export default class ProcessClass implements Subject {
    * subscribers can be stored more comprehensively (categorized by event
    * type, etc.).
    */
-  private observers: Observer[] = [];
+  public observers: Observer[] = [];
 
   /**
    * The subscription management methods.
    */
-  public subscribe(observer: Observer): void {
+  public subscribe(observer: any): void { // Observer
     const isExist = this.observers.includes(observer);
     if (isExist) {
       return console.log('Subject: Observer has been attached already.');
@@ -25,7 +25,7 @@ export default class ProcessClass implements Subject {
     this.observers.push(observer);
   }
 
-  public unsubscribe(observer: Observer): void {
+  public unsubscribe(observer: any): void { // Observer
     const observerIndex = this.observers.indexOf(observer);
     if (observerIndex === -1) {
       return console.log('Subject: Nonexistent observer.');
