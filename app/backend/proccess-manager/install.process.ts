@@ -17,8 +17,7 @@ export default class InstallProcess extends ProcessClass {
 
   constructor({ accessKeyId, secretAccessKey, authToken }) {
     super();
-    const storeName = 'blox';
-    const conf = new ElectronStore({ name: storeName });
+    const conf = new ElectronStore({ name: this.storeName });
     if (!conf.get('uuid')) {
       conf.set('uuid', uuidv4());
     }
@@ -28,11 +27,11 @@ export default class InstallProcess extends ProcessClass {
       secretAccessKey,
     });
 
-    this.keyVaultService = new KeyVaultService(storeName);
-    this.awsService = new AwsService(storeName);
-    this.dockerService = new DockerService(storeName);
-    this.accountService = new AccountService(storeName);
-    this.accountKeyVaultService = new AccountKeyVaultService(storeName);
+    this.keyVaultService = new KeyVaultService(this.storeName);
+    this.awsService = new AwsService(this.storeName);
+    this.dockerService = new DockerService(this.storeName);
+    this.accountService = new AccountService(this.storeName);
+    this.accountKeyVaultService = new AccountKeyVaultService(this.storeName);
     this.actions = [
       { instance: this.awsService, method: 'setAWSCredentials' },
       { instance: this.awsService, method: 'validateAWSPermissions' },

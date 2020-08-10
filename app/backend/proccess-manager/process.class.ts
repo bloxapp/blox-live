@@ -2,6 +2,7 @@ import { Subject } from './subject.interface';
 import { Observer } from './observer.interface';
 
 export default class ProcessClass implements Subject {
+  public readonly storeName = 'blox';
   public readonly actions: Array<any>;
   public state: number;
   /**

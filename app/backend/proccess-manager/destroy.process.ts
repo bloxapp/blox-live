@@ -9,9 +9,8 @@ export default class DestroyProcess extends ProcessClass {
 
   constructor() {
     super();
-    const storeName = 'blox';
-    this.awsService = new AwsService(storeName);
-    this.accountService = new AccountService(storeName);
+    this.awsService = new AwsService(this.storeName);
+    this.accountService = new AccountService(this.storeName);
     this.actions = [
       { instance: this.awsService, method: 'uninstallItems' },
       { instance: this.accountService, method: 'deleteBloxAccount' },

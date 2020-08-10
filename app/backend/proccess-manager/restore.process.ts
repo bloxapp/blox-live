@@ -8,13 +8,12 @@ export default class RestoreProcess extends ProcessClass {
 
   constructor({ mnemonic }) {
     super();
-    const storeName = 'blox';
-    const conf = new ElectronStore({ name: storeName });
+    const conf = new ElectronStore({ name: this.storeName });
     if (conf.get('seed')) {
       throw new Error('Restore already completed');
     }
     conf.set('mnemonic', mnemonic);
-    this.seedService = new SeedService(storeName);
+    this.seedService = new SeedService(this.storeName);
     this.actions = [
       { instance: this.seedService, method: 'seedFromMnemonicGenerate' },
     ];

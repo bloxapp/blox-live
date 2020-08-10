@@ -5,16 +5,16 @@ import UninstallProcess from './uninstall.process';
 import { Observer } from './observer.interface';
 
 export default class ReinstallProcess extends ProcessClass {
-  private reinstallProcess: ReinstallSubProcess;
+  private reinstallSubProcess: ReinstallSubProcess;
   private uninstallProcess: UninstallProcess;
   private tmpStoreName;
   private mainStoreName;
 
   constructor() {
     super();
-    this.mainStoreName = 'blox';
-    this.tmpStoreName = 'blox-tmp';
-    this.reinstallProcess = new ReinstallSubProcess(this.tmpStoreName);
+    this.mainStoreName = this.storeName;
+    this.tmpStoreName = `${this.storeName}-tmp`;
+    this.reinstallSubProcess = new ReinstallSubProcess(this.tmpStoreName);
     this.uninstallProcess = new UninstallProcess(this.mainStoreName);
   }
   public async run(): Promise<void> {
@@ -29,7 +29,7 @@ export default class ReinstallProcess extends ProcessClass {
       keyVaultStorage: confMain.get('keyVaultStorage'),
     });
 
-    await this.reinstallProcess.run();
+    await this.reinstallSubProcess.run();
     await this.uninstallProcess.run();
 
     const confTmpStore = new ElectronStore({ name: this.tmpStoreName });
@@ -51,7 +51,7 @@ export default class ReinstallProcess extends ProcessClass {
   }
 
   public subscribe(observer: Observer): void {
-    this.reinstallProcess.subscribe(observer);
+    this.reinstallSubProcess.subscribe(observer);
     this.uninstallProcess.subscribe(observer);
   }
 

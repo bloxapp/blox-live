@@ -11,10 +11,9 @@ export default class AccountCreateProcess extends ProcessClass {
 
   constructor() {
     super();
-    const storeName = 'blox';
-    this.accountKeyVaultService = new AccountKeyVaultService(storeName);
-    this.keyVaultService = new KeyVaultService(storeName);
-    this.accountService = new AccountService(storeName);
+    this.accountKeyVaultService = new AccountKeyVaultService(this.storeName);
+    this.keyVaultService = new KeyVaultService(this.storeName);
+    this.accountService = new AccountService(this.storeName);
     this.actions = [
       { instance: this.accountKeyVaultService, method: 'createAccount' },
       { instance: this.keyVaultService, method: 'updateVaultStorage' },
