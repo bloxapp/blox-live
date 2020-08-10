@@ -6,8 +6,10 @@ import { step } from '../decorators';
 export default class AccountService {
   public readonly conf: ElectronStore;
   public readonly serverService: ServerService;
+  public readonly storeName: string;
 
   constructor(storeName: string) {
+    this.storeName = storeName;
     this.conf = new ElectronStore({ name: storeName });
     this.serverService = new ServerService(storeName);
   }
@@ -118,5 +120,44 @@ export default class AccountService {
   })
   public cleanLocalStorage(): void {
     this.conf.clear();
+  }
+
+  @step({
+    name: 'Prepare tmp storage',
+  })
+  public prepareTmpStorageConfig(): void {
+    this.setClientStorageParams(`${this.storeName}-tmp`, {
+      uuid: this.conf.get('uuid'),
+      authToken: this.conf.get('authToken'),
+      credentials: this.conf.get('credentials'),
+      keyPair: this.conf.get('keyPair'),
+      securityGroupId: this.conf.get('securityGroupId'),
+      keyVaultStorage: this.conf.get('keyVaultStorage'),
+    });
+  }
+
+  @step({
+    name: 'Store tmp config into main',
+  })
+  public saveTmpConfigIntoMain(): void {
+    const confTmpStore = new ElectronStore({ name: `${this.storeName}-tmp` });
+    this.setClientStorageParams(this.storeName, {
+      uuid: confTmpStore.get('uuid'),
+      authToken: confTmpStore.get('authToken'),
+      addressId: confTmpStore.get('addressId'),
+      publicIp: confTmpStore.get('publicIp'),
+      instanceId: confTmpStore.get('instanceId'),
+      vaultRootToken: confTmpStore.get('vaultRootToken'),
+      keyVaultVersion: confTmpStore.get('keyVaultVersion'),
+      keyVaultStorage: confTmpStore.get('keyVaultStorage'),
+    });
+    confTmpStore.clear();
+  }
+
+  private setClientStorageParams(storeName: string, params: any): void {
+    const conf = new ElectronStore({ name: storeName });
+    Object.keys(params).forEach((key) => {
+      params[key] && conf.set(key, params[key]);
+    });
   }
 }
