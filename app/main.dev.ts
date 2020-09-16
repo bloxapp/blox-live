@@ -14,6 +14,22 @@ import { app, BrowserWindow } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
+import Store from './backend/common/store-manager/store';
+
+// test
+console.log('zero init step....');
+// start set custom params
+const backendStore: Store = Store.getStore();
+const env = (backendStore.get('env') || 'production').toUpperCase();
+Object.keys(process.env).forEach(param => {
+  if (param.startsWith(`${env}_`)) {
+    const key = param.replace(`${env}_`, '');
+    process.env[key] = process.env[param];
+    delete process.env[`STAGE_${key}`];
+    delete process.env[`PRODUCTION_${key}`];
+  }
+});
+// end set custom params
 
 export default class AppUpdater {
   constructor() {

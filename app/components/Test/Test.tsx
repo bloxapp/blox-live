@@ -30,6 +30,7 @@ class Listener implements Observer {
     console.log(`${subject.state}/${subject.actions.length}`, payload);
   }
 }
+let isRendered = null;
 
 const Test = () => {
   const seedService = new SeedService();
@@ -40,15 +41,47 @@ const Test = () => {
   const versionService = new VersionService();
   const store: Store = Store.getStore();
   const organizationService = new OrganizationService();
+  let [env, setEnv] = useState('');
   let [cryptoKey, setCryptoKey] = useState('');
   let [accessKeyId, setAccessKeyId] = useState('');
   let [mnemonic, setMnemonic] = useState('');
   let [publicKey, setPublicKey] = useState('');
   let [secretAccessKey, setSecretAccessKey] = useState('');
   let [processStatus, setProcessStatus] = useState('');
+  if (!isRendered) {
+    if (store.get('env')) {
+      setEnv(store.get('env'));
+    } else {
+      setEnv('production');
+    }
+    isRendered = true;
+  }
   return (
     <div>
       <Link to={'/'} style={{marginLeft: '16px'}}>Back</Link>
+      <h1>Environment</h1>
+      <select value={env} onChange={(event) => setEnv(event.target.value)}>
+        <option value="">-</option>
+        <option value="stage">stage</option>
+        <option value="production">production</option>
+      </select>
+      <button
+        onClick={async () => {
+          console.log('set custom env', env);
+          store.setEnv(env);
+        }}
+      >
+        Set Custom Environment
+      </button>
+      <button
+        onClick={async () => {
+          console.log('delete custom env');
+          store.deleteEnv();
+        }}
+      >
+        Delete Custom Environment
+      </button>
+
       <h1>CLI commands</h1>
       <div>
         <h3>Step 0. Set password and init storage</h3>
