@@ -21,6 +21,10 @@ export default class WalletService {
     return await BloxApi.request(METHOD.GET, 'wallets');
   }
 
+  async health() {
+    return await BloxApi.request(METHOD.GET, 'wallets');
+  }
+
   async sync(payload: any) {
     return await BloxApi.request(METHOD.POST, 'wallets/sync', payload);
   }

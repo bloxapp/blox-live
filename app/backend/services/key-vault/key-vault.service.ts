@@ -1,6 +1,7 @@
 import Store from '../../common/store-manager/store';
 import KeyVaultSsh from '../../common/communication-manager/key-vault-ssh';
 import VersionService from '../version/version.service';
+import WalletService from '../wallet/wallet.service';
 import { resolveKeyVaultApi, KeyVaultApi } from '../../common/communication-manager/key-vault-api';
 import { METHOD } from '../../common/communication-manager/constants';
 import { CatchClass, Step } from '../../decorators';
@@ -12,12 +13,14 @@ export default class KeyVaultService {
   private readonly keyVaultSsh: KeyVaultSsh;
   private readonly keyVaultApi: KeyVaultApi;
   private readonly versionService: VersionService;
+  private readonly walletService: WalletService;
 
   constructor(storePrefix: string = '') {
     this.store = Store.getStore(storePrefix);
     this.keyVaultSsh = new KeyVaultSsh(storePrefix);
     this.versionService = new VersionService();
     this.keyVaultApi = resolveKeyVaultApi(storePrefix);
+    this.walletService = new WalletService(storePrefix);
   }
 
   async updateStorage(payload: any) {
@@ -155,6 +158,10 @@ export default class KeyVaultService {
     await new Promise((resolve) => setTimeout(resolve, 5000));
     try {
       await this.healthCheck();
+      const { status } = await this.walletService.health();
+      if (status !== 'active') {
+        throw new Error('wallet health check: status is not active');
+      }
       return { isActive: true };
     } catch (e) {
       console.log(e);
