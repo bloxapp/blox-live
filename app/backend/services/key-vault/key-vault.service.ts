@@ -105,21 +105,30 @@ export default class KeyVaultService {
 
     const keyVaultVersion = await this.versionService.getLatestKeyVaultVersion();
     const envKey = (this.store.get('env') || 'production');
+    const network = this.store.get('network');
     const dockerHubImage = envKey === 'production' ?
       `bloxstaking/key-vault:${keyVaultVersion}` :
       `bloxstaking/key-vault-rc:${keyVaultVersion}`;
 
-    const dockerCMD = 'docker start key_vault 2>/dev/null || ' +
-     `docker pull  ${dockerHubImage} && docker run -d --restart unless-stopped --cap-add=IPC_LOCK --name=key_vault ` +
-     '-v $(pwd)/data:/data ' +
-     '-v $(pwd)/policies:/policies ' +
-     '-p 8200:8200 ' +
-     "-e VAULT_ADDR='http://127.0.0.1:8200' " +
-     "-e VAULT_API_ADDR='http://127.0.0.1:8200' " +
-     "-e VAULT_CLIENT_TIMEOUT='30s' " +
-     "-e TESTNET_GENESIS_TIME='2020-08-04 13:00:08 UTC' " +
-     "-e LAUNCHTESTNET_GENESIS_TIME='2020-09-29 12:00:13 UTC' " +
-     `'${dockerHubImage}'`;
+    this.keyVaultApi.init(false);
+    const networksList = await this.keyVaultApi.request(METHOD.GET, 'ethereume2/genesis-time');
+
+    let dockerCMD = 'docker start key_vault 2>/dev/null || ' +
+      `docker pull  ${dockerHubImage} && docker run -d --restart unless-stopped --cap-add=IPC_LOCK --name=key_vault ` +
+      '-v $(pwd)/data:/data ' +
+      '-v $(pwd)/policies:/policies ' +
+      '-p 8200:8200 ' +
+      "-e VAULT_ADDR='http://127.0.0.1:8200' " +
+      "-e VAULT_API_ADDR='http://127.0.0.1:8200' " +
+      "-e VAULT_CLIENT_TIMEOUT='30s' ";
+
+    if (networksList.test) {
+      dockerCMD += `-e TESTNET_GENESIS_TIME='${networksList.test}' `;
+    }
+    if (networksList.launchtest) {
+      dockerCMD += `-e LAUNCHTESTNET_GENESIS_TIME='${networksList.launchtest}' `;
+    }
+    dockerCMD += `'${dockerHubImage}'`;
 
     const ssh = await this.keyVaultSsh.getConnection();
     const { stderr: error } = await ssh.execCommand(
