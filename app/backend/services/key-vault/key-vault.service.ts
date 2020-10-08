@@ -118,6 +118,7 @@ export default class KeyVaultService {
       '-v $(pwd)/data:/data ' +
       '-v $(pwd)/policies:/policies ' +
       '-p 8200:8200 ' +
+      '-e UNSEAL=true ' +
       "-e VAULT_ADDR='http://127.0.0.1:8200' " +
       "-e VAULT_API_ADDR='http://127.0.0.1:8200' " +
       "-e VAULT_CLIENT_TIMEOUT='30s' ";
@@ -142,6 +143,7 @@ export default class KeyVaultService {
     }
   }
 
+  // todo: with unseal true we can remove this function
   @Step({
     name: 'Running KeyVault...'
   })
