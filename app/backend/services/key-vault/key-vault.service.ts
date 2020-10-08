@@ -105,7 +105,6 @@ export default class KeyVaultService {
 
     const keyVaultVersion = await this.versionService.getLatestKeyVaultVersion();
     const envKey = (this.store.get('env') || 'production');
-    const network = this.store.get('network');
     const dockerHubImage = envKey === 'production' ?
       `bloxstaking/key-vault:${keyVaultVersion}` :
       `bloxstaking/key-vault-rc:${keyVaultVersion}`;
