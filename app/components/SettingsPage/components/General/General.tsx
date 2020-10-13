@@ -34,7 +34,7 @@ const General = (props: Props) => {
   const {
     auth,
     isLoading,
-    updateUserOrganization,
+    updateUserInfoOrganization,
     loadUserOrganization,
     organization,
     isUpdateLoading,
@@ -78,7 +78,7 @@ const General = (props: Props) => {
   const onOrgEditCancel = () => setEditingOrgName(false);
 
   const onOrgEditSave = () => {
-    updateUserOrganization(orgName);
+    updateUserInfoOrganization(orgName);
     onOrgEditCancel();
   };
 
@@ -117,7 +117,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   setUserOrganizationName: (orgName: string) =>
     dispatch(setOrganizationName(orgName)),
   loadUserOrganization: () => dispatch(loadOrganization()),
-  updateUserOrganization: (orgName: string) =>
+  updateUserInfoOrganization: (orgName: string) =>
     dispatch(updateOrganization(orgName)),
 });
 
@@ -135,7 +135,7 @@ type Props = {
   organization: Record<string, any>;
   setUserOrganizationName: (orgName: string) => void;
   loadUserOrganization: () => void;
-  updateUserOrganization: (orgName: string) => void;
+  updateUserInfoOrganization: (orgName: string) => void;
 };
 
 type State = Record<string, any>;

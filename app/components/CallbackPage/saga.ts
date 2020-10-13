@@ -1,16 +1,21 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
 import { push } from 'connected-react-router';
 import { notification } from 'antd';
+import os from 'os';
+import { version } from 'package.json';
 
 import { LOGIN_INIT, LOGOUT } from './actionTypes';
 import { setIdToken, loginSuccess, loginFailure } from './actions';
 import Auth from '../Auth';
 import { saveLastConnection } from 'common/service';
+import { updateUserInfo } from 'components/User/actions';
 
 const auth = new Auth();
 
 function* onLoginSuccess(authResult) {
   const { idToken, idTokenPayload } = authResult;
+  const userInfo = { os: `${os.type()} ${os.release()}`, app_version: version };
+  yield put(updateUserInfo(userInfo));
   yield put(setIdToken(idToken));
   yield put(loginSuccess(idTokenPayload));
   yield put(push('/'));
@@ -40,7 +45,7 @@ export function* startLogOut() {
   yield put(push('/login'));
 }
 
-export default function* userData() {
+export default function* loginSaga() {
   yield takeLatest(LOGIN_INIT, startLogin);
   yield takeLatest(LOGOUT, startLogOut);
 }

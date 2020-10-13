@@ -22,7 +22,6 @@ export function* startLoadingEventLogs() {
 
 function* onLoadingEventLogsSuccess(response: Record<string, any>) {
   const activeValidators = normalizedActiveValidators(response);
-  console.log('activeValidators', activeValidators);
   if (activeValidators.length > 0) {
     yield put(actions.showActiveValidatorsPopup(activeValidators));
     yield put(setModalDisplay({show: true, type: MODAL_TYPES.ACTIVE_VALIDATOR, text: ''}));

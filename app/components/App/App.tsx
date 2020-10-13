@@ -9,7 +9,9 @@ import GlobalStyle from '../../common/styles/global-styles';
 import { initApp } from './service';
 
 import { getIsLoggedIn, getIsLoading } from '../CallbackPage/selectors';
-import saga from '../CallbackPage/saga';
+import loginSaga from '../CallbackPage/saga';
+import userSaga from '../User/saga';
+
 import { Loader } from '../../common/components';
 import { useInjectSaga } from '../../utils/injectSaga';
 
@@ -18,11 +20,13 @@ const AppWrapper = styled.div`
   height: 100%;
 `;
 
-const key = 'login';
+const loginKey = 'login';
+const userKey = 'user';
 
 const App = (props: Props) => {
   const [didInitApp, setAppInitialised] = useState(false);
-  useInjectSaga({ key, saga, mode: '' });
+  useInjectSaga({ key: loginKey, saga: loginSaga, mode: '' });
+  useInjectSaga({ key: userKey, saga: userSaga, mode: '' });
   const { isLoggedIn, isLoading } = props;
 
   const init = async () => {
