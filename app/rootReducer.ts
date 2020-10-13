@@ -13,7 +13,6 @@ import keyvaultManagement from './components/KeyVaultManagement/reducer';
 import processRunner from './components/ProcessRunner/reducer';
 import versions from './components/Versions/reducer';
 import eventLogs from './components/EventLogs/reducer';
-import password from './components/PasswordHandler/reducer';
 import user from './components/User/reducer';
 
 export default function createRootReducer(history: History) {

@@ -31,8 +31,8 @@ export const generateValidatorKeyFailure = (error: Record<string, any>) => ({
   payload: error,
 });
 
-export const loadDepositData = (publicKey: string) => (
-  { type: actionTypes.LOAD_DEPOSIT_DATA, payload: publicKey }
+export const loadDepositData = (publicKey: string, accountIndex: number) => (
+  { type: actionTypes.LOAD_DEPOSIT_DATA, payload: { publicKey, accountIndex } }
 );
 
 export const loadDepositDataSuccess = (payload: Record<string, any>) => ({

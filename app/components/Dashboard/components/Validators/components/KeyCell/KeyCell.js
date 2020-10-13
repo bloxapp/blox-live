@@ -15,13 +15,13 @@ const Wrapper = styled.div`
 const onCopy = () => notification.success({message: 'Copied to clipboard!'});
 
 const KeyCell = ({ value }) => {
-  const { publicKey, createdAt, status } = value;
+  const { publicKey, createdAt, status, accountIndex } = value;
   return (
     <Wrapper>
       <Left>
         <AddressKey>{truncateText(publicKey, 24, 6)}</AddressKey>
         <AdditionalDataWrapper>
-          <AdditionalData publicKey={publicKey} status={status} createdAt={createdAt} />
+          <AdditionalData publicKey={publicKey} status={status} createdAt={createdAt} accountIndex={accountIndex} />
         </AdditionalDataWrapper>
       </Left>
       <Right>

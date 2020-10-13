@@ -18,13 +18,15 @@ export const normalizeAccountsData = (accounts) => {
       createdAt,
       currentBalance,
       status,
+      name
     } = account;
     const newAccount = { ...account };
     newAccount.key = {
       publicKey,
       activationTime,
       createdAt: moment(createdAt).format('MMMM DD, YYYY'),
-      status
+      status,
+      accountIndex: +name.replace('account-', '')
     };
 
     newAccount.change = handleChange(currentBalance);

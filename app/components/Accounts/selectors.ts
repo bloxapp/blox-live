@@ -8,4 +8,6 @@ export const getDepositNeededStatus = (state: Record<string, any>) => state.acco
 
 export const getDepositToPublicKey = (state: Record<string, any>) => state.accounts && state.accounts.depositTo;
 
+export const getDepositToIndex = (state: Record<string, any>) => state.accounts && state.accounts.depositToIndex;
+
 export const getAddAnotherAccount = (state: Record<string, any>) => state.accounts && state.accounts.addAnotherAccount;

@@ -26,6 +26,11 @@ const ModalsManager = (props: Props) => {
     hideModal();
   };
 
+  const onFinishSetupSuccess = () => {
+    setFinishedWizard(false);
+    hideModal();
+  };
+
   const hideModal = () => setModalDisplay({ show: false, type: '', text: '', });
 
   if (showModal) {
@@ -39,6 +44,8 @@ const ModalsManager = (props: Props) => {
           return <DepositInfoModal depositData={depositData} onClose={() => hideModal()} />;
         }
         return null;
+      case MODAL_TYPES.FINISH_SETUP:
+        return <PasswordModal onClick={onFinishSetupSuccess} onClose={() => hideModal()} />;
       case MODAL_TYPES.ADD_VALIDATOR:
         return <PasswordModal onClick={onAddValidatorPasswordSuccess} onClose={() => hideModal()} />;
       case MODAL_TYPES.ACTIVE_VALIDATOR:

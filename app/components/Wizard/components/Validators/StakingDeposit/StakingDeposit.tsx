@@ -11,7 +11,7 @@ import * as wizardActions from '../../../actions';
 import * as selectors from '../../../selectors';
 
 import { clearAccountsData, setDepositNeeded, } from '../../../../Accounts/actions';
-import { getAccounts, getDepositNeededStatus, getDepositToPublicKey } from '../../../../Accounts/selectors';
+import { getAccounts, getDepositNeededStatus, getDepositToPublicKey, getDepositToIndex } from '../../../../Accounts/selectors';
 
 import { getData } from '../../../../ProcessRunner/selectors';
 
@@ -70,13 +70,13 @@ const TipImage = styled.img`
 
 const StakingDeposit = (props: Props) => {
   const { setPage, page, depositData, accountsFromApi, actions, callClearAccountsData, accountDataFromProcess,
-          isDepositNeeded, depositTo, callSetDepositNeeded } = props;
+          isDepositNeeded, depositTo, callSetDepositNeeded, depositToIndex } = props;
   const { updateAccountStatus, clearWizardData, loadDepositData, setFinishedWizard } = actions;
 
   useEffect(() => {
     if (isDepositNeeded && depositTo) {
-      loadDepositData(depositTo);
-      callSetDepositNeeded(false, depositTo);
+      loadDepositData(depositTo, depositToIndex);
+      callSetDepositNeeded(false, depositTo, depositToIndex);
     }
   }, [isDepositNeeded, depositTo]);
 
@@ -85,7 +85,7 @@ const StakingDeposit = (props: Props) => {
     const currentAccount = accountDataFromProcess || accountFromApi;
     if (currentAccount) {
       await updateAccountStatus(currentAccount.id);
-      await callSetDepositNeeded(false, '');
+      await callSetDepositNeeded(false, '', -1);
       await setPage(page + 1);
     }
     else {
@@ -130,12 +130,13 @@ const mapStateToProps = (state: State) => ({
   accountsFromApi: getAccounts(state),
   isDepositNeeded: getDepositNeededStatus(state),
   depositTo: getDepositToPublicKey(state),
+  depositToIndex: getDepositToIndex(state),
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   actions: bindActionCreators(wizardActions, dispatch),
   callClearAccountsData: () => dispatch(clearAccountsData()),
-  callSetDepositNeeded: (isNeeded, publicKey) => dispatch(setDepositNeeded(isNeeded, publicKey)),
+  callSetDepositNeeded: (isNeeded, publicKey, accountIndex) => dispatch(setDepositNeeded(isNeeded, publicKey, accountIndex)),
 });
 
 type Props = {
@@ -148,9 +149,10 @@ type Props = {
   accountDataFromProcess: Record<string, any> | null;
   actions: Record<string, any> | null;
   callClearAccountsData: () => void;
-  callSetDepositNeeded: (arg0: boolean, publicKey: string) => void;
+  callSetDepositNeeded: (arg0: boolean, publicKey: string, index: number) => void;
   isDepositNeeded: boolean;
   depositTo: string;
+  depositToIndex: number;
 };
 
 type State = Record<string, any>;

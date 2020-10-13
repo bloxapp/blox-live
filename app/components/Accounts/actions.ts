@@ -12,9 +12,9 @@ export const loadAccountsFailure = (error: Record<string, any>) => ({
   payload: { ...error }
 });
 
-export const setDepositNeeded = (depositNeeded: boolean, publicKey: string) => ({
+export const setDepositNeeded = (depositNeeded: boolean, publicKey: string, accountIndex: number) => ({
   type: actionTypes.SET_DEPOSIT_NEEDED,
-  payload: { depositNeeded, publicKey }
+  payload: { depositNeeded, publicKey, accountIndex }
 });
 
 export const setAddAnotherAccount = (addAnotherAccount: boolean) => ({

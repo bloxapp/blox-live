@@ -19,12 +19,12 @@ const CreateValidator = (props: Props) => {
   const { page, setPage, actions, isLoading, validatorData, callLoadDepositData, callSetDepositNeeded, error } = props;
   const { processSubscribe, processClearState } = actions;
   const [showPasswordModal, setShowPasswordModal] = React.useState(false);
-
   useInjectSaga({ key, saga, mode: '' });
 
   useEffect(() => {
     if (!isLoading && validatorData) { // TODO: replace with isDone
-      callLoadDepositData(validatorData.publicKey);
+      const accountIndex = +validatorData.name.replace('account-', '');
+      callLoadDepositData(validatorData.publicKey, accountIndex);
     }
   }, [isLoading, validatorData]);
 
@@ -44,7 +44,8 @@ const CreateValidator = (props: Props) => {
   };
 
   const onContinueClick = () => {
-    callSetDepositNeeded(true, validatorData.publicKey);
+    const accountIndex = +validatorData.name.replace('account-', '');
+    callSetDepositNeeded(true, validatorData.publicKey, accountIndex);
     setPage(page + 1);
   };
 
@@ -70,8 +71,8 @@ const mapStateToProps = (state: State) => ({
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   actions: bindActionCreators(processRunnerActions, dispatch),
-  callLoadDepositData: (publicKey) => dispatch(loadDepositData(publicKey)),
-  callSetDepositNeeded: (isNeeded, publicKey) => dispatch(setDepositNeeded(isNeeded, publicKey)),
+  callLoadDepositData: (publicKey, accountIndex) => dispatch(loadDepositData(publicKey, accountIndex)),
+  callSetDepositNeeded: (isNeeded, publicKey, accountIndex) => dispatch(setDepositNeeded(isNeeded, publicKey, accountIndex)),
 });
 
 type Props = {
@@ -83,8 +84,8 @@ type Props = {
   isLoading: boolean;
   actions: Record<string, any>;
   validatorData: Record<string, any> | null;
-  callLoadDepositData: (publicKey: string) => void;
-  callSetDepositNeeded: (arg0: boolean, publicKey: string) => void;
+  callLoadDepositData: (publicKey: string, accountIndex: number) => void;
+  callSetDepositNeeded: (arg0: boolean, publicKey: string, index: number) => void;
   error: string;
 };
 

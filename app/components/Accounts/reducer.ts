@@ -8,6 +8,7 @@ const initialState = {
   data: null,
   depositNeeded: false,
   depositTo: '',
+  depositToIndex: -1,
   addAnotherAccount: false,
 };
 
@@ -28,6 +29,7 @@ const accountsReducer = (state = initialState, action: Action) => produce(state,
       case actionTypes.SET_DEPOSIT_NEEDED:
         draft.depositNeeded = action.payload.depositNeeded;
         draft.depositTo = action.payload.publicKey;
+        draft.depositToIndex = action.payload.accountIndex;
         break;
       case actionTypes.ADD_ANOTHER_ACCOUNT:
         draft.addAnotherAccount = action.payload;

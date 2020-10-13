@@ -46,6 +46,7 @@ const Test = () => {
   let [accessKeyId, setAccessKeyId] = useState('');
   let [mnemonic, setMnemonic] = useState('');
   let [publicKey, setPublicKey] = useState('');
+  let [index, setIndex] = useState(0);
   let [secretAccessKey, setSecretAccessKey] = useState('');
   let [processStatus, setProcessStatus] = useState('');
   if (!isRendered) {
@@ -155,7 +156,7 @@ const Test = () => {
           console.log('network:', event.target.value);
         }}>
           <option value={config.env.TEST_NETWORK}>Test Network</option>
-          <option value={config.env.LAUNCHTEST_NETWORK}>Launch Test Network</option>
+          <option value={config.env.ZINKEN_NETWORK}>Zinken Network</option>
         </select>
         <h3>Step 4. Account create</h3>
         <button
@@ -256,7 +257,7 @@ const Test = () => {
           Create Account
         </button>
         <button onClick={async () => {
-          await accountService.listAccounts();
+          console.log(await accountService.listAccounts());
         }}>
           List Accounts
         </button>
@@ -279,8 +280,10 @@ const Test = () => {
         <br/>
         <input type={'text'} value={publicKey} onChange={(event) => setPublicKey(event.target.value)}
                placeholder="Public key"/>
+        <input type={'number'} value={index} onChange={(event) => setIndex(+event.target.value)}
+               placeholder="Index"/>
         <button onClick={async () => {
-          await accountService.getDepositData(publicKey, network);
+          await accountService.getDepositData(publicKey, index, network);
         }}>
           Get Account Deposit Data
         </button>
