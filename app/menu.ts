@@ -60,11 +60,7 @@ export default class MenuBuilder {
       submenu: [
         {
           label: 'About Blox Staking',
-          click: () => openAboutWindow({
-            icon_path: path.join(__dirname, './app.icns'),
-            copyright: 'Copyright (c) 2020 Blox',
-          }),
-          // selector: 'orderFrontStandardAboutPanel:',
+          selector: 'orderFrontStandardAboutPanel:',
         },
         { type: 'separator' },
         { label: 'Services', submenu: [] },
@@ -246,7 +242,7 @@ export default class MenuBuilder {
           {
             label: 'About Blox Staking',
             click: () => openAboutWindow({
-              icon_path: path.join(__dirname, './app.icns'),
+              icon_path: path.join(__dirname, './icon.png'),
               copyright: 'Copyright (c) 2020 Blox',
             }),
           },

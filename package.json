@@ -46,7 +46,7 @@
       "dist/",
       "node_modules/",
       "app.html",
-      "app.icns",
+      "icon.png",
       "main.prod.js",
       "main.prod.js.map",
       "package.json"
