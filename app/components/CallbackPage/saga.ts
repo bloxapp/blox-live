@@ -14,7 +14,7 @@ const auth = new Auth();
 
 function* onLoginSuccess(authResult) {
   const { idToken, idTokenPayload } = authResult;
-  const userInfo = { os: `${os.type()} ${os.release()}`, app_version: version };
+  const userInfo = { os: `${os.type()} ${os.release()}`, appVersion: version };
   yield put(updateUserInfo(userInfo));
   yield put(setIdToken(idToken));
   yield put(loginSuccess(idTokenPayload));
