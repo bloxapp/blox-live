@@ -8,6 +8,12 @@ import { METHOD } from '../../common/communication-manager/constants';
 import { CatchClass, Step } from '../../decorators';
 import config from '../../common/config';
 
+function sleep(msec) {
+  return new Promise(resolve => {
+    setTimeout(resolve, msec);
+  });
+}
+
 @CatchClass<KeyVaultService>()
 export default class KeyVaultService {
   private readonly store: Store;
@@ -137,6 +143,9 @@ export default class KeyVaultService {
     );
 
     this.store.set('keyVaultVersion', keyVaultVersion);
+
+    await sleep(12000);
+
     if (error) {
       throw new Error('Failed to run Key Vault docker container');
     }
