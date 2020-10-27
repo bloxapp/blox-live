@@ -142,25 +142,6 @@ export default class KeyVaultService {
     }
   }
 
-  // todo: with unseal true we can remove this function
-  @Step({
-    name: 'Running KeyVault...'
-  })
-  async runScripts(): Promise<void> {
-    const containerId = await this.getContainerId();
-    if (!containerId) {
-      throw new Error('Key Vault docker container not found');
-    }
-    const ssh = await this.keyVaultSsh.getConnection();
-    const { stderr } = await ssh.execCommand(
-      `docker exec -t ${containerId} sh -c "/bin/sh /vault/config/vault-init.sh; /bin/sh /vault/config/vault-unseal.sh; /bin/sh /vault/config/vault-plugin.sh"`,
-      {}
-    );
-    if (stderr) {
-      throw new Error(`Key Vault entrypoint scripts are failed: ${stderr}`);
-    }
-  }
-
   @Step({
     name: 'Updating server storage...',
     requiredConfig: ['publicIp', 'vaultRootToken', 'keyVaultStorage', 'network']

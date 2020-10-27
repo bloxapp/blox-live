@@ -31,7 +31,6 @@ export default class ReinstallProcess extends ProcessClass {
       { instance: this.awsService, method: 'createInstance' },
       { instance: this.keyVaultService, method: 'installDockerScope' },
       { instance: this.keyVaultService, method: 'runDockerContainer' },
-      { instance: this.keyVaultService, method: 'runScripts' },
       { instance: this.keyVaultService, method: 'getKeyVaultRootToken' },
       { instance: this.keyVaultService, method: 'updateVaultMountsStorage' },
       { instance: this.keyVaultService, method: 'exportSlashingData' },
