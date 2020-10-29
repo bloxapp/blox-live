@@ -167,8 +167,7 @@ export default class KeyVaultService {
   }
 
   @Step({
-    name: 'Updating server storage...',
-    requiredConfig: ['keyVaultStorage']
+    name: 'Updating server storage...'
   })
   async updateVaultMountsStorage(): Promise<void> {
     const keyVaultStorage = this.store.get('keyVaultStorage');
@@ -212,7 +211,7 @@ export default class KeyVaultService {
 
   @Step({
     name: 'Import slashing protection data...',
-    requiredConfig: ['publicIp', 'vaultRootToken', 'slashingData']
+    requiredConfig: ['publicIp', 'vaultRootToken']
   })
   async exportSlashingData(): Promise<any> {
     const slashingData = this.store.get('slashingData');

@@ -100,7 +100,10 @@ export default class Store extends BaseStore {
   };
 
   set = (key: string, value: any): void => {
-    if (value && this.isEncryptedKey(key)) {
+    if (value === undefined) {
+      return;
+    }
+    if (this.isEncryptedKey(key)) {
       if (!this.cryptoKey) {
         throw new Error('Crypto key is null');
       }
