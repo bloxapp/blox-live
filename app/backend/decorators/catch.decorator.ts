@@ -41,6 +41,15 @@ const catchFunction = (payload: any = {}, toReflect: boolean = false) => {
 };
 
 function handleCatchFunctionError(key: string, error: Error, payload: any) {
+  const errors = error?.response?.data?.errors;
+  if (Array.isArray(errors)) {
+    for (const err of errors) {
+      if (err.includes('wallet not found')) {
+        return [];
+      }
+    }
+  }
+
   const logger = new Logger();
   const { handler } = catchDecoratorStore;
   const showErrorMessage = !!payload.showErrorMessage;

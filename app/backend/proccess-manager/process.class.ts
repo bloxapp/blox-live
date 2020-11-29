@@ -14,6 +14,7 @@ export default class ProcessClass implements Subject {
    * type, etc.).
    */
   observers: Observer[] = [];
+
   /**
    * The subscription management methods.
    */
@@ -52,7 +53,7 @@ export default class ProcessClass implements Subject {
 
   private errorHandler = (payload: any) => {
     this.error = new Error(payload.displayMessage);
-    return { error: this.error };
+    return { error: payload.error };
   };
 
   @Catch({

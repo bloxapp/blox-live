@@ -19,7 +19,7 @@ export default class AccountCreateProcess extends ProcessClass {
     this.accountService = new AccountService();
     this.walletService = new WalletService();
     this.actions = [
-      { instance: this.accountService, method: 'createAccount' },
+      { instance: this.accountService, method: 'createAccount', params: { network }},
       { instance: this.keyVaultService, method: 'updateVaultStorage' },
       { instance: this.accountService, method: 'createBloxAccount' }
     ];

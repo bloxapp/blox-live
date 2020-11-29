@@ -24,32 +24,37 @@ export default class KeyManagerService {
   @Catch({
     displayMessage: 'Create Keyvault account failed'
   })
-  async createAccount(seed: string, index: number): Promise<string> {
+  async createAccount(seed: string, index: number, highestSource: string, highestTarget: string): Promise<string> {
     const { stdout } = await this.executor(
-      `${this.executablePath} wallet account create --seed=${seed} --index=${index} --accumulate=true`
+      `${this.executablePath} wallet account create --seed=${seed} --index=${index} --accumulate=true --highest-source=${highestSource} --highest-target=${highestTarget}`
     );
     return stdout.replace('\n', '');
   }
 
-  async getAccount(seed: string, index: number): Promise<string> {
+  async getAccount(seed: string, index: number, accumulate: boolean = false): Promise<string> {
+    let highestSource = '';
+    let highestTarget = '';
+
+    if (!accumulate) {
+      highestSource = '0';
+      highestTarget = '1';
+    } else {
+      for (let i = 0; i <= index; i++) {
+        highestSource += `${i.toString()}${i==index ? "" : ","}`;
+        highestTarget += `${(i + 1).toString()}${i==index ? "" : ","}`;
+      }
+    }
+
+    console.log(highestSource);
+    console.log(highestTarget);
+
     const { stdout, stderr } = await this.executor(
-      `${this.executablePath} wallet account create --seed=${seed} --index=${index} --response-type=object`
+      `${this.executablePath} wallet account create --seed=${seed} --index=${index} --response-type=object --accumulate=${accumulate} --highest-source=${highestSource} --highest-target=${highestTarget}`
     );
     if (stderr) {
       throw new Error('Get keyvault account was failed.');
     }
     return stdout ? JSON.parse(stdout) : {};
-  }
-
-  @Catch({
-    displayMessage: 'List Keyvault accounts failed'
-  })
-  async listAccounts(storage: string): Promise<any> {
-    const { stdout } = await this.executor(
-      `${this.executablePath} wallet account list --storage=${storage}`
-    );
-    const accounts = stdout ? JSON.parse(stdout) : [];
-    return accounts;
   }
 
   async getDepositData(seed: string, index: number, publicKey: string, network: string): Promise<any> {

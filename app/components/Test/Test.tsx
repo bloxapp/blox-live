@@ -258,16 +258,6 @@ const Test = () => {
           Create Account
         </button>
         <button onClick={async () => {
-          console.log(await accountService.listAccounts());
-        }}>
-          List Accounts
-        </button>
-        <button onClick={async () => {
-          await accountService.getLastIndexedAccount();
-        }}>
-          Get Last Indexed Account
-        </button>
-        <button onClick={async () => {
           await accountService.deleteLastIndexedAccount();
         }}>
           Delete Last Indexed Account
@@ -348,7 +338,7 @@ const Test = () => {
         </button>
         <button onClick={async () => {
           const response = await keyVaultService.listAccounts();
-          console.log(response.data.accounts);
+          console.log(response);
         }}>
           List Accounts
         </button>
@@ -364,7 +354,8 @@ const Test = () => {
           Update Storage for both networks
         </button>
         <button onClick={async () => {
-          await keyVaultService.exportSlashingData();
+          const slashingStorage = await keyVaultService.getSlashingStorage(network);
+          console.log(slashingStorage);
         }}>
           Export Slashing Data
         </button>

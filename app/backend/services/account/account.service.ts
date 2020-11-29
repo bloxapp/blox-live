@@ -7,6 +7,7 @@ import KeyManagerService from '../key-manager/key-manager.service';
 import Web3 from 'web3';
 import WalletService from '../wallet/wallet.service';
 import config from '../../common/config';
+import { hexDecode } from '../../../utils/service';
 
 @CatchClass<AccountService>()
 export default class AccountService {
@@ -32,6 +33,10 @@ export default class AccountService {
 
   async delete() {
     return await BloxApi.request(METHOD.DELETE, 'accounts');
+  }
+
+  async getHighestAttestation(payload: any) {
+    return await BloxApi.request(METHOD.POST, 'ethereum2/highest-attestation', payload);
   }
 
   async updateStatus(route: string, payload: any) {
@@ -65,44 +70,86 @@ export default class AccountService {
   @Catch({
     displayMessage: 'CLI Create Account failed'
   })
-  async createAccount(): Promise<void> {
-    const network = this.store.get('network');
-    const index: number = await this.getNextIndex();
-    const storage = await this.keyManagerService.createAccount(this.store.get('seed'), index);
+  async createAccount({ network, getNextIndex = true, indexToRestore = 0, getRemoteSlashingData = true }): Promise<void> {
+    const index: number = getNextIndex ? await this.getNextIndex(network) : indexToRestore;
+
+    // 1. get public-keys to create
+    const accounts = await this.keyManagerService.getAccount(this.store.get('seed'), index, true);
+    const accountsHash = Object.assign({}, ...accounts.map(account => ({ [account.validationPubKey]: account })));
+    const publicKeysToGetHighestAttestation = [];
+
+    // 2. get slashing data if exists
+    const slashingData = getRemoteSlashingData ? await this.keyVaultService.getSlashingStorage() : this.store.get(`slashingData.${network}`);
+
+    // 3. update accounts-hash from exist slashing storage
+    for (const key of Object.keys(accountsHash)) {
+      if (slashingData.hasOwnProperty(key)) {
+        const decodedValue = hexDecode(slashingData[key]);
+        const decodedValueJson = JSON.parse(decodedValue);
+        const highestAttestation = {
+          'highest_source_epoch': decodedValueJson?.HighestAttestation?.source?.epoch,
+          'highest_target_epoch': decodedValueJson?.HighestAttestation?.target?.epoch
+        };
+        accountsHash[key] = { ...accountsHash[key], ...highestAttestation };
+      } else {
+        publicKeysToGetHighestAttestation.push(key);
+      }
+    }
+
+    // 4. get highest attestation from slasher to missing public-keys
+    const highestAttestationsMap = await this.getHighestAttestation({
+      'public_keys': publicKeysToGetHighestAttestation,
+      network
+    });
+
+    // 5. update accounts-hash from slasher
+    for (const [key, value] of Object.entries(highestAttestationsMap)) {
+      accountsHash[key] = { ...accountsHash[key], ...value };
+    }
+
+    let highestSource = '';
+    let highestTarget = '';
+    const accountsArray = Object.values(accountsHash);
+    for (let i = index; i >= 0; i--) {
+      highestSource += `${accountsArray[i]['highest_source_epoch']}${i === 0 ? '' : ','}`;
+      highestTarget += `${accountsArray[i]['highest_target_epoch']}${i === 0 ? '' : ','}`;
+    }
+    console.log(highestSource);
+    console.log(highestTarget);
+
+    // 6. create accounts
+    const storage = await this.keyManagerService.createAccount(this.store.get('seed'), index, highestSource, highestTarget);
     this.store.set(`keyVaultStorage.${network}`, storage);
   }
 
-  async getNextIndex(): Promise<number> {
-    const network = this.store.get('network');
-    if (!network) {
-      throw new Error('Configuration settings network not found');
-    }
-    let index = 0;
-    if (this.store.exists(`keyVaultStorage.${network}`)) {
-      const response = await this.keyVaultService.listAccounts();
-      const { data: { accounts } } = response;
-      if (accounts && accounts instanceof Array && accounts.length > 0) {
-        index = +accounts[0].name.replace('account-', '') + 1;
+  @Step({
+    name: 'Restore Accounts'
+  })
+  @Catch({
+    displayMessage: 'CLI Create Account failed'
+  })
+  async restoreAccounts(): Promise<void> {
+    const indices = this.store.get('index');
+    if (indices) {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const [network, lastIndex] of Object.entries(indices)) {
+        const index = +lastIndex;
+        if (index > -1) {
+          // this.store.set('network', network);
+          this.createAccount({ network, getNextIndex: false, indexToRestore: index, getRemoteSlashingData: false });
+        }
       }
+    }
+  }
+
+  async getNextIndex(network: string): Promise<number> {
+    let index = 0;
+    const accounts = await this.keyVaultService.listAccounts();
+    if (accounts.length) {
+      index = +accounts[0].name.replace('account-', '') + 1;
     }
     this.store.set(`index.${network}`, (index - 1).toString());
     return index;
-  }
-
-  async listAccounts(): Promise<any> {
-    const network = this.store.get('network');
-    if (!network) {
-      throw new Error('Configuration settings network not found');
-    }
-    return await this.keyManagerService.listAccounts(this.store.get(`keyVaultStorage.${network}`));
-  }
-
-  async getLastIndexedAccount(): Promise<any> {
-    const accounts = await this.listAccounts();
-    if (accounts && accounts.length) {
-      console.log('account', accounts[0]);
-      return accounts[0];
-    }
   }
 
   async getDepositData(pubKey: string, index: number, network: string): Promise<any> {
@@ -221,7 +268,7 @@ export default class AccountService {
   @Catch({
     showErrorMessage: true
   })
-  async recovery({mnemonic, password}: Record<string, any>): Promise<void> {
+  async recovery({ mnemonic, password }: Record<string, any>): Promise<void> {
     const seed = await this.keyManagerService.seedFromMnemonicGenerate(mnemonic);
     const defAccountIndex = 0;
     const accounts = await this.get();

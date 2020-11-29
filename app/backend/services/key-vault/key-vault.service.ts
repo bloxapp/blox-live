@@ -7,12 +7,6 @@ import { METHOD } from '../../common/communication-manager/constants';
 import { CatchClass, Step } from '../../decorators';
 import config from '../../common/config';
 
-const STABLE_TAG = 'v0.1.16';
-
-function numVal(str) {
-  return +str.replace(/\D/g, '');
-}
-
 function sleep(msec) {
   return new Promise(resolve => {
     setTimeout(resolve, msec);
@@ -44,10 +38,19 @@ export default class KeyVaultService {
   }
 
   async listAccounts() {
-    return await this.keyVaultApi.requestThruSsh({
+    const response = await this.keyVaultApi.requestThruSsh({
       method: METHOD.LIST,
       path: 'accounts'
     });
+    const errors = response?.errors;
+    if (Array.isArray(errors)) {
+      for (const err of errors) {
+        if (err.includes('wallet not found')) {
+          return [];
+        }
+      }
+    }
+    return response?.accounts || [];
   }
 
   async healthCheck() {
@@ -66,15 +69,20 @@ export default class KeyVaultService {
     });
   }
 
-  async getSlashingStorage(network: string) {
-    if (!network) {
-      throw new Error('Configuration settings network not found');
-    }
-    return await this.keyVaultApi.requestThruSsh({
+  async getSlashingStorage() {
+    const response = await this.keyVaultApi.requestThruSsh({
       method: METHOD.GET,
-      path: `ethereum/${network}/storage/slashing`,
-      isNetworkRequired: false
+      path: 'storage/slashing'
     });
+    const errors = response?.errors;
+    if (Array.isArray(errors)) {
+      for (const err of errors) {
+        if (err.includes('wallet not found')) {
+          return {};
+        }
+      }
+    }
+    return response?.data || {};
   }
 
   async getContainerId() {
@@ -144,9 +152,16 @@ export default class KeyVaultService {
       '-p 8200:8200 ' +
       `-e VAULT_EXTERNAL_ADDRESS='${this.store.get('publicIp')}' ` +
       '-e UNSEAL=true ' +
-      "-e VAULT_CLIENT_TIMEOUT='30s' " +
-      `'${dockerHubImage}'`;
-    console.log(dockerCMD);
+      '-e VAULT_CLIENT_TIMEOUT=\'30s\' ';
+    
+    if (typeof networksList === 'object') {
+      Object.entries(networksList).forEach(([key, val]) => {
+        if (key !== 'test') {
+          dockerCMD += `-e ${key.toUpperCase()}_GENESIS_TIME='${val}' `;
+        }
+      });
+    }
+    dockerCMD += `'${dockerHubImage}'`;
     const ssh = await this.keyVaultSsh.getConnection();
     const { stderr: error } = await ssh.execCommand(
       dockerCMD,
@@ -193,61 +208,26 @@ export default class KeyVaultService {
 
   @Step({
     name: 'Export slashing protection data...',
-    requiredConfig: ['slashingData', 'keyVaultVersion']
+    requiredConfig: ['publicIp', 'vaultRootToken']
   })
-  async importSlashingData(): Promise<any> {
-    // check if kv version higher or equal stable tag
-    const keyVaultVersion = this.store.get('keyVaultVersion');
-    if (!keyVaultVersion) {
-      return;
-    }
-    if (numVal(keyVaultVersion) < numVal(STABLE_TAG)) {
-      return;
-    }
+  async exportKeyVaultData(): Promise<any> {
+    const supportedNetworks = [config.env.TEST_NETWORK, config.env.MAINNET_NETWORK];
+    for (const network of supportedNetworks) {
+      this.store.set('network', network);
+      // save latest network index
+      const accounts = await this.listAccounts();
+      this.store.set(`index.${network}`, (accounts.length - 1).toString());
 
-    const keyVaultStorage = this.store.get('keyVaultStorage');
-    if (keyVaultStorage) {
-      // eslint-disable-next-line no-restricted-syntax
-      for (const [network, storage] of Object.entries(keyVaultStorage)) {
-        if (storage) {
-          // eslint-disable-next-line no-await-in-loop
-          const slashingData = await this.getSlashingStorage(network);
-          if (Object.keys(slashingData.data).length) {
-            this.store.set(`slashingData.${network}`, slashingData.data);
-          }
-        }
+      const slashingData = await this.getSlashingStorage();
+      if (Object.keys(slashingData).length) {
+        this.store.set(`slashingData.${network}`, slashingData);
       }
     }
   }
 
   @Step({
-    name: 'Import slashing protection data...',
-    requiredConfig: ['slashingData', 'keyVaultVersion']
-  })
-  async exportSlashingData(): Promise<any> {
-    // check if kv version higher or equal stable tag
-    const keyVaultVersion = this.store.get('keyVaultVersion');
-    if (!keyVaultVersion) {
-      return;
-    }
-    if (numVal(keyVaultVersion) < numVal(STABLE_TAG)) {
-      return;
-    }
-
-    const slashingData = this.store.get('slashingData');
-    if (slashingData) {
-      // eslint-disable-next-line no-restricted-syntax
-      for (const [network, storage] of Object.entries(slashingData)) {
-        if (storage) {
-          // eslint-disable-next-line no-await-in-loop
-          await this.updateSlashingStorage(storage, network);
-        }
-      }
-    }
-  }
-
-  @Step({
-    name: 'Validating KeyVault final configuration...'
+    name: 'Validating KeyVault final configuration...',
+    requiredConfig: ['publicIp', 'vaultRootToken']
   })
   async getKeyVaultStatus() {
     // check if the key vault is alive
