@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { shell } from 'electron';
 
 import { Title, Description } from 'common/components/ModalTemplate/components';
 import { PasswordInput, Button, ModalTemplate } from 'common/components';
@@ -14,6 +15,9 @@ import * as actionsFromPassword from '../PasswordHandler/actions';
 import * as selectors from '../PasswordHandler/selectors';
 import saga from '../PasswordHandler/saga';
 import { useInjectSaga } from 'utils/injectSaga';
+
+import config from 'backend/common/config';
+import Store from 'backend/common/store-manager/store';
 
 import image from '../Wizard/assets/img-password.svg';
 
@@ -71,8 +75,15 @@ const PasswordModal = (props) => {
   };
 
   const onForgotPasswordClick = () => {
-    clearModalDisplayData();
-    setModalDisplay({show: true, type: MODAL_TYPES.FORGOT_PASSWORD, text: ''});
+    const store: Store = Store.getStore();
+    const withAccountRecovery = store.exists('accountRecovery');
+    if (withAccountRecovery) {
+      clearModalDisplayData();
+      setModalDisplay({show: true, type: MODAL_TYPES.FORGOT_PASSWORD, text: ''});
+    }
+    else {
+      shell.openExternal(config.env.DISCORD_INVITE);
+    }
   };
 
   const onButtonClick = () => {
