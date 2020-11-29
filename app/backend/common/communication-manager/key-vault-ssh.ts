@@ -19,7 +19,7 @@ export default class KeyVaultSsh {
     return ssh;
   };
 
-  buildCurlCommand = (data: any, returnBodeyResponse: boolean = false): string => {
-    return `curl -s ${!returnBodeyResponse ? '-o /dev/null -w "%{http_code}"' : ''} --header "Content-Type: application/json" --header "Authorization: Bearer ${data.authToken}" --request ${data.method} ${data.data ? `--data '${JSON.stringify(data.data)}'` : ''} ${data.route} ${data.route.startsWith('https') ? '--insecure' : ''}`;
+  buildCurlCommand = (data: any): string => {
+    return `curl -s -o /dev/null -w "%{http_code}" --header "Content-Type: application/json" --header "Authorization: Bearer ${data.authToken}" --request ${data.method} ${data.data ? `--data '${JSON.stringify(data.data)}'` : ''} ${data.route}`;
   };
 }

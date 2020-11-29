@@ -3,6 +3,7 @@ import KeyVaultSsh from '../../common/communication-manager/key-vault-ssh';
 import VersionService from '../version/version.service';
 import WalletService from '../wallet/wallet.service';
 import { resolveKeyVaultApi, KeyVaultApi } from '../../common/communication-manager/key-vault-api';
+import BloxApi from '../../common/communication-manager/blox-api';
 import { METHOD } from '../../common/communication-manager/constants';
 import { CatchClass, Step } from '../../decorators';
 import config from '../../common/config';
@@ -36,45 +37,31 @@ export default class KeyVaultService {
   }
 
   async updateStorage(payload: any) {
-    return await this.keyVaultApi.requestThruSsh({
-      method: METHOD.POST,
-      path: 'storage',
-      data: payload
-    });
+    this.keyVaultApi.init();
+    return await this.keyVaultApi.request(METHOD.POST, 'storage', payload);
   }
 
   async listAccounts() {
-    return await this.keyVaultApi.requestThruSsh({
-      method: METHOD.LIST,
-      path: 'accounts'
-    });
+    this.keyVaultApi.init();
+    return await this.keyVaultApi.request(METHOD.LIST, 'accounts');
   }
 
   async healthCheck() {
-    return await this.keyVaultApi.requestThruSsh({
-      method: METHOD.GET,
-      path: 'sys/health',
-      isNetworkRequired: false
-    });
+    this.keyVaultApi.init(false);
+    return await this.keyVaultApi.request(METHOD.GET, 'sys/health');
   }
 
   async getVersion() {
-    return await this.keyVaultApi.requestThruSsh({
-      method: METHOD.GET,
-      path: `ethereum/${config.env.TEST_NETWORK}/version`,
-      isNetworkRequired: false
-    });
+    this.keyVaultApi.init(false);
+    return await this.keyVaultApi.request(METHOD.GET, `ethereum/${config.env.TEST_NETWORK}/version`);
   }
 
   async getSlashingStorage(network: string) {
     if (!network) {
       throw new Error('Configuration settings network not found');
     }
-    return await this.keyVaultApi.requestThruSsh({
-      method: METHOD.GET,
-      path: `ethereum/${network}/storage/slashing`,
-      isNetworkRequired: false
-    });
+    this.keyVaultApi.init(false);
+    return await this.keyVaultApi.request(METHOD.GET, `ethereum/${network}/storage/slashing`);
   }
 
   async getContainerId() {
@@ -90,12 +77,8 @@ export default class KeyVaultService {
     if (!network) {
       throw new Error('Configuration settings network not found');
     }
-    return await this.keyVaultApi.requestThruSsh({
-      method: METHOD.POST,
-      path: `ethereum/${network}/storage/slashing`,
-      data: payload,
-      isNetworkRequired: false
-    });
+    this.keyVaultApi.init(false);
+    return await this.keyVaultApi.request(METHOD.POST, `ethereum/${network}/storage/slashing`, payload);
   }
 
   @Step({
@@ -135,18 +118,31 @@ export default class KeyVaultService {
 
     const keyVaultVersion = await this.versionService.getLatestKeyVaultVersion();
     const envKey = (this.store.get('env') || 'production');
-    const dockerHubImage = `bloxstaking/key-vault${envKey === 'stage' ? '-rc' : ''}:${keyVaultVersion}`;
+    const dockerHubImage = envKey === 'production' ?
+      `bloxstaking/key-vault:${keyVaultVersion}` :
+      `bloxstaking/key-vault-rc:${keyVaultVersion}`;
 
-    const dockerCMD = 'docker start key_vault 2>/dev/null || ' +
-      `docker pull ${dockerHubImage} && docker run -d --restart unless-stopped --cap-add=IPC_LOCK --name=key_vault ` +
+    const networksList = await BloxApi.request(METHOD.GET, 'ethereum2/genesis-time');
+
+    let dockerCMD = 'docker start key_vault 2>/dev/null || ' +
+      `docker pull  ${dockerHubImage} && docker run -d --restart unless-stopped --cap-add=IPC_LOCK --name=key_vault ` +
       '-v $(pwd)/data:/data ' +
       '-v $(pwd)/policies:/policies ' +
       '-p 8200:8200 ' +
-      `-e VAULT_EXTERNAL_ADDRESS='${this.store.get('publicIp')}' ` +
       '-e UNSEAL=true ' +
-      "-e VAULT_CLIENT_TIMEOUT='30s' " +
-      `'${dockerHubImage}'`;
-    console.log(dockerCMD);
+      "-e VAULT_ADDR='http://127.0.0.1:8200' " +
+      "-e VAULT_API_ADDR='http://127.0.0.1:8200' " +
+      "-e VAULT_CLIENT_TIMEOUT='30s' ";
+
+    if (typeof networksList === 'object') {
+      Object.entries(networksList).forEach(([key, val]) => {
+        if (key !== 'test') {
+          dockerCMD += `-e ${key.toUpperCase()}_GENESIS_TIME='${val}' `;
+        }
+      });
+    }
+    dockerCMD += `'${dockerHubImage}'`;
+
     const ssh = await this.keyVaultSsh.getConnection();
     const { stderr: error } = await ssh.execCommand(
       dockerCMD,
@@ -158,13 +154,13 @@ export default class KeyVaultService {
     await sleep(12000);
 
     if (error) {
-      throw new Error(`Failed to run Key Vault docker container: ${error}`);
+      throw new Error('Failed to run Key Vault docker container');
     }
   }
 
   @Step({
     name: 'Updating server storage...',
-    requiredConfig: ['network']
+    requiredConfig: ['publicIp', 'vaultRootToken', 'keyVaultStorage', 'network']
   })
   async updateVaultStorage(): Promise<void> {
     const network = this.store.get('network');
@@ -172,8 +168,7 @@ export default class KeyVaultService {
   }
 
   @Step({
-    name: 'Updating server storage...',
-    requiredConfig: ['keyVaultStorage']
+    name: 'Updating server storage...'
   })
   async updateVaultMountsStorage(): Promise<any> {
     const keyVaultStorage = this.store.get('keyVaultStorage');
@@ -193,7 +188,7 @@ export default class KeyVaultService {
 
   @Step({
     name: 'Export slashing protection data...',
-    requiredConfig: ['slashingData', 'keyVaultVersion']
+    requiredConfig: ['publicIp', 'vaultRootToken']
   })
   async importSlashingData(): Promise<any> {
     // check if kv version higher or equal stable tag
@@ -222,11 +217,11 @@ export default class KeyVaultService {
 
   @Step({
     name: 'Import slashing protection data...',
-    requiredConfig: ['slashingData', 'keyVaultVersion']
+    requiredConfig: ['publicIp', 'vaultRootToken']
   })
   async exportSlashingData(): Promise<any> {
     // check if kv version higher or equal stable tag
-    const keyVaultVersion = this.store.get('keyVaultVersion');
+    let keyVaultVersion = this.store.get('keyVaultVersion');
     if (!keyVaultVersion) {
       return;
     }
@@ -247,7 +242,8 @@ export default class KeyVaultService {
   }
 
   @Step({
-    name: 'Validating KeyVault final configuration...'
+    name: 'Validating KeyVault final configuration...',
+    requiredConfig: ['publicIp', 'vaultRootToken']
   })
   async getKeyVaultStatus() {
     // check if the key vault is alive
