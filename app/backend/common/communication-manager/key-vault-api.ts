@@ -40,11 +40,12 @@ class KeyVaultApi extends Http {
       data,
       route: `https://localhost:8200/v1/${isNetworkRequired ? `ethereum/${network}/` : ''}${path}`
     }, true);
-    console.log('curl=', command)
+    console.log('curl=', command);
     const { stdout } = await ssh.execCommand(command, {});
     const body = JSON.parse(stdout);
+    console.log('curl answer=', body);
     if (body.errors) {
-      throw new Error(`requestThruSsh: ${body.errors}`);
+      throw new Error(JSON.stringify(body));
     }
     return body;
   }

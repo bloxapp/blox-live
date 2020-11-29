@@ -38,19 +38,25 @@ export default class KeyVaultService {
   }
 
   async listAccounts() {
-    const response = await this.keyVaultApi.requestThruSsh({
-      method: METHOD.LIST,
-      path: 'accounts'
-    });
-    const errors = response?.errors;
-    if (Array.isArray(errors)) {
-      for (const err of errors) {
-        if (err.includes('wallet not found')) {
-          return [];
+    try {
+      const response = await this.keyVaultApi.requestThruSsh({
+        method: METHOD.LIST,
+        path: 'accounts'
+      });
+      return response?.data.accounts || [];
+    } catch (e) {
+      console.error(e);
+      const { errors } = JSON.parse(e.message);
+      console.error('---> list accounts errors', errors);
+      if (Array.isArray(errors)) {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const err of errors) {
+          if (err.includes('wallet not found')) {
+            return [];
+          }
         }
       }
     }
-    return response?.accounts || [];
   }
 
   async healthCheck() {
@@ -70,19 +76,25 @@ export default class KeyVaultService {
   }
 
   async getSlashingStorage() {
-    const response = await this.keyVaultApi.requestThruSsh({
-      method: METHOD.GET,
-      path: 'storage/slashing'
-    });
-    const errors = response?.errors;
-    if (Array.isArray(errors)) {
-      for (const err of errors) {
-        if (err.includes('wallet not found')) {
-          return {};
+    try {
+      const response = await this.keyVaultApi.requestThruSsh({
+        method: METHOD.GET,
+        path: 'storage/slashing'
+      });
+      return response?.data || {};
+    } catch (e) {
+      console.error(e);
+      const { errors } = JSON.parse(e.message);
+      console.error('---> list accounts errors', errors);
+      if (Array.isArray(errors)) {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const err of errors) {
+          if (err.includes('wallet not found')) {
+            return {};
+          }
         }
       }
     }
-    return response?.data || {};
   }
 
   async getContainerId() {
@@ -153,7 +165,7 @@ export default class KeyVaultService {
       `-e VAULT_EXTERNAL_ADDRESS='${this.store.get('publicIp')}' ` +
       '-e UNSEAL=true ' +
       '-e VAULT_CLIENT_TIMEOUT=\'30s\' ';
-    
+
     if (typeof networksList === 'object') {
       Object.entries(networksList).forEach(([key, val]) => {
         if (key !== 'test') {
