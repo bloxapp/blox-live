@@ -157,6 +157,7 @@ export default class AwsService {
     name: 'Establishing KeyVault server...'
   })
   async createInstance() {
+    throw Error('test error');
     if (Connection.db(this.storePrefix).exists('instanceId')) return;
 
     const data = await this.ec2.runInstances({
