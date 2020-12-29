@@ -12,6 +12,7 @@ export default class InstallProcess extends ProcessClass {
   private readonly walletService: WalletService;
   private readonly userService: UsersService;
   public readonly actions: Array<any>;
+  public readonly fallbackActions: Array<any>;
 
   constructor({ accessKeyId, secretAccessKey, isNew = true }) {
     super();
@@ -39,6 +40,23 @@ export default class InstallProcess extends ProcessClass {
       { instance: this.walletService, method: 'syncVaultWithBlox', params: { isNew } },
       { instance: this.keyVaultService, method: 'getKeyVaultStatus' },
       { instance: this.awsService, method: 'truncateOldKvResources' },
+    ];
+
+    this.fallbackActions = [
+      {
+        postActions: true,
+        actions: [
+          {
+            instance: Connection,
+            method: 'clear',
+            params: {
+              prefix: ''
+            }
+          },
+          { instance: this.awsService, method: 'truncateOldKvResources' },
+          { instance: Connection, method: 'remove' }
+        ]
+      }
     ];
   }
 }

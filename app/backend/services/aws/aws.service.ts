@@ -108,6 +108,7 @@ export default class AwsService {
     name: 'Setting security group permissions...'
   })
   async createSecurityGroup() {
+    throw 1;
     // validate if in main.json we have port AND port === TARGET PORT (2200)
     if (Connection.db(this.storePrefix).exists('port') && Connection.db(this.storePrefix).get('port') === config.env.TARGET_SSH_PORT) {
       Connection.db(this.storePrefix).delete('port');
@@ -157,7 +158,6 @@ export default class AwsService {
     name: 'Establishing KeyVault server...'
   })
   async createInstance() {
-    throw Error('test error');
     if (Connection.db(this.storePrefix).exists('instanceId')) return;
 
     const data = await this.ec2.runInstances({

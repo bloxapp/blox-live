@@ -63,6 +63,7 @@ export default class ProcessClass implements Subject {
   async run(): Promise<void> {
     this.state = 'processing';
     try {
+      const totalSteps = this.actions.length;
       // eslint-disable-next-line no-restricted-syntax
       for (const [index, action] of this.actions.entries()) {
         catchDecoratorStore.setHandler(error => this.errorHandler(error));
@@ -77,14 +78,19 @@ export default class ProcessClass implements Subject {
         if (action.params) {
           extra = { ...extra, ...action.params };
         }
+        console.log('> running step');
         // eslint-disable-next-line no-await-in-loop
         const result = await action.instance[action.method].bind(action.instance)(extra);
-        const { name } = result.step;
-        catchDecoratorStore.setHandler(null);
+        console.log('> end step');
         if (this.error) {
           throw this.error;
         }
+        const { name } = result.step;
+        catchDecoratorStore.setHandler(null);
         delete result.step;
+        if (this.step === totalSteps) {
+          this.state = 'completed';
+        }
         this.notify({
           step: {
             name,
@@ -95,17 +101,14 @@ export default class ProcessClass implements Subject {
         });
       }
     } catch (e) {
+      console.log('??? catch error');
       if (Array.isArray(this.fallbackActions)) {
+        console.log('===? going to roll back');
         await this.fallBack();
+        console.log('===? end to roll back');
       }
-      this.notify({
-        step: {
-          error: this.error
-        }
-      });
     }
-    this.state = 'completed';
-  }
+}
 
   async fallBack(): Promise<void> {
     this.state = 'fallback';
@@ -113,34 +116,57 @@ export default class ProcessClass implements Subject {
     const fallBack4Method = this.fallbackActions.find(item => item.method === this.action.method);
     if (fallBack4Method) {
       console.log('==!==', fallBack4Method);
+      const totalSteps = fallBack4Method.actions.length;
       // eslint-disable-next-line no-restricted-syntax
-      for (const fallbackAction of fallBack4Method.actions) {
+      for (const [index, fallbackAction] of fallBack4Method.actions.entries()) {
+        this.step = index + 1;
         // eslint-disable-next-line no-await-in-loop
-        await fallbackAction.instance[fallbackAction.method].bind(fallbackAction.instance)({ ...fallbackAction.params });
+        const result = await fallbackAction.instance[fallbackAction.method].bind(fallbackAction.instance)({ ...fallbackAction.params });
+        const { name } = result.step;
+        delete result.step;
+        if (this.step === totalSteps) {
+          this.state = 'completed';
+        }
+        const payload = {
+          step: {
+            name,
+            num: this.step,
+            numOf: fallBack4Method.actions.length
+          },
+          ...result
+        };
+        console.log('===> notify', payload);
+        this.notify(payload);
       }
     }
     // finilize fallback thru post postActions params
     const postFallback = this.fallbackActions.find(item => item.postActions);
     if (postFallback) {
       console.log('==---==', postFallback);
+      const totalSteps = postFallback.actions.length;
       // eslint-disable-next-line no-restricted-syntax
-      for (const fallbackAction of postFallback.actions) {
+      for (const [index, fallbackAction] of postFallback.actions.entries()) {
+        this.step = index + 1;
         console.log('===:::', fallbackAction.method);
         // eslint-disable-next-line no-await-in-loop
         const result = await fallbackAction.instance[fallbackAction.method].bind(fallbackAction.instance)({ ...fallbackAction.params });
         const { name } = result.step;
         delete result.step;
-        this.notify({
-          fallBackStep: {
+        if (this.step === totalSteps) {
+          this.state = 'completed';
+        }
+        const payload = {
+          step: {
             name,
             num: this.step,
-            numOf: this.fallbackActions.length
+            numOf: postFallback.actions.length
           },
           ...result
-        });
+        };
+        console.log('===> notify', payload);
+        this.notify(payload);
       }
     }
-    this.state = 'completed';
     // this.error = null;
   }
 }

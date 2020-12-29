@@ -66,9 +66,16 @@ export default class Connection {
   }
 
   @Step({
-    name: 'Clear temporary config...'
+    name: 'Clear temporary configuration file...'
   })
   static clear(payload: { prefix: string }): void {
     Connection.db(payload.prefix).clear();
+  }
+
+  @Step({
+    name: 'Remove configuration file...'
+  })
+  static remove(payload: { prefix: string }): void {
+    Connection.db(payload.prefix).remove();
   }
 }

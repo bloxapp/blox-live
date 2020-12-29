@@ -20,7 +20,7 @@ function* startProcess(action) {
       console.log(`${step.num}/${step.numOf} - ${step.name}`);
       console.log('isActive', isActive);
       let message = step.name;
-      if (subject.state === 'fallBack') {
+      if (subject.state === 'fallback') {
         message = 'Process failed, Rolling back...';
       }
       const observePayload = {
@@ -45,13 +45,9 @@ function createChannel(process) {
   return eventChannel((emitter) => {
     const callback = (subject, payload) => {
       const { state, error } = subject;
-      console.log('==!!!', state, error, payload.error);
-      if (error) {
-        process.unsubscribe(listener);
-        emitter(payload.error);
-      }
       if (state === 'completed') {
         if (error) {
+          process.unsubscribe(listener);
           emitter(error);
         } else {
           process.unsubscribe(listener);

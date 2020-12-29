@@ -109,7 +109,10 @@ export default class Store {
   }
 
   clear(): void {
-    // this.storage.clear();
+    this.storage.clear();
+  }
+
+  remove(): void {
     fs.unlinkSync(this.storage.path);
   }
 
