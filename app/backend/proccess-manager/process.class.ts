@@ -144,3 +144,40 @@ export default class ProcessClass implements Subject {
     // this.error = null;
   }
 }
+
+/*
+async run(): Promise<void> {
+  for (const [index, action] of this.actions.entries()) {
+    catchDecoratorStore.setHandler(error => this.errorHandler(error));
+    this.action = action;
+    this.state = index + 1;
+    let extra = {
+      notifier: {
+        instance: this,
+        func: 'notify'
+      }
+    };
+    if (action.params) {
+      extra = { ...extra, ...action.params };
+    }
+    const result = await action.instance[action.method].bind(action.instance)(extra);
+    const { step = null } = { ...result };
+    catchDecoratorStore.setHandler(null);
+    if (this.error) {
+      if (Array.isArray(this.fallbackActions)) {
+        const found = this.fallbackActions.find(step => step.method === this.action.method);
+        if (found) {
+          for (const fallbackAction of found.actions) {
+            await fallbackAction.instance[fallbackAction.method].bind(fallbackAction.instance)();
+          }
+        }
+      }
+      this.notify({ step: { status: 'error' }, error: this.error });
+      this.error = null;
+      return;
+    }
+    delete result.step;
+    this.notify({ step: { name: step.name, status: 'completed' }, ...result });
+  }
+}
+*/

@@ -45,6 +45,7 @@ function createChannel(process) {
   return eventChannel((emitter) => {
     const callback = (subject, payload) => {
       const { state, error } = subject;
+      console.log('==!!!', state, error, payload.error);
       if (error) {
         process.unsubscribe(listener);
         emitter(payload.error);
