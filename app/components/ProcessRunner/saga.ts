@@ -23,13 +23,20 @@ function* startProcess(action) {
       if (subject.state === 'fallback') {
         message = 'Process failed, Rolling back...';
       }
+      let currentStep = 0;
+      let overallSteps = 0;
+      if (subject.state !== 'fallback') {
+        overallSteps = step.numOf;
+        currentStep = step.num;
+      }
       const observePayload = {
-        overallSteps: step.numOf,
-        currentStep: step.num,
+        overallSteps,
+        currentStep,
         message,
-        isActive,
+        isActive: !subject.error && isActive,
         data
       };
+      console.log('====???? observePayload:', observePayload);
       yield put(actions.processObserve(observePayload));
     }
   } catch (e) {
