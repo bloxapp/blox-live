@@ -213,14 +213,11 @@ export default class AwsService {
   @Step({
     name: 'Removing old EC2 instance...'
   })
-  async truncateServer({ all }) {
+  async truncateServer() {
     const sources: any = {
       instanceId: Connection.db(this.storePrefix).get('instanceId'),
       addressId: Connection.db(this.storePrefix).get('addressId')
     };
-    if (all) {
-      sources.securityGroupId = Connection.db(this.storePrefix).get('securityGroupId');
-    }
     await this.destroyResources(sources);
     return { isActive: true };
   }

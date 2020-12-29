@@ -5,7 +5,8 @@ import { Catch, catchDecoratorStore } from '../decorators';
 export default class ProcessClass implements Subject {
   readonly actions: Array<any>;
   readonly fallbackActions: Array<any>;
-  state: number;
+  step: number;
+  state: string;
   action: any;
   error: Error;
   /**
@@ -60,35 +61,52 @@ export default class ProcessClass implements Subject {
     displayMessage: 'Process failed'
   })
   async run(): Promise<void> {
-    // eslint-disable-next-line no-restricted-syntax
-    for (const [index, action] of this.actions.entries()) {
-      catchDecoratorStore.setHandler(error => this.errorHandler(error));
-      this.action = action;
-      this.state = index + 1;
-      let extra = {
-        notifier: {
-          instance: this,
-          func: 'notify'
+    this.state = 'processing';
+    try {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const [index, action] of this.actions.entries()) {
+        catchDecoratorStore.setHandler(error => this.errorHandler(error));
+        this.action = action;
+        this.step = index + 1;
+        let extra = {
+          notifier: {
+            instance: this,
+            func: 'notify'
+          }
+        };
+        if (action.params) {
+          extra = { ...extra, ...action.params };
         }
-      };
-      if (action.params) {
-        extra = { ...extra, ...action.params };
-      }
-      // eslint-disable-next-line no-await-in-loop
-      const result = await action.instance[action.method].bind(action.instance)(extra);
-      const { step = null } = { ...result };
-      catchDecoratorStore.setHandler(null);
-      if (this.error) {
         // eslint-disable-next-line no-await-in-loop
-        await this.fallBack();
-        return;
+        const result = await action.instance[action.method].bind(action.instance)(extra);
+        const { name } = result.step;
+        catchDecoratorStore.setHandler(null);
+        if (this.error) {
+          throw this.error;
+        }
+        delete result.step;
+        this.notify({
+          step: {
+            name,
+            num: this.step,
+            numOf: this.actions.length
+          },
+          ...result
+        });
       }
-      delete result.step;
-      this.notify({ step: { name: step.name, status: 'completed' }, ...result });
+    } catch (e) {
+      await this.fallBack();
+      this.notify({
+        step: {
+          error: this.error
+        }
+      });
     }
+    this.state = 'completed';
   }
 
   async fallBack(): Promise<void> {
+    this.state = 'fallback';
     console.log('-----FALL BACK ACTIONS-----');
     if (Array.isArray(this.fallbackActions)) {
       const fallBack4Method = this.fallbackActions.find(item => item.method === this.action.method);
@@ -108,11 +126,21 @@ export default class ProcessClass implements Subject {
         for (const fallbackAction of postFallback.actions) {
           console.log('===:::', fallbackAction.method);
           // eslint-disable-next-line no-await-in-loop
-          await fallbackAction.instance[fallbackAction.method].bind(fallbackAction.instance)({ ...fallbackAction.params });
+          const result = await fallbackAction.instance[fallbackAction.method].bind(fallbackAction.instance)({ ...fallbackAction.params });
+          const { name } = result.step;
+          delete result.step;
+          this.notify({
+            fallBackStep: {
+              name,
+              num: this.step,
+              numOf: this.fallbackActions.length
+            },
+            ...result
+          });
         }
       }
     }
-    this.notify({ step: { status: 'error' }, error: this.error });
+    this.state = 'completed';
     // this.error = null;
   }
 }

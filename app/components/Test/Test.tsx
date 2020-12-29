@@ -25,8 +25,8 @@ class Listener implements Observer {
   }
 
   public update(subject: Subject, payload: any) {
-    this.logFunc(`${subject.state}/${subject.actions.length} > ${payload.step.name}`);
-    console.log(`${subject.state}/${subject.actions.length}`, payload);
+    this.logFunc(`${payload.step.num}/${subject.actions.length} > ${payload.step.name}`);
+    console.log(`${payload.step.num}/${subject.actions.length}`, payload);
   }
 }
 

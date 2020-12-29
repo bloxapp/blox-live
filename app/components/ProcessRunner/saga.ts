@@ -14,17 +14,21 @@ function* startProcess(action) {
   try {
     while (true) {
       const result = yield take(channel);
+      const { payload: { isActive, step, data }, subject } = result;
       console.log('result', result);
-      console.log('state', result.subject.state);
-      console.log('allStates', result.subject.actions.length);
-      console.log('stepName', result.payload.step.name);
-      console.log('isActive', result.payload.isActive);
+      console.log('state', subject.state);
+      console.log(`${step.num}/${step.numOf} - ${step.name}`);
+      console.log('isActive', isActive);
+      let message = step.name;
+      if (subject.state === 'fallBack') {
+        message = 'Process failed, Rolling back...';
+      }
       const observePayload = {
-        overallSteps: result.subject.actions.length,
-        currentStep: result.subject.state,
-        message: result.payload.step.name,
-        isActive: result.payload.isActive,
-        data: result.payload.data
+        overallSteps: step.numOf,
+        currentStep: step.num,
+        message,
+        isActive,
+        data
       };
       yield put(actions.processObserve(observePayload));
     }
@@ -40,19 +44,22 @@ function* startProcess(action) {
 function createChannel(process) {
   return eventChannel((emitter) => {
     const callback = (subject, payload) => {
-      const { state } = subject;
-      const { status } = payload.step;
-      if (status === 'error') {
+      const { state, error } = subject;
+      if (error) {
         process.unsubscribe(listener);
         emitter(payload.error);
       }
-      if (status === 'completed' && state === subject.actions.length) {
-        process.unsubscribe(listener);
+      if (state === 'completed') {
+        if (error) {
+          emitter(error);
+        } else {
+          process.unsubscribe(listener);
+          emitter({ subject, payload });
+          emitter(END);
+        }
+      } else {
         emitter({ subject, payload });
-        emitter(END);
-        return;
       }
-      emitter({ subject, payload });
     };
 
     const listener = new Listener(callback);

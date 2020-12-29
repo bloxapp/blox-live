@@ -1,3 +1,4 @@
+import fs from 'fs';
 import * as crypto from 'crypto';
 import ElectronStore from 'electron-store';
 import BaseStore from './base-store';
@@ -108,7 +109,8 @@ export default class Store {
   }
 
   clear(): void {
-    this.storage.clear();
+    // this.storage.clear();
+    fs.unlinkSync(this.storage.path);
   }
 
   logout(): void {

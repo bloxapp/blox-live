@@ -6,7 +6,10 @@ import { Observer } from './observer.interface';
  */
 export interface Subject {
   // current action step
-  state: number;
+  state: string;
+
+  // current action step
+  step: number;
 
   // describe all steps inside subject
   actions: Array<any>;

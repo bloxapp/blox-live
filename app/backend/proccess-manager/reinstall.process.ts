@@ -64,7 +64,6 @@ export default class ReinstallProcess extends ProcessClass {
       { instance: this.accountServiceTmp, method: 'restoreAccounts' },
       { instance: this.keyVaultServiceTmp, method: 'updateVaultMountsStorage' },
       { instance: this.walletServiceTmp, method: 'syncVaultWithBlox', params: { isNew: false } },
-      { instance: this.awsService, method: 'truncateServer' },
       { instance: this.awsServiceTmp, method: 'truncateOldKvResources' },
       {
         instance: Connection,
@@ -85,14 +84,14 @@ export default class ReinstallProcess extends ProcessClass {
       {
         postActions: true,
         actions: [
-          { instance: this.awsServiceTmp, method: 'truncateServer' },
           {
             instance: Connection,
             method: 'clear',
             params: {
               prefix: tempStorePrefix
             }
-          }
+          },
+          { instance: this.awsService, method: 'truncateOldKvResources' },
         ]
       }
     ];

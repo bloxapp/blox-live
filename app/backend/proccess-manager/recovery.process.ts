@@ -51,7 +51,7 @@ export default class RecoveryProcess extends ProcessClass {
       {
         postActions: true,
         actions: [
-          { instance: this.awsService, method: 'truncateServer', params: { all: true } },
+          { instance: this.awsService, method: 'truncateOldKvResources' },
           {
             instance: Connection,
             method: 'clear',
