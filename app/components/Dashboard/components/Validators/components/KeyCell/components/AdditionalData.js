@@ -5,10 +5,8 @@ import PropTypes from 'prop-types';
 
 import usePasswordHandler from '../../../../../../PasswordHandler/usePasswordHandler';
 
-import * as actionsFromDashboard from '../../../../../actions';
 import * as actionsFromWizard from '../../../../../../Wizard/actions';
 
-import { MODAL_TYPES } from '../../../../../constants';
 import { setDepositNeeded } from '../../../../../../Accounts/actions';
 
 import WarningText from './WarningText';
@@ -16,20 +14,11 @@ import BlueButton from './BlueButton';
 import Date from './Date';
 
 const AdditionalData = (props) => {
-  const { publicKey, status, createdAt, dashboardActions, wizardActions,
+  const { publicKey, status, createdAt, wizardActions,
           accountIndex, callSetDepositNeeded, network } = props;
-  const { setModalDisplay } = dashboardActions;
-  const { loadDepositData, setFinishedWizard } = wizardActions;
+  const { setFinishedWizard } = wizardActions;
 
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
-
-  const onDepositInfoButtonClick = () => {
-    const onPasswordSuccess = async () => {
-      await loadDepositData(publicKey, accountIndex, network);
-      await setModalDisplay({ show: true, type: MODAL_TYPES.DEPOSIT_INFO, text: '', });
-    };
-    checkIfPasswordIsNeeded(onPasswordSuccess);
-  };
 
   const onFinishSetupClick = async () => {
     const onPasswordSuccess = async () => {
@@ -39,11 +28,10 @@ const AdditionalData = (props) => {
     checkIfPasswordIsNeeded(onPasswordSuccess);
   };
 
-  if (status === 'pending') {
+  if (['pending', 'deposited'].includes(status)) {
     return (
       <>
         <WarningText>Waiting for approval</WarningText>
-        <BlueButton onClick={() => onDepositInfoButtonClick()}>Deposit Info</BlueButton>
       </>
     );
   }
@@ -72,13 +60,11 @@ AdditionalData.propTypes = {
   network: PropTypes.string,
   status: PropTypes.string,
   createdAt: PropTypes.string,
-  dashboardActions: PropTypes.object,
   wizardActions: PropTypes.object,
   callSetDepositNeeded: PropTypes.func,
 };
 
 const mapDispatchToProps = (dispatch) => ({
-  dashboardActions: bindActionCreators(actionsFromDashboard, dispatch),
   wizardActions: bindActionCreators(actionsFromWizard, dispatch),
   callSetDepositNeeded: (payload) => dispatch(setDepositNeeded(payload)),
 });

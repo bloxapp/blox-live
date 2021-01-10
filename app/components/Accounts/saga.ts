@@ -10,9 +10,8 @@ import {
   UPDATE_ACCOUNT_STATUS,
   UPDATE_ACCOUNT_STATUS_FAILURE,
   UPDATE_ACCOUNT_STATUS_SUCCESS
-} from "../Wizard/actionTypes";
-
-const web3 = new Web3('https://goerli.infura.io/v3/d03b92aa81864faeb158166231b7f895'); // testnet
+} from '../Wizard/actionTypes';
+import config from '../../backend/common/config';
 
 function* onLoadingSuccess(response: Record<string, any>) {
   yield put(actions.loadAccountsSuccess(response));
@@ -37,12 +36,13 @@ function* onGetTxReceiptFailure(error) {
 }
 
 function* updateReceipt(account) {
-  const {id, depositTxHash, deposited} = account;
+  const {id, depositTxHash, deposited, network} = account;
   if (depositTxHash && !deposited) {
     try {
+      const web3 = new Web3(getProvider(network));
       const txReceipt = yield web3.eth.getTransactionReceipt(depositTxHash);
       if (txReceipt != null) {
-         yield onGetTxReceiptSuccess(id, depositTxHash, txReceipt)
+         yield onGetTxReceiptSuccess(id, depositTxHash, txReceipt);
       }
     } catch (error) {
       yield onGetTxReceiptFailure(error);
@@ -71,3 +71,16 @@ export function* startLoadingAccounts() {
 export default function* accountsActions() {
   yield takeLatest(LOAD_ACCOUNTS, startLoadingAccounts);
 }
+
+const getProvider = (accountNetwork) => {
+  let networkType;
+  switch (accountNetwork) {
+    case 'mainnet':
+      networkType = 'mainnet';
+      break;
+    case 'pyrmont':
+      networkType = 'goerli';
+      break;
+  }
+  return `https://${networkType}.infura.io/v3/${config.env.INFURA_API_KEY}`;
+};

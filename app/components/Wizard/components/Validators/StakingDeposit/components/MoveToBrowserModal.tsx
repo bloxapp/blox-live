@@ -62,7 +62,7 @@ const MoveToBrowserModal = (props: Props) => {
   const waitingBtn = 'Go to Dashboard';
 
   return (
-    <CustomModal width={'600px'} height={'300px'} onClose={() => onClose(moveToBrowser)}>
+    <CustomModal width={'600px'} height={'300px'} onClose={moveToBrowser ? () => onClose(moveToBrowser) : undefined}>
       <InnerWrapper>
         <Title>{moveToBrowser ? moveToBrowserTitle : waitingTitle}</Title>
         <Info>{moveToBrowser ? moveToBrowserDescription : waitingDescription}</Info>
