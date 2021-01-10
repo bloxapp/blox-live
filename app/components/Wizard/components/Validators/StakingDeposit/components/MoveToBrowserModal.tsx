@@ -7,7 +7,6 @@ import {Icon} from 'common/components';
 const InnerWrapper = styled.div`
   width:100%;
   height:100%;
-  padding: 0 132px;
   // display: flex;
   // align-items: center;
   justify-content:center;
@@ -21,6 +20,8 @@ const Title = styled.div`
 `;
 
 const Info = styled.div`
+  margin-left: 130px;
+  margin-right: 130px;
   font-size: 12px;
   font-weight: 500;
   line-height: 1.67;
@@ -51,13 +52,25 @@ const AuditText = styled.div`
 
 const MoveToBrowserModal = (props: Props) => {
   const {onClose, onMoveToBrowser} = props;
+  const [moveToBrowser, setMovedToBrowser] = React.useState(true);
+
+  const moveToBrowserTitle = 'Moving to the Browser';
+  const waitingTitle = 'Waiting for Web Confirmation';
+  const moveToBrowserDescription = 'You will be taken to a secured Blox Staking webpage to complete the deposit transaction';
+  const waitingDescription = 'In case the deposit was completed or if you want to deposit later';
+  const moveToBrowserBtn = 'Continue To Staking Deposit';
+  const waitingBtn = 'Go to Dashboard';
+
   return (
-    <CustomModal width={'680px'} height={'412px'} onClose={onClose}>
+    <CustomModal width={'600px'} height={'300px'} onClose={moveToBrowser ? () => onClose(moveToBrowser) : undefined}>
       <InnerWrapper>
-        <Title>Moving to the Browser</Title>
-        <Info>You will be taken to a secured Blox Staking webpage to complete the deposit transaction</Info>
+        <Title>{moveToBrowser ? moveToBrowserTitle : waitingTitle}</Title>
+        <Info>{moveToBrowser ? moveToBrowserDescription : waitingDescription}</Info>
         <ButtonWrapper>
-          <BigButton style={{'width': '320px'}} onClick={onMoveToBrowser}>Continue To Staking Deposit</BigButton>
+          <BigButton style={{'width': '320px'}} onClick={() => {
+            onMoveToBrowser(moveToBrowser);
+            setMovedToBrowser(false);
+          }}>{moveToBrowser ? moveToBrowserBtn : waitingBtn}</BigButton>
         </ButtonWrapper>
         {/*<BottomWrapper>
           <Icon name={'verified-user'} fontSize={'16px'} color={'gray400'}/>
@@ -69,8 +82,8 @@ const MoveToBrowserModal = (props: Props) => {
 };
 
 type Props = {
-  onClose: () => void;
-  onMoveToBrowser: () => void;
+  onClose: (moveToBrowser : boolean) => void;
+  onMoveToBrowser: (moveToBrowser : boolean) => void;
 };
 
 export default MoveToBrowserModal;

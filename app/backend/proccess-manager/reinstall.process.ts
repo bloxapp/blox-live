@@ -79,6 +79,13 @@ export default class ReinstallProcess extends ProcessClass {
         }
       },
       { instance: this.keyVaultService, method: 'getKeyVaultStatus' },
+      {
+        instance: Connection,
+        method: 'remove',
+        params: {
+          prefix: tempStorePrefix
+        }
+      }
     ];
 
     this.fallbackActions = [

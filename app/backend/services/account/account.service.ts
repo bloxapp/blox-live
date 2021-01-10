@@ -1,5 +1,6 @@
 import Connection from '../../common/store-manager/connection';
 import BloxApi from '../../common/communication-manager/blox-api';
+import BeaconchaApi from '../../common/communication-manager/beaconcha-api';
 import { METHOD } from '../../common/communication-manager/constants';
 import { Catch, CatchClass, Step } from '../../decorators';
 import KeyVaultService from '../key-vault/key-vault.service';
@@ -8,6 +9,7 @@ import Web3 from 'web3';
 import WalletService from '../wallet/wallet.service';
 import config from '../../common/config';
 import { hexDecode } from '../../../utils/service';
+import { Logger } from '../../common/logger/logger';
 
 // @CatchClass<AccountService>()
 export default class AccountService {
@@ -15,6 +17,7 @@ export default class AccountService {
   private readonly keyVaultService: KeyVaultService;
   private readonly keyManagerService: KeyManagerService;
   private readonly bloxApi: BloxApi;
+  private readonly beaconchaApi: BeaconchaApi;
   private storePrefix: string;
 
   constructor(prefix: string = '') {
@@ -24,6 +27,8 @@ export default class AccountService {
     this.keyManagerService = new KeyManagerService();
     this.bloxApi = new BloxApi();
     this.bloxApi.init();
+
+    this.beaconchaApi = new BeaconchaApi();
   }
 
   async get() {
@@ -38,9 +43,64 @@ export default class AccountService {
     return await this.bloxApi.request(METHOD.DELETE, 'accounts');
   }
 
-  async getHighestAttestation(payload: any) {
+  @Catch({
+    displayMessage: 'Get highest attestation failed'
+  })
+  async getHighestAttestation(payload: any, retries = 2) {
+    const logger = new Logger();
     if (payload.public_keys.length === 0) return {};
-    return await this.bloxApi.request(METHOD.POST, 'ethereum2/highest-attestation', payload);
+    try {
+      this.beaconchaApi.init(payload.network);
+      const generalData = await this.bloxApi.request(METHOD.POST, 'ethereum2/highest-attestation', payload);
+      const beaconchaData = await this.beaconchaApi.request(METHOD.GET, 'block/latest');
+      const keyManagerData = await this.keyManagerService.getAttestation(payload.network);
+      console.warn('getHighestAttestation: raw answers', generalData, beaconchaData, keyManagerData);
+      logger.debug(`getHighestAttestation: raw answers > ${JSON.stringify({ generalData, beaconchaData, keyManagerData })}`);
+      Object.keys(generalData).forEach(key => {
+        const {
+          highest_source_epoch: bloxSourceEpoch,
+          highest_target_epoch: bloxTargetEpoch,
+          highest_proposal_slot: bloxSlot
+        } = generalData[key];
+        const { slot: beaconchaSlot, epoch: beaconchaEpoch } = beaconchaData?.data;
+        [
+          beaconchaSlot,
+          beaconchaEpoch,
+          bloxSourceEpoch,
+          bloxTargetEpoch,
+          bloxSlot
+        ].forEach(value => {
+          // eslint-disable-next-line no-restricted-globals
+          if (isNaN(value)) throw new Error(`${value} is not number value`);
+        });
+        const epoch = Math.max(...[
+          bloxSourceEpoch,
+          bloxTargetEpoch,
+          beaconchaEpoch,
+          keyManagerData.epoch
+        ]);
+        const slot = Math.max(...[
+          bloxSlot,
+          beaconchaSlot,
+          keyManagerData.slot
+        ]);
+        generalData[key] = {
+          highest_proposal_slot: slot,
+          highest_source_epoch: epoch,
+          highest_target_epoch: epoch
+        };
+      });
+      console.warn('getHighestAttestation: result', generalData);
+      logger.debug(`getHighestAttestation: selected > ${JSON.stringify(generalData)}`);
+      return generalData;
+    } catch (e) {
+      if (retries === 0) {
+        throw e;
+      }
+      console.warn('getHighestAttestation: fails, retry...', e);
+      await new Promise((resolve) => setTimeout(resolve, 2000)); // hard delay for 2sec
+      return await this.getHighestAttestation(payload, retries - 1);
+    }
   }
 
   async updateStatus(route: string, payload: any) {
@@ -109,7 +169,6 @@ export default class AccountService {
       'public_keys': publicKeysToGetHighestAttestation,
       network
     });
-
     // 5. update accounts-hash from slasher
     // eslint-disable-next-line no-restricted-syntax
     for (const [key, value] of Object.entries(highestAttestationsMap)) {
@@ -206,12 +265,16 @@ export default class AccountService {
     };
   }
 
+  @Step({
+    name: 'Delete Last Indexed Account'
+  })
   async deleteLastIndexedAccount(): Promise<void> {
     const network = Connection.db(this.storePrefix).get('network');
     if (!network) {
       throw new Error('Configuration settings network not found');
     }
     const index: number = +Connection.db(this.storePrefix).get(`index.${network}`);
+    console.log('----delete', index);
     if (index < 0) {
       await this.walletService.createWallet();
     } else {

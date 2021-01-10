@@ -4,7 +4,7 @@ import { Catch } from '../../decorators';
 import config from '../config';
 
 export default class Http {
-  baseUrl: string;
+  baseUrl?: string;
   protected instance: any;
 
   constructor() {

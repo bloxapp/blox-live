@@ -1,44 +1,50 @@
-import { call, put, takeLatest } from 'redux-saga/effects';
-import { notification } from 'antd';
+import {call, put, take, takeLatest} from 'redux-saga/effects';
+import {notification} from 'antd';
 import Web3 from 'web3';
 
-import { LOAD_ACCOUNTS } from './actionTypes';
+import {LOAD_ACCOUNTS} from './actionTypes';
 import * as actions from './actions';
-import { updateAccountStatus } from '../Wizard/actions';
+import {updateAccountStatus} from '../Wizard/actions';
 import AccountService from '../../backend/services/account/account.service';
-
-const web3 = new Web3('https://goerli.infura.io/v3/d03b92aa81864faeb158166231b7f895'); // testnet
+import {
+  UPDATE_ACCOUNT_STATUS,
+  UPDATE_ACCOUNT_STATUS_FAILURE,
+  UPDATE_ACCOUNT_STATUS_SUCCESS
+} from '../Wizard/actionTypes';
+import config from '../../backend/common/config';
 
 function* onLoadingSuccess(response: Record<string, any>) {
   yield put(actions.loadAccountsSuccess(response));
 }
 
 function* onLoadingFailure(error: Record<string, any>) {
-  notification.error({ message: 'Error', description: error.message });
+  notification.error({message: 'Error', description: error.message});
   yield put(actions.loadAccountsFailure(error.response.data));
 }
 
 function* onGetTxReceiptSuccess(id, txHash, txReceipt) {
   if (txReceipt.status) {
     yield put(updateAccountStatus(id, txHash, true));
-  }
-  else {
-    yield put(updateAccountStatus(id, '', false));
+    yield take([UPDATE_ACCOUNT_STATUS, UPDATE_ACCOUNT_STATUS_SUCCESS, UPDATE_ACCOUNT_STATUS_FAILURE]);
+  } else {
+    return yield put(updateAccountStatus(id, '', false));
   }
 }
 
 function* onGetTxReceiptFailure(error) {
-  notification.error({ message: 'Error', description: error.message });
+  notification.error({message: 'Error', description: error.message});
 }
 
 function* updateReceipt(account) {
-  const { id, depositTxHash, deposited } = account;
+  const {id, depositTxHash, deposited, network} = account;
   if (depositTxHash && !deposited) {
     try {
+      const web3 = new Web3(getProvider(network));
       const txReceipt = yield web3.eth.getTransactionReceipt(depositTxHash);
-      if (txReceipt != null) return yield onGetTxReceiptSuccess(id, depositTxHash, txReceipt);
-    }
-    catch (error) {
+      if (txReceipt != null) {
+         yield onGetTxReceiptSuccess(id, depositTxHash, txReceipt);
+      }
+    } catch (error) {
       yield onGetTxReceiptFailure(error);
     }
   }
@@ -53,11 +59,11 @@ export function* startLoadingAccounts() {
       yield call(onLoadingSuccess, response);
       return;
     }
-    const tx = yield call(updateReceipt, withTxHash[0]);
+
+    yield call(updateReceipt, withTxHash[0]);
     const withUpdate = yield call([accountService, 'get']);
     yield call(onLoadingSuccess, withUpdate);
-  }
-  catch (error) {
+  } catch (error) {
     yield error && call(onLoadingFailure, error);
   }
 }
@@ -65,3 +71,16 @@ export function* startLoadingAccounts() {
 export default function* accountsActions() {
   yield takeLatest(LOAD_ACCOUNTS, startLoadingAccounts);
 }
+
+const getProvider = (accountNetwork) => {
+  let networkType;
+  switch (accountNetwork) {
+    case 'mainnet':
+      networkType = 'mainnet';
+      break;
+    case 'pyrmont':
+      networkType = 'goerli';
+      break;
+  }
+  return `https://${networkType}.infura.io/v3/${config.env.INFURA_API_KEY}`;
+};
