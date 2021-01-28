@@ -17,6 +17,12 @@ import userSaga from '../User/saga';
 import {Loader} from '../../common/components';
 import {useInjectSaga} from '../../utils/injectSaga';
 
+// analytics tools
+import analytics from '../../backend/analytics';
+import { getOsVersion } from 'utils/service';
+import { version } from 'package.json';
+import { v4 as uuidv4 } from 'uuid';
+
 const AppWrapper = styled.div`
   margin: 0 auto;
   height: 100%;
@@ -33,6 +39,18 @@ const App = (props: Props) => {
   const {setSession, loginFailure} = actions;
 
   const init = async () => {
+    console.log('MAIN PAGE');
+
+    // trigger analytics first event
+    /* Identify users */
+    analytics.identify('userid-123', {
+      os: getOsVersion(),
+      appVersion: version
+    });
+
+    /* Track events */
+    analytics.track('appOpened');
+
     await setAppInitialised(true);
     await initApp();
   };

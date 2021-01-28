@@ -154,7 +154,7 @@ export default class KeyVaultService {
     const keyVaultVersion = await this.versionService.getLatestKeyVaultVersion();
     const envKey = (Connection.db(this.storePrefix).get('env') || 'production');
     const dockerHubImage = `bloxstaking/key-vault${envKey === 'production' ? '' : '-rc'}:${keyVaultVersion}`;
-
+    console.log('====dockerHubImage====', dockerHubImage);
     const dockerCMD = 'docker start key_vault 2>/dev/null || ' +
       `docker pull  ${dockerHubImage} && docker run -d --restart unless-stopped --cap-add=IPC_LOCK --name=key_vault ` +
       '-v $(pwd)/data:/data ' +

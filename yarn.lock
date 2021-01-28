@@ -26,6 +26,25 @@
     promisify-event "^1.0.0"
     proxyquire "^1.7.10"
 
+"@analytics/cookie-utils@^0.2.3":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@analytics/cookie-utils/-/cookie-utils-0.2.3.tgz#e6ab923f88d89f7b02da0cfab585ff193977052f"
+  integrity sha512-RiMAVpSluRbWb2hlT9wMJ0r2l+MUZzScYjY+w2iWRzjOr9Zzzs4tYzJT6Sd94PDz3LzCuf4aGOwS6pkKXTEBLw==
+
+"@analytics/core@^0.10.0":
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/@analytics/core/-/core-0.10.0.tgz#cac5b208148452e57f08d39d435c9af94f60f290"
+  integrity sha512-EaXAYdExbfHWzeP0dD0DjfvB3/wfhIWovamrS0bErwz00V17TKQXHThiNje5sK1UzVT3K43YZnpCghTru7oxuQ==
+  dependencies:
+    analytics-utils "^0.4.2"
+
+"@analytics/storage-utils@^0.2.4":
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/@analytics/storage-utils/-/storage-utils-0.2.4.tgz#b373fc1c3910c201c3020f014c8bffd41cfc3f94"
+  integrity sha512-VHRggJbRY8vHIADWVwbq9cZux0L9LdmlN31XA3daVAI4gMkKdQEocxB7KqGDt6SfIJ3NYi/qh1nRJGooYmTBiA==
+  dependencies:
+    "@analytics/cookie-utils" "^0.2.3"
+
 "@ant-design/colors@^3.1.0":
   version "3.2.2"
   resolved "https://registry.yarnpkg.com/@ant-design/colors/-/colors-3.2.2.tgz#5ad43d619e911f3488ebac303d606e66a8423903"
@@ -2354,6 +2373,22 @@ amdefine@>=0.0.4:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/amdefine/-/amdefine-1.0.1.tgz#4a5282ac164729e93619bcfd3ad151f817ce91f5"
   integrity sha1-SlKCrBZHKek2Gbz9OtFR+BfOkfU=
+
+analytics-utils@^0.4.2:
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/analytics-utils/-/analytics-utils-0.4.2.tgz#8ccb217419c1e25442d1398f5782b9efad109cdf"
+  integrity sha512-Lgu0uCz6kt0Wk63u6iU6Gi2if0Zaoo097zFtoPAQFfIPp73S1jT44gvvUjAqP48Ak3xTA/oyLqs+sCNH0XN5HA==
+  dependencies:
+    "@analytics/storage-utils" "^0.2.4"
+    dlv "^1.1.3"
+
+analytics@^0.7.0:
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/analytics/-/analytics-0.7.0.tgz#ed434eac976b36b1820d70e1d5eacaef140d8a11"
+  integrity sha512-dygSfHAOUA6u66/JUuod6yJE4CibX8MnOXuPkoO1OrVKhItKngYEbKhC2anOQxnlgE/QyRjeUua6LS5MMp02hg==
+  dependencies:
+    "@analytics/core" "^0.10.0"
+    "@analytics/storage-utils" "^0.2.4"
 
 ansi-align@^3.0.0:
   version "3.0.0"
@@ -5720,6 +5755,11 @@ discontinuous-range@1.0.0:
   resolved "https://registry.yarnpkg.com/discontinuous-range/-/discontinuous-range-1.0.0.tgz#e38331f0844bba49b9a9cb71c771585aab1bc65a"
   integrity sha1-44Mx8IRLukm5qctxx3FYWqsbxlo=
 
+dlv@^1.1.3:
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/dlv/-/dlv-1.1.3.tgz#5c198a8a11453596e751494d49874bc7732f2e79"
+  integrity sha512-+HlytyjlPKnIG8XuRG8WvmBP8xs8P71y+SKKS6ZXWoEgLuePxtDoUEiH7WkdePWrQ5JBpE6aoVqfZfJUQkjXwA==
+
 dmg-builder@22.9.1:
   version "22.9.1"
   resolved "https://registry.yarnpkg.com/dmg-builder/-/dmg-builder-22.9.1.tgz#64647224f37ee47fc9bd01947c21cc010a30511f"
@@ -6027,6 +6067,11 @@ electron-rebuild@^1.11.0:
     ora "^3.4.0"
     spawn-rx "^3.0.0"
     yargs "^14.2.0"
+
+electron-redux-devtools@^0.3.4:
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/electron-redux-devtools/-/electron-redux-devtools-0.3.4.tgz#21c2eafd739248c6414f1d346e6847b0981550e1"
+  integrity sha1-IcLq/XOSSMZBTx00bmhHsJgVUOE=
 
 electron-store@^6.0.0:
   version "6.0.0"
