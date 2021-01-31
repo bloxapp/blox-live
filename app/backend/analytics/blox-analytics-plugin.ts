@@ -20,16 +20,16 @@ export default function bloxAnalyticsPlugin(pluginConfig = {}) {
     page: async ({ payload }) => {
       // call provider specific page tracking
       console.log('page', payload);
-      await bloxApi.request(METHOD.PUT, 'analytics', payload);
+      await bloxApi.request(METHOD.PUT, 'analytics/page', payload);
     },
     track: async ({ payload }) => {
       console.log('track', payload);
-      await bloxApi.request(METHOD.PUT, 'analytics', payload);
+      await bloxApi.request(METHOD.PUT, 'analytics/track', payload);
       // call provider specific event tracking
     },
     identify: async ({ payload }) => {
       console.log('identify', payload);
-      await bloxApi.request(METHOD.PUT, 'analytics', payload);
+      await bloxApi.request(METHOD.PUT, 'analytics/identify', payload);
       // call provider specific user identify method
     },
     loaded: () => {

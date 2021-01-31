@@ -10,6 +10,8 @@ import { METHOD } from 'backend/common/communication-manager/constants';
 import AuthApi from 'backend/common/communication-manager/auth-api';
 import config from 'backend/common/config';
 import { Migrate } from 'backend/migrate';
+// analytics tools
+import analytics from '../../backend/analytics';
 
 export default class Auth {
   idToken: string;
@@ -106,6 +108,9 @@ export default class Auth {
     console.log('CONN SETUP', userProfile.sub);
     Connection.setup({ currentUserId: userProfile.sub, authToken: authResult.id_token });
     // Store.getStore().init(userProfile.sub, authResult.id_token);
+    analytics.track('loggedIn', {
+      label: userProfile.sub
+    });
 
     // await Migrate.runMain(userProfile.sub, Store.getStore().get('env'));
     this.bloxApi.init();

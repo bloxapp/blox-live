@@ -24,7 +24,8 @@
     "outDir": "$$ts-jest$$",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "typeRoots": []
+    "typeRoots": [],
+    "skipLibCheck": true
   },
   "exclude": [
     "test",
@@ -32,6 +33,7 @@
     "app/main.prod.js",
     "app/renderer.prod.js",
     "app/dist",
-    "dll"
+    "dll",
+    "node_modules"
   ]
 }

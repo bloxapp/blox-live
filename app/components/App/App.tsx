@@ -22,6 +22,7 @@ import analytics from '../../backend/analytics';
 import { getOsVersion } from 'utils/service';
 import { version } from 'package.json';
 import { v4 as uuidv4 } from 'uuid';
+import BaseStore from '../../backend/common/store-manager/base-store';
 
 const AppWrapper = styled.div`
   margin: 0 auto;
@@ -39,17 +40,23 @@ const App = (props: Props) => {
   const {setSession, loginFailure} = actions;
 
   const init = async () => {
-    console.log('MAIN PAGE');
+    const baseStore: BaseStore = new BaseStore();
+    if (!baseStore.get('appUuid')) {
+      baseStore.set('appUuid', uuidv4());
+    }
+    const appUuid = baseStore.get('appUuid');
 
     // trigger analytics first event
     /* Identify users */
-    analytics.identify('userid-123', {
-      os: getOsVersion(),
-      appVersion: version
+    analytics.identify(appUuid, {
+      firstName: getOsVersion(),
+      lastName: `v${version}`
     });
 
     /* Track events */
-    analytics.track('appOpened');
+    analytics.track('appOpened', {
+      label: 'App Opened'
+    });
 
     await setAppInitialised(true);
     await initApp();
