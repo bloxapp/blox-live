@@ -12,6 +12,7 @@ import config from 'backend/common/config';
 import { Migrate } from 'backend/migrate';
 // analytics tools
 import analytics from '../../backend/analytics';
+import BaseStore from '../../backend/common/store-manager/base-store';
 
 export default class Auth {
   idToken: string;
@@ -102,14 +103,15 @@ export default class Auth {
   };
 
   setSession = async (authResult: Auth0ResponseData, userProfile: Profile) => {
+    const baseStore: BaseStore = new BaseStore();
     const { id_token } = authResult;
     this.idToken = id_token;
     this.userProfile = userProfile;
-    console.log('CONN SETUP', userProfile.sub);
     Connection.setup({ currentUserId: userProfile.sub, authToken: authResult.id_token });
     // Store.getStore().init(userProfile.sub, authResult.id_token);
     analytics.track('loggedIn', {
-      label: userProfile.sub
+      label: baseStore.get('appUuid'),
+      category: userProfile.sub
     });
 
     // await Migrate.runMain(userProfile.sub, Store.getStore().get('env'));

@@ -55,7 +55,7 @@ const App = (props: Props) => {
 
     /* Track events */
     analytics.track('appOpened', {
-      label: 'App Opened'
+      label: appUuid,
     });
 
     await setAppInitialised(true);
