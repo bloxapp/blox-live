@@ -160,7 +160,7 @@ export default class AwsService {
     if (Connection.db(this.storePrefix).exists('instanceId')) return;
 
     const data = await this.ec2.runInstances({
-      ImageId: 'ami-0d3caf10672b8e870', // ubuntu 16.04LTS for us-west-1
+      ImageId: 'ami-0d3caf10672b8e870', // Amazon Linux. for us-west-1
       InstanceType: 't2.micro',
       SecurityGroupIds: [Connection.db(this.storePrefix).get('securityGroupId')],
       KeyName: `${this.keyName}-${Connection.db(this.storePrefix).get('uuid')}`,
