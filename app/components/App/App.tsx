@@ -48,13 +48,13 @@ const App = (props: Props) => {
 
     // trigger analytics first event
     /* Identify users */
-    analytics.identify(appUuid, {
-      firstName: getOsVersion(),
-      lastName: `v${version}`
+    await analytics.identify(appUuid, {
+      os: getOsVersion(),
+      appVersion: `v${version}`
     });
 
     /* Track events */
-    analytics.track('appOpened', {
+    await analytics.track('appOpened', {
       label: appUuid,
     });
 

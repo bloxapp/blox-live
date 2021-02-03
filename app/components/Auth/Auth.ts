@@ -13,6 +13,8 @@ import { Migrate } from 'backend/migrate';
 // analytics tools
 import analytics from '../../backend/analytics';
 import BaseStore from '../../backend/common/store-manager/base-store';
+import { getOsVersion } from 'utils/service';
+import { version } from 'package.json';
 
 export default class Auth {
   idToken: string;
@@ -109,11 +111,12 @@ export default class Auth {
     this.userProfile = userProfile;
     Connection.setup({ currentUserId: userProfile.sub, authToken: authResult.id_token });
     // Store.getStore().init(userProfile.sub, authResult.id_token);
-    analytics.track('loggedIn', {
-      label: baseStore.get('appUuid'),
-      category: userProfile.sub
+    await analytics.identify(userProfile.sub, {
+      appUuid: baseStore.get('appUuid'),
+      os: getOsVersion(),
+      appVersion: `v${version}`
     });
-
+    await analytics.track('loggedIn', {});
     // await Migrate.runMain(userProfile.sub, Store.getStore().get('env'));
     this.bloxApi.init();
     await this.bloxApi.request(METHOD.GET, 'organizations/profile');
