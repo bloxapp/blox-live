@@ -2,15 +2,47 @@ import electron from 'electron';
 import archiver from 'archiver';
 import fs from 'fs';
 import path from 'path';
-import * as winston from 'winston';
-import 'winston-daily-rotate-file';
+import { configure, getLogger, Logger } from 'log4js';
+// import * as winston from 'winston';
+// import 'winston-daily-rotate-file';
 
-export class Logger {
-  private readonly logger: winston.Logger;
+export class Log {
+  private readonly logger: Logger;
   private readonly userDataPath: string;
 
   constructor() {
     this.userDataPath = (electron.app || electron.remote.app).getPath('userData');
+    this.logger = getLogger();
+    configure({
+      'appenders': {
+        'access': {
+          'type': 'dateFile',
+          'filename': path.join(this.userDataPath, 'log/access.log'),
+          'pattern': '-yyyy-MM-dd',
+          'category': 'http'
+        },
+        'app': {
+          'type': 'file',
+          'filename': path.join(this.userDataPath, 'log/app.log'),
+          'maxLogSize': 10485760,
+          'numBackups': 3
+        },
+        'errorFile': {
+          'type': 'file',
+          'filename': path.join(this.userDataPath, 'log/errors.log')
+        },
+        'errors': {
+          'type': 'logLevelFilter',
+          'level': 'ERROR',
+          'appender': 'errorFile'
+        }
+      },
+      'categories': {
+        'default': { 'appenders': ['app', 'errors'], 'level': 'DEBUG' },
+        'http': { 'appenders': ['access'], 'level': 'DEBUG' }
+      }
+    });
+    /*
     this.logger = winston.createLogger({
       level: 'info',
       format: winston.format.json(),
@@ -37,14 +69,23 @@ export class Logger {
         })
       ]
     });
+    */
   }
 
   error(message: string, trace?: any): void {
     this.logger.error(message, trace);
   }
 
-  debug(message: string, trace?: any): void {
-    this.logger.debug(message, trace);
+  debug(message: string): void {
+    this.logger.debug(message);
+  }
+
+  info(message: string): void {
+    this.logger.info(message);
+  }
+
+  warn(message: string): void {
+    this.logger.warn(message);
   }
 
   async getArchivedLogs(): Promise<string> {
@@ -53,7 +94,7 @@ export class Logger {
     const archive = archiver('zip');
 
     output.on('close', () => {
-      console.log(archive.pointer() + ' total bytes');
+      console.log(`${archive.pointer()} total bytes`);
       console.log('archiver has been finalized and the output file descriptor has closed.');
     });
 

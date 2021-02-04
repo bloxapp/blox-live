@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Logger } from '../common/logger/logger';
+import { Log } from '../common/logger/logger';
 
 const catchDecoratorStore = {
   handler: null,
@@ -41,7 +41,7 @@ const catchFunction = (payload: any = {}, toReflect: boolean = false) => {
 };
 
 function handleCatchFunctionError(key: string, error: Error, payload: any) {
-  const logger = new Logger();
+  const logger = new Log();
   const { handler } = catchDecoratorStore;
   const showErrorMessage = !!payload.showErrorMessage;
   const displayMessage = showErrorMessage

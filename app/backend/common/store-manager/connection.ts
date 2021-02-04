@@ -1,4 +1,4 @@
-import { Logger } from '../logger/logger';
+import { Log } from '../logger/logger';
 import Store from './store';
 import { Catch, Step } from '../../decorators';
 
@@ -6,7 +6,7 @@ const instances = {};
 
 export default class Connection {
   private static userId: string;
-  private logger: Logger;
+  private logger: Log;
 
   static setup(payload: { currentUserId: string, authToken: string, prefix?: string }): void {
     Connection.userId = payload.currentUserId;

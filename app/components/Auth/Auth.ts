@@ -10,6 +10,7 @@ import { METHOD } from 'backend/common/communication-manager/constants';
 import AuthApi from 'backend/common/communication-manager/auth-api';
 import config from 'backend/common/config';
 import { Migrate } from 'backend/migrate';
+import { Log } from 'backend/common/logger/logger';
 
 export default class Auth {
   idToken: string;
@@ -17,6 +18,7 @@ export default class Auth {
   auth: Auth0ConfigObject;
   private readonly authApi: AuthApi;
   private readonly bloxApi: BloxApi;
+  private readonly logger: Log;
 
   constructor() {
     this.idToken = '';
@@ -30,6 +32,7 @@ export default class Auth {
     };
     this.authApi = new AuthApi();
     this.bloxApi = new BloxApi();
+    this.logger = new Log();
   }
 
   loginWithSocialApp = async (name: string) => {
@@ -43,6 +46,7 @@ export default class Auth {
             idTokenPayload: userProfile
           });
         }
+        this.logger.error('Login error thru social app');
         reject(new Error('Error in login'));
       };
       const onFailure = () => reject(new Error(''));
@@ -79,6 +83,7 @@ export default class Auth {
       return await this.authApi.request('POST', 'token', JSON.stringify(exchangeOptions), null, true);
     } catch (error) {
       await this.logout();
+      this.logger.error('Load auth token error');
       return Error(error);
     }
   };
@@ -94,6 +99,7 @@ export default class Auth {
         });
       }
       else {
+        this.logger.error('Error hadle callback from browser');
         reject(new Error('Error in login'));
       }
     });
@@ -103,7 +109,7 @@ export default class Auth {
     const { id_token } = authResult;
     this.idToken = id_token;
     this.userProfile = userProfile;
-    console.log('CONN SETUP', userProfile.sub);
+    this.logger.info('Setup user account');
     Connection.setup({ currentUserId: userProfile.sub, authToken: authResult.id_token });
     // Store.getStore().init(userProfile.sub, authResult.id_token);
 
