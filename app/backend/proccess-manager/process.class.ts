@@ -136,7 +136,7 @@ export default class ProcessClass implements Subject {
       if (!actions) return;
       await this.processActions(actions);
     } catch (error) {
-      this.logger.error('-----FALLBACK FAILED-----');
+      this.logger.error('-----FALLBACK FAILED-----', error);
     }
   }
 }
