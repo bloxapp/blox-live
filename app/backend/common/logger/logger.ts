@@ -3,8 +3,6 @@ import archiver from 'archiver';
 import fs from 'fs';
 import path from 'path';
 import { configure, getLogger, Logger } from 'log4js';
-// import * as winston from 'winston';
-// import 'winston-daily-rotate-file';
 
 export class Log {
   private readonly logger: Logger;
@@ -15,77 +13,45 @@ export class Log {
     this.logger = getLogger();
     configure({
       'appenders': {
-        'access': {
-          'type': 'dateFile',
-          'filename': path.join(this.userDataPath, 'log/access.log'),
-          'pattern': '-yyyy-MM-dd',
-          'category': 'http'
+        'console': {
+          'type': 'console'
         },
-        'app': {
+        'fileLog': {
           'type': 'file',
-          'filename': path.join(this.userDataPath, 'log/app.log'),
+          'filename': path.join(this.userDataPath, 'logs/trace.log'),
           'maxLogSize': 10485760,
           'numBackups': 3
         },
-        'errorFile': {
-          'type': 'file',
-          'filename': path.join(this.userDataPath, 'log/errors.log')
-        },
-        'errors': {
+        'app': {
           'type': 'logLevelFilter',
-          'level': 'ERROR',
-          'appender': 'errorFile'
+          'level': 'INFO',
+          'appender': 'fileLog'
         }
       },
       'categories': {
-        'default': { 'appenders': ['app', 'errors'], 'level': 'DEBUG' },
-        'http': { 'appenders': ['access'], 'level': 'DEBUG' }
+        'default': { 'appenders': ['app', 'console'], 'level': 'TRACE' },
       }
     });
-    /*
-    this.logger = winston.createLogger({
-      level: 'info',
-      format: winston.format.json(),
-      defaultMeta: {
-        service: 'blox-live'
-      },
-      transports: [
-        new winston.transports.Console(),
-        new winston.transports.DailyRotateFile({
-          filename: path.join(this.userDataPath, 'logs/error.log'),
-          datePattern: 'YYYY-MM-DD-HH',
-          maxSize: '10k',
-          maxFiles: 1,
-          // zippedArchive: true,
-          level: 'error'
-        }),
-        new winston.transports.DailyRotateFile({
-          filename: path.join(this.userDataPath, 'logs/debug.log'),
-          datePattern: 'YYYY-MM-DD-HH',
-          maxSize: '10k',
-          maxFiles: 1,
-          // zippedArchive: true,
-          level: 'debug'
-        })
-      ]
-    });
-    */
   }
 
-  error(message: string, trace?: any): void {
-    this.logger.error(message, trace);
+  error(...args: any[]): void {
+    this.logger.error(...args);
   }
 
-  debug(message: string): void {
-    this.logger.debug(message);
+  debug(...args: any[]): void {
+    this.logger.debug(...args);
   }
 
-  info(message: string): void {
-    this.logger.info(message);
+  trace(...args: any[]): void {
+    this.logger.trace(...args);
   }
 
-  warn(message: string): void {
-    this.logger.warn(message);
+  info(...args: any[]): void {
+    this.logger.info(...args);
+  }
+
+  warn(...args: any[]): void {
+    this.logger.warn(...args);
   }
 
   async getArchivedLogs(): Promise<string> {
@@ -94,8 +60,8 @@ export class Log {
     const archive = archiver('zip');
 
     output.on('close', () => {
-      console.log(`${archive.pointer()} total bytes`);
-      console.log('archiver has been finalized and the output file descriptor has closed.');
+      // (`${archive.pointer()} total bytes`);
+      // ('archiver has been finalized and the output file descriptor has closed.');
     });
 
     archive.on('error', (err) => {
@@ -111,13 +77,10 @@ export class Log {
   /*
   async sendCrashReport(): Promise<void> {
     const BloxApiService = require('../communication-manager/blox-api.service').default;
-    console.log('SEND REPORT CRASH');
     const form = new FormData();
     form.append('file', fs.createReadStream('logs/error.log.2020-08-30-14.2'));
     // eslint-disable-next-line no-underscore-dangle
-    console.log(`multipart/form-data; boundary=${form._boundary}`);
     await BloxApiService.request(METHOD.POST, 'organizations/crash-report', form, { 'Content-Type': 'multipart/form-data' });
-    console.log('---->done crash report');
   }
   */
 }

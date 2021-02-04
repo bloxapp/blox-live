@@ -2,16 +2,22 @@ import { Subject } from './subject.interface';
 import { Observer } from './observer.interface';
 import { Catch, catchDecoratorStore } from '../decorators';
 import BaseStore from '../common/store-manager/base-store';
+import { Log } from '../common/logger/logger';
 
 export default class ProcessClass implements Subject {
   readonly actions: Array<any>;
   readonly fallbackActions: Array<any>;
   readonly maxRunBeforeFallback: number = 0; // default
+  readonly logger: Log;
 
   step: number;
   state: string;
   error: Error;
   action: any;
+
+  constructor() {
+    this.logger = new Log();
+  }
   /**
    * @type {Observer[]} List of subscribers. In real life, the list of
    * subscribers can be stored more comprehensively (categorized by event
@@ -25,10 +31,10 @@ export default class ProcessClass implements Subject {
   subscribe(observer: any): void { // Observer
     const isExist = this.observers.includes(observer);
     if (isExist) {
-      return console.log('Subject: Observer has been attached already.');
+      return this.logger.debug('Subject: Observer has been attached already.');
       // return this.logger.debug('Subject: Observer has been attached already.');
     }
-    console.log('Subject: Attached an observer.');
+    this.logger.debug('Subject: Attached an observer.');
     // this.logger.debug('Subject: Attached an observer.');
     this.observers.push(observer);
   }
@@ -36,12 +42,12 @@ export default class ProcessClass implements Subject {
   unsubscribe(observer: any): void { // Observer
     const observerIndex = this.observers.indexOf(observer);
     if (observerIndex === -1) {
-      return console.log('Subject: Nonexistent observer.');
+      return this.logger.debug('Subject: Nonexistent observer.');
       // return this.logger.debug('Subject: Nonexistent observer.');
     }
 
     this.observers.splice(observerIndex, 1);
-    console.log('Subject: Detached an observer.');
+    this.logger.debug('Subject: Detached an observer.');
     // this.logger.debug('Subject: Detached an observer.');
   }
 
@@ -79,6 +85,7 @@ export default class ProcessClass implements Subject {
       // eslint-disable-next-line no-await-in-loop
       const result = await action.instance[action.method].bind(action.instance)(extra);
       if (this.error) {
+        this.logger.error(this.error.message, this.error);
         throw this.error;
       }
       const { name } = result.step;
@@ -108,9 +115,9 @@ export default class ProcessClass implements Subject {
       await this.processActions(this.actions);
     } catch (e) {
       error = e;
-      console.log('-----MAIN PROCESS FAILED-----');
+      this.logger.warn('-----MAIN PROCESS FAILED-----');
       baseStore.set('proccessRun', proccessRun + 1);
-      console.log('maxRunBeforeFallback:', this.maxRunBeforeFallback, 'run:', baseStore.get('proccessRun'));
+      this.logger.debug('maxRunBeforeFallback:', this.maxRunBeforeFallback, 'run:', baseStore.get('proccessRun'));
       const skipFallback = this.maxRunBeforeFallback && this.maxRunBeforeFallback > baseStore.get('proccessRun');
       if (!skipFallback) {
         baseStore.delete('proccessRun');
@@ -123,13 +130,13 @@ export default class ProcessClass implements Subject {
   async fallBack(): Promise<void> {
     if (!Array.isArray(this.fallbackActions)) return;
     this.state = 'fallback';
-    console.log('-----FALLBACK-----');
+    this.logger.warn('-----FALLBACK RUN-----');
     try {
       const { actions = null} = this.fallbackActions.find(item => item.method === this.action.method) || this.fallbackActions.find(item => item.postActions);
       if (!actions) return;
       await this.processActions(actions);
     } catch (error) {
-      console.log('-----FALLBACK FAILED-----', error);
+      this.logger.error('-----FALLBACK FAILED-----');
     }
   }
 }

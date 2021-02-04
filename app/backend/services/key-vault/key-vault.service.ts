@@ -8,6 +8,7 @@ import { METHOD } from '../../common/communication-manager/constants';
 import { Catch, CatchClass, Step } from '../../decorators';
 import config from '../../common/config';
 import { isVersionHigherOrEqual } from '../../../utils/service';
+import { Log } from '../../common/logger/logger';
 
 function sleep(msec) {
   return new Promise(resolve => {
@@ -23,6 +24,7 @@ export default class KeyVaultService {
   private readonly walletService: WalletService;
   private readonly bloxApi: BloxApi;
   private storePrefix: string;
+  private logger: Log;
 
   constructor(prefix: string = '') {
     this.storePrefix = prefix;
@@ -32,6 +34,7 @@ export default class KeyVaultService {
     this.walletService = new WalletService(this.storePrefix);
     this.bloxApi = new BloxApi();
     this.bloxApi.init();
+    this.logger = new Log();
   }
 
   async updateStorage(payload: any) {
@@ -43,7 +46,7 @@ export default class KeyVaultService {
   }
 
   async listAccounts() {
-    console.log('try list accounts...');
+    this.logger.info('try to get keyVault server accounts...');
     try {
       const response = await this.keyVaultApi.requestThruSsh({
         method: METHOD.LIST,
@@ -51,7 +54,7 @@ export default class KeyVaultService {
       });
       return response?.data.accounts || [];
     } catch (e) {
-      console.log('g=', e);
+      this.logger.error(e.message, e);
       const { errors } = JSON.parse(e.message);
       if (Array.isArray(errors)) {
         // eslint-disable-next-line no-restricted-syntax
@@ -139,7 +142,7 @@ export default class KeyVaultService {
     if (!signerToken) throw new Error('vault-plugin signerToken not found');
     Connection.db(this.storePrefix).set('vaultSignerToken', signerToken);
 
-    console.log('ROOTSIGNER', rootToken, signerToken);
+    this.logger.debug('ROOTSIGNER', rootToken, signerToken);
   }
 
   @Step({
@@ -259,7 +262,7 @@ export default class KeyVaultService {
       }
       return { isActive: true };
     } catch (e) {
-      console.error(e);
+      this.logger.error('Sync keyvault healthcheck failed', e);
       return { isActive: false };
     }
   }

@@ -2,24 +2,27 @@ import Connection from '../store-manager/connection';
 import NodeSSH from 'node-ssh';
 import { Readable } from 'stream';
 import { v4 as uuidv4 } from 'uuid';
+import { Log } from '../logger/logger';
 import config from '../config';
 
 const userName = 'ec2-user';
 
 export default class KeyVaultSsh {
   private storePrefix: string;
+  private logger: Log;
 
   constructor(prefix: string = '') {
     this.storePrefix = prefix;
+    this.logger = new Log();
   }
 
   async getConnection(customPort?: string): Promise<NodeSSH> {
     const ssh = new NodeSSH();
     const keyPair: any = Connection.db(this.storePrefix).get('keyPair');
     const port = customPort || Connection.db(this.storePrefix).get('port') || config.env.port;
-    console.log('keyPair=', keyPair);
-    console.log('publicIp=', Connection.db(this.storePrefix).get('publicIp'));
-    console.log('port=', port);
+    this.logger.trace('> keyPair', keyPair);
+    this.logger.trace('> publicIp', Connection.db(this.storePrefix).get('publicIp'));
+    this.logger.trace('> port', port);
     await ssh.connect({
       host: Connection.db(this.storePrefix).get('publicIp'),
       port,
@@ -43,7 +46,6 @@ export default class KeyVaultSsh {
   async dataToRemoteFile(data: any): Promise<string> {
     const readStream = Readable.from([JSON.stringify(data)]);
     const remoteFileName = `/home/${userName}/${uuidv4()}.data`;
-    console.log(remoteFileName, data);
     const ssh = await this.getConnection();
     await ssh.withSFTP(async (sftp) => {
       return new Promise((resolve, reject) => {

@@ -4,8 +4,10 @@ import { PROCESS_SUBSCRIBE } from './actionTypes';
 import * as actions from './actions';
 import { processInstantiator, Listener } from './service';
 import { getNetwork } from '../Wizard/selectors';
+import { Log } from '../../backend/common/logger/logger';
 
 function* startProcess(action) {
+  const logger = new Log();
   const { payload } = action;
   const { name, credentials } = payload;
   const network = yield select(getNetwork);
@@ -23,8 +25,8 @@ function* startProcess(action) {
       if (stepData) {
         data = stepData;
       }
-      console.log('result', result);
-      console.log(`${step?.num}/${step?.numOf} - ${step?.name}`);
+      // logger.info('result', result);
+      step?.name && logger.info(`${step?.num}/${step?.numOf} - ${step?.name}`);
       let message = step?.name;
       let currentStep = 0;
       let overallSteps = 0;
@@ -56,7 +58,6 @@ function createChannel(process) {
   return eventChannel((emitter) => {
     const callback = (subject, payload) => {
       const { error, state } = payload;
-      console.log('==???', error, state);
       emitter({ subject, payload });
       if (state === 'completed') {
         process.unsubscribe(listener);

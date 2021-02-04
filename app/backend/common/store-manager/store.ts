@@ -2,7 +2,7 @@ import fs from 'fs';
 import * as crypto from 'crypto';
 import ElectronStore from 'electron-store';
 import BaseStore from './base-store';
-import { Logger } from '../logger/logger';
+import { Log } from '../logger/logger';
 import { Catch } from '../../decorators';
 import { Migrate } from '../../migrate';
 export default class Store {
@@ -14,7 +14,7 @@ export default class Store {
   public cryptoKey: string;
   private cryptoKeyTTL: number = 20; // 20 minutes
   private timer: any;
-  private logger: Logger;
+  private logger: Log;
 
   constructor(prefix: string = '') {
     this.baseStore = new BaseStore();
@@ -24,7 +24,7 @@ export default class Store {
     } else {
       this.prefix = prefix;
     }
-    this.logger = new Logger();
+    this.logger = new Log();
   }
 
   init(userId: string, authToken: string): void {
@@ -133,7 +133,7 @@ export default class Store {
 
   @Catch()
   unsetCryptoKey() {
-    this.logger.error('unsetCryptoKey');
+    this.logger.info('unsetCryptoKey');
     this.cryptoKey = null;
     if (this.timer) {
       clearTimeout(this.timer);
@@ -159,7 +159,7 @@ export default class Store {
   async setCryptoKey(cryptoKey: string) {
     // clean timer which was run before, and run new one
     this.unsetCryptoKey();
-    this.logger.error('setCryptoKey');
+    this.logger.info('setCryptoKey');
     this.cryptoKey = this.createCryptoKey(cryptoKey);
     // eslint-disable-next-line @typescript-eslint/no-implied-eval
     this.timer = setTimeout(this.unsetCryptoKey.bind(this), this.cryptoKeyTTL * 1000 * 60);

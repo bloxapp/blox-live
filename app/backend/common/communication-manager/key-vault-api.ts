@@ -2,14 +2,17 @@ import Http from './http';
 import Connection from '../store-manager/connection';
 import KeyVaultSsh from './key-vault-ssh';
 import { isVersionHigherOrEqual } from '../../../utils/service';
+import { Log } from '../logger/logger';
 import config from '../config';
 
 export default class KeyVaultApi extends Http {
   private storePrefix: string;
   private readonly keyVaultSsh: KeyVaultSsh;
+  private logger: Log;
 
   constructor(prefix: string = '') {
     super();
+    this.logger = new Log();
     this.storePrefix = prefix;
     this.keyVaultSsh = new KeyVaultSsh(prefix);
   }
@@ -52,15 +55,17 @@ export default class KeyVaultApi extends Http {
       dataAsFile: remoteFileName,
       route: `http${isVersionHigherOrEqual(keyVaultVersion, config.env.SSL_SUPPORTED_TAG) ? 's' : ''}://localhost:8200/v1/${isNetworkRequired ? `ethereum/${network}/` : ''}${path}`
     }, true);
-    console.log('curl=', command);
+    this.logger.trace('keyvault server cmd', command);
     const { stdout, stderr } = await ssh.execCommand(command, {});
     if (stderr) {
+      this.logger.trace('keyvault stdout error', stderr);
       throw new Error(stderr);
     }
     const body = JSON.parse(stdout);
     // remoteFileName && await ssh.execCommand(`rm ${remoteFileName}`, {});
-    console.log('curl answer=', body);
+    this.logger.trace('keyvault server answer', command);
     if (body.errors) {
+      this.logger.trace('keyvault server errors', body);
       throw new Error(JSON.stringify(body));
     }
     return body;

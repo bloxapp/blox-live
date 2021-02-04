@@ -3,7 +3,7 @@ import { METHOD } from '../../common/communication-manager/constants';
 import Connection from '../../common/store-manager/connection';
 import KeyVaultSsh from '../../common/communication-manager/key-vault-ssh';
 import { Catch, CatchClass, Step } from '../../decorators';
-import { Logger } from '../../common/logger/logger';
+import { Log } from '../../common/logger/logger';
 import KeyManagerService from '../key-manager/key-manager.service';
 
 @CatchClass<WalletService>()
@@ -11,7 +11,7 @@ export default class WalletService {
   private readonly keyVaultSsh: KeyVaultSsh;
   private readonly keyManagerService: KeyManagerService;
   private readonly bloxApi: BloxApi;
-  private readonly logger: Logger;
+  private readonly logger: Log;
   private storePrefix: string;
 
   constructor(prefix: string = '') {
@@ -20,7 +20,7 @@ export default class WalletService {
     this.keyManagerService = new KeyManagerService();
     this.bloxApi = new BloxApi();
     this.bloxApi.init();
-    this.logger = new Logger();
+    this.logger = new Log();
   }
 
   async get() {

@@ -9,7 +9,7 @@ import Web3 from 'web3';
 import WalletService from '../wallet/wallet.service';
 import config from '../../common/config';
 import { hexDecode } from '../../../utils/service';
-import { Logger } from '../../common/logger/logger';
+import { Log } from '../../common/logger/logger';
 
 // @CatchClass<AccountService>()
 export default class AccountService {
@@ -19,6 +19,7 @@ export default class AccountService {
   private readonly bloxApi: BloxApi;
   private readonly beaconchaApi: BeaconchaApi;
   private storePrefix: string;
+  private logger: Log;
 
   constructor(prefix: string = '') {
     this.storePrefix = prefix;
@@ -27,6 +28,7 @@ export default class AccountService {
     this.keyManagerService = new KeyManagerService();
     this.bloxApi = new BloxApi();
     this.bloxApi.init();
+    this.logger = new Log();
 
     this.beaconchaApi = new BeaconchaApi();
   }
@@ -47,15 +49,13 @@ export default class AccountService {
     displayMessage: 'Get highest attestation failed'
   })
   async getHighestAttestation(payload: any, retries = 2) {
-    const logger = new Logger();
     if (payload.public_keys.length === 0) return {};
     try {
       this.beaconchaApi.init(payload.network);
       const generalData = await this.bloxApi.request(METHOD.POST, 'ethereum2/highest-attestation', payload);
       const beaconchaData = await this.beaconchaApi.request(METHOD.GET, 'block/latest');
       const keyManagerData = await this.keyManagerService.getAttestation(payload.network);
-      console.warn('getHighestAttestation: raw answers', generalData, beaconchaData, keyManagerData);
-      logger.debug(`getHighestAttestation: raw answers > ${JSON.stringify({ generalData, beaconchaData, keyManagerData })}`);
+      this.logger.trace('getHighestAttestation: raw answers', generalData, beaconchaData, keyManagerData);
       Object.keys(generalData).forEach(key => {
         const {
           highest_source_epoch: bloxSourceEpoch,
@@ -90,14 +90,13 @@ export default class AccountService {
           highest_target_epoch: epoch
         };
       });
-      console.warn('getHighestAttestation: result', generalData);
-      logger.debug(`getHighestAttestation: selected > ${JSON.stringify(generalData)}`);
+      this.logger.info('getHighestAttestation: selected', generalData);
       return generalData;
     } catch (e) {
       if (retries === 0) {
         throw e;
       }
-      console.warn('getHighestAttestation: fails, retry...', e);
+      this.logger.error('getHighestAttestation: fails, retry...', e);
       await new Promise((resolve) => setTimeout(resolve, 2000)); // hard delay for 2sec
       return await this.getHighestAttestation(payload, retries - 1);
     }
@@ -213,9 +212,9 @@ export default class AccountService {
 
   async getNextIndex(network: string): Promise<number> {
     let index = 0;
-    console.log('try getIndex...');
+    this.logger.debug('try getIndex...');
     const accounts = await this.keyVaultService.listAccounts();
-    console.log('=getnextindex', accounts);
+    this.logger.debug('getnextindex', accounts);
     if (accounts.length) {
       index = +accounts[0].name.replace('account-', '') + 1;
     }
@@ -274,7 +273,6 @@ export default class AccountService {
       throw new Error('Configuration settings network not found');
     }
     const index: number = +Connection.db(this.storePrefix).get(`index.${network}`);
-    console.log('----delete', index);
     if (index < 0) {
       await this.walletService.createWallet();
     } else {

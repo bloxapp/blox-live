@@ -17,6 +17,8 @@ import userSaga from '../User/saga';
 import {Loader} from '../../common/components';
 import {useInjectSaga} from '../../utils/injectSaga';
 
+import { Log } from 'backend/common/logger/logger';
+
 const AppWrapper = styled.div`
   margin: 0 auto;
   height: 100%;
@@ -31,8 +33,10 @@ const App = (props: Props) => {
   useInjectSaga({key: loginKey, saga: loginSaga, mode: ''});
   const {isLoggedIn, isLoading, actions} = props;
   const {setSession, loginFailure} = actions;
+  const logger = new Log();
 
   const init = async () => {
+    logger.debug('initialize app window');
     await setAppInitialised(true);
     await initApp();
   };
