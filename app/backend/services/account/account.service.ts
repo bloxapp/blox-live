@@ -312,7 +312,7 @@ export default class AccountService {
       Connection.db(this.storePrefix).set('network', network);
       const networkAccounts = accounts
         .filter(acc => acc.network === network)
-        .sort((a, b) => +a.name.split('-')[1] - b.name.split('-')[1]);
+        .sort((a, b) => a.name.split('-')[1] - b.name.split('-')[1]);
 
       const lastIndex = networkAccounts[networkAccounts.length - 1].name.split('-')[1];
       // eslint-disable-next-line no-await-in-loop
