@@ -54,7 +54,7 @@ export default class KeyVaultService {
       });
       return response?.data.accounts || [];
     } catch (e) {
-      this.logger.error(e.message, e);
+      this.logger.error(e);
       const { errors } = JSON.parse(e.message);
       if (Array.isArray(errors)) {
         // eslint-disable-next-line no-restricted-syntax
@@ -92,6 +92,7 @@ export default class KeyVaultService {
       });
       return response?.data || {};
     } catch (e) {
+      this.logger.error(e);
       const { errors } = JSON.parse(e.message);
       if (Array.isArray(errors)) {
         // eslint-disable-next-line no-restricted-syntax
@@ -178,6 +179,7 @@ export default class KeyVaultService {
     await sleep(12000);
 
     if (error) {
+      this.logger.error(error);
       throw new Error(`Failed to run Key Vault docker container: ${error}`);
     }
   }
@@ -283,6 +285,7 @@ export default class KeyVaultService {
       const ssh = await this.keyVaultSsh.getConnection();
       const { stderr: error } = await ssh.execCommand(`sudo sed -i '1iPort ${config.env.TARGET_SSH_PORT}\\nLoginGraceTime 30s' /etc/ssh/sshd_config && sudo service sshd restart`, {});
       if (error) {
+        this.logger.error(error);
         throw new Error('Could not setup sshd configuration');
       }
     }
