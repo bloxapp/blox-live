@@ -307,13 +307,15 @@ export default class AccountService {
     const uniqueNetworks = [...new Set(accounts.map(acc => acc.network))];
     // eslint-disable-next-line no-restricted-syntax
     for (const network of uniqueNetworks) {
+      // eslint-disable-next-line no-continue
       if (network === 'test') continue;
       Connection.db(this.storePrefix).set('network', network);
       const networkAccounts = accounts
         .filter(acc => acc.network === network)
-        .sort((a, b) => a.name.localeCompare(b.name));
+        .sort((a, b) => +a.name.split('-')[1] - b.name.split('-')[1]);
 
       const lastIndex = networkAccounts[networkAccounts.length - 1].name.split('-')[1];
+      // eslint-disable-next-line no-await-in-loop
       await this.createAccount(false, +lastIndex);
     }
   }
