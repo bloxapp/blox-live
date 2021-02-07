@@ -87,6 +87,18 @@ yarn package-win
 ```
 You can find the release files under release directory.
 
+#### Logger
+
+Logger has two appenders, file `trace.log` and `console.log`.
+```bash
+logger.trace - console.log only
+logger.debug - console.log only
+
+logger.info - console.log + trace.log file
+logger.warn - console.log + trace.log file
+logger.error - console.log + trace.log file
+```
+
 ## Tech Stack
 
 - <a href="https://www.electronjs.org">ElectronJS</a> To create a cross desktop app for all operating systems.
