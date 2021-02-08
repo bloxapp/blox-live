@@ -1,15 +1,15 @@
 import React, { useEffect } from 'react';
-import { ProcessLoader, ModalTemplate } from 'common/components';
-import { Title, SmallText, Wrapper } from 'common/components/ModalTemplate/components';
-import useProcessRunner from 'components/ProcessRunner/useProcessRunner';
-import Connection from 'backend/common/store-manager/connection';
-
 import { MODAL_TYPES } from '../../Dashboard/constants';
+import Connection from 'backend/common/store-manager/connection';
+import { ProcessLoader, ModalTemplate } from 'common/components';
+import useProcessRunner from 'components/ProcessRunner/useProcessRunner';
+
+import { Title, SmallText, Wrapper } from 'common/components/ModalTemplate/components';
 
 import image from 'assets/images/img-recovery.svg';
 
 const RecoveringModal = (props: Props) => {
-  const { isLoading, processMessage, isDone, isServerActive, clearProcessState, loaderPrecentage } = useProcessRunner();
+  const { isLoading, processMessage, isDone, isServerActive, clearProcessState, loaderPercentage } = useProcessRunner();
   const { move1StepForward, move2StepsForward, type } = props;
 
   const onSuccess = () => {
@@ -35,7 +35,7 @@ const RecoveringModal = (props: Props) => {
     <ModalTemplate image={image}>
       <Title>Recovering Your Account</Title>
       <Wrapper>
-        <ProcessLoader text={processMessage} precentage={loaderPrecentage} />
+        <ProcessLoader text={processMessage} precentage={loaderPercentage} />
       </Wrapper>
       <SmallText withWarning />
     </ModalTemplate>

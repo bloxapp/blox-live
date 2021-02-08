@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Box from './Box';
-import BoxWithPopper from './BoxWithPopper';
 import { getBoxes } from './service';
+import BoxWithPopper from './BoxWithPopper';
 
 const Wrapper = styled.div`
   width: 100%;

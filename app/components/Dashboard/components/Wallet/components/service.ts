@@ -33,7 +33,7 @@ export const getBoxes = (isActive: boolean, summary: Record<string, any>) => {
     {
       name: 'totalBalance',
       width: '290px',
-      color: 'gray800',
+      color: !summary ? 'gray600' : 'gray800',
       bigText: !summary ? 'N/A' : trimWholeNumber(summary.balance),
       medText: !summary ? '' : `${trimDecimalNumber(summary.balance, false)}`,
       tinyText: 'Total Balance',
@@ -41,7 +41,7 @@ export const getBoxes = (isActive: boolean, summary: Record<string, any>) => {
     {
       name: 'sinceStart',
       width: '260px',
-      color: !summary ? 'gray800' : getNumberColor(summary.sinceStart),
+      color: !summary ? 'gray600' : getNumberColor(summary.sinceStart),
       bigText: !summary ? 'N/A' : trimWholeNumber(summary.sinceStart),
       medText: !summary ? '' : `${trimDecimalNumber(summary.sinceStart, false)}`,
       tinyText: 'Since Start',
@@ -49,7 +49,7 @@ export const getBoxes = (isActive: boolean, summary: Record<string, any>) => {
     {
       name: 'change',
       width: '220px',
-      color: !summary ? 'gray800' : getNumberColor(summary.totalChange),
+      color: !summary ? 'gray600' : getNumberColor(summary.totalChange),
       bigText: !summary ? 'N/A' : trimWholeNumber(summary.totalChange),
       medText: !summary ? '' : `${trimDecimalNumber(summary.totalChange, true)}`,
       tinyText: 'Change',

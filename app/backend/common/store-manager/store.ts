@@ -2,9 +2,10 @@ import fs from 'fs';
 import * as crypto from 'crypto';
 import ElectronStore from 'electron-store';
 import BaseStore from './base-store';
-import { Logger } from '../logger/logger';
-import { Catch } from '../../decorators';
+import { Log } from '../logger/logger';
 import { Migrate } from '../../migrate';
+import { Catch } from '../../decorators';
+
 export default class Store {
   private storage: ElectronStore;
   private baseStore: BaseStore;
@@ -12,9 +13,9 @@ export default class Store {
   private readonly encryptedKeys: Array<string> = ['keyPair', 'seed', 'credentials', 'vaultRootToken', 'vaultSignerToken'];
   private readonly cryptoAlgorithm: string = 'aes-256-ecb';
   public cryptoKey: string;
-  private cryptoKeyTTL: number = 20; // 20 minutes
+  private cryptoKeyTTL: number = 4 * 60; // 4 hours
   private timer: any;
-  private logger: Logger;
+  private logger: Log;
 
   constructor(prefix: string = '') {
     this.baseStore = new BaseStore();
@@ -24,7 +25,7 @@ export default class Store {
     } else {
       this.prefix = prefix;
     }
-    this.logger = new Logger();
+    this.logger = new Log();
   }
 
   init(userId: string, authToken: string): void {
@@ -133,7 +134,7 @@ export default class Store {
 
   @Catch()
   unsetCryptoKey() {
-    this.logger.error('unsetCryptoKey');
+    this.logger.info('unsetCryptoKey');
     this.cryptoKey = null;
     if (this.timer) {
       clearTimeout(this.timer);
@@ -159,7 +160,7 @@ export default class Store {
   async setCryptoKey(cryptoKey: string) {
     // clean timer which was run before, and run new one
     this.unsetCryptoKey();
-    this.logger.error('setCryptoKey');
+    this.logger.info('setCryptoKey');
     this.cryptoKey = this.createCryptoKey(cryptoKey);
     // eslint-disable-next-line @typescript-eslint/no-implied-eval
     this.timer = setTimeout(this.unsetCryptoKey.bind(this), this.cryptoKeyTTL * 1000 * 60);

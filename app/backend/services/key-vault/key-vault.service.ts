@@ -1,17 +1,18 @@
-import Connection from '../../common/store-manager/connection';
-import KeyVaultSsh from '../../common/communication-manager/key-vault-ssh';
-import VersionService from '../version/version.service';
+import config from '../../common/config';
+import { Log } from '../../common/logger/logger';
 import WalletService from '../wallet/wallet.service';
-import KeyVaultApi from '../../common/communication-manager/key-vault-api';
+import VersionService from '../version/version.service';
+import { Catch, CatchClass, Step } from '../../decorators';
+import Connection from '../../common/store-manager/connection';
+import { isVersionHigherOrEqual } from '../../../utils/service';
 import BloxApi from '../../common/communication-manager/blox-api';
 import { METHOD } from '../../common/communication-manager/constants';
-import { Catch, CatchClass, Step } from '../../decorators';
-import config from '../../common/config';
-import { isVersionHigherOrEqual } from '../../../utils/service';
+import KeyVaultSsh from '../../common/communication-manager/key-vault-ssh';
+import KeyVaultApi from '../../common/communication-manager/key-vault-api';
 
-function sleep(msec) {
+function sleep(milliseconds) {
   return new Promise(resolve => {
-    setTimeout(resolve, msec);
+    setTimeout(resolve, milliseconds);
   });
 }
 
@@ -23,6 +24,7 @@ export default class KeyVaultService {
   private readonly walletService: WalletService;
   private readonly bloxApi: BloxApi;
   private storePrefix: string;
+  private logger: Log;
 
   constructor(prefix: string = '') {
     this.storePrefix = prefix;
@@ -32,6 +34,7 @@ export default class KeyVaultService {
     this.walletService = new WalletService(this.storePrefix);
     this.bloxApi = new BloxApi();
     this.bloxApi.init();
+    this.logger = new Log();
   }
 
   async updateStorage(payload: any) {
@@ -43,7 +46,7 @@ export default class KeyVaultService {
   }
 
   async listAccounts() {
-    console.log('try list accounts...');
+    this.logger.info('try to get keyVault server accounts...');
     try {
       const response = await this.keyVaultApi.requestThruSsh({
         method: METHOD.LIST,
@@ -51,7 +54,7 @@ export default class KeyVaultService {
       });
       return response?.data.accounts || [];
     } catch (e) {
-      console.log('g=', e);
+      this.logger.error(e);
       const { errors } = JSON.parse(e.message);
       if (Array.isArray(errors)) {
         // eslint-disable-next-line no-restricted-syntax
@@ -89,6 +92,7 @@ export default class KeyVaultService {
       });
       return response?.data || {};
     } catch (e) {
+      this.logger.error(e);
       const { errors } = JSON.parse(e.message);
       if (Array.isArray(errors)) {
         // eslint-disable-next-line no-restricted-syntax
@@ -139,7 +143,7 @@ export default class KeyVaultService {
     if (!signerToken) throw new Error('vault-plugin signerToken not found');
     Connection.db(this.storePrefix).set('vaultSignerToken', signerToken);
 
-    console.log('ROOTSIGNER', rootToken, signerToken);
+    this.logger.debug('ROOTSIGNER', rootToken, signerToken);
   }
 
   @Step({
@@ -175,6 +179,7 @@ export default class KeyVaultService {
     await sleep(12000);
 
     if (error) {
+      this.logger.error(error);
       throw new Error(`Failed to run Key Vault docker container: ${error}`);
     }
   }
@@ -259,7 +264,7 @@ export default class KeyVaultService {
       }
       return { isActive: true };
     } catch (e) {
-      console.error(e);
+      this.logger.error('Sync keyvault healthcheck failed', e);
       return { isActive: false };
     }
   }
@@ -280,6 +285,7 @@ export default class KeyVaultService {
       const ssh = await this.keyVaultSsh.getConnection();
       const { stderr: error } = await ssh.execCommand(`sudo sed -i '1iPort ${config.env.TARGET_SSH_PORT}\\nLoginGraceTime 30s' /etc/ssh/sshd_config && sudo service sshd restart`, {});
       if (error) {
+        this.logger.error(error);
         throw new Error('Could not setup sshd configuration');
       }
     }

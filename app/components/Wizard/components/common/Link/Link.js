@@ -5,7 +5,7 @@ const Wrapper = styled.a`
   font-size: 12px;
   font-weight: 500;
   color: ${({ theme }) => theme.primary900};
-  font-family: Avenir;
+  font-family: Avenir, serif;
   &:hover {
     color: ${({ theme }) => theme.primary700};
   }

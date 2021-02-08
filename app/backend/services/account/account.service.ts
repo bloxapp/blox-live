@@ -1,17 +1,16 @@
+import Web3 from 'web3';
+import config from '../../common/config';
+import { Catch, Step } from '../../decorators';
+import { Log } from '../../common/logger/logger';
+import { hexDecode } from '../../../utils/service';
+import WalletService from '../wallet/wallet.service';
+import KeyVaultService from '../key-vault/key-vault.service';
 import Connection from '../../common/store-manager/connection';
 import BloxApi from '../../common/communication-manager/blox-api';
-import BeaconchaApi from '../../common/communication-manager/beaconcha-api';
-import { METHOD } from '../../common/communication-manager/constants';
-import { Catch, CatchClass, Step } from '../../decorators';
-import KeyVaultService from '../key-vault/key-vault.service';
 import KeyManagerService from '../key-manager/key-manager.service';
-import Web3 from 'web3';
-import WalletService from '../wallet/wallet.service';
-import config from '../../common/config';
-import { hexDecode } from '../../../utils/service';
-import { Logger } from '../../common/logger/logger';
+import { METHOD } from '../../common/communication-manager/constants';
+import BeaconchaApi from '../../common/communication-manager/beaconcha-api';
 
-// @CatchClass<AccountService>()
 export default class AccountService {
   private readonly walletService: WalletService;
   private readonly keyVaultService: KeyVaultService;
@@ -19,6 +18,7 @@ export default class AccountService {
   private readonly bloxApi: BloxApi;
   private readonly beaconchaApi: BeaconchaApi;
   private storePrefix: string;
+  private logger: Log;
 
   constructor(prefix: string = '') {
     this.storePrefix = prefix;
@@ -27,6 +27,7 @@ export default class AccountService {
     this.keyManagerService = new KeyManagerService();
     this.bloxApi = new BloxApi();
     this.bloxApi.init();
+    this.logger = new Log();
 
     this.beaconchaApi = new BeaconchaApi();
   }
@@ -47,15 +48,13 @@ export default class AccountService {
     displayMessage: 'Get highest attestation failed'
   })
   async getHighestAttestation(payload: any, retries = 2) {
-    const logger = new Logger();
     if (payload.public_keys.length === 0) return {};
     try {
       this.beaconchaApi.init(payload.network);
       const generalData = await this.bloxApi.request(METHOD.POST, 'ethereum2/highest-attestation', payload);
       const beaconchaData = await this.beaconchaApi.request(METHOD.GET, 'block/latest');
       const keyManagerData = await this.keyManagerService.getAttestation(payload.network);
-      console.warn('getHighestAttestation: raw answers', generalData, beaconchaData, keyManagerData);
-      logger.debug(`getHighestAttestation: raw answers > ${JSON.stringify({ generalData, beaconchaData, keyManagerData })}`);
+      this.logger.trace('getHighestAttestation: raw answers', generalData, beaconchaData, keyManagerData);
       Object.keys(generalData).forEach(key => {
         const {
           highest_source_epoch: bloxSourceEpoch,
@@ -90,14 +89,13 @@ export default class AccountService {
           highest_target_epoch: epoch
         };
       });
-      console.warn('getHighestAttestation: result', generalData);
-      logger.debug(`getHighestAttestation: selected > ${JSON.stringify(generalData)}`);
+      this.logger.info('getHighestAttestation: selected', generalData);
       return generalData;
     } catch (e) {
       if (retries === 0) {
         throw e;
       }
-      console.warn('getHighestAttestation: fails, retry...', e);
+      this.logger.error('getHighestAttestation: fails, retry...', e);
       await new Promise((resolve) => setTimeout(resolve, 2000)); // hard delay for 2sec
       return await this.getHighestAttestation(payload, retries - 1);
     }
@@ -111,17 +109,41 @@ export default class AccountService {
   }
 
   @Step({
-    name: 'Create Blox Account'
+    name: 'Create Blox Accounts'
   })
   @Catch({
-    displayMessage: 'Create Blox Account failed'
+    displayMessage: 'Create Blox Accounts failed'
   })
-  async createBloxAccount(): Promise<any> {
+  async createBloxAccounts({ indexToRestore }: { indexToRestore?: number }): Promise<any> {
     const network = Connection.db(this.storePrefix).get('network');
-    const index: number = +Connection.db(this.storePrefix).get(`index.${network}`) + 1;
-    const lastIndexedAccount = await this.keyManagerService.getAccount(Connection.db(this.storePrefix).get('seed'), index, network);
-    lastIndexedAccount.network = network;
-    const account = await this.create(lastIndexedAccount);
+    const lastNetworkIndex = +Connection.db(this.storePrefix).get(`index.${network}`);
+    const index: number = indexToRestore ?? (lastNetworkIndex + 1 || 0);
+    const accumulate = indexToRestore != null;
+
+    // Get cumulative accounts list or one account
+    let accounts = await this.keyManagerService.getAccount(
+      Connection.db(this.storePrefix).get('seed'),
+      index,
+      network,
+      accumulate
+    );
+
+    if (accumulate) {
+      // Reverse for account-0 on index 0 etc
+      accounts = { data: accounts.reverse(), network };
+    } else {
+      accounts = { data: [accounts], network };
+    }
+
+    // Set imported flag for imported accounts
+    accounts.data = accounts.data.map((acc) => {
+      acc.imported = accumulate;
+      return acc;
+    });
+
+    console.log({ createBloxAccounts: accounts });
+
+    const account = await this.create(accounts);
     if (account.error && account.error instanceof Error) return;
     return { data: account };
   }
@@ -132,9 +154,9 @@ export default class AccountService {
   @Catch({
     displayMessage: 'CLI Create Account failed'
   })
-  async createAccount(getNextIndex = true, indexToRestore = 0): Promise<void> {
+  async createAccount({ indexToRestore }: { indexToRestore?: number }): Promise<void> {
     const network = Connection.db(this.storePrefix).get('network');
-    const index: number = getNextIndex ? await this.getNextIndex(network) : indexToRestore;
+    const index: number = indexToRestore ?? await this.getNextIndex(network);
     // 1. get public-keys to create
     const accounts = await this.keyManagerService.getAccount(Connection.db(this.storePrefix).get('seed'), index, network, true);
     const accountsHash = Object.assign({}, ...accounts.map(account => ({ [account.validationPubKey]: account })));
@@ -150,6 +172,7 @@ export default class AccountService {
     // 3. update accounts-hash from exist slashing storage
     // eslint-disable-next-line no-restricted-syntax
     for (const key of Object.keys(accountsHash)) {
+      // eslint-disable-next-line no-prototype-builtins
       if (slashingData && slashingData.hasOwnProperty(key)) {
         const decodedValue = hexDecode(slashingData[key]);
         const decodedValueJson = JSON.parse(decodedValue);
@@ -172,6 +195,7 @@ export default class AccountService {
     // 5. update accounts-hash from slasher
     // eslint-disable-next-line no-restricted-syntax
     for (const [key, value] of Object.entries(highestAttestationsMap)) {
+      // @ts-ignore
       accountsHash[key] = { ...accountsHash[key], ...value };
     }
 
@@ -205,7 +229,7 @@ export default class AccountService {
         if (index > -1) {
           Connection.db(this.storePrefix).set('network', network);
           // eslint-disable-next-line no-await-in-loop
-          await this.createAccount(false, index);
+          await this.createAccount({ indexToRestore: index });
         }
       }
     }
@@ -213,9 +237,9 @@ export default class AccountService {
 
   async getNextIndex(network: string): Promise<number> {
     let index = 0;
-    console.log('try getIndex...');
+    this.logger.debug('try getIndex...');
     const accounts = await this.keyVaultService.listAccounts();
-    console.log('=getnextindex', accounts);
+    this.logger.debug('getnextindex', accounts);
     if (accounts.length) {
       index = +accounts[0].name.replace('account-', '') + 1;
     }
@@ -274,15 +298,20 @@ export default class AccountService {
       throw new Error('Configuration settings network not found');
     }
     const index: number = +Connection.db(this.storePrefix).get(`index.${network}`);
-    console.log('----delete', index);
     if (index < 0) {
       await this.walletService.createWallet();
     } else {
-      await this.createAccount(false, index);
+      await this.createAccount({ indexToRestore: index });
     }
   }
 
   // TODO delete per network, blocked by web-api
+  @Step({
+    name: 'Delete all accounts'
+  })
+  @Catch({
+    displayMessage: 'Failed to delete all accounts'
+  })
   async deleteAllAccounts(): Promise<void> {
     const supportedNetworks = [config.env.PYRMONT_NETWORK, config.env.MAINNET_NETWORK];
     // eslint-disable-next-line no-restricted-syntax
@@ -307,14 +336,16 @@ export default class AccountService {
     const uniqueNetworks = [...new Set(accounts.map(acc => acc.network))];
     // eslint-disable-next-line no-restricted-syntax
     for (const network of uniqueNetworks) {
+      // eslint-disable-next-line no-continue
       if (network === 'test') continue;
       Connection.db(this.storePrefix).set('network', network);
       const networkAccounts = accounts
         .filter(acc => acc.network === network)
-        .sort((a, b) => a.name.localeCompare(b.name));
+        .sort((a, b) => a.name.split('-')[1] - b.name.split('-')[1]);
 
       const lastIndex = networkAccounts[networkAccounts.length - 1].name.split('-')[1];
-      await this.createAccount(false, +lastIndex);
+      // eslint-disable-next-line no-await-in-loop
+      await this.createAccount({ indexToRestore: +lastIndex });
     }
   }
 

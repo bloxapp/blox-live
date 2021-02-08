@@ -14,29 +14,32 @@ const Wrapper = styled.div`
 `;
 
 const Table = (props: Props) => {
-  const {data, columns, withHeader, isPagination, selectedSorting, sortType, onSortClick, paginationInfo, onPageClick} = props;
+  const {
+    data, columns, withHeader, isPagination, selectedSorting,
+    sortType, onSortClick, paginationInfo, onPageClick, totalCount } = props;
   return (
     <Wrapper>
       {withHeader && (
         <Header columns={columns} selectedSorting={selectedSorting} sortType={sortType}
           onSortClick={onSortClick} />
       )}
-      <Body columns={columns} data={data} />
+      <Body columns={columns} data={data} totalCount={totalCount || null} />
       <Footer isPagination={isPagination} paginationInfo={paginationInfo} onPageClick={onPageClick} />
     </Wrapper>
   );
 };
 
 type Props = {
-  data: [];
-  columns: [];
+  data: any[];
+  totalCount?: number;
+  columns: any[];
   withHeader: boolean;
   isPagination: boolean;
-  selectedSorting: string;
-  sortType: string;
-  onSortClick: () => void;
+  selectedSorting?: string;
+  sortType?: string;
+  onSortClick?: () => void;
   paginationInfo: Record<string, any>;
-  onPageClick: () => void;
+  onPageClick: (offset) => void;
 };
 
 export default Table;

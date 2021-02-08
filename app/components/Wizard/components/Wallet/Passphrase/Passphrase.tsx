@@ -14,6 +14,7 @@ import keyvaultSaga from '../../../../KeyVaultManagement/saga';
 
 import { useInjectSaga } from 'utils/injectSaga';
 import useCreatePassword from 'common/hooks/useCreatePassword';
+import BackButton from '../../common/BackButton';
 
 const keyvaultKey = 'keyvaultManagement';
 const passwordKey = 'password';
@@ -56,8 +57,6 @@ const Passphrase = (props: Props) => {
 
   const showBackupScreen = () => mnemonic && toggleBackupDisplay(true);
 
-  const hideBackupScreen = () => toggleBackupDisplay(false);
-
   const canGenerateMnemonic = () => {
     const mnemonicsAreEqual = mnemonic === duplicatedMnemonic;
     const passwordsAreEqual = password === confirmPassword;
@@ -73,10 +72,14 @@ const Passphrase = (props: Props) => {
     setDuplicatedMnemonicErrorDisplay(false);
   };
 
+  const onBackButtonClick = () => {
+    showBackup ? toggleBackupDisplay(false) : setPage(page - 1);
+  };
   return (
-    <>
+    <div>
+      <BackButton onClick={onBackButtonClick} />
       {showBackup ? (
-        <Backup onNextButtonClick={onSaveAndConfirmClick} onBackButtonClick={hideBackupScreen}
+        <Backup onNextButtonClick={onSaveAndConfirmClick}
           password={password} setPassword={setPassword} confirmPassword={confirmPassword}
           setConfirmPassword={setConfirmPassword} isSaveAndConfirmEnabled={canGenerateMnemonic}
           duplicatedMnemonic={duplicatedMnemonic} setDuplicatedMnemonic={setDuplicatedMnemonic}
@@ -89,7 +92,7 @@ const Passphrase = (props: Props) => {
           onNextButtonClick={showBackupScreen} onDownloadClick={onDownloadClick}
         />
       )}
-    </>
+    </div>
   );
 };
 

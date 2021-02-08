@@ -1,20 +1,20 @@
 import url from 'url';
-import jwtDecode from 'jwt-decode';
 import { shell } from 'electron';
+import jwtDecode from 'jwt-decode';
+import config from 'backend/common/config';
 import { SOCIAL_APPS } from 'common/constants';
 import { createAuthWindow } from './Auth-Window';
+import { Log } from 'backend/common/logger/logger';
 import { createLogoutWindow } from './Logout-Window';
 import Connection from 'backend/common/store-manager/connection';
 import BloxApi from 'backend/common/communication-manager/blox-api';
-import { METHOD } from 'backend/common/communication-manager/constants';
 import AuthApi from 'backend/common/communication-manager/auth-api';
-import config from 'backend/common/config';
-import { Migrate } from 'backend/migrate';
 // analytics tools
 import analytics from '../../backend/analytics';
 import BaseStore from '../../backend/common/store-manager/base-store';
 import { getOsVersion } from 'utils/service';
 import { version } from 'package.json';
+import { METHOD } from 'backend/common/communication-manager/constants';
 
 export default class Auth {
   idToken: string;
@@ -22,6 +22,7 @@ export default class Auth {
   auth: Auth0ConfigObject;
   private readonly authApi: AuthApi;
   private readonly bloxApi: BloxApi;
+  private readonly logger: Log;
 
   constructor() {
     this.idToken = '';
@@ -35,6 +36,7 @@ export default class Auth {
     };
     this.authApi = new AuthApi();
     this.bloxApi = new BloxApi();
+    this.logger = new Log();
   }
 
   loginWithSocialApp = async (name: string) => {
@@ -48,6 +50,7 @@ export default class Auth {
             idTokenPayload: userProfile
           });
         }
+        this.logger.error('Login error thru social app');
         reject(new Error('Error in login'));
       };
       const onFailure = () => reject(new Error(''));
@@ -84,6 +87,7 @@ export default class Auth {
       return await this.authApi.request('POST', 'token', JSON.stringify(exchangeOptions), null, true);
     } catch (error) {
       await this.logout();
+      this.logger.error('Load auth token error');
       return Error(error);
     }
   };
@@ -99,6 +103,7 @@ export default class Auth {
         });
       }
       else {
+        this.logger.error('Error handling callback from browser');
         reject(new Error('Error in login'));
       }
     });
@@ -109,6 +114,7 @@ export default class Auth {
     const { id_token } = authResult;
     this.idToken = id_token;
     this.userProfile = userProfile;
+    this.logger.info('Setup user account');
     Connection.setup({ currentUserId: userProfile.sub, authToken: authResult.id_token });
     // Store.getStore().init(userProfile.sub, authResult.id_token);
     await analytics.identify(userProfile.sub, {

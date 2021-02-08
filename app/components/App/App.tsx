@@ -1,21 +1,18 @@
-import React, {useState, useEffect} from 'react';
-import {bindActionCreators} from 'redux';
-import {connect} from 'react-redux';
+import React, { useState, useEffect } from 'react';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
-
+import { bindActionCreators } from 'redux';
 import LoggedIn from '../LoggedIn';
-import NotLoggedIn from '../NotLoggedIn';
-
-import GlobalStyle from '../../common/styles/global-styles';
-import {deepLink, initApp} from './service';
-
-import {getIsLoggedIn, getIsLoading} from '../CallbackPage/selectors';
-import * as loginActions from '../CallbackPage/actions';
-import loginSaga from '../CallbackPage/saga';
 import userSaga from '../User/saga';
-
-import {Loader} from '../../common/components';
-import {useInjectSaga} from '../../utils/injectSaga';
+import NotLoggedIn from '../NotLoggedIn';
+import loginSaga from '../CallbackPage/saga';
+import { deepLink, initApp } from './service';
+import { Loader } from '../../common/components';
+import { Log } from 'backend/common/logger/logger';
+import { useInjectSaga } from '../../utils/injectSaga';
+import * as loginActions from '../CallbackPage/actions';
+import GlobalStyle from '../../common/styles/global-styles';
+import { getIsLoggedIn, getIsLoading } from '../CallbackPage/selectors';
 
 // analytics tools
 import analytics from '../../backend/analytics';
@@ -38,6 +35,7 @@ const App = (props: Props) => {
   useInjectSaga({key: loginKey, saga: loginSaga, mode: ''});
   const {isLoggedIn, isLoading, actions} = props;
   const {setSession, loginFailure} = actions;
+  const logger = new Log();
 
   const init = async () => {
     const baseStore: BaseStore = new BaseStore();
@@ -58,6 +56,7 @@ const App = (props: Props) => {
       label: appUuid,
     });
 
+    logger.debug('initialize app window');
     await setAppInitialised(true);
     await initApp();
   };

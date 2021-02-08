@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon } from 'common/components';
-import { CloseButton, Title, StepsCounter, ContentManager, NavigationButtonsWrapper, NavigationButton } from './components';
+import {
+  Title, StepsCounter, ContentManager,
+  NavigationButtonsWrapper, NavigationButton
+} from './components';
 
 const Wrapper = styled.div`
   width:350px;
   height:calc(100% - 70px);
   display:flex;
   position:fixed;
-  right:0px;
+  right:0;
   top:70px;
   padding:24px;
   flex-direction: column;
@@ -20,7 +22,7 @@ const Wrapper = styled.div`
 
 const lastPage = 6;
 
-const Guide = ({onClose}) => {
+const Guide = () => {
   const [page, setPage] = useState(1);
 
   const onPrevClick = () => setPage(page - 1);
@@ -28,9 +30,6 @@ const Guide = ({onClose}) => {
 
   return (
     <Wrapper>
-      <CloseButton>
-        <Icon onClick={onClose} name={'close'} color={'gray800'} fontSize={'24px'} />
-      </CloseButton>
       <Title>How To Create My AWS &apos;Access Key ID&apos; and &apos;Secret Access Key&apos;</Title>
       <StepsCounter>{page} of {lastPage}</StepsCounter>
       <ContentManager page={page} />
@@ -46,10 +45,6 @@ const Guide = ({onClose}) => {
       </NavigationButtonsWrapper>
     </Wrapper>
   );
-};
-
-Guide.propTypes = {
-  onClose: PropTypes.func,
 };
 
 export default Guide;

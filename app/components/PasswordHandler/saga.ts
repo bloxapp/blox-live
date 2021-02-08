@@ -1,6 +1,6 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
-import * as actionTypes from './actionTypes';
 import * as actions from './actions';
+import * as actionTypes from './actionTypes';
 import Connection from 'backend/common/store-manager/connection';
 
 import { notification } from 'antd';

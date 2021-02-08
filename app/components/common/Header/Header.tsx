@@ -1,29 +1,21 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { withRouter, RouteComponentProps } from 'react-router-dom';
 import styled from 'styled-components';
 import { ClickAwayListener } from '@material-ui/core';
+import { withRouter, RouteComponentProps } from 'react-router-dom';
 import HeaderLink from './HeaderLink';
 import { ProfileMenu } from './components';
-
 import { logout } from '../../CallbackPage/actions';
 import { getUserData } from '../../CallbackPage/selectors';
-
-import { getWizardFinishedStatus, getWalletStatus } from '../../Wizard/selectors';
-
-import * as actionsFromDashboard from '../../Dashboard/actions';
-import * as actionsFromWizard from '../../Wizard/actions';
-import * as actionsFromAccounts from '../../Accounts/actions';
-import usePasswordHandler from '../../PasswordHandler/usePasswordHandler';
-import { MODAL_TYPES } from '../../Dashboard/constants';
+import { getWizardFinishedStatus } from '../../Wizard/selectors';
+import AddValidatorButtonWrapper from './components/AddValidatorButtonWrapper';
 
 import imageSrc from 'assets/images/staking-logo.svg';
 
 const Wrapper = styled.div`
   width: 100%;
   height: 70px;
-  padding: 0px 7.5vw;
+  padding: 0 7.5vw;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -31,7 +23,7 @@ const Wrapper = styled.div`
   background-size: cover;
   background-position: center;
   position: fixed;
-  top: 0px;
+  top: 0;
   z-index: 10;
 `;
 
@@ -68,7 +60,7 @@ const AddValidatorButton = styled.button`
   background-color:${({ theme }) => theme.primary700};
   color:${({ theme }) => theme.gray50};
   margin-right:20px;
-  border:0px;
+  border:0;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -82,34 +74,13 @@ const AddValidatorButton = styled.button`
 `;
 
 const Header = (props: Props) => {
-  const { withMenu, profile, logoutUser, isFinishedWizard, walletStatus, location,
-          dashboardActions, accountsActions, wizardActions } = props;
-
-  const { checkIfPasswordIsNeeded } = usePasswordHandler();
-  const { setModalDisplay, clearModalDisplayData } = dashboardActions;
-  const { setAddAnotherAccount } = accountsActions;
-  const { setFinishedWizard } = wizardActions;
+  const { withMenu, profile, logoutUser, location, isDashboard } = props;
   const [isProfileMenuOpen, toggleProfileMenuOpenDisplay] = useState(false);
-  const isInDashboardPage = location.pathname === '/' && isFinishedWizard;
+  const showAddValidatorButton = location.pathname === '/' && isDashboard;
   const hideTopNav = true;
-
-  const onAddValidatorPasswordSuccess = () => {
-    setAddAnotherAccount(true);
-    setFinishedWizard(false);
-    clearModalDisplayData();
-  };
 
   const handleProfileClickAway = () => {
     toggleProfileMenuOpenDisplay(false);
-  };
-
-  const onAddValidatorClick = () => {
-    if (walletStatus === 'active') {
-      checkIfPasswordIsNeeded(onAddValidatorPasswordSuccess);
-      return;
-    }
-    const text = 'Your KeyVault is inactive. Please reactivate your KeyVault before creating a new validator.';
-    setModalDisplay({show: true, type: MODAL_TYPES.REACTIVATION, text});
   };
 
   return (
@@ -122,8 +93,10 @@ const Header = (props: Props) => {
         </Center>
       )}
       <Right>
-        {isInDashboardPage && (
-          <AddValidatorButton onClick={() => onAddValidatorClick()}>Add Validator</AddValidatorButton>
+        {showAddValidatorButton && (
+          <AddValidatorButtonWrapper>
+            <AddValidatorButton>Add Validator</AddValidatorButton>
+          </AddValidatorButtonWrapper>
         )}
         {profile && (
           <ClickAwayListener onClickAway={handleProfileClickAway}>
@@ -144,24 +117,16 @@ interface Props extends RouteComponentProps {
   withMenu: boolean;
   profile: Record<string, any>;
   logoutUser: () => void;
-  isFinishedWizard: boolean;
-  walletStatus: string;
-  dashboardActions: Record<string, any>;
-  accountsActions: Record<string, any>;
-  wizardActions: Record<string, any>;
+  isDashboard: boolean;
 }
 
 const mapStateToProps = (state) => ({
   profile: getUserData(state),
   isFinishedWizard: getWizardFinishedStatus(state),
-  walletStatus: getWalletStatus(state)
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  logoutUser: () => dispatch(logout()),
-  dashboardActions: bindActionCreators(actionsFromDashboard, dispatch),
-  accountsActions: bindActionCreators(actionsFromAccounts, dispatch),
-  wizardActions: bindActionCreators(actionsFromWizard, dispatch),
+  logoutUser: () => dispatch(logout())
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Header));

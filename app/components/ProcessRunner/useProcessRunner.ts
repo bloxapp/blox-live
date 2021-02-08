@@ -1,10 +1,10 @@
 import { useSelector, useDispatch, shallowEqual } from 'react-redux';
 
-import * as selectors from './selectors';
-import { processSubscribe, processClearState } from './actions';
 import saga from './saga';
+import * as selectors from './selectors';
 import { useInjectSaga } from 'utils/injectSaga';
 import { precentageCalculator } from 'utils/service';
+import { processSubscribe, processClearState } from './actions';
 
 const {
   getName, getMessage, getIsLoading, getIsDone, getIsServerActive,
@@ -29,15 +29,15 @@ const useProcessRunner = () => {
     overallSteps: useSelector(getOverallSteps, shallowEqual),
     currentStep: useSelector(getCurrentStep, shallowEqual),
   };
-  const loaderPrecentage = precentageCalculator(steps.currentStep, steps.overallSteps);
+  const loaderPercentage = precentageCalculator(steps.currentStep, steps.overallSteps);
 
-  const startProcess: StartProcess = async (name, defaultMessage, credentials) => {
-    await dispatch(processSubscribe(name, defaultMessage, credentials));
+  const startProcess: StartProcess = async (name, defaultMessage, credentials, network?: string, indexToRestore?: number) => {
+    await dispatch(processSubscribe(name, defaultMessage, credentials, network, indexToRestore));
   };
 
   const clearProcessState: ClearProcess = () => dispatch(processClearState());
 
-  return { ...props, loaderPrecentage, startProcess, clearProcessState };
+  return { ...props, loaderPercentage, startProcess, clearProcessState };
 };
 
 type Steps = {
@@ -55,7 +55,7 @@ type Props = {
   error: string;
 };
 
-type StartProcess = (name: string, defaultMessage: string, credentials: Record<string, any> | null) => void;
+type StartProcess = (name: string, defaultMessage: string, credentials: Record<string, any> | null, network?: string, indexToRestore?: number) => void;
 type ClearProcess = () => void;
 
 export default useProcessRunner;

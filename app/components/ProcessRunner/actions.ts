@@ -1,8 +1,9 @@
 import * as actionTypes from './actionTypes';
 
-export const processSubscribe = (name: string, defaultMessage: string, credentials: Record<string, any>) => ({
+export const processSubscribe = (name: string, defaultMessage: string, credentials: Record<string, any>,
+                                 network?: string, indexToRestore?: number) => ({
   type: actionTypes.PROCESS_SUBSCRIBE,
-  payload: { name, defaultMessage, credentials },
+  payload: { name, defaultMessage, credentials, network, indexToRestore },
 });
 
 export const processObserve = (payload: Record<string, any>) => ({

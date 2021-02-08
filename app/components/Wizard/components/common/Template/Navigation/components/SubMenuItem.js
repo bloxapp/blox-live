@@ -68,7 +68,7 @@ const Text = styled.span`
 const SubMenuItem = ({ text, number, page }) => {
   const isActive = page === number;
   const isDone = page > number;
-  const showHorizontalLine = number !== 1 && number !== 5;
+  const showHorizontalLine = number !== 1;
   return (
     <Wrapper showHorizontalLine={showHorizontalLine}>
       <Circle isActive={isActive} isDone={isDone}>

@@ -1,5 +1,5 @@
+import { remote } from 'electron';
 import { notification } from 'antd';
-import {remote} from 'electron';
 import queryString from 'query-string';
 
 export const initApp = () => {
@@ -8,7 +8,7 @@ export const initApp = () => {
 };
 
 export const deepLink = (onSuccess, onFailure) => {
-  remote.app.on('open-url', (event, data) => {
+  remote.app.on('open-url', (_event, data) => {
     if (data) {
       const questionMarkIndex = data.indexOf('//');
       const trimmedCode = data.substring(questionMarkIndex + 2);
@@ -26,7 +26,7 @@ export const deepLink = (onSuccess, onFailure) => {
     }
   });
 
-  remote.app.on('second-instance', (event, commandLine) => {
+  remote.app.on('second-instance', (_event, commandLine) => {
     if (commandLine[2].includes('blox-live://')) {
       const questionMarkIndex = commandLine[2].indexOf('//');
       const trimmedCode = commandLine[2].substring(questionMarkIndex + 2);

@@ -1,11 +1,12 @@
 import net from 'net';
-import Connection from '../../common/store-manager/connection';
 import * as AWS from 'aws-sdk';
-import { Catch, CatchClass, Step } from '../../decorators';
-import config from '../../common/config';
 import { v4 as uuidv4 } from 'uuid';
-import VersionService from '../version/version.service';
+import config from '../../common/config';
 import UserService from '../users/users.service';
+import { Log } from '../../common/logger/logger';
+import VersionService from '../version/version.service';
+import { Catch, CatchClass, Step } from '../../decorators';
+import Connection from '../../common/store-manager/connection';
 
 // TODO import from .env
 const defaultAwsOptions = {
@@ -20,8 +21,10 @@ export default class AwsService {
   private storePrefix: string;
   private readonly versionService: VersionService;
   private readonly userService: UserService;
+  private logger: Log;
 
   constructor(prefix: string = '') {
+    this.logger = new Log();
     this.storePrefix = prefix;
     if (!this.ec2 && Connection.db(this.storePrefix).exists('credentials')) {
       this.setAWSCredentials();
@@ -78,7 +81,6 @@ export default class AwsService {
     name: 'Creating secure EC2 key pair...'
   })
   async createEc2KeyPair() {
-    console.log('KEYPAIIIIR', this.storePrefix, Connection.db(this.storePrefix).exists('keyPair'));
     if (Connection.db(this.storePrefix).exists('keyPair')) return;
 
     const {
@@ -249,7 +251,7 @@ export default class AwsService {
         addressId: filteredAssocs[0]?.AllocationId,
         securityGroupId: oldInstance.SecurityGroups[0]?.GroupId
       };
-      console.log('going to destroy', params);
+      this.logger.info('going to destroy aws resources', params);
       // eslint-disable-next-line no-await-in-loop
       await this.destroyResources(params);
     }
@@ -265,7 +267,7 @@ export default class AwsService {
     try {
       securityGroupId && await this.ec2.deleteSecurityGroup({ GroupId: securityGroupId }).promise();
     } catch (e) {
-      console.error(e);
+      this.logger.error('Error in destroy aws resources process', e);
     }
   }
 
@@ -281,9 +283,9 @@ export default class AwsService {
         const socket = new net.Socket();
         const onError = () => {
           socket.destroy();
-          console.log('waiting', Connection.db(this.storePrefix).get('publicIp'), totalSeconds);
+          this.logger.debug('waiting', Connection.db(this.storePrefix).get('publicIp'), totalSeconds);
           if (totalSeconds >= 80000) { // 80 sec
-            console.log('Reached max timeout, exiting...', intervalId);
+            this.logger.debug('Reached max timeout, exiting...', intervalId);
             clearInterval(intervalId);
             reject(new Error('Reached max timeout'));
           }
@@ -294,7 +296,7 @@ export default class AwsService {
         socket.once('timeout', onError);
         const ip: any = Connection.db(this.storePrefix).get('publicIp');
         socket.connect(Connection.db(this.storePrefix).get('port') || config.env.port, ip, () => {
-          console.log('Server is online');
+          this.logger.debug('Server is online');
           socket.destroy();
           clearInterval(intervalId);
           resolve({});

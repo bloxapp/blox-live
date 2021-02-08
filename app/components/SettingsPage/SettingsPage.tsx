@@ -1,9 +1,8 @@
 import React from 'react';
-import { LeftMenuLayout } from '../../common/components';
-import Header from '../common/Header';
-
-import { General, Billing } from './components';
 import Auth from '../Auth';
+import Header from '../common/Header';
+import { General, Billing } from './components';
+import { LeftMenuLayout } from '../../common/components';
 
 const auth = new Auth();
 
@@ -22,7 +21,7 @@ export const PAGES: Pages = [
 
 const SettingsPage = (props: Props) => (
   <>
-    <Header withMenu={props.withMenu} />
+    <Header withMenu={props.withMenu} isDashboard={false} />
     <LeftMenuLayout pages={PAGES} auth={auth} />
   </>
 );

@@ -24,7 +24,7 @@ export const processInstantiator = (processName: string, payload: Record<string,
     return new ReinstallProcess();
   }
   if (processName === PROCESSES.CREATE_ACCOUNT && payload.network) {
-    return new AccountCreateProcess(payload.network);
+    return new AccountCreateProcess(payload.network, payload.indexToRestore);
   }
   return null;
 };

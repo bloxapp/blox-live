@@ -1,26 +1,24 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-
-import { loadDepositData } from '../../../actions';
-import { setDepositNeeded } from '../../../../Accounts/actions';
 import { getNetwork } from '../../../selectors';
-
+import { loadDepositData } from '../../../actions';
+import { GenerateKeys, KeysGenerated } from './components';
+import { setDepositNeeded } from '../../../../Accounts/actions';
 import useProcessRunner from 'components/ProcessRunner/useProcessRunner';
 import usePasswordHandler from '../../../../PasswordHandler/usePasswordHandler';
-
-import { GenerateKeys, KeysGenerated } from './components';
 
 const CreateValidator = (props: Props) => {
   const { isLoading, isDone, processData, error, startProcess, clearProcessState } = useProcessRunner();
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
   const { page, setPage, callLoadDepositData, callSetDepositNeeded, selectedNetwork } = props;
+  const account = processData && processData.length ? processData[0] : processData;
 
   useEffect(() => {
-    if (isDone && processData && !error) {
-      const accountIndex = +processData.name.replace('account-', '');
-      callLoadDepositData(processData.publicKey, accountIndex, processData.network);
+    if (isDone && account && !error) {
+      const accountIndex = +account.name.replace('account-', '');
+      callLoadDepositData(account.publicKey, accountIndex, account.network);
     }
-  }, [isLoading, processData, error]);
+  }, [isLoading, account, error]);
 
   const onGenerateKeysClick = () => {
     const onSuccess = () => {
@@ -35,16 +33,16 @@ const CreateValidator = (props: Props) => {
   };
 
   const onContinueClick = () => {
-    const { publicKey, network } = processData;
-    const accountIndex = +processData.name.replace('account-', '');
+    const { publicKey, network } = account;
+    const accountIndex = +account.name.replace('account-', '');
     callSetDepositNeeded({isNeeded: true, publicKey, accountIndex, network});
     setPage(page + 1);
   };
 
   return (
     <>
-      {processData && !error ? (
-        <KeysGenerated onClick={onContinueClick} validatorData={processData} />
+      {account && !error ? (
+        <KeysGenerated onClick={onContinueClick} validatorData={account} />
       ) : (
         <GenerateKeys network={selectedNetwork} onClick={onGenerateKeysClick} isLoading={isLoading} error={error} />
       )}
@@ -67,7 +65,7 @@ type Props = {
   setPage: (page: number) => void;
   step: number;
   setStep: (page: number) => void;
-  processData: Record<string, any> | null;
+  processData?: Record<string, any> | null;
   callLoadDepositData: (publicKey: string, accountIndex: number, network: string) => void;
   callSetDepositNeeded: (payload: DepositNeededPayload) => void;
   selectedNetwork: string;

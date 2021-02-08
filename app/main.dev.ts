@@ -9,9 +9,9 @@
  * `./app/main.prod.js` using webpack. This gives us some performance wins.
  */
 
+import log from 'electron-log';
 import { app, BrowserWindow } from 'electron';
 import { autoUpdater } from 'electron-updater';
-import log from 'electron-log';
 import MenuBuilder from './menu';
 
 export default class AppUpdater {
@@ -63,7 +63,10 @@ const createWindow = async (downloadsDir) => {
   });
 
   mainWindow.setMinimumSize(width, height);
-  mainWindow.webContents.openDevTools();
+  // TODO: comment bottom line before production release!
+  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
+    mainWindow.webContents.openDevTools();
+  }
 
   mainWindow.loadURL(`file://${__dirname}/app.html?dwldir=${downloadsDir}`);
 

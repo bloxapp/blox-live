@@ -19,4 +19,5 @@ export { default as DiscordButton } from './DiscordButton';
 export { default as PasswordInput } from './PasswordInput';
 export { default as Confetti } from './Confetti';
 export { default as EtherNumber } from './EtherNumber';
-
+export { default as Checkbox } from './Checkbox';
+export { default as ArrowButton } from './ArrowButton';

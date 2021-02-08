@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Button, Icon, Spinner, PasswordInput } from 'common/components';
+import { Button, Spinner, PasswordInput } from 'common/components';
 import { Title, Paragraph, Warning, TextArea } from '../../../../common';
 
 const Wrapper = styled.div`
@@ -13,20 +13,6 @@ const Wrapper = styled.div`
   font-family: Avenir;
   font-size: 16px;
   font-weight: 500;
-`;
-
-const BackButton = styled.div`
-  width:40px;
-  display: flex;
-  align-items:center;
-  justify-content: space-between;
-  color:${({theme}) => theme.primary900};
-  font-size:12px;
-  cursor:pointer;
-`;
-
-const IconWrapper = styled.div`
-  transform:rotate(180deg);
 `;
 
 const PasswordInputsWrapper = styled.div`
@@ -44,31 +30,33 @@ const ButtonWrapper = styled.div`
 `;
 
 const Backup = (props) => {
-  const { onNextButtonClick, onBackButtonClick, password, setPassword, confirmPassword,
+  const { isImport, onNextButtonClick, password, setPassword, confirmPassword,
           setConfirmPassword, isSaveAndConfirmEnabled, duplicatedMnemonic, setDuplicatedMnemonic,
           isLoading, showDuplicatedMnemonicError, onDuplicateMnemonicBlur,
           showPasswordError, onPasswordBlur, showConfirmPasswordError, onConfirmPasswordBlur
         } = props;
+
+  const confirmButtonStyle = { width: 190, height: 40 };
+
   const handleChange = event => {
     const value = event.replace(/[\r\n\v]+/g, '');
     setDuplicatedMnemonic(value);
   };
+
   return (
     <Wrapper>
-      <BackButton onClick={onBackButtonClick}>
-        <IconWrapper>
-          <Icon name={'arrow-forward'} color={'primary900'} />
-        </IconWrapper>
-        Back
-      </BackButton>
-      <Title>Backup Recovery Passphrase</Title>
+      <Title>{isImport ? 'Import Seed' : 'Backup Recovery Passphrase'}</Title>
 
-      <Paragraph>
-        Confirm your Passphrase and set a password for critical actions such as <br />
-        creating/removing a validator.
+      <Paragraph>{
+        isImport ?
+          'Input the Seed provided by your Eth2 launchpad or current staking provider. Set a password to start staking with Blox.' :
+          'Confirm your Passphrase and set a password for critical actions such as creating/removing a validator.'
+      }
       </Paragraph>
 
-      <TextArea value={duplicatedMnemonic} onChange={handleChange} onBlur={onDuplicateMnemonicBlur} autoFocus
+      {isImport && <Warning style={{ marginBottom: '34px'}} text={'Please be sure to store your 24 passphrase seed safely and do not share it with anyone.'} />}
+
+      <TextArea marginTop={0} value={duplicatedMnemonic} onChange={handleChange} onBlur={onDuplicateMnemonicBlur} autoFocus
         placeholder={'Separate each word with a space'} error={showDuplicatedMnemonicError ? 'Passphrase not correct' : ''}
       />
 
@@ -84,18 +72,24 @@ const Backup = (props) => {
       </PasswordInputsWrapper>
 
       <ButtonWrapper>
-        <Button isDisabled={!isSaveAndConfirmEnabled()} onClick={onNextButtonClick}>Save &amp; Confirm</Button>
+        <Button
+          style={confirmButtonStyle}
+          isDisabled={!isSaveAndConfirmEnabled()}
+          onClick={onNextButtonClick}
+        >
+          Save &amp; Confirm
+        </Button>
         {isLoading && <Spinner />}
       </ButtonWrapper>
 
-      <Warning text={'The only way to restore your account or to reset your password is using your passphrase.'} />
+      { !isImport && <Warning text={'The only way to restore your account or to reset your password is using your passphrase.'} />}
     </Wrapper>
   );
 };
 
 Backup.propTypes = {
+  isImport: PropTypes.bool,
   onNextButtonClick: PropTypes.func,
-  onBackButtonClick: PropTypes.func,
   password: PropTypes.string,
   setPassword: PropTypes.func,
   confirmPassword: PropTypes.string,

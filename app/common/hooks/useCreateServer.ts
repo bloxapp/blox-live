@@ -18,7 +18,7 @@ const useCreateServer = ({onStart, onSuccess}: Props) => {
   const dispatch = useDispatch();
 
   const { isLoading, isDone, error, processName, processMessage,
-          startProcess, clearProcessState, loaderPrecentage } = useProcessRunner();
+          startProcess, clearProcessState, loaderPercentage } = useProcessRunner();
 
   const [accessKeyId, setAccessKeyId] = useState('');
   const [secretAccessKey, setSecretAccessKey] = useState('');
@@ -42,7 +42,7 @@ const useCreateServer = ({onStart, onSuccess}: Props) => {
     }
   };
 
-  return { isLoading, error, processMessage, loaderPrecentage, accessKeyId, setAccessKeyId,
+  return { isLoading, error, processMessage, loaderPercentage, accessKeyId, setAccessKeyId,
            secretAccessKey, setSecretAccessKey, onStartProcessClick, isPasswordInputDisabled, isButtonDisabled };
 };
 

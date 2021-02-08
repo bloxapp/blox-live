@@ -1,8 +1,12 @@
 import React from 'react';
+import {connect} from 'react-redux';
 import styled from 'styled-components';
-import { InfoWithTooltip } from 'common/components';
-import { Title, SubTitle, Paragraph, BigButton, SuccessIcon } from '../../../common';
+import { bindActionCreators } from 'redux';
 import { NETWORKS } from '../../constants';
+import { InfoWithTooltip } from 'common/components';
+import * as actionsFromWizard from '../../../../actions';
+import useDashboardData from '../../../../../Dashboard/useDashboardData';
+import { Title, SubTitle, Paragraph, BigButton, SuccessIcon } from '../../../common';
 
 const Wrapper = styled.div``;
 
@@ -21,7 +25,7 @@ const KeyWrapper = styled.div`
 `;
 
 const SmallText = styled.div`
-  margin:16px 0px 24px 0px;
+  margin:16px 0 24px 0;
   font-size:12px;
 `;
 
@@ -30,8 +34,17 @@ publicKeyTooltip += 'including proposing blocks and attesting to others. The val
 let withdrawalKeyTooltip = 'The withdrawal public key is used to incorporate data into an Ethereum staking deposit,';
 withdrawalKeyTooltip += 'which will later be used for identifying the entity that is allowed to withdraw Ether using the Withdrawal Private Key.';
 
-const KeysGenerated = (props: Props) => { // TODO: handle network name
-  const { onClick, validatorData } = props;
+const KeysGenerated = (props: Props) => {
+  const { onClick, validatorData, wizardActions } = props;
+  const { setFinishedWizard, clearWizardData } = wizardActions;
+  const { loadDashboardData } = useDashboardData();
+
+  const onGoToDashboardClick = async () => {
+    await clearWizardData();
+    await setFinishedWizard(true);
+    await loadDashboardData();
+  };
+
   return (
     <Wrapper>
       <SuccessIcon />
@@ -53,16 +66,32 @@ const KeysGenerated = (props: Props) => { // TODO: handle network name
       <SmallText>
         You can later export your validator keys.
       </SmallText>
-      <BigButton onClick={onClick}>
-        Continue to Staking Deposit
-      </BigButton>
+
+      {!validatorData.deposited && (
+        <BigButton onClick={onClick}>
+          Continue to Staking Deposit
+        </BigButton>
+      )}
+
+      {validatorData.deposited && (
+        <BigButton onClick={onGoToDashboardClick}>
+          Continue to Dashboard
+        </BigButton>
+      )}
     </Wrapper>
   );
 };
 
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  wizardActions: bindActionCreators(actionsFromWizard, dispatch)
+});
+
 type Props = {
   onClick: () => void;
   validatorData: Record<string, any>;
+  wizardActions: Record<string, any>;
 };
 
-export default KeysGenerated;
+type Dispatch = (arg0: { type: string }) => any;
+
+export default connect(null, mapDispatchToProps)(KeysGenerated);

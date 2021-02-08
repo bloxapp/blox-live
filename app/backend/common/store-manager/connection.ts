@@ -1,12 +1,11 @@
-import { Logger } from '../logger/logger';
 import Store from './store';
+import { Log } from '../logger/logger';
 import { Catch, Step } from '../../decorators';
 
 const instances = {};
 
 export default class Connection {
   private static userId: string;
-  private logger: Logger;
 
   static setup(payload: { currentUserId: string, authToken: string, prefix?: string }): void {
     Connection.userId = payload.currentUserId;
@@ -16,9 +15,12 @@ export default class Connection {
   }
 
   static db(prefix: string = ''): Store {
+    const logger = new Log();
     const name = `${Connection.userId}${prefix}`;
     if (!instances[name]) {
-      throw new Error('There is no active store connection');
+      const error = new Error('There is no active store connection');
+      logger.error(error);
+      throw error;
     }
     return instances[name];
   }
@@ -43,10 +45,10 @@ export default class Connection {
       fields?: any
     }
   }): void {
+    const logger = new Log();
     const items = Connection.db(payload.fromPrefix).all();
     const { preClean, postClean } = payload;
     if (preClean) {
-      console.log('PRECLEAN');
       Connection.db(payload.toPrefix).clear();
     }
     const data = payload.fields.reduce((aggr, field) => {
@@ -54,9 +56,9 @@ export default class Connection {
       aggr[field] = items[field];
       return aggr;
     }, {});
-    console.log('SET MULTIPLE');
+    logger.debug('Going to set multiple store values');
     Connection.db(payload.toPrefix).setMultiple(data);
-    console.log('=======', Connection.db(payload.toPrefix).all());
+    logger.debug('Set multiple store values result', Connection.db(payload.toPrefix).all());
     if (postClean) {
       if (postClean.fields) {
         postClean.fields.forEach(field => Connection.db(postClean.prefix).delete(field));

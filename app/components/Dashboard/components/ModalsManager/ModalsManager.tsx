@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { KeyVaultReactivation, KeyVaultUpdate, DepositInfoModal, AccountRecovery } from '../../..';
-import { PasswordModal } from '../../../KeyVaultModals';
+import { PasswordModal, FailureModal, ThankYouModal } from '../../../KeyVaultModals';
 import ActiveValidatorModal from '../../../ActiveValidatorModal';
 
 import * as actionsFromDashboard from '../../actions';
@@ -14,9 +14,11 @@ import { getActiveValidators } from '../../../EventLogs/selectors';
 
 import { MODAL_TYPES } from '../../constants';
 
+import imageImportFailed from '../../../Wizard/assets/img-import-failed.svg';
+
 const ModalsManager = (props: Props) => {
   const { dashboardActions, wizardActions, accountsActions, userActions, showModal, modalType, onSuccess, activeValidators } = props;
-  const { clearModalDisplayData } = dashboardActions;
+  const { clearModalDisplayData, setModalDisplay } = dashboardActions;
   const { loadWallet, setFinishedWizard } = wizardActions;
   const { loadAccounts } = accountsActions;
   const { loadUserInfo } = userActions;
@@ -56,6 +58,23 @@ const ModalsManager = (props: Props) => {
       case MODAL_TYPES.DEVICE_SWITCH:
       case MODAL_TYPES.FORGOT_PASSWORD:
         return <AccountRecovery onSuccess={() => onAccountRecoverySuccess()} onClose={() => clearModalDisplayData()} type={modalType} />;
+      case MODAL_TYPES.VALIDATORS_IMPORT_FAILED:
+        return (
+          <FailureModal
+            title="Failed to Import"
+            customImage={imageImportFailed}
+            onClick={() => {
+              setModalDisplay({ show: true, type: MODAL_TYPES.VALIDATORS_IMPORT_FAILED_THANKS });
+            }}
+          />
+        );
+      case MODAL_TYPES.VALIDATORS_IMPORT_FAILED_THANKS:
+        return (
+          <ThankYouModal
+            onClose={() => clearModalDisplayData()}
+            customImage={imageImportFailed}
+          />
+        );
       default:
         return null;
     }

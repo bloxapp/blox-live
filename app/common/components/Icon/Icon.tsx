@@ -18,9 +18,10 @@ const Clickable = styled(Regular)`
   }
 `;
 
-const Icon = ({ name, color, fontSize, onClick, isDisabled }: Props) => onClick ?
+const Icon = ({ name, color, fontSize, onClick, isDisabled, style }: Props) => onClick ?
   (
     <Clickable
+      style={style || {}}
       className={`icon-${name}`}
       color={color}
       fontSize={fontSize}
@@ -29,6 +30,7 @@ const Icon = ({ name, color, fontSize, onClick, isDisabled }: Props) => onClick 
     />
   ) : (
     <Regular
+      style={style || {}}
       className={`icon-${name}`}
       color={color}
       fontSize={fontSize}
@@ -42,6 +44,7 @@ type Props = {
   fontSize: string;
   color: string;
   onClick?: () => void;
+  style?: object;
 };
 
 export default Icon;

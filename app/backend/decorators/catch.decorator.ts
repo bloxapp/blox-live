@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Logger } from '../common/logger/logger';
+import { Log } from '../common/logger/logger';
 
 const catchDecoratorStore = {
   handler: null,
@@ -9,18 +9,19 @@ const catchDecoratorStore = {
 };
 
 const catchFunction = (payload: any = {}, toReflect: boolean = false) => {
-  return function(target, key, descriptor) {
+  return function (target, key, descriptor) {
     if (toReflect) {
       Reflect.defineMetadata(key, true, target, key);
     }
     if (descriptor === undefined) {
-      // no-param-reassign
+      // eslint-disable-next-line no-param-reassign
       descriptor = Object.getOwnPropertyDescriptor(target, key);
     }
     const originalMethod = descriptor.value;
     const isAsync = originalMethod.constructor.name === 'AsyncFunction';
     if (isAsync) {
-      descriptor.value = async function(...args) {
+      // eslint-disable-next-line no-param-reassign
+      descriptor.value = async function (...args) {
         try {
           return await originalMethod.apply(this, args);
         } catch (error) {
@@ -28,7 +29,8 @@ const catchFunction = (payload: any = {}, toReflect: boolean = false) => {
         }
       };
     } else {
-      descriptor.value = function(...args) {
+      // eslint-disable-next-line no-param-reassign
+      descriptor.value = function (...args) {
         try {
           return originalMethod.apply(this, args);
         } catch (error) {
@@ -41,7 +43,7 @@ const catchFunction = (payload: any = {}, toReflect: boolean = false) => {
 };
 
 function handleCatchFunctionError(key: string, error: Error, payload: any) {
-  const logger = new Logger();
+  const logger = new Log();
   const { handler } = catchDecoratorStore;
   const showErrorMessage = !!payload.showErrorMessage;
   const displayMessage = showErrorMessage
@@ -63,9 +65,11 @@ function Catch(payload: any = {}, toReflect: boolean = true) {
 }
 
 function CatchClass<T>(payload: any = {}) {
-  return function(target: new (...params: any[]) => T) {
+  return function (target: new (...params: any[]) => T) {
+    // eslint-disable-next-line no-restricted-syntax
     for (const propertyName of Object.getOwnPropertyNames(target.prototype)) {
       if (Reflect.getMetadata(propertyName, target.prototype, propertyName)) {
+        // eslint-disable-next-line no-continue
         continue;
       }
       let descriptor = Object.getOwnPropertyDescriptor(target.prototype, propertyName);

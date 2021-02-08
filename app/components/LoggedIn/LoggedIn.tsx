@@ -1,22 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Switch, Route, Redirect, withRouter, RouteComponentProps } from 'react-router-dom';
-
-import { Loader } from '../../common/components';
-import Login from '../Login';
+import { bindActionCreators } from 'redux';
+import {
+  Switch, Route, Redirect, withRouter,
+  RouteComponentProps, RouteProps
+} from 'react-router-dom';
+import TestPage from '../Test';
+import LoginPage from '../Login';
+import EntryPage from '../EntryPage';
 import Settings from '../SettingsPage';
 import NotFoundPage from '../NotFoundPage';
-import Wizard from '../Wizard';
-import EntryPage from '../EntryPage';
-import TestPage from '../Test';
-
-import { useInjectSaga } from '../../utils/injectSaga';
 import { onWindowClose } from 'common/service';
-import { isPrimaryDevice, inRecoveryProcess, inForgotPasswordProcess } from './service';
+import { Loader } from '../../common/components';
+import { useInjectSaga } from '../../utils/injectSaga';
 import { allAccountsDeposited } from '../Accounts/service';
+import {
+  isPrimaryDevice, inRecoveryProcess,
+  inForgotPasswordProcess
+} from './service';
 
 // wallet
+import wizardSaga from '../Wizard/saga';
 import { loadWallet, setFinishedWizard } from '../Wizard/actions';
 import {
   getWalletStatus,
@@ -24,9 +28,9 @@ import {
   getWalletError,
   getWizardFinishedStatus,
 } from '../Wizard/selectors';
-import wizardSaga from '../Wizard/saga';
 
 // accounts
+import accountsSaga from '../Accounts/saga';
 import { loadAccounts } from '../Accounts/actions';
 import {
   getAccounts,
@@ -34,22 +38,20 @@ import {
   getAccountsError,
   getAddAnotherAccount
 } from '../Accounts/selectors';
-import accountsSaga from '../Accounts/saga';
 
 // websocket
+import webSocketSaga from '../WebSockets/saga';
 import { connectToWebSockets } from '../WebSockets/actions';
 import {
   getIsConnected,
   getIsLoading as getIsLoadingWebsocket,
   getError as getWebSocketError,
 } from '../WebSockets/selectors';
-import webSocketSaga from '../WebSockets/saga';
 
 // user
+import userSaga from '../User/saga';
 import * as actionsFromUser from '../User/actions';
 import * as userSelectors from '../User/selectors';
-import userSaga from '../User/saga';
-
 import { ModalsManager } from 'components/Dashboard/components';
 import Connection from 'backend/common/store-manager/connection';
 
@@ -67,7 +69,8 @@ const LoggedIn = (props: Props) => {
   const {
     isFinishedWizard, callSetFinishedWizard, walletStatus,
     isLoadingWallet, walletError, callLoadWallet,
-    accounts, addAnotherAccount, isLoadingAccounts, accountsError, callLoadAccounts, callConnectToWebSockets, isWebsocketLoading,
+    accounts, addAnotherAccount, isLoadingAccounts, accountsError,
+    callLoadAccounts, callConnectToWebSockets, isWebsocketLoading,
     websocket, webSocketError, userInfo, userInfoError, isLoadingUserInfo, userActions
   } = props;
 
@@ -90,7 +93,8 @@ const LoggedIn = (props: Props) => {
     if (allDataIsReady && noErrors && doneLoading) {
       const storedUuid = Connection.db().exists('uuid');
       const hasWallet = walletStatus === 'active' || walletStatus === 'offline';
-      const shouldNavigateToDashboard = hasWallet && accounts.length > 0 && allAccountsDeposited(accounts) && !addAnotherAccount;
+      const shouldNavigateToDashboard = hasWallet && accounts.length > 0
+        && allAccountsDeposited(accounts) && !addAnotherAccount;
 
       if (inForgotPasswordProcess()) {
         callSetFinishedWizard(true);
@@ -109,13 +113,21 @@ const LoggedIn = (props: Props) => {
     return <Loader />;
   }
 
+  const RootPage = (rootPageProps: any) => {
+    return <EntryPage {...rootPageProps} {...props} />;
+  };
+
+  const SettingsPage = (routeProps: RouteProps) => {
+    return <Settings {...routeProps} withMenu />;
+  };
+
   return (
     <>
       <Switch>
-        <Route exact path="/" render={(routeProps) => isFinishedWizard ? <EntryPage {...routeProps} /> : <Wizard />} />
-        <Route path="/login" component={Login} />
+        <Route exact path="/" render={RootPage} />
+        <Route path="/login" component={LoginPage} />
         <Route path="/test" component={TestPage} />
-        <Route path="/settings/:path" render={(routeProps) => <Settings {...routeProps} withMenu />} />
+        <Route path="/settings/:path" render={SettingsPage} />
         <Redirect from="/settings" to="/settings/general" />
         <Route path="" component={NotFoundPage} />
       </Switch>

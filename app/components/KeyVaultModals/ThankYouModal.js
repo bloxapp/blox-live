@@ -6,10 +6,10 @@ import { MODAL_TYPES } from '../Dashboard/constants';
 
 import image from '../Wizard/assets/img-key-vault-inactive.svg';
 
-const ThankYouModal = ({onClose, type}) => {
+const ThankYouModal = ({ onClose, type, customImage }) => {
   const showButton = (type !== MODAL_TYPES.DEVICE_SWITCH) && (type !== MODAL_TYPES.FORGOT_PASSWORD);
   return (
-    <ModalTemplate onClose={onClose} image={image}>
+    <ModalTemplate onClose={onClose} image={customImage || image}>
       <Title>Thank You!</Title>
       <Description>
         We will contact you as soon as possible
@@ -22,6 +22,7 @@ const ThankYouModal = ({onClose, type}) => {
 ThankYouModal.propTypes = {
   onClose: PropTypes.func,
   type: PropTypes.string,
+  customImage: PropTypes.oneOfType([PropTypes.any, undefined])
 };
 
 export default ThankYouModal;

@@ -1,14 +1,34 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import {Table} from 'common/components';
+import { Table } from 'common/components';
 import tableColumns from './tableColumns';
-import { handlePageClick } from 'common/components/Table/service';
 import { SORT_TYPE } from 'common/constants';
+import { handlePageClick } from 'common/components/Table/service';
+import AddValidatorButtonWrapper from '../../../common/Header/components/AddValidatorButtonWrapper';
 
 const Wrapper = styled.div`
   width: 100%;
   margin-bottom:36px;
+`;
+
+const NoValidatorsText = styled.div`
+  color: ${({theme}) => theme.gray600};
+  display: inline-block;
+`;
+
+const AddValidatorButton = styled.button`
+  border: solid 1px ${({theme}) => theme.gray400};
+  background-color: transparent;
+  color: ${({theme}) => theme.primary900};
+  margin-left: 10px;
+  border-radius: 6px;
+  font-family: Avenir, serif;
+  font-size: 11px;
+  font-weight: 500;
+  width: 114px;
+  height: 28px;
+  cursor: pointer;
 `;
 
 const Title = styled.h1`
@@ -16,8 +36,8 @@ const Title = styled.h1`
   font-weight: 500;
   line-height: 1.69;
   color: ${({theme}) => theme.gray800};
-  margin-top:0px;
-  margin-bottom:20px;
+  margin-top: 0;
+  margin-bottom: 20px;
 `;
 
 const Validators = ({accounts}) => {
@@ -42,6 +62,19 @@ const Validators = ({accounts}) => {
   if (paginationInfo == null) {
     onPageClick(0);
     return <Wrapper />;
+  }
+
+  if (!accounts || !accounts.length) {
+    const addValidatorButtonWrapperStyle = { display: 'inline-block' };
+    return (
+      <Wrapper>
+        <Title>Validators</Title>
+        <NoValidatorsText>There are no validators to show at the moment</NoValidatorsText>
+        <AddValidatorButtonWrapper style={addValidatorButtonWrapperStyle}>
+          <AddValidatorButton>Add Validator</AddValidatorButton>
+        </AddValidatorButtonWrapper>
+      </Wrapper>
+    );
   }
 
   return (

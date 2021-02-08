@@ -12,7 +12,7 @@ const Wrapper = styled.div`
   color: ${({ theme, color }) => theme[color]};
   border: 1px solid ${({ theme }) => theme.gray300};
   border-radius: 8px;
-  padding: 0px 36px;
+  padding: 0 36px;
 `;
 
 const InnerWrapper = styled.div`

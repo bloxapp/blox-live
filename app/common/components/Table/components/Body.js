@@ -35,7 +35,7 @@ const NoDataRow = styled.div`
   justify-content: center;
 `;
 
-const Body = ({ data, columns }) => (
+const Body = ({ data, columns, totalCount }) => (
   <Wrapper>
     {(!data || data.length === 0) && <NoDataRow>No Data</NoDataRow>}
 
@@ -49,7 +49,7 @@ const Body = ({ data, columns }) => (
           <Row key={dataIndex} gridTemplateColumns={gridTemplateColumns}>
             {columns.map((column, index) => (
               <Cell key={index} justifyContent={column.justifyContent}>
-                {column.valueRender(item[column.key])}
+                {column.valueRender(item[column.key], totalCount)}
               </Cell>
             ))}
           </Row>
@@ -61,6 +61,7 @@ const Body = ({ data, columns }) => (
 Body.propTypes = {
   data: PropTypes.array,
   columns: PropTypes.array,
+  totalCount: PropTypes.number
 };
 
 export default Body;

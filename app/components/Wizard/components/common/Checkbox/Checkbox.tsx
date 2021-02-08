@@ -16,9 +16,9 @@ const Wrapper = styled.div<{ checked: boolean }>`
   cursor:pointer;
 `;
 
-const Checkbox = ({checked, onClick}: Props) => {
+const Checkbox = ({ checked, onClick, style }: Props) => {
   return (
-    <Wrapper checked={checked} onClick={() => onClick(!checked)}>
+    <Wrapper checked={checked} onClick={() => onClick(!checked)} style={style || {}}>
       <Icon color={'white'} name={'check'} fontSize={'18px'} />
     </Wrapper>
   );
@@ -27,6 +27,7 @@ const Checkbox = ({checked, onClick}: Props) => {
 type Props = {
   checked: boolean;
   onClick: (checked: boolean) => void;
+  style?: any
 };
 
 export default Checkbox;

@@ -70,6 +70,16 @@ yarn build
 yarn dev
 ```
 
+#### Different dev modes
+
+##### Zoom the app
+
+```shell
+zoom=-1 yarn dev
+```
+
+See [Zoom Levels](https://github.com/electron/electron/blob/master/docs/api/web-frame.md#webframesetzoomlevellevel)
+
 ### Create packages
 
 BloxStaking desktop app can run on MacOs and Windows. You can create a package from your development enviroment. 
@@ -86,6 +96,18 @@ yarn package-mac
 yarn package-win
 ```
 You can find the release files under release directory.
+
+#### Logger
+
+Logger has two appenders, file `trace.log` and `console.log`.
+```bash
+logger.trace - console.log only
+logger.debug - console.log only
+
+logger.info - console.log + trace.log file
+logger.warn - console.log + trace.log file
+logger.error - console.log + trace.log file
+```
 
 ## Tech Stack
 

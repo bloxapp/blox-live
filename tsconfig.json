@@ -24,9 +24,10 @@
     "outDir": "$$ts-jest$$",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "typeRoots": [],
     "skipLibCheck": true
+    "typeRoots": ["app/types/*.d.ts"]
   },
+  "include": ["app/types/*.d.ts"],
   "exclude": [
     "test",
     "release",

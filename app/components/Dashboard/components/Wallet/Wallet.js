@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Boxes, StatusBar, RefreshButton } from './components';
 import UpdateBanner from './components/UpdateBanner';
+import { Boxes, StatusBar, RefreshButton } from './components';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -17,15 +17,17 @@ const TopPart = styled.div`
 `;
 
 const Wallet = (props) => {
-  const { isActive, isNeedUpdate, ...rest } = props;
+  const { isActive, isNeedUpdate, summary, ...rest } = props;
   return (
     <Wrapper>
       <UpdateBanner isNeedUpdate={isNeedUpdate} />
-      <TopPart>
-        <RefreshButton />
-      </TopPart>
+      {summary && (
+        <TopPart>
+          <RefreshButton />
+        </TopPart>
+      )}
       <StatusBar isActive={isActive} />
-      <Boxes isActive={isActive} {...rest} />
+      <Boxes isActive={isActive} summary={summary} {...rest} />
     </Wrapper>
   );
 };
