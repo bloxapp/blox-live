@@ -127,8 +127,7 @@ export default class ProcessClass implements Subject {
       await this.processActions(this.actions);
     } catch (e) {
       error = e;
-      this.logger.error(e);
-      this.logger.warn('-----MAIN PROCESS FAILED-----');
+      this.logger.error('-----MAIN PROCESS FAILED-----', error);
       baseStore.set('proccessRun', proccessRun + 1);
       const skipFallback = this.maxRunBeforeFallback && this.maxRunBeforeFallback > baseStore.get('proccessRun');
       this.logger.debug(`skipFallback: ${skipFallback}, maxRunBeforeFallback: ${this.maxRunBeforeFallback} run: ${baseStore.get('proccessRun')}`);
