@@ -63,6 +63,7 @@ export default class ReinstallProcess extends ProcessClass {
       { instance: this.keyVaultServiceTmp, method: 'installDockerScope' },
       { instance: this.keyVaultServiceTmp, method: 'runDockerContainer' },
       { instance: this.keyVaultServiceTmp, method: 'getKeyVaultRootToken' },
+      { instance: this.keyVaultServiceTmp, method: 'getKeyVaultStatus' },
       { instance: this.accountServiceTmp, method: 'restoreAccounts' },
       { instance: this.keyVaultServiceTmp, method: 'updateVaultMountsStorage' },
       { instance: this.walletServiceTmp, method: 'syncVaultWithBlox', params: { isNew: false } },
@@ -79,7 +80,6 @@ export default class ReinstallProcess extends ProcessClass {
           }
         }
       },
-      { instance: this.keyVaultService, method: 'getKeyVaultStatus' },
       {
         instance: Connection,
         method: 'remove',
