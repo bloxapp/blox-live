@@ -130,12 +130,15 @@ export default class KeyVaultService {
     name: 'Getting KeyVault authentication token...'
   })
   async getKeyVaultRootToken(): Promise<void> {
+    const reducePolicies = Connection.db().exists('reducePolicies');
     const ssh = await this.keyVaultSsh.getConnection();
-    const { stdout: rootToken } = await ssh.execCommand('sudo cat data/keys/vault.root.token', {});
+    const adminPolicyCommand = reducePolicies ? 'vault token create -field=token -policy=admin' : 'sudo cat data/keys/vault.root.token';
+    const signerPolicyCommand = reducePolicies ? 'vault token create -field=token -policy=signer' : 'sudo cat data/keys/vault.signer.token';
+    const { stdout: rootToken } = await ssh.execCommand(adminPolicyCommand, {});
     if (!rootToken) throw new Error('vault-plugin rootToken not found');
     Connection.db(this.storePrefix).set('vaultRootToken', rootToken);
 
-    const { stdout: signerToken } = await ssh.execCommand('sudo cat data/keys/vault.signer.token', {});
+    const { stdout: signerToken } = await ssh.execCommand(signerPolicyCommand, {});
     if (!signerToken) throw new Error('vault-plugin signerToken not found');
     Connection.db(this.storePrefix).set('vaultSignerToken', signerToken);
 
@@ -153,15 +156,17 @@ export default class KeyVaultService {
 
     const keyVaultVersion = await this.versionService.getLatestKeyVaultVersion();
     const envKey = (Connection.db(this.storePrefix).get('env') || 'production');
+    const reducePolicies = Connection.db().exists('reducePolicies');
     const dockerHubImage = `bloxstaking/key-vault${envKey === 'production' ? '' : '-rc'}:${keyVaultVersion}`;
 
     const dockerCMD = 'docker start key_vault 2>/dev/null || ' +
-      `docker pull  ${dockerHubImage} && docker run -d --restart unless-stopped --cap-add=IPC_LOCK --name=key_vault ` +
+      `docker pull ${dockerHubImage} && docker run -d --restart unless-stopped --cap-add=IPC_LOCK --name=key_vault ` +
       '-v $(pwd)/data:/data ' +
       '-v $(pwd)/policies:/policies ' +
       '-p 8200:8200 ' +
       `-e VAULT_EXTERNAL_ADDRESS='${Connection.db(this.storePrefix).get('publicIp')}' ` +
       '-e UNSEAL=true ' +
+      `-e V2=${reducePolicies} ` +
       `-e VAULT_CLIENT_TIMEOUT='30s' '${dockerHubImage}'`;
 
     const ssh = await this.keyVaultSsh.getConnection();
