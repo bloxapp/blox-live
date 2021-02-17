@@ -17,12 +17,13 @@ const Table = (props: Props) => {
   const {
     data, columns, withHeader, isPagination, selectedSorting,
     sortType, onSortClick, paginationInfo, onPageClick, totalCount,
-    navButtonWidth } = props;
+    navButtonWidth, rowMinHeight, headerHeight, footerHeight } = props;
 
   return (
     <Wrapper>
       {withHeader && (
         <Header
+          height={headerHeight}
           columns={columns}
           selectedSorting={selectedSorting}
           sortType={sortType}
@@ -30,11 +31,13 @@ const Table = (props: Props) => {
         />
       )}
       <Body
+        rowMinHeight={rowMinHeight}
         columns={columns}
         data={data}
         totalCount={totalCount || null}
       />
       <Footer
+        height={footerHeight}
         isPagination={isPagination}
         paginationInfo={paginationInfo}
         onPageClick={onPageClick}
@@ -47,6 +50,9 @@ const Table = (props: Props) => {
 type Props = {
   data: any[];
   totalCount?: number;
+  rowMinHeight?: number | string;
+  headerHeight?: number | string;
+  footerHeight?: number | string;
   columns: any[];
   withHeader: boolean;
   isPagination: boolean;

@@ -13,14 +13,15 @@ const Wrapper = styled.div`
 `;
 
 const Boxes = (props) => {
-  const { isActive, summary } = props;
+  const { isActive, summary, walletVersion } = props;
   const boxes = getBoxes(isActive, summary);
   return (
     <Wrapper>
       {boxes.map((box, index) => {
         const { name, width, color, bigText, medText, tinyText } = box;
         if (index === boxes.length - 1) {
-          return (<BoxWithPopper {...box} key={index} {...props} />);
+          const textWithVersion = `${tinyText} Version ${walletVersion}`;
+          return (<BoxWithPopper {...box} key={index} tinyText={textWithVersion} {...props} />);
         }
         return (
           <Box key={`box${index}`} name={name} width={width} color={color}
@@ -35,6 +36,7 @@ const Boxes = (props) => {
 Boxes.propTypes = {
   isActive: PropTypes.bool,
   summary: PropTypes.object,
+  walletVersion: PropTypes.string
 };
 
 export default Boxes;

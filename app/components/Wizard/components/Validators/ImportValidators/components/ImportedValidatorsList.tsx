@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import styled from 'styled-components/dist/styled-components.esm';
 
+import analytics from 'backend/analytics';
 import tableColumns from './table-columns';
 import Table from 'common/components/Table';
 import { getNetworkForImport } from './helpers';
@@ -13,7 +14,6 @@ import useProcessRunner from '../../../../../ProcessRunner/useProcessRunner';
 import { Checkbox, ProcessLoader } from '../../../../../../common/components';
 import usePasswordHandler from '../../../../../PasswordHandler/usePasswordHandler';
 import { handlePageClick } from '../../../../../../common/components/Table/service';
-import analytics from 'backend/analytics';
 
 const TableWrapper = styled.div`
   width: 100%;
@@ -112,7 +112,8 @@ const ImportedValidatorsList = ({ show, validators, onDone, dashboardActions }: 
           getNetworkForImport(),
           validators.length - 1
         );
-        setProcessMessage('Importing validator(s)');
+        const processMessageString = `Importing validator${validators.length === 1 ? '' : 's'}`;
+        setProcessMessage(processMessageString);
       }
     };
     checkIfPasswordIsNeeded(onSuccess);
@@ -138,6 +139,9 @@ const ImportedValidatorsList = ({ show, validators, onDone, dashboardActions }: 
           totalCount={validators.length}
           sortType="disabled"
           navButtonWidth="15%"
+          rowMinHeight="40px"
+          headerHeight="40px"
+          footerHeight="40px"
         />
       </TableWrapper>
 

@@ -11,14 +11,14 @@ const Wrapper = styled.div`
 
 const Row = styled.div`
   width: 100%;
-  min-height: 70px;
-  padding: 0px 20px;
+  min-height: ${({ minHeight }) => minHeight || '70px'};
+  padding: 0 20px;
   display: grid;
   grid-template-columns: ${({ gridTemplateColumns }) => gridTemplateColumns};
   align-items: center;
   border-bottom: 1px solid ${({ theme }) => theme.gray300};
   &:last-child {
-    border-bottom: 0px;
+    border-bottom: 0;
   }
 `;
 
@@ -35,7 +35,7 @@ const NoDataRow = styled.div`
   justify-content: center;
 `;
 
-const Body = ({ data, columns, totalCount }) => (
+const Body = ({ data, columns, totalCount, rowMinHeight }) => (
   <Wrapper>
     {(!data || data.length === 0) && <NoDataRow>No Data</NoDataRow>}
 
@@ -46,7 +46,11 @@ const Body = ({ data, columns, totalCount }) => (
           .toString()
           .replace(/,/gi, ' ');
         return (
-          <Row key={dataIndex} gridTemplateColumns={gridTemplateColumns}>
+          <Row
+            key={dataIndex}
+            gridTemplateColumns={gridTemplateColumns}
+            minHeight={rowMinHeight}
+          >
             {columns.map((column, index) => (
               <Cell key={index} justifyContent={column.justifyContent}>
                 {column.valueRender(item[column.key], totalCount)}
@@ -61,7 +65,8 @@ const Body = ({ data, columns, totalCount }) => (
 Body.propTypes = {
   data: PropTypes.array,
   columns: PropTypes.array,
-  totalCount: PropTypes.number
+  totalCount: PropTypes.number,
+  rowMinHeight: PropTypes.oneOfType([PropTypes.string, PropTypes.number, undefined])
 };
 
 export default Body;

@@ -17,7 +17,7 @@ const TopPart = styled.div`
 `;
 
 const Wallet = (props) => {
-  const { isActive, isNeedUpdate, summary, ...rest } = props;
+  const { isActive, isNeedUpdate, summary, version, ...rest } = props;
   return (
     <Wrapper>
       <UpdateBanner isNeedUpdate={isNeedUpdate} />
@@ -27,7 +27,7 @@ const Wallet = (props) => {
         </TopPart>
       )}
       <StatusBar isActive={isActive} />
-      <Boxes isActive={isActive} summary={summary} {...rest} />
+      <Boxes isActive={isActive} summary={summary} walletVersion={version} {...rest} />
     </Wrapper>
   );
 };
@@ -36,6 +36,7 @@ Wallet.propTypes = {
   isActive: PropTypes.bool,
   isNeedUpdate: PropTypes.bool,
   summary: PropTypes.object,
+  version: PropTypes.string
 };
 
 export default Wallet;

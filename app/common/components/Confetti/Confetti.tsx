@@ -5,7 +5,7 @@ import Lottie from 'lottie-web-react';
 import animationData from 'assets/animations/confetti.json';
 
 const Wrapper = styled.div`
-  position: absolute;
+  position: fixed;
   top: -65px;
   z-index: 2;
   width: 100%;

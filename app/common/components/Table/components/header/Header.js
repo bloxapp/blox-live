@@ -5,8 +5,8 @@ import Sorting from './Sorting';
 
 const Wrapper = styled.div`
   width: 100%;
-  height: 50px;
-  padding: 0px 20px;
+  height: ${({height}) => height || '50px'};
+  padding: 0 20px;
   display: flex;
   border-bottom: solid 1px ${({theme}) => theme.gray300};
   font-size: 12px;
@@ -20,9 +20,11 @@ const Cell = styled.div`
   justify-content:${({justifyContent}) => justifyContent || 'flex-start'};
 `;
 
-const Header = ({columns, selectedSorting, sortType, onSortClick}) => {
+const Header = ({columns, selectedSorting, sortType, onSortClick, height}) => {
   return (
-    <Wrapper>
+    <Wrapper
+      height={height}
+    >
       {columns.map((column) => {
         const {key, title, width, justifyContent, compareFunction} = column;
         const withSorting = compareFunction && sortType !== 'disabled';
@@ -63,6 +65,7 @@ const Header = ({columns, selectedSorting, sortType, onSortClick}) => {
 Header.propTypes = {
   columns: PropTypes.array,
   selectedSorting: PropTypes.string,
+  height: PropTypes.oneOfType([PropTypes.string, PropTypes.number, undefined]),
   sortType: PropTypes.string,
   onSortClick: PropTypes.func,
 };

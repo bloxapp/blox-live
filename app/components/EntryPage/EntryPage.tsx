@@ -26,7 +26,7 @@ const walletKey = 'keyvaultManagement';
 
 const EntryPage = (props: Props) => {
   const {
-    callLoadWallet, loadWalletLatestVersion, walletStatus,
+    callLoadWallet, loadWalletLatestVersion, walletStatus, walletVersion,
     isLoadingWallet, walletError, keyvaultCurrentVersion,
     keyvaultLatestVersion, isLoadingKeyvault, keyvaultError,
     dashboardActions, isFinishedWizard, wizardWallet, isOpenedWizard
@@ -75,7 +75,8 @@ const EntryPage = (props: Props) => {
     eventLogs,
     isLoadingEventLogs,
     isLoadingBloxLiveVersion,
-    bloxLiveNeedsUpdate
+    bloxLiveNeedsUpdate,
+    walletVersion: String(walletVersion).replace('v', '')
   };
 
   if (isLoadingWallet || isLoadingAccounts || !keyvaultLatestVersion || isLoadingEventLogs || isLoadingBloxLiveVersion) {
@@ -113,6 +114,7 @@ const EntryPage = (props: Props) => {
 
 type Props = {
   walletStatus: string;
+  walletVersion: string;
   isLoadingWallet: boolean;
   walletError: string;
   callLoadWallet: () => void;
@@ -134,6 +136,7 @@ type Props = {
 
 const mapStateToProps = (state: State) => ({
   walletStatus: wizardSelectors.getWalletStatus(state),
+  walletVersion: wizardSelectors.getWalletVersion(state),
   isLoadingWallet: wizardSelectors.getIsLoading(state),
   walletError: wizardSelectors.getWalletError(state),
 
