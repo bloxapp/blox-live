@@ -79,7 +79,8 @@
       "target": [
         "nsis",
         "msi"
-      ]
+      ],
+      "publisherName": "Blox Staking"
     },
     "afterSign": "electron-builder-notarize",
     "mac": {
