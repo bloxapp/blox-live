@@ -28,7 +28,7 @@ jobs:
           mkdir -p ~/private_keys/
           echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
 
-      - name: Prepare for win signing
+        #- name: Prepare for win signing
         # if: startsWith(matrix.os, 'windows')
         # run: |
         #  mkdir -p ~\private_keys\
