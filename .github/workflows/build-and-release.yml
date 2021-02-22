@@ -28,12 +28,12 @@ jobs:
           mkdir -p ~/private_keys/
           echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
 
-        #- name: Prepare for win signing
-        # if: startsWith(matrix.os, 'windows')
-        # run: |
-        #  mkdir -p ~\private_keys\
-        #  cd ~/private_keys/
-        #  '${{ secrets.windows_certs }}' | Out-File encoded.txt | certutil -decode .\encoded.txt decoded.p12
+      - name: Prepare for win signing
+        if: startsWith(matrix.os, 'windows')
+        run: |
+          mkdir -p ~\private_keys\
+          cd ~/private_keys/
+          '${{ secrets.windows_certs_demo }}' | Out-File encoded.txt | certutil -decode .\encoded.txt decoded.p12
 
 
       - name: Build/release Electron app for mac
@@ -71,7 +71,7 @@ jobs:
           release: 'true'
 
           max_attempts: '2'
-          # windows_certs: '~/private_keys/decoded.p12'
+          windows_certs_demo: '~/private_keys/decoded.p12'
           # windows_certs_password: ${{ secrets.windows_certs_password }}
 #        run: yarn install && yarn package-win
         env:
