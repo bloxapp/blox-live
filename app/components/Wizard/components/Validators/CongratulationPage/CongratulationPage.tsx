@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
-import * as actionsFromWizard from '../../../actions';
-import { SuccessIcon, Confetti } from 'common/components';
-import { Title, Paragraph, BigButton } from '../../common';
-import * as actionsFromAccounts from '../../../../Accounts/actions';
-import useDashboardData from '../../../../Dashboard/useDashboardData';
+import config from '~app/backend/common/config';
+import { SuccessIcon, Confetti } from '~app/common/components';
+import * as actionsFromWizard from '~app/components/Wizard/actions';
+import * as actionsFromAccounts from '~app/components/Accounts/actions';
+import useDashboardData from '~app/components/Dashboard/useDashboardData';
+import { Title, Paragraph, BigButton } from '~app/components/Wizard/components/common';
+import useNetworkSwitcher from '~app/components/Dashboard/components/NetworkSwitcher/useNetworkSwitcher';
+import { getNetworkForImport } from '~app/components/Wizard/components/Validators/ImportValidators/components/helpers';
 
 const Wrapper = styled.div`
   position: relative;
@@ -18,6 +21,7 @@ const CongratulationPage = (props: Props) => {
   const { clearAccountsData } = accountsActions;
   const { setFinishedWizard, setOpenedWizard, clearWizardData } = wizardActions;
   const { loadDashboardData } = useDashboardData();
+  const { setTestNetHiddenFlag } = useNetworkSwitcher();
 
   const onClick = async () => {
     await clearAccountsData();
@@ -26,6 +30,10 @@ const CongratulationPage = (props: Props) => {
     await setOpenedWizard(false);
     await loadDashboardData();
   };
+
+  useEffect(() => {
+    setTestNetHiddenFlag(getNetworkForImport() !== config.env.PYRMONT_NETWORK);
+  });
 
   return (
     <>
@@ -75,8 +83,8 @@ type Props = {
   setPage: (page: number) => void;
   wizardActions: Record<string, any>;
   accountsActions: Record<string, any>;
-  isImportValidators?: boolean,
-  importedValidatorsCount?: number
+  isImportValidators?: boolean;
+  importedValidatorsCount?: number;
 };
 
 type Dispatch = (arg0: { type: string }) => any;

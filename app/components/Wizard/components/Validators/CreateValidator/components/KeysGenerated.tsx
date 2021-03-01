@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {connect} from 'react-redux';
 import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
-import { NETWORKS } from '../../constants';
-import { InfoWithTooltip } from 'common/components';
-import * as actionsFromWizard from '../../../../actions';
-import useDashboardData from '../../../../../Dashboard/useDashboardData';
-import { Title, SubTitle, Paragraph, BigButton, SuccessIcon } from '../../../common';
+import config from '~app/backend/common/config';
+import { InfoWithTooltip } from '~app/common/components';
+import * as actionsFromWizard from '~app/components/Wizard/actions';
+import useDashboardData from '~app/components/Dashboard/useDashboardData';
+import { NETWORKS } from '~app/components/Wizard/components/Validators/constants';
+import useNetworkSwitcher from '~app/components/Dashboard/components/NetworkSwitcher/useNetworkSwitcher';
+import { Title, SubTitle, Paragraph, BigButton, SuccessIcon } from '~app/components/Wizard/components/common';
 
 const KeyWrapper = styled.div`
   width: 546px;
@@ -34,12 +36,17 @@ const KeysGenerated = (props: Props) => {
   const { onClick, validatorData, wizardActions, depositData } = props;
   const { setFinishedWizard, clearWizardData } = wizardActions;
   const { loadDashboardData } = useDashboardData();
+  const { setTestNetHiddenFlag } = useNetworkSwitcher();
 
   const onGoToDashboardClick = async () => {
     await clearWizardData();
     await setFinishedWizard(true);
     await loadDashboardData();
   };
+
+  useEffect(() => {
+    setTestNetHiddenFlag(validatorData.network !== config.env.PYRMONT_NETWORK);
+  });
 
   return (
     <>

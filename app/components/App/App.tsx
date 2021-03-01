@@ -39,7 +39,9 @@ const App = (props: Props) => {
 
   const init = async () => {
     const baseStore: BaseStore = new BaseStore();
+    let firstTime = false;
     if (!baseStore.get('appUuid')) {
+      firstTime = true;
       baseStore.set('appUuid', uuidv4());
     }
     const appUuid = baseStore.get('appUuid');
@@ -52,9 +54,11 @@ const App = (props: Props) => {
     });
 
     /* Track events */
-    await analytics.track('first-time', {
-      appUuid,
-    });
+    if (firstTime) {
+      await analytics.track('first-time', {
+        appUuid,
+      });
+    }
 
     logger.info('app opened', {
       os: getOsVersion(),

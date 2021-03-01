@@ -23,7 +23,11 @@ export function* startLoadingEventLogs() {
 function* onLoadingEventLogsSuccess(response: Record<string, any>) {
   const activeValidators = normalizedActiveValidators(response);
   if (activeValidators.length > 0) {
-    analytics.track('validator-activated');
+    activeValidators.forEach(({ network }) => {
+      analytics.track('validator-activated', {
+        network
+      });
+    });
     yield put(actions.showActiveValidatorsPopup(activeValidators));
     yield put(setModalDisplay({show: true, type: MODAL_TYPES.ACTIVE_VALIDATOR, text: ''}));
   }

@@ -63,6 +63,14 @@ export default class Config {
           KEY_VAULT_SETUP: 1,
           VALIDATOR_SETUP: 2,
         }
+      },
+      FLAGS: {
+        DASHBOARD: {
+          TESTNET_HIDDEN: 'dashboard:testNet:isHidden',
+        },
+        FEATURES: {
+          IMPORT_NETWORK: 'feature:import:network'
+        }
       }
     }
   };
@@ -107,5 +115,9 @@ export default class Config {
 
   static get STEPS(): any {
     return this.env.APP_STEPS;
+  }
+
+  static get FLAGS(): any {
+    return this.env.FLAGS;
   }
 }

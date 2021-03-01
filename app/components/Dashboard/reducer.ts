@@ -2,6 +2,9 @@ import produce from 'immer';
 import * as actionTypes from './actionTypes';
 
 const initialState = {
+  testNet: {
+    isHidden: false
+  },
   type: '',
   show: false,
   text: '',
@@ -16,7 +19,7 @@ const initialState = {
 };
 
 /* eslint-disable default-case, no-param-reassign */
-const modalDisplayReducer = (state = initialState, action: Action) => produce(state, (draft) => {
+const dashboardReducer = (state = initialState, action: Action) => produce(state, (draft) => {
   switch (action.type) {
     case actionTypes.SET_MODAL_DISPLAY:
       draft.type = action.payload.type;
@@ -31,6 +34,10 @@ const modalDisplayReducer = (state = initialState, action: Action) => produce(st
       draft.text = initialState.text;
       draft.onSuccess = initialState.onSuccess;
       draft.confirmation = initialState.confirmation;
+      break;
+    case actionTypes.SET_TESTNET_FLAG:
+      draft.testNet.isHidden = action.payload.testNet?.isHidden || initialState.testNet.isHidden;
+      break;
   }
 });
 
@@ -39,4 +46,4 @@ type Action = {
   payload: any;
 };
 
-export default modalDisplayReducer;
+export default dashboardReducer;

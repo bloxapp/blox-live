@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components/dist/styled-components.esm';
-
-import { Title } from '../../common';
-import BackButton from '../../common/BackButton';
-import CongratulationPage from '../CongratulationPage';
-import useProcessRunner from '../../../../ProcessRunner/useProcessRunner';
+import { Title } from '~app/components/Wizard/components/common';
+import BackButton from '~app/components/Wizard/components/common/BackButton';
+import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
+import CongratulationPage from '~app/components/Wizard/components/Validators/CongratulationPage';
 import { EnterValidatorsNumber, ImportedValidatorsList } from './components';
 
 const ImportValidatorsWrapper = styled.div`

@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { MODAL_TYPES } from '../../../Dashboard/constants';
-import { getWalletStatus } from '../../../Wizard/selectors';
-import * as actionsFromWizard from '../../../Wizard/actions';
-import * as actionsFromAccounts from '../../../Accounts/actions';
-import * as actionsFromDashboard from '../../../Dashboard/actions';
-import Connection from '../../../../backend/common/store-manager/connection';
-import usePasswordHandler from '../../../PasswordHandler/usePasswordHandler';
+import { MODAL_TYPES } from '~app/components/Dashboard/constants';
+import { getWalletStatus } from '~app/components/Wizard/selectors';
+import * as actionsFromWizard from '~app/components/Wizard/actions';
+import Connection from '~app/backend/common/store-manager/connection';
+import * as actionsFromAccounts from '~app/components/Accounts/actions';
+import * as actionsFromDashboard from '~app/components/Dashboard/actions';
+import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
 
 /**
  * Wrapper for any element, so that element would call complex

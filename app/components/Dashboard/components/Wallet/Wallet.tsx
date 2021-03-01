@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import UpdateBanner from './components/UpdateBanner';
-import { Boxes, StatusBar, RefreshButton } from './components';
+import NetworkSwitcher from '~app/components/Dashboard/components/NetworkSwitcher';
+import UpdateBanner from '~app/components/Dashboard/components/Wallet/components/UpdateBanner';
+import { Boxes, StatusBar, RefreshButton } from '~app/components/Dashboard/components/Wallet/components';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -12,18 +13,18 @@ const Wrapper = styled.div`
 
 const TopPart = styled.div`
   width:100%;
-  display:flex;
-  align-items:flex-start;
+  margin-top: 50px;
 `;
 
 const Wallet = (props) => {
-  const { isActive, isNeedUpdate, summary, version, ...rest } = props;
+  const { isActive, isNeedUpdate, summary, version, showNetworkSwitcher, ...rest } = props;
   return (
     <Wrapper>
       <UpdateBanner isNeedUpdate={isNeedUpdate} />
       {summary && (
         <TopPart>
           <RefreshButton />
+          { showNetworkSwitcher && <NetworkSwitcher />}
         </TopPart>
       )}
       <StatusBar isActive={isActive} />
@@ -35,6 +36,8 @@ const Wallet = (props) => {
 Wallet.propTypes = {
   isActive: PropTypes.bool,
   isNeedUpdate: PropTypes.bool,
+  walletNeedsUpdate: PropTypes.bool,
+  showNetworkSwitcher: PropTypes.bool,
   summary: PropTypes.object,
   version: PropTypes.string
 };

@@ -1,5 +1,5 @@
 import moment from 'moment';
-import config from '../../backend/common/config';
+import config from '~app/backend/common/config';
 
 const initialBalance = config.env.ETH_INITIAL_BALANCE;
 
@@ -94,4 +94,20 @@ export const normalizeEventLogs = (events) => { // TODO: fix and move to EventLo
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
   return normalizedEvents;
+};
+
+/**
+ * Returns true if there is more than one different networks in accounts
+ */
+export const accountsHaveMoreThanOneNetwork = (accounts: { network: string }[]) => {
+  if (!accounts?.length) {
+    return false;
+  }
+  const existingNetworks = accounts.reduce((existingNetworksAccumulator, account) => {
+    if (existingNetworksAccumulator.indexOf(account.network) === -1) {
+      existingNetworksAccumulator.push(account.network);
+    }
+    return existingNetworksAccumulator;
+  }, []);
+  return existingNetworks.length > 1;
 };

@@ -58,7 +58,7 @@ type Props = {
   isPagination: boolean;
   selectedSorting?: string;
   sortType?: string;
-  onSortClick?: () => void;
+  onSortClick?: (sortKey: any, direction: any, compareFunction: any) => void;
   paginationInfo: Record<string, any>;
   onPageClick: (offset) => void;
   navButtonWidth?: string;

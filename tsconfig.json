@@ -25,9 +25,12 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "skipLibCheck": true,
-    "typeRoots": ["app/types/*.d.ts"]
+    "typeRoots": ["./types/*.d.ts"],
+    "paths": {
+      "~app/*": ["./*"],
+    }
   },
-  "include": ["app/types/*.d.ts"],
+  "include": ["./types/*.d.ts"],
   "exclude": [
     "test",
     "release",

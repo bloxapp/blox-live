@@ -1,13 +1,18 @@
 import fs from 'fs';
 import chalk from 'chalk';
 import { execSync } from 'child_process';
-import { dependencies } from '../../package.json';
+import { dependencies, depsCheckExceptions } from '../../package.json';
+
+const depsCheckExceptionsFilter = (folder) => depsCheckExceptions.indexOf(folder) === -1;
 
 if (dependencies) {
-  const dependenciesKeys = Object.keys(dependencies);
+  const dependenciesKeys = Object.keys(dependencies).filter(depsCheckExceptionsFilter);
+
   const nativeDeps = fs
     .readdirSync('node_modules')
+    .filter(depsCheckExceptionsFilter)
     .filter((folder) => fs.existsSync(`node_modules/${folder}/binding.gyp`));
+
   try {
     // Find the reason for why the dependency is installed. If it is installed
     // because of a devDependency then that is okay. Warn when it is installed
@@ -16,9 +21,11 @@ if (dependencies) {
       execSync(`npm ls ${nativeDeps.join(' ')} --json`).toString()
     );
     const rootDependencies = Object.keys(dependenciesObject);
-    const filteredRootDependencies = rootDependencies.filter((rootDependency) =>
-      dependenciesKeys.includes(rootDependency)
-    );
+    const filteredRootDependencies = rootDependencies
+      .filter((rootDependency) => {
+        return dependenciesKeys.includes(rootDependency);
+      })
+      .filter(depsCheckExceptionsFilter);
     if (filteredRootDependencies.length > 0) {
       const plural = filteredRootDependencies.length > 1;
       console.log(`

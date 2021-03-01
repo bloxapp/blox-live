@@ -1,8 +1,7 @@
 import { useDispatch } from 'react-redux';
-import Connection from 'backend/common/store-manager/connection';
-
-import { setModalDisplay } from '../Dashboard/actions';
-import { MODAL_TYPES } from '../Dashboard/constants';
+import { MODAL_TYPES } from '~app/components/Dashboard/constants';
+import { setModalDisplay } from '~app/components/Dashboard/actions';
+import Connection from '~app/backend/common/store-manager/connection';
 
 const usePasswordHandler = () => {
   const dispatch = useDispatch();
