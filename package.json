@@ -99,7 +99,7 @@
         "AppImage"
       ],
       "category": "Finance",
-      "mimeTypes": "x-scheme-handler/blox-live;"
+      "mimeTypes": ["x-scheme-handler/blox-live"]
     },
     "directories": {
       "buildResources": "resources",
