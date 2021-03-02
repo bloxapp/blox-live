@@ -27,6 +27,7 @@ export const deepLink = (onSuccess, onFailure) => {
   });
 
   remote.app.on('second-instance', (_event, commandLine) => {
+    console.log("commandLine", _event, commandLine);
     if (commandLine[2].includes('blox-live://')) {
       const questionMarkIndex = commandLine[2].indexOf('//');
       const trimmedCode = commandLine[2].substring(questionMarkIndex + 2);
