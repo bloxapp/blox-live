@@ -1,5 +1,6 @@
 import { remote } from 'electron';
 import { notification } from 'antd';
+import { Log } from 'backend/common/logger/logger';
 import queryString from 'query-string';
 
 export const initApp = () => {
@@ -27,10 +28,10 @@ export const deepLink = (onSuccess, onFailure) => {
   });
 
   remote.app.on('second-instance', (_event, commandLine) => {
-    console.log("commandLine", _event, commandLine);
-    if (commandLine[2].includes('blox-live://')) {
-      const questionMarkIndex = commandLine[2].indexOf('//');
-      const trimmedCode = commandLine[2].substring(questionMarkIndex + 2);
+    const cmd = commandLine[2] || commandLine[1];
+    if (cmd && cmd.includes('blox-live://')) {
+      const questionMarkIndex = cmd.indexOf('//');
+      const trimmedCode = cmd.substring(questionMarkIndex + 2);
       const withoutSlash = trimmedCode.slice(0, trimmedCode.length - 1);
       const params : Record<string, any> = queryString.parse(withoutSlash);
       try {
@@ -45,6 +46,9 @@ export const deepLink = (onSuccess, onFailure) => {
       catch (e) {
         onFailure(e);
       }
+    } else {
+      const logger = new Log();
+      logger.error('Token is not found', commandLine);
     }
   });
 };
