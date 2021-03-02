@@ -28,6 +28,8 @@ export const deepLink = (onSuccess, onFailure) => {
   });
 
   remote.app.on('second-instance', (_event, commandLine) => {
+    const logger = new Log();
+    logger.trace(commandLine);
     const cmd = commandLine[2] || commandLine[1];
     if (cmd && cmd.includes('blox-live://')) {
       const questionMarkIndex = cmd.indexOf('//');
@@ -47,7 +49,6 @@ export const deepLink = (onSuccess, onFailure) => {
         onFailure(e);
       }
     } else {
-      const logger = new Log();
       logger.error('Token is not found', commandLine);
     }
   });
