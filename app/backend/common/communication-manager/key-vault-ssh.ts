@@ -28,11 +28,29 @@ export default class KeyVaultSsh {
         host: Connection.db(this.storePrefix).get('publicIp'),
         port,
         username: 'ec2-user',
-        privateKey: keyPair.privateKey,
-        readyTimeout: 99999
+        privateKey: keyPair.privateKey
       };
       this.logger.debug('Try to ssh connect', params);
-      await sshClient.connect(params);
+      try {
+        await sshClient.connect(params);
+      } catch (e) {
+        this.logger.debug(e);
+        const conn = sshClient.connection;
+        conn.on('ready', () => {
+          console.log('Client :: ready');
+          conn.exec('uptime', (err, stream) => {
+            if (err) throw err;
+            stream.on('close', (code, signal) => {
+              console.log('Stream :: close :: code: ', code, ', signal: ', signal);
+              conn.end();
+            }).on('data', (data) => {
+              console.log('STDOUT: ', data);
+            }).stderr.on('data', (data) => {
+              console.log('STDERR: ', data);
+            });
+          });
+        }).connect(params);
+      }
       this.logger.trace('> keyPair', keyPair);
       this.logger.trace('> publicIp', Connection.db(this.storePrefix).get('publicIp'));
       this.logger.trace('> port', port);
