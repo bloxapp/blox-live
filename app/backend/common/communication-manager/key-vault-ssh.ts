@@ -24,12 +24,15 @@ export default class KeyVaultSsh {
     if (force || !sshClient.isConnected()) {
       const keyPair: any = Connection.db(this.storePrefix).get('keyPair');
       const port = customPort || Connection.db(this.storePrefix).get('port') || config.env.port;
-      await sshClient.connect({
+      const params = {
         host: Connection.db(this.storePrefix).get('publicIp'),
         port,
         username: 'ec2-user',
-        privateKey: keyPair.privateKey
-      });
+        privateKey: keyPair.privateKey,
+        readyTimeout: 99999
+      };
+      this.logger.debug('Try to ssh connect', params);
+      await sshClient.connect(params);
       this.logger.trace('> keyPair', keyPair);
       this.logger.trace('> publicIp', Connection.db(this.storePrefix).get('publicIp'));
       this.logger.trace('> port', port);
