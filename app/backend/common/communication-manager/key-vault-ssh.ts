@@ -36,20 +36,14 @@ export default class KeyVaultSsh {
       } catch (e) {
         this.logger.debug(e);
         const conn = sshClient.connection;
-        conn.on('ready', () => {
-          console.log('Client :: ready');
-          conn.exec('uptime', (err, stream) => {
-            if (err) throw err;
-            stream.on('close', (code, signal) => {
-              console.log('Stream :: close :: code: ', code, ', signal: ', signal);
-              conn.end();
-            }).on('data', (data) => {
-              console.log('STDOUT: ', data);
-            }).stderr.on('data', (data) => {
-              console.log('STDERR: ', data);
-            });
-          });
-        }).connect(params);
+        await new Promise((resolve, reject) => {
+          console.log('try connect thru ssh2');
+          conn.on('error', reject);
+          conn.on('ready', () => {
+            console.log('Client :: ready');
+            resolve(true);
+          }).connect(params);
+        });
       }
       this.logger.trace('> keyPair', keyPair);
       this.logger.trace('> publicIp', Connection.db(this.storePrefix).get('publicIp'));
