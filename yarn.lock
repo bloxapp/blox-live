@@ -10620,7 +10620,7 @@ node-releases@^1.1.58:
   resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-1.1.60.tgz#6948bdfce8286f0b5d0e5a88e8384e954dfe7084"
   integrity sha512-gsO4vjEdQaTusZAEebUWp2a5d7dF5DYoIpDG7WySnk7BuZDW+GPpHXoXXuYawRBr/9t5q54tirPz79kFIWg4dA==
 
-node-ssh@^10.0.2:
+node-ssh@10.0.2:
   version "10.0.2"
   resolved "https://registry.yarnpkg.com/node-ssh/-/node-ssh-10.0.2.tgz#975b849c0446a8e5d233cd9b14fc776f8fba73e7"
   integrity sha512-9sWHeIirOCI/z7RsM+eYiTsFhCr1+3+AQOTUMJ2hRR1bLlcEVjZuqaYS0AxAV2e7aV1meORG6EvCSPIqSjQ1Zg==

@@ -7,48 +7,48 @@ import Connection from '../store-manager/connection';
 
 const userName = 'ec2-user';
 let sshClient: NodeSSH;
+
 export default class KeyVaultSsh {
   private storePrefix: string;
   private logger: Log;
+  private sshClient: NodeSSH;
 
   constructor(prefix: string = '') {
     this.storePrefix = prefix;
     this.logger = new Log('key-vault-ssh');
+    sshClient = new NodeSSH();
   }
 
   async getConnection(payload: any = {}): Promise<NodeSSH> {
     const { customPort, force } = payload;
-    if (!sshClient) {
-      sshClient = new NodeSSH();
-    }
-    if (force || !sshClient.isConnected()) {
-      const keyPair: any = Connection.db(this.storePrefix).get('keyPair');
-      const port = customPort || Connection.db(this.storePrefix).get('port') || config.env.port;
-      const params = {
-        host: Connection.db(this.storePrefix).get('publicIp'),
-        port,
-        username: 'ec2-user',
-        privateKey: keyPair.privateKey
-      };
-      this.logger.debug('Try to ssh connect', params);
-      try {
-        await sshClient.connect(params);
-      } catch (e) {
-        this.logger.debug(e);
-        const conn = sshClient.connection;
-        await new Promise((resolve, reject) => {
-          console.log('try connect thru ssh2');
-          conn.on('error', reject);
-          conn.on('ready', () => {
-            console.log('Client :: ready');
-            resolve(true);
-          }).connect(params);
+    sshClient.dispose();
+    const keyPair: any = Connection.db(this.storePrefix).get('keyPair');
+    const port = customPort || Connection.db(this.storePrefix).get('port') || config.env.port;
+    const params = {
+      host: Connection.db(this.storePrefix).get('publicIp'),
+      port,
+      username: 'ec2-user',
+      privateKey: keyPair.privateKey
+    };
+    this.logger.debug('Try to ssh connect', params);
+    try {
+      await sshClient.connect(params);
+    } catch (e) {
+      this.logger.debug(e);
+      await new Promise((resolve, reject) => {
+        console.log('try connect thru ssh2');
+        sshClient.connection.on('error', reject);
+        sshClient.connection.on('ready', () => {
+          console.log('Client :: ready');
+          resolve(true);
         });
-      }
-      this.logger.trace('> keyPair', keyPair);
-      this.logger.trace('> publicIp', Connection.db(this.storePrefix).get('publicIp'));
-      this.logger.trace('> port', port);
+        sshClient.connection.connect(params);
+      });
+      console.log('======>', sshClient, sshClient.isConnected());
     }
+    this.logger.trace('> keyPair', keyPair);
+    this.logger.trace('> publicIp', Connection.db(this.storePrefix).get('publicIp'));
+    this.logger.trace('> port', port);
     return sshClient;
   }
 
