@@ -147,3 +147,6 @@ GPL © [Blox Live](https://github.com/bloxapp/blox-live)
 [david-url]: https://david-dm.org/bloxapp/blox-live/stage	
 [david-dev-image]: https://david-dm.org/bloxapp/blox-live/stage/dev-status.svg	
 [david-dev-url]: https://david-dm.org/bloxapp/blox-live/stage?type=dev	
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbloxapp%2Fblox-live.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbloxapp%2Fblox-live?ref=badge_large)
