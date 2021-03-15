@@ -4,7 +4,7 @@ on: push
 
 env:
   AZURE_PATH: '.'    # set this to the path to your web app project, defaults to the repository root
-  DOTNET_VERSION: '3.1.201'
+  DOTNET_VERSION: '2.1'
   ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
 jobs:
@@ -26,13 +26,6 @@ jobs:
           node-version: '12.x'
 
 # START windows steps
-      - name: Prepare for win signing
-        if: startsWith(matrix.os, 'windows')
-        run: |
-          mkdir -p ~\private_keys\
-          cd ~/private_keys/
-          '${{ secrets.windows_certs }}' | Out-File encoded.txt | certutil -decode .\encoded.txt decoded.p12
-
       - name: Build/release Electron app for windows
         if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/w') }}
         uses: samuelmeuli/action-electron-builder@v1
