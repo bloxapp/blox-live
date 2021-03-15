@@ -5,6 +5,7 @@ on: push
 env:
   AZURE_PATH: '.'    # set this to the path to your web app project, defaults to the repository root
   DOTNET_VERSION: '3.1.201'
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
 jobs:
   release:
