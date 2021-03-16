@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AzureSign.Core</name>
+    </assembly>
+    <members>
+        <member name="T:AzureSign.Core.AuthenticodeKeyVaultSigner">
+            <summary>
+            Signs a file with an Authenticode signature.
+            </summary>
+        </member>
+        <member name="M:AzureSign.Core.AuthenticodeKeyVaultSigner.#ctor(System.Security.Cryptography.AsymmetricAlgorithm,System.Security.Cryptography.X509Certificates.X509Certificate2,System.Security.Cryptography.HashAlgorithmName,AzureSign.Core.TimeStampConfiguration,System.Security.Cryptography.X509Certificates.X509Certificate2Collection)">
+            <summary>
+            Creates a new instance of <see cref="T:AzureSign.Core.AuthenticodeKeyVaultSigner" />.
+            </summary>
+            <param name="signingAlgorithm">
+            An instance of an asymmetric algorithm that will be used to sign. It must support signing with
+            a private key.
+            </param>
+            <param name="signingCertificate">The X509 public certificate for the <paramref name="signingAlgorithm"/>.</param>
+            <param name="fileDigestAlgorithm">The digest algorithm to sign the file.</param>
+            <param name="timeStampConfiguration">The timestamp configuration for timestamping the file. To omit timestamping,
+            use <see cref="P:AzureSign.Core.TimeStampConfiguration.None"/>.</param>
+            <param name="additionalCertificates">Any additional certificates to assist in building a certificate chain.</param>
+        </member>
+        <member name="M:AzureSign.Core.AuthenticodeKeyVaultSigner.SignFile(System.ReadOnlySpan{System.Char},System.ReadOnlySpan{System.Char},System.ReadOnlySpan{System.Char},System.Nullable{System.Boolean},Microsoft.Extensions.Logging.ILogger)">
+            <summary>Authenticode signs a file.</summary>
+            <param name="pageHashing">True if the signing process should try to include page hashing, otherwise false.
+            Use <c>null</c> to use the operating system default. Note that page hashing still may be disabled if the
+            Subject Interface Package does not support page hashing.</param>
+            <param name="descriptionUrl">A URL describing the signature or the signer.</param>
+            <param name="description">The description to apply to the signature.</param>
+            <param name="path">The path to the file to signed.</param>
+            <param name="logger">An optional logger to capture signing operations.</param>
+            <returns>A HRESULT indicating the result of the signing operation. S_OK, or zero, is returned if the signing
+            operation completed successfully.</returns>
+        </member>
+        <member name="M:AzureSign.Core.AuthenticodeKeyVaultSigner.Dispose">
+            <summary>
+            Frees all resources used by the <see cref="T:AzureSign.Core.AuthenticodeKeyVaultSigner" />.
+            </summary>
+        </member>
+        <member name="T:AzureSign.Core.TimeStampConfiguration">
+            <summary>
+            Contains configuration for timestamping authenticode signatures.
+            </summary>
+        </member>
+        <member name="P:AzureSign.Core.TimeStampConfiguration.Url">
+            <summary>
+            The URL to the timestamp authority.
+            </summary>
+        </member>
+        <member name="P:AzureSign.Core.TimeStampConfiguration.DigestAlgorithm">
+            <summary>
+            The digest algorithm the timestamp service authority should use on timestamp signatures.
+            </summary>
+        </member>
+        <member name="P:AzureSign.Core.TimeStampConfiguration.Type">
+            <summary>
+            The type of timestamp to use. See <see cref="T:AzureSign.Core.TimeStampType" /> for details, or null if
+            no timestamping should be performed.
+            </summary>
+        </member>
+        <member name="P:AzureSign.Core.TimeStampConfiguration.None">
+            <summary>
+            A default timestamp configuration indicating no timestamp should be generated.
+            </summary>
+        </member>
+        <member name="M:AzureSign.Core.TimeStampConfiguration.#ctor(System.String,System.Security.Cryptography.HashAlgorithmName,AzureSign.Core.TimeStampType)">
+            <summary>
+            Creates a new instance of a <see cref="T:AzureSign.Core.TimeStampConfiguration" />.
+            </summary>
+            <param name="url">The URL to the timestamp authority.</param>
+            <param name="digestAlgorithm">The digest algorithm the timestamp service authority should use on timestamp signatures.</param>
+            <param name="type">The type of timestamp to use. See <see cref="T:AzureSign.Core.TimeStampType" /> for details.</param>
+        </member>
+        <member name="T:AzureSign.Core.TimeStampType">
+            <summary>
+            An enumeration of possible timestamp kinds.
+            </summary>
+        </member>
+        <member name="F:AzureSign.Core.TimeStampType.Authenticode">
+            <summary>
+            Indicates that a timestamp authority should use the legacy Authenticode style of timestamps.
+            This option should only be used for backward compatibility with Windows XP and only supports
+            <see cref="P:System.Security.Cryptography.HashAlgorithmName.SHA1" /> timestamp signatures.
+            </summary>
+        </member>
+        <member name="F:AzureSign.Core.TimeStampType.RFC3161">
+            <summary>
+            Indicates that a timestamp authority should use an RFC3161 timestamp signatures.
+            </summary>
+        </member>
+    </members>
+</doc>
