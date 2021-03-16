@@ -72,7 +72,7 @@ jobs:
         if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
         uses: actions/upload-artifact@v2
           with:
-            path: release/*
+            path: release
 
 # START macOs steps
       - name: Prepare for app notarization
