@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>AzureSignTool</id>
+    <version>2.0.17</version>
+    <authors>Kevin Jones</authors>
+    <owners>Kevin Jones</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectUrl>https://github.com/vcsjones/AzureSignTool</projectUrl>
+    <description>Azure Sign Tool is similar to signtool in the Windows SDK, with the major difference being that it uses Azure Key Vault for performing the signing process. The usage is like signtool, except with a limited set of options for signing and options for authenticating to Azure Key Vault.</description>
+    <tags>azuresigntool azure keyvault codesign</tags>
+    <packageTypes>
+      <packageType name="DotnetTool" />
+    </packageTypes>
+    <repository type="git" url="https://github.com/vcsjones/AzureSignTool" commit="82ba1d6da64a307383633bf00adc398ee26afbea" />
+  </metadata>
+  <files>
+    <file src="tools\netcoreapp2.1\any\AzureSign.Core.dll" target="tools\netcoreapp2.1\any\AzureSign.Core.dll" />
+    <file src="tools\netcoreapp2.1\any\AzureSign.Core.pdb" target="tools\netcoreapp2.1\any\AzureSign.Core.pdb" />
+    <file src="tools\netcoreapp2.1\any\AzureSign.Core.xml" target="tools\netcoreapp2.1\any\AzureSign.Core.xml" />
+    <file src="tools\netcoreapp2.1\any\AzureSignTool.deps.json" target="tools\netcoreapp2.1\any\AzureSignTool.deps.json" />
+    <file src="tools\netcoreapp2.1\any\AzureSignTool.dll" target="tools\netcoreapp2.1\any\AzureSignTool.dll" />
+    <file src="tools\netcoreapp2.1\any\AzureSignTool.pdb" target="tools\netcoreapp2.1\any\AzureSignTool.pdb" />
+    <file src="tools\netcoreapp2.1\any\AzureSignTool.runtimeconfig.json" target="tools\netcoreapp2.1\any\AzureSignTool.runtimeconfig.json" />
+    <file src="tools\netcoreapp2.1\any\DotnetToolSettings.xml" target="tools\netcoreapp2.1\any\DotnetToolSettings.xml" />
+    <file src="tools\netcoreapp2.1\any\Microsoft.Azure.KeyVault.Core.dll" target="tools\netcoreapp2.1\any\Microsoft.Azure.KeyVault.Core.dll" />
+    <file src="tools\netcoreapp2.1\any\Microsoft.Azure.KeyVault.Cryptography.dll" target="tools\netcoreapp2.1\any\Microsoft.Azure.KeyVault.Cryptography.dll" />
+    <file src="tools\netcoreapp2.1\any\Microsoft.Azure.KeyVault.dll" target="tools\netcoreapp2.1\any\Microsoft.Azure.KeyVault.dll" />
+    <file src="tools\netcoreapp2.1\any\Microsoft.Azure.KeyVault.WebKey.dll" target="tools\netcoreapp2.1\any\Microsoft.Azure.KeyVault.WebKey.dll" />
+    <file src="tools\netcoreapp2.1\any\Microsoft.Extensions.CommandLineUtils.dll" target="tools\netcoreapp2.1\any\Microsoft.Extensions.CommandLineUtils.dll" />
+    <file src="tools\netcoreapp2.1\any\Microsoft.Extensions.Configuration.Abstractions.dll" target="tools\netcoreapp2.1\any\Microsoft.Extensions.Configuration.Abstractions.dll" />
+    <file src="tools\netcoreapp2.1\any\Microsoft.Extensions.Configuration.Binder.dll" target="tools\netcoreapp2.1\any\Microsoft.Extensions.Configuration.Binder.dll" />
+    <file src="tools\netcoreapp2.1\any\Microsoft.Extensions.Configuration.dll" target="tools\netcoreapp2.1\any\Microsoft.Extensions.Configuration.dll" />
+    <file src="tools\netcoreapp2.1\any\Microsoft.Extensions.DependencyInjection.Abstractions.dll" target="tools\netcoreapp2.1\any\Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
+    <file src="tools\netcoreapp2.1\any\Microsoft.Extensions.DependencyInjection.dll" target="tools\netcoreapp2.1\any\Microsoft.Extensions.DependencyInjection.dll" />
+    <file src="tools\netcoreapp2.1\any\Microsoft.Extensions.Logging.Abstractions.dll" target="tools\netcoreapp2.1\any\Microsoft.Extensions.Logging.Abstractions.dll" />
+    <file src="tools\netcoreapp2.1\any\Microsoft.Extensions.Logging.Configuration.dll" target="tools\netcoreapp2.1\any\Microsoft.Extensions.Logging.Configuration.dll" />
+    <file src="tools\netcoreapp2.1\any\Microsoft.Extensions.Logging.Console.dll" target="tools\netcoreapp2.1\any\Microsoft.Extensions.Logging.Console.dll" />
+    <file src="tools\netcoreapp2.1\any\Microsoft.Extensions.Logging.dll" target="tools\netcoreapp2.1\any\Microsoft.Extensions.Logging.dll" />
+    <file src="tools\netcoreapp2.1\any\Microsoft.Extensions.Options.ConfigurationExtensions.dll" target="tools\netcoreapp2.1\any\Microsoft.Extensions.Options.ConfigurationExtensions.dll" />
+    <file src="tools\netcoreapp2.1\any\Microsoft.Extensions.Options.dll" target="tools\netcoreapp2.1\any\Microsoft.Extensions.Options.dll" />
+    <file src="tools\netcoreapp2.1\any\Microsoft.Extensions.Primitives.dll" target="tools\netcoreapp2.1\any\Microsoft.Extensions.Primitives.dll" />
+    <file src="tools\netcoreapp2.1\any\Microsoft.IdentityModel.Clients.ActiveDirectory.dll" target="tools\netcoreapp2.1\any\Microsoft.IdentityModel.Clients.ActiveDirectory.dll" />
+    <file src="tools\netcoreapp2.1\any\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.dll" target="tools\netcoreapp2.1\any\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.dll" />
+    <file src="tools\netcoreapp2.1\any\Microsoft.Rest.ClientRuntime.Azure.dll" target="tools\netcoreapp2.1\any\Microsoft.Rest.ClientRuntime.Azure.dll" />
+    <file src="tools\netcoreapp2.1\any\Microsoft.Rest.ClientRuntime.dll" target="tools\netcoreapp2.1\any\Microsoft.Rest.ClientRuntime.dll" />
+    <file src="tools\netcoreapp2.1\any\Newtonsoft.Json.dll" target="tools\netcoreapp2.1\any\Newtonsoft.Json.dll" />
+    <file src="tools\netcoreapp2.1\any\RSAKeyVaultProvider.dll" target="tools\netcoreapp2.1\any\RSAKeyVaultProvider.dll" />
+    <file src="tools\netcoreapp2.1\any\System.Runtime.CompilerServices.Unsafe.dll" target="tools\netcoreapp2.1\any\System.Runtime.CompilerServices.Unsafe.dll" />
+  </files>
+</package>
