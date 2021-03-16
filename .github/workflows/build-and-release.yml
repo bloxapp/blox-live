@@ -27,7 +27,7 @@ jobs:
 
 # START windows steps
       - name: Build/release Electron app for windows
-        if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/2w') }}
+        if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/w') }}
         uses: samuelmeuli/action-electron-builder@v1
         with:
           # GitHub token, automatically provided to the action
