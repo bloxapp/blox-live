@@ -122,3 +122,9 @@ jobs:
 
         env:
           GH_TOKEN: ${{ secrets.github_token }}
+
+      - name: upload-artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: signed-files
+          path: release
