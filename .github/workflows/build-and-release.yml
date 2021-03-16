@@ -3,8 +3,8 @@ name: Build/release
 on: push
 
 env:
-  AZURE_PATH: '.'    # set this to the path to your web app project, defaults to the repository root
-  DOTNET_VERSION: '2.1'
+  # AZURE_PATH: '.'    # set this to the path to your web app project, defaults to the repository root
+  # DOTNET_VERSION: '2.1'
   ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
 jobs:
@@ -27,7 +27,7 @@ jobs:
 
 # START windows steps
       - name: Build/release Electron app for windows
-        if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/w') }}
+        if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/2w') }}
         uses: samuelmeuli/action-electron-builder@v1
         with:
           # GitHub token, automatically provided to the action
