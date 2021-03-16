@@ -66,7 +66,7 @@ jobs:
         with:
           azure_sign_tool_credentials: ${{ secrets.AZURE_SIGN_TOOL_CREDENTIALS_MANAGED_IDENTITY }}
           azure_sign_tool_assembly: ./tools/AzureSignTool-DEV/netcoreapp2.1/any/AzureSignTool.dll
-          files_to_sign: builtFiles/files-to-sign.txt
+          files_to_sign: release/files-to-sign.txt
 
 
 # START macOs steps
