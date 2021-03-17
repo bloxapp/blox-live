@@ -109,11 +109,10 @@ const App = (props: AppProps) => {
     });
 
     /* Track events */
-    if (firstTime) {
-      await analytics.track('first-time', {
-        appUuid,
-      });
-    }
+    await analytics.track('app-opened', {
+      firstTime,
+      appUuid
+    });
 
     logger.info('app opened', {
       os: getOsVersion(),

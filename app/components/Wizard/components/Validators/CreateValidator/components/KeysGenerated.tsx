@@ -36,15 +36,17 @@ publicKeyTooltip += 'including proposing blocks and attesting to others. The val
 const KeysGenerated = (props: Props) => {
   const { onClick, validatorData, wizardActions, depositData } = props;
   const { setFinishedWizard, clearWizardData } = wizardActions;
-  const { loadDashboardData } = useDashboardData();
+  const { loadDataAfterNewAccount } = useDashboardData();
   const { setTestNetShowFlag } = useNetworkSwitcher();
   const { goToPage, ROUTES } = useRouting();
 
   const onGoToDashboardClick = async () => {
     await clearWizardData();
     await setFinishedWizard(true);
-    await loadDashboardData();
-    goToPage(ROUTES.DASHBOARD);
+    // Reload accounts from API before coming to dash
+    await loadDataAfterNewAccount().then(() => {
+      goToPage(ROUTES.DASHBOARD);
+    });
   };
 
   useEffect(() => {

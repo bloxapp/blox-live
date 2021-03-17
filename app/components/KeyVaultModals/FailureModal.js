@@ -61,7 +61,7 @@ FailureModal.defaultProps = {
   title: '',
   subtitle: '',
   onClick: () => {},
-  onClose: () => {},
+  onClose: null,
   customImage: null
 };
 

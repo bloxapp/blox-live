@@ -553,3 +553,18 @@
 .icon-discord-symbol:before {
   content: "\69";
 }
+.icon-eth-icon-colors:before {
+  content: "\41";
+}
+.icon-graph:before {
+  content: "\44";
+}
+.icon-key:before {
+  content: "\e004";
+}
+.icon-plugnplay:before {
+  content: "\e01b";
+}
+.icon-settings:before {
+  content: "\e01c";
+}

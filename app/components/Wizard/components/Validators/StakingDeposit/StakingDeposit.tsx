@@ -13,7 +13,6 @@ import { getData } from '~app/components/ProcessRunner/selectors';
 import { deepLink, cleanDeepLink } from '~app/components/App/service';
 import useDashboardData from '~app/components/Dashboard/useDashboardData';
 import { Title, BigButton } from '~app/components/Wizard/components/common';
-import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 import { NETWORKS } from '~app/components/Wizard/components/Validators/constants';
 import { getIdToken } from '~app/components/Login/components/CallbackPage/selectors';
 import { MainNetText, TestNetText } from '~app/components/Wizard/components/Validators/StakingDeposit/components';
@@ -73,8 +72,7 @@ const StakingDeposit = (props: Props) => {
   } = props;
   const {updateAccountStatus, loadDepositData, setFinishedWizard, clearWizardData} = actions;
   const [showMoveToBrowserModal, setShowMoveToBrowserModal] = React.useState(false);
-  const { loadDashboardData } = useDashboardData();
-  const { clearProcessState, isLoading, isDone } = useProcessRunner();
+  const { loadDataAfterNewAccount } = useDashboardData();
   const { goToPage, ROUTES } = useRouting();
 
   useEffect(() => {
@@ -110,8 +108,10 @@ const StakingDeposit = (props: Props) => {
     await callClearAccountsData();
     await clearWizardData();
     await setFinishedWizard(true);
-    await loadDashboardData();
-    goToPage(ROUTES.DASHBOARD);
+    // Reload accounts and event logs before reaching dash
+    await loadDataAfterNewAccount().then(() => {
+      goToPage(ROUTES.DASHBOARD);
+    });
   };
 
   const openDepositBrowser = async (moveToBrowser) => {
@@ -129,10 +129,6 @@ const StakingDeposit = (props: Props) => {
       currentAccount = accountDataFromProcess[0];
     } else {
       currentAccount = accountFromApi;
-    }
-
-    if (!isLoading && isDone) {
-      clearProcessState();
     }
 
     if (currentAccount) {

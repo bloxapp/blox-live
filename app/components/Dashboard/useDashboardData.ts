@@ -1,22 +1,16 @@
 import { useDispatch } from 'react-redux';
-import { useInjectSaga } from 'utils/injectSaga';
-
-import { loadAccounts } from '../Accounts/actions';
-import accountSaga from '../Accounts/saga';
-
-import { loadBloxLiveVersion } from '../Versions/actions';
-import versionsSaga from '../Versions/saga';
-
-import { loadWallet } from '../Wizard/actions';
-import wizardSaga from '../Wizard/saga';
-
-import { loadEventLogs } from '../EventLogs/actions';
-import eventLogsSaga from '../EventLogs/saga';
-
-import { keyvaultLoadLatestVersion } from '../KeyVaultManagement/actions';
-import walletSaga from '../KeyVaultManagement/saga';
-
-import { saveLastConnection } from 'common/service';
+import wizardSaga from '~app/components/Wizard/saga';
+import { useInjectSaga } from '~app/utils/injectSaga';
+import accountSaga from '~app/components/Accounts/saga';
+import { saveLastConnection } from '~app/common/service';
+import versionsSaga from '~app/components/Versions/saga';
+import eventLogsSaga from '~app/components/EventLogs/saga';
+import { loadWallet } from '~app/components/Wizard/actions';
+import { loadAccounts } from '~app/components/Accounts/actions';
+import walletSaga from '~app/components/KeyVaultManagement/saga';
+import { loadEventLogs } from '~app/components/EventLogs/actions';
+import { loadBloxLiveVersion } from '~app/components/Versions/actions';
+import { keyvaultLoadLatestVersion } from '~app/components/KeyVaultManagement/actions';
 
 const useDashboardData = () => {
   useInjectSaga({key: 'wizard', saga: wizardSaga, mode: ''});
@@ -36,7 +30,12 @@ const useDashboardData = () => {
     await dispatch(loadEventLogs());
   };
 
-  return { loadDashboardData };
+  const loadDataAfterNewAccount = async () => {
+    await dispatch(loadAccounts());
+    await dispatch(loadEventLogs());
+  };
+
+  return { loadDashboardData, loadDataAfterNewAccount };
 };
 
 export default useDashboardData;

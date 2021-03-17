@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export default styled.a`
+export default styled.div`
   display: inline-flex;
   text-decoration: none;
   user-select: none;

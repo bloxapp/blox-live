@@ -1,8 +1,8 @@
 import util from 'util';
 import { exec } from 'child_process';
-import { execPath } from '../../../binaries';
-import { Log } from '../../common/logger/logger';
-import { Catch, CatchClass } from '../../decorators';
+import { execPath } from '~app/binaries';
+import { Log } from '~app/backend/common/logger/logger';
+import { Catch, CatchClass } from '~app/backend/decorators';
 
 @CatchClass<KeyManagerService>()
 export default class KeyManagerService {
@@ -11,9 +11,8 @@ export default class KeyManagerService {
   private logger: Log;
 
   constructor() {
-    this.logger = new Log('key-manager');
+    this.logger = new Log(KeyManagerService.name);
     this.executor = util.promisify(exec);
-    this.logger.debug('EXEC PATH IS', execPath);
     this.executablePath = execPath;
   }
 

@@ -9,7 +9,7 @@
 [![Dependency Status][david-image]][david-url]
 [![DevDependency Status][david-dev-image]][david-dev-url]
 [![Github Tag][github-tag-image]][github-tag-url]
-[![Discord](https://discord.com/api/guilds/723834989506068561/widget.png?style=shield)](https://discord.gg/HpT2z5B)
+[![Discord](https://discord.com/api/guilds/723834989506068561/widget.png?style=shield)](http://bit.ly/30HwvsC)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbloxapp%2Fblox-live.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbloxapp%2Fblox-live?ref=badge_shield)
 
 </div>

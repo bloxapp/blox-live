@@ -13,6 +13,7 @@ import {
   normalizeEventLogs,
   accountsHaveMoreThanOneNetwork
 } from '~app/components/Dashboard/service';
+import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -31,6 +32,13 @@ const Dashboard = (props) => {
   const [accountsSummary, setAccountsSummary] = React.useState(null);
   const [normalizedAccounts, setNormalizedAccounts] = React.useState(null);
   const [normalizedEventLogs, setNormalizedEventLogs] = React.useState(null);
+  const { clearProcessState, isLoading, isDone } = useProcessRunner();
+
+  React.useEffect(() => {
+    if (!isLoading && isDone) {
+      clearProcessState();
+    }
+  });
 
   // All accounts and "network switch" effects
   React.useEffect(() => {

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
-import saga from '~app/components/Wizard/saga';
+import wizardSaga from '~app/components/Wizard/saga';
 import config from '~app/backend/common/config';
 import useRouting from '~app/common/hooks/useRouting';
 import { useInjectSaga } from '~app/utils/injectSaga';
@@ -15,6 +15,7 @@ import Connection from '~app/backend/common/store-manager/connection';
 import * as accountSelectors from '~app/components/Accounts/selectors';
 import { allAccountsDeposited } from '~app/components/Accounts/service';
 import * as actionsFromDashboard from '~app/components/Dashboard/actions';
+import useDashboardData from '~app/components/Dashboard/useDashboardData';
 import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
 import ButtonWithIcon from '~app/components/Wizard/components/WizardStartPage/ButtonWithIcon';
 import keyVaultImg from '../../assets/img-key-vault.svg';
@@ -60,18 +61,24 @@ let toolTipText = "Blox KeyVault is responsible for securing your private valida
 toolTipText += 'activity on the Beacon Chain. Blox will communicate with your secured KeyVault every time your validator';
 toolTipText += 'is requested to attest/propose. To do so, KeyVault must be online 24/7.';
 
-const key = 'wizard';
-
 const WizardStartPage = (props: Props) => {
+  useInjectSaga({ key: 'wizard', saga: wizardSaga, mode: '' });
+
   const { setPage, setStep, step, actions, dashboardActions, wallet, accounts, isLoading,
           isDepositNeeded, addAnotherAccount, userInfo } = props;
-  const { loadWallet } = actions;
   const { setModalDisplay } = dashboardActions;
-
+  const { loadWallet } = actions;
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
+  const { loadDataAfterNewAccount } = useDashboardData();
   const { goToPage, ROUTES } = useRouting();
-  useInjectSaga({ key, saga, mode: '' });
   const [showStep2, setStep2Status] = useState(false);
+
+  const goToDashboard = () => {
+    // Reload accounts and event logs before reaching dash
+    loadDataAfterNewAccount().then(() => {
+      goToPage(ROUTES.DASHBOARD);
+    });
+  };
 
   useEffect(() => {
     if (!isLoading && !wallet) {
@@ -97,30 +104,43 @@ const WizardStartPage = (props: Props) => {
 
       // Having saved seed in the app
       if (hasSeed) {
-        // Have accounts and not all of them deposited
-        // And one of them needs deposit (opened deposit page)
-        if (accounts?.length && !allAccountsDeposited(accounts) && isDepositNeeded) {
-          return redirectToDepositPage();
+        // Clicked on "Add Validator" button
+        if (addAnotherAccount) {
+          redirectToCreateAccount();
+          return;
         }
 
-        // Clicked on Add Validator button
-        if (addAnotherAccount) {
-          return redirectToCreateAccount();
+        // Have accounts and not all of them are deposited
+        // IMPORTANT: update accounts from API before closing wizard!
+        if (accounts?.length && !allAccountsDeposited(accounts)) {
+          // Clicked on "Continue to deposit"
+          if (isDepositNeeded) {
+            redirectToDepositPage();
+            return;
+          }
+
+          // Clicked on "I'll deposit later"
+          goToPage(ROUTES.DASHBOARD);
+          return;
         }
 
         // Not finished initial installation (no accounts when there's seed)
+        // Empty dash feature
         if (!accounts?.length) {
-          return setStep2Status(true);
+          setStep2Status(true);
+          return;
         }
       }
 
       // No seed and just installed or recovered without accounts
+      // Should import or generate seed
       if (finishedRecoveryOrInstallProcess && accounts?.length === 0) {
-        return redirectToImportOrGenerateSeed();
+        redirectToImportOrGenerateSeed();
+        return;
       }
 
-      // Nothing to do more in wizard -> go to dash
-      goToPage(ROUTES.DASHBOARD);
+      // After all possible scenarios the only remaining is to return to dash
+      goToDashboard();
     }
   }, [isLoading]);
 

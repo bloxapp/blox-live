@@ -19,7 +19,7 @@ export default class Config {
       AUTH0_LOGOUT_URL: 'https://localhost:1212',
       AUTH0_CALLBACK_URL: 'file:///login/callback*',
       WEBSITE_URL: 'https://www.bloxstaking.com',
-      DISCORD_INVITE: 'https://discord.com/invite/VgHDdAP',
+      DISCORD_INVITE: 'http://bit.ly/30HwvsC',
       DISCORD_GOETH_INVITE: 'https://discord.gg/wXxuQwY',
       HTTP_RETRIES: 3,
       HTTP_RETRY_DELAY: 1000,

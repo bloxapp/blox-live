@@ -253,7 +253,7 @@ export default class MenuBuilder {
           {
             label: 'Community Discussions',
             click() {
-              shell.openExternal('https://discord.gg/HpT2z5B');
+              shell.openExternal('http://bit.ly/30HwvsC');
             },
           },
           {
