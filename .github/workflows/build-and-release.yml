@@ -37,12 +37,12 @@ jobs:
           # If the commit is tagged with a version (e.g. "v1.0.0"),
           # release the app after building
           # release: ${{ startsWith(github.ref, 'refs/tags/v') }}
-          release: 'true'
+          # release: 'true'
 
           max_attempts: '2'
           # windows_certs: '~/private_keys/decoded.p12'
           # windows_certs_password: ${{ secrets.windows_certs_password }}
-          # run: yarn install && yarn package-win
+          run: yarn install && yarn package-win
         env:
           GH_TOKEN: ${{ secrets.github_token }}
 
@@ -74,6 +74,7 @@ jobs:
         with:
           path: |
             release
+            !release/win-unpacked
 
 # START macOs steps
       - name: Prepare for app notarization
