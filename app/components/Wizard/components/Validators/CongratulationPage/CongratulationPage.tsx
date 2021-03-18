@@ -1,16 +1,13 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
-import config from '~app/backend/common/config';
 import useRouting from '~app/common/hooks/useRouting';
 import { SuccessIcon, Confetti } from '~app/common/components';
 import * as actionsFromWizard from '~app/components/Wizard/actions';
 import * as actionsFromAccounts from '~app/components/Accounts/actions';
 import useDashboardData from '~app/components/Dashboard/useDashboardData';
 import { Title, Paragraph, BigButton } from '~app/components/Wizard/components/common';
-import useNetworkSwitcher from '~app/components/Dashboard/components/NetworkSwitcher/useNetworkSwitcher';
-import { getNetworkForImport } from '~app/components/Wizard/components/Validators/ImportValidators/components/helpers';
 
 const Wrapper = styled.div`
   position: relative;
@@ -22,7 +19,6 @@ const CongratulationPage = (props: Props) => {
   const { clearAccountsData } = accountsActions;
   const { setFinishedWizard, setOpenedWizard, clearWizardData } = wizardActions;
   const { loadDashboardData } = useDashboardData();
-  const { setTestNetShowFlag } = useNetworkSwitcher();
   const { goToPage, ROUTES } = useRouting();
 
   const onClick = async () => {
@@ -33,10 +29,6 @@ const CongratulationPage = (props: Props) => {
     await loadDashboardData();
     goToPage(ROUTES.DASHBOARD);
   };
-
-  useEffect(() => {
-    setTestNetShowFlag(getNetworkForImport() === config.env.PYRMONT_NETWORK);
-  });
 
   return (
     <>

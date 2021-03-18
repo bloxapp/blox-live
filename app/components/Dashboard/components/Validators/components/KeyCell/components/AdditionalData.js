@@ -2,19 +2,21 @@ import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import useRouting from '~app/common/hooks/useRouting';
-import { setDepositNeeded } from '~app/components/Accounts/actions';
 import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
+import { setAddAnotherAccount, setDepositNeeded } from '~app/components/Accounts/actions';
 import Date from '~app/components/Dashboard/components/Validators/components/KeyCell/components/Date';
 import BlueButton from '~app/components/Dashboard/components/Validators/components/KeyCell/components/BlueButton';
 import WarningText from '~app/components/Dashboard/components/Validators/components/KeyCell/components/WarningText';
 
 const AdditionalData = (props) => {
-  const { publicKey, status, createdAt, accountIndex, callSetDepositNeeded, network } = props;
+  const { publicKey, status, createdAt, accountIndex,
+    callSetDepositNeeded, network, callSetAddAnotherAccount } = props;
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
   const { goToPage, ROUTES } = useRouting();
 
   const onFinishSetupClick = async () => {
     const onPasswordSuccess = async () => {
+      await callSetAddAnotherAccount(false);
       await callSetDepositNeeded({
         isNeeded: true,
         publicKey,
@@ -59,10 +61,12 @@ AdditionalData.propTypes = {
   status: PropTypes.string,
   createdAt: PropTypes.string,
   callSetDepositNeeded: PropTypes.func,
+  callSetAddAnotherAccount: PropTypes.func,
 };
 
 const mapDispatchToProps = (dispatch) => ({
   callSetDepositNeeded: (payload) => dispatch(setDepositNeeded(payload)),
+  callSetAddAnotherAccount: (payload) => dispatch(setAddAnotherAccount(payload)),
 });
 
 export default connect(null, mapDispatchToProps)(AdditionalData);

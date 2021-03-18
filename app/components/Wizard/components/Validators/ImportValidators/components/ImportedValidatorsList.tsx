@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import styled from 'styled-components/dist/styled-components.esm';
 import analytics from '~app/backend/analytics';
+import config from '~app/backend/common/config';
 import Table from '~app/common/components/Table';
 import { Checkbox, ProcessLoader } from '~app/common/components';
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
@@ -13,6 +14,7 @@ import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
 import tableColumns from '~app/components/Wizard/components/Validators/ImportValidators/components/table-columns';
 import { getNetworkForImport } from '~app/components/Wizard/components/Validators/ImportValidators/components/helpers';
+import useNetworkSwitcher from '~app/components/Dashboard/components/NetworkSwitcher/useNetworkSwitcher';
 
 const TableWrapper = styled.div`
   width: 100%;
@@ -76,6 +78,7 @@ const ImportedValidatorsList = ({ show, validators, onDone, dashboardActions }: 
 
   const { setModalDisplay } = dashboardActions;
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
+  const { setTestNetShowFlag } = useNetworkSwitcher();
   const { isLoading, isDone, processData, error, startProcess, clearProcessState, loaderPercentage } = useProcessRunner();
 
   const onPageClick = (offset) => {
@@ -88,6 +91,7 @@ const ImportedValidatorsList = ({ show, validators, onDone, dashboardActions }: 
 
   useEffect(() => {
     if (isDone && processData && !error) {
+      setTestNetShowFlag(getNetworkForImport() === config.env.PYRMONT_NETWORK);
       onDone();
       analytics.track('import-completed');
     } else if (isDone && error && !isLoading) {

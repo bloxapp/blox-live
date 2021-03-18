@@ -11,7 +11,6 @@ import * as wizardActions from '~app/components/Wizard/actions';
 import { openExternalLink } from '~app/components/common/service';
 import { getData } from '~app/components/ProcessRunner/selectors';
 import { deepLink, cleanDeepLink } from '~app/components/App/service';
-import useDashboardData from '~app/components/Dashboard/useDashboardData';
 import { Title, BigButton } from '~app/components/Wizard/components/common';
 import { NETWORKS } from '~app/components/Wizard/components/Validators/constants';
 import { getIdToken } from '~app/components/Login/components/CallbackPage/selectors';
@@ -72,7 +71,6 @@ const StakingDeposit = (props: Props) => {
   } = props;
   const {updateAccountStatus, loadDepositData, setFinishedWizard, clearWizardData} = actions;
   const [showMoveToBrowserModal, setShowMoveToBrowserModal] = React.useState(false);
-  const { loadDataAfterNewAccount } = useDashboardData();
   const { goToPage, ROUTES } = useRouting();
 
   useEffect(() => {
@@ -108,10 +106,7 @@ const StakingDeposit = (props: Props) => {
     await callClearAccountsData();
     await clearWizardData();
     await setFinishedWizard(true);
-    // Reload accounts and event logs before reaching dash
-    await loadDataAfterNewAccount().then(() => {
-      goToPage(ROUTES.DASHBOARD);
-    });
+    goToPage(ROUTES.DASHBOARD);
   };
 
   const openDepositBrowser = async (moveToBrowser) => {
