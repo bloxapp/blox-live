@@ -3,12 +3,60 @@ import { notification } from 'antd';
 import queryString from 'query-string';
 import { Log } from '~app/backend/common/logger/logger';
 
-const logger = new Log('deepLink');
+const logger = new Log('App/services');
 const isWindows = process.platform === 'win32';
 
 export const initApp = () => {
   const placement = 'bottomRight';
   notification.config({ placement });
+};
+
+export const onSystemResume = (onSuccess, onFailure) => {
+  remote.powerMonitor.on('resume', () => {
+    try {
+      onSuccess({
+        state: remote.powerMonitor.getSystemIdleState(4),
+        idle: remote.powerMonitor.getSystemIdleTime()
+      });
+    } catch (e) {
+      onFailure(e);
+    }
+  });
+};
+
+export const cleanOnSystemResume = () => {
+  remote.powerMonitor.removeAllListeners('resume');
+};
+
+export const onUnlockScreen = (onSuccess, onFailure) => {
+  remote.powerMonitor.on('unlock-screen', () => {
+    try {
+      onSuccess({
+        state: remote.powerMonitor.getSystemIdleState(4),
+        idle: remote.powerMonitor.getSystemIdleTime()
+      });
+    } catch (e) {
+      onFailure(e);
+    }
+  });
+};
+
+export const cleanOnUnlockScreen = () => {
+  remote.powerMonitor.removeAllListeners('unlock-screen');
+};
+
+export const onWindowFocus = (onSuccess, onFailure) => {
+  remote.app.on('browser-window-focus', (event, window) => {
+    try {
+        onSuccess(event, window);
+    } catch (e) {
+      onFailure(e);
+    }
+  });
+};
+
+export const cleanOnWindowFocus = () => {
+  remote.app.removeAllListeners('browser-window-focus');
 };
 
 export const deepLink = (onSuccess, onFailure) => {
@@ -29,8 +77,7 @@ export const deepLink = (onSuccess, onFailure) => {
         } else {
           onFailure('Unknown DeepLink!');
         }
-      }
-      catch (e) {
+      } catch (e) {
         onFailure(e);
       }
     }
@@ -58,8 +105,7 @@ export const deepLink = (onSuccess, onFailure) => {
         } else {
           onFailure('Unknown DeepLink!');
         }
-      }
-      catch (e) {
+      } catch (e) {
         onFailure(e);
       }
     } else {

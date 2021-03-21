@@ -118,11 +118,14 @@ export default class Auth {
     });
   };
 
-  private setAutoLogout(userProfile: Profile) {
+  public static clearAutoLogout() {
     if (Auth.autoLogoutTimeout) {
       clearTimeout(Auth.autoLogoutTimeout);
     }
+  }
 
+  private setAutoLogout(userProfile: Profile) {
+    Auth.clearAutoLogout();
     const currentDateTime = moment();
     const expiration = moment.unix(userProfile.exp);
     const duration = moment.duration(expiration.diff(currentDateTime));
@@ -147,6 +150,7 @@ export default class Auth {
     this.logger.warn('Timeout in seconds before auto-logout: ', secondsTimeout, 'seconds');
 
     Auth.autoLogoutTimeout = setTimeout(() => {
+      // TODO: refresh token here
       Auth.events.emit(Auth.AUTH_EVENTS.SESSION_EXPIRED);
       clearTimeout(Auth.autoLogoutTimeout);
       this.logger.warn('Auth Token Expired! Logging out..');
@@ -207,6 +211,6 @@ interface Auth0ResponseData {
     id_token: string;
 }
 
-type Profile = Record<string, any> | null;
+export type Profile = Record<string, any> | null;
 type Error = Record<string, any> | null;
 type CallBack = (profile: Profile, error?: Error) => void;
