@@ -1,11 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
+import navigationRules from './navigation-rules';
 import { MenuItem, SubMenuItem } from './components';
+import { Log } from '~app/backend/common/logger/logger';
 
 const Wrapper = styled.div`
   width: 19vw;
   height: 100%;
-  padding: 60px 2.5vw;
+  padding: 60px 2vw;
+  white-space: pre;
+  min-width: 200px;
   background-color: #ffffff;
   display: flex;
   flex-direction: column;
@@ -19,57 +23,77 @@ const Separator = styled.div`
   margin: 24px 0;
 `;
 
-const Navigation = (props: Props) => {
-  const { page, step, addAdditionalAccount } = props;
+const logger = new Log('Navigation');
 
-  console.log('TEST PAGE ----', page)
-  console.log('TEST STEP ----', step)
+const Navigation = (props: Props) => {
+  const { page, step, pageData, addAdditionalAccount, accounts } = props;
+
+  logger.debug('PAGE:', page);
+  logger.debug('STEP:', step);
+
+  const rulesProps = {
+    page,
+    step,
+    pageData,
+    addAdditionalAccount,
+    accounts
+  };
 
   return (
     <Wrapper>
-      {!addAdditionalAccount && (
-        <>
-          <MenuItem text="KeyVault Setup" number={1} step={step} page={page} finalPage={4} />
-          {(step === 1 && page !== 4) && (
-            <>
-              <SubMenuItem text="Select Cloud Provider" page={page} number={1} />
-              <SubMenuItem text="Create KeyVault" page={page} number={2} />
-            </>
-          )}
-          <Separator />
-        </>
-      )}
+      {navigationRules.map((menuItem, menuItemIndex) => {
+        if (!menuItem.show(rulesProps)) {
+          return '';
+        }
 
-      <MenuItem text="Validator Setup" hideNumber={addAdditionalAccount} number={2} step={step} page={page} finalPage={10} />
-      {(step === 2 || page === 4) && (
-        <>
-          <SubMenuItem text="Import/Create Seed" page={page} number={4} />
-        </>
-      )}
-      {(step === 2 && page > 4 && page < 10) && (
-        <>
-          <SubMenuItem text="Generate Seed" page={page} number={5} />
-          <SubMenuItem text="Select Staking Network" page={page} number={6} />
-          <SubMenuItem text="Generate Keys" page={page} number={7} />
-          <SubMenuItem text="Staking Deposit" page={page} number={8} />
-        </>
-      )}
-      {(step === 2 && page >= 10) && (
-        <>
-          <SubMenuItem text="Import Seed" page={page} number={10} />
-          <SubMenuItem text="Validator Selection" page={page} number={11} />
-        </>
-      )}
+        const isStepDone = menuItem.done(rulesProps);
+        const isStepActive = menuItem.active(rulesProps);
+        const hideStepNumber = menuItem.hideNumber(rulesProps);
+
+        return (
+          <React.Fragment key={`step-container-${menuItemIndex}`}>
+            <MenuItem
+              key={`step-${menuItemIndex}`}
+              text={menuItem.name}
+              stepNumber={menuItem.step}
+              hideNumber={hideStepNumber}
+              isActive={isStepActive}
+              isDone={isStepDone}
+            />
+
+            {!isStepDone && menuItem.pages.map((menuItemPage, menuItemPageIndex) => {
+              const show = menuItemPage.show ? menuItemPage.show(rulesProps) : true;
+              if (!show) {
+                return '';
+              }
+              const isPageDone = menuItemPage.done(rulesProps);
+
+              return (
+                <SubMenuItem
+                  key={`page-${menuItemPageIndex}`}
+                  text={menuItemPage.name}
+                  isActive={menuItemPage.page === page}
+                  isDone={isPageDone}
+                  showLine
+                />
+              );
+            })}
+            {menuItem.separator && <Separator />}
+          </React.Fragment>
+        );
+      })}
     </Wrapper>
   );
 };
 
 type Props = {
   page: number;
+  pageData: any;
   setPage: (page: number) => void;
   step: number;
   setStep: (page: number) => void;
   addAdditionalAccount: boolean;
+  accounts: any;
 };
 
 export default Navigation;

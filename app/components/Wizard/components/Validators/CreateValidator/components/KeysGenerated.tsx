@@ -34,7 +34,7 @@ let publicKeyTooltip = 'The public (signing) key is used for signing the validat
 publicKeyTooltip += 'including proposing blocks and attesting to others. The validator public key must be online for signing 24/7.';
 
 const KeysGenerated = (props: Props) => {
-  const { onClick, validatorData, wizardActions, depositData } = props;
+  const { onClick, validatorData, wizardActions, depositData, setPageData } = props;
   const { setFinishedWizard, clearWizardData } = wizardActions;
   const { loadDataAfterNewAccount } = useDashboardData();
   const { setTestNetShowFlag } = useNetworkSwitcher();
@@ -51,7 +51,10 @@ const KeysGenerated = (props: Props) => {
 
   useEffect(() => {
     setTestNetShowFlag(validatorData.network === config.env.PYRMONT_NETWORK);
-  });
+    setPageData({
+      newValidatorDeposited: validatorData.deposited
+    });
+  }, [validatorData]);
 
   return (
     <>
@@ -98,6 +101,7 @@ type Props = {
   validatorData: Record<string, any>;
   wizardActions: Record<string, any>;
   depositData: Record<string, any>;
+  setPageData: (data: any) => void;
 };
 
 type Dispatch = (arg0: { type: string }) => any;

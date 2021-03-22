@@ -17,3 +17,5 @@ export const getWizardOpenedStatus = (state) => state.wizard.isOpened;
 export const getNetwork = (state) => state.wizard && state.wizard.network;
 
 export const getAccount = (state) => state.wizard && state.wizard.account;
+
+export const getPageData = (state) => state.wizard && state.wizard.pageData;

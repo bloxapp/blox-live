@@ -14,23 +14,20 @@ const Text = styled.div`
   color: ${({ isActive, theme }) => isActive ? theme.primary900 : theme.gray80015};
 `;
 
-const MenuItem = ({ text, number, step, page, finalPage, hideNumber }) => {
-  const isActive = step === number;
-  const isDone = page === finalPage || step > number;
+const MenuItem = ({ text, stepNumber, isActive, isDone, hideNumber }) => {
   return (
     <Wrapper>
-      <MenuItemCircle number={number} hideNumber={hideNumber} isActive={isActive} isDone={isDone} />
+      <MenuItemCircle number={stepNumber} hideNumber={hideNumber} isActive={isActive} isDone={isDone} />
       <Text isActive={isActive} isDone={isDone}>{text}</Text>
     </Wrapper>
   );
 };
 
 MenuItem.propTypes = {
-  page: PropTypes.number,
-  finalPage: PropTypes.number,
-  step: PropTypes.number,
+  isDone: PropTypes.bool,
+  isActive: PropTypes.bool,
   text: PropTypes.string,
-  number: PropTypes.number,
+  stepNumber: PropTypes.number,
   hideNumber: PropTypes.bool,
 };
 

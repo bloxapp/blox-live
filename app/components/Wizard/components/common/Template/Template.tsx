@@ -133,6 +133,7 @@ type Props = {
   bgImage: string;
   backButton?: boolean;
   page: number;
+  pageData: any;
   setPage: (page: number) => void;
   step: number;
   setStep: (page: number) => void;
@@ -140,6 +141,7 @@ type Props = {
   accountsActions: Record<string, any>;
   isFinishedWizard: boolean;
   addAnotherAccount: boolean;
+  accounts: any;
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Template);
