@@ -27,6 +27,9 @@ const navigationRules = [
     name: 'KeyVault Setup',
     step: config.WIZARD_STEPS.KEY_VAULT_SETUP,
     show: (props: Record<string, any>): boolean => {
+      if (props.pageData?.finishValidatorSetup) {
+        return false;
+      }
       if (props.accounts?.length === 1) {
         return [
           config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS,
@@ -77,7 +80,7 @@ const navigationRules = [
       return props.step === config.WIZARD_STEPS.VALIDATOR_SETUP;
     },
     hideNumber: (props: Record<string, any>): boolean => {
-      if (props.pageData?.finishSetup) {
+      if (props.pageData?.finishValidatorSetup) {
         return true;
       }
       if (props.accounts?.length) {
@@ -93,10 +96,13 @@ const navigationRules = [
           return props.page > config.WIZARD_PAGES.WALLET.IMPORT_OR_GENERATE_SEED;
         },
         show: (props: Record<string, any>): boolean => {
-          if (props.accounts?.length === 1 && props.page === config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT) {
-            return true;
+          if (props.accounts?.length === 1) {
+            return props.page === config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT;
           }
           if (props.addAdditionalAccount) {
+            return false;
+          }
+          if (props.pageData?.finishValidatorSetup) {
             return false;
           }
           if (props.page === config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT) {
@@ -112,7 +118,7 @@ const navigationRules = [
           return props.page > config.WIZARD_PAGES.WALLET.ENTER_MNEMONIC;
         },
         show: (props: Record<string, any>): boolean => {
-          if (props.pageData?.finishSetup) {
+          if (props.pageData?.finishValidatorSetup) {
             return false;
           }
           if (props.addAdditionalAccount) {
