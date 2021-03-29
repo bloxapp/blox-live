@@ -1,5 +1,4 @@
 import url from 'url';
-import moment from 'moment';
 import { shell } from 'electron';
 import EventEmitter from 'events';
 import jwtDecode from 'jwt-decode';
@@ -25,10 +24,8 @@ export default class Auth {
   private readonly bloxApi: BloxApi;
   private readonly logger: Log;
   private readonly baseStore: BaseStore;
-  private static autoLogoutTimeout: NodeJS.Timeout;
   private static eventEmitter: EventEmitter;
   public static AUTH_EVENTS = {
-    SESSION_EXPIRED: 'SESSION/EXPIRED',
     LOGIN_BUTTON_CLICKED: 'LOGIN_BUTTON/CLICKED'
   };
 
@@ -101,14 +98,14 @@ export default class Auth {
     }
   };
 
-  handleCallBackFromBrowser = async (id_token: string) => {
+  handleCallBackFromBrowser = async (tokenData) => {
     return new Promise((resolve, reject) => {
-      const userProfile: Profile = jwtDecode(id_token);
-      this.setSession({ id_token }, userProfile);
-      if (id_token && userProfile) {
-        this.setAutoLogout(userProfile);
+      const { idToken, refreshToken } = tokenData;
+      const userProfile: Profile = jwtDecode(idToken);
+      this.setSession({ id_token: idToken, refresh_token: refreshToken }, userProfile);
+      if (idToken && userProfile) {
         resolve({
-          idToken: id_token,
+          idToken,
           idTokenPayload: userProfile
         });
       } else {
@@ -117,45 +114,6 @@ export default class Auth {
       }
     });
   };
-
-  public static clearAutoLogout() {
-    if (Auth.autoLogoutTimeout) {
-      clearTimeout(Auth.autoLogoutTimeout);
-    }
-  }
-
-  private setAutoLogout(userProfile: Profile) {
-    Auth.clearAutoLogout();
-    const currentDateTime = moment();
-    const expiration = moment.unix(userProfile.exp);
-    const duration = moment.duration(expiration.diff(currentDateTime));
-    let secondsTimeout = Math.ceil(duration.asSeconds()) - 60 * 10;
-    const featureSessionExpiredSeconds = this.baseStore.get('feature:session-expired:test');
-
-    if (featureSessionExpiredSeconds) {
-      try {
-        const featureSeconds = parseInt(String(featureSessionExpiredSeconds), 10);
-        if (featureSeconds) {
-          secondsTimeout = featureSeconds;
-          this.logger.warn('🚩️ FEATURE IS ENABLED: "feature:session-expired:test"');
-          this.logger.warn(`🚩️ EXPIRATION VALUE: ${featureSessionExpiredSeconds} seconds.`);
-        }
-        // eslint-disable-next-line no-empty
-      } catch (e) {
-        this.logger.error('Auth::setAutoLogout Error', e);
-      }
-    }
-
-    this.logger.warn('Auth Token Expires at: ', expiration.format('LLLL'));
-    this.logger.warn('Timeout in seconds before auto-logout: ', secondsTimeout, 'seconds');
-
-    Auth.autoLogoutTimeout = setTimeout(() => {
-      // TODO: refresh token here
-      Auth.events.emit(Auth.AUTH_EVENTS.SESSION_EXPIRED);
-      clearTimeout(Auth.autoLogoutTimeout);
-      this.logger.warn('Auth Token Expired! Logging out..');
-    }, secondsTimeout * 1000);
-  }
 
   static get events(): EventEmitter {
     if (!Auth.eventEmitter) {
@@ -169,8 +127,13 @@ export default class Auth {
     this.idToken = id_token;
     this.userProfile = userProfile;
     this.logger.info('Setup user account');
-    Connection.setup({ currentUserId: userProfile.sub, authToken: authResult.id_token });
-    // Store.getStore().init(userProfile.sub, authResult.id_token);
+    Connection.setup({
+      currentUserId: userProfile.sub,
+      tokenData: {
+        authToken: authResult.id_token,
+        refreshToken: authResult.refresh_token
+      }
+    });
     await analytics.identify(userProfile.sub, {
       appUuid: this.baseStore.get('appUuid'),
       os: getOsVersion(),
@@ -209,6 +172,7 @@ interface Auth0Response {
 
 interface Auth0ResponseData {
     id_token: string;
+    refresh_token: string;
 }
 
 export type Profile = Record<string, any> | null;

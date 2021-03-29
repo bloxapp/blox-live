@@ -5,9 +5,9 @@ export const login = (connectionName: string) => ({
   payload: connectionName,
 });
 
-export const setSession = (idToken: string) => ({
+export const setSession = (idToken: string, refreshToken: string) => ({
   type: actionTypes.LOGIN_SET_SESSION,
-  payload: idToken,
+  payload: { idToken, refreshToken },
 });
 
 export const loginSuccess = (idTokenPayload) => ({
@@ -23,6 +23,11 @@ export const loginFailure = (error: Record<string, any>) => ({
 export const setIdToken = (idToken: string) => ({
   type: actionTypes.LOGIN_SET_ID_TOKEN,
   payload: idToken,
+});
+
+export const setRefreshToken = (refreshToken: string) => ({
+  type: actionTypes.LOGIN_SET_REFRESH_TOKEN,
+  payload: refreshToken,
 });
 
 export const logout = () => ({

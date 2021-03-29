@@ -1,10 +1,10 @@
 import fs from 'fs';
 import * as crypto from 'crypto';
 import ElectronStore from 'electron-store';
-import BaseStore from './base-store';
-import { Log } from '../logger/logger';
-import { Migrate } from '../../migrate';
-import { Catch } from '../../decorators';
+import { Migrate } from '~app/backend/migrate';
+import { Catch } from '~app/backend/decorators';
+import { Log } from '~app/backend/common/logger/logger';
+import BaseStore from '~app/backend/common/store-manager/base-store';
 
 export default class Store {
   private storage: ElectronStore;
@@ -28,13 +28,14 @@ export default class Store {
     this.logger = new Log('store');
   }
 
-  init(userId: string, authToken: string): void {
+  init(userId: string, tokenData: { authToken: string, refreshToken: string}): void {
     if (!userId) {
       throw new Error('Store not ready to be initialised, currentUserId is missing');
     }
     let currentUserId = userId;
     this.baseStore.set('currentUserId', currentUserId);
-    this.baseStore.set('authToken', authToken);
+    this.baseStore.set('authToken', tokenData.authToken);
+    this.baseStore.set('refreshToken', tokenData.refreshToken);
     currentUserId = currentUserId.replace(/[/\\:*?"<>|]/g, '-');
     const storeName = `${this.baseStore.baseStoreName}${currentUserId ? `-${currentUserId}` : ''}${this.prefix ? `-${this.prefix}` : ''}`;
     this.storage = new ElectronStore({ name: storeName });
@@ -120,6 +121,7 @@ export default class Store {
   logout(): void {
     this.baseStore.delete('currentUserId');
     this.baseStore.delete('authToken');
+    this.baseStore.delete('refreshToken');
     // this.baseStore.clear();
     // this.cryptoKey = undefined;
     // Object.keys(Store.instances).forEach(prefix => Store.close(prefix));
