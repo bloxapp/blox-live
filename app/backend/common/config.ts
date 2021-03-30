@@ -18,9 +18,6 @@ export default class Config {
       WEB_APP_URL: 'https://app.bloxstaking.com'
     },
     default: {
-      // Local development: comment before committing!
-      REFRESH_TOKEN_URL: 'http://localhost:3001/auth/token/refresh',
-      // REFRESH_TOKEN_URL: 'http://oc.stage.bloxinfra.com/auth/token/refresh',
       AUTH0_LOGOUT_URL: 'https://localhost:1212',
       AUTH0_CALLBACK_URL: 'file:///login/callback*',
       WEBSITE_URL: 'https://www.bloxstaking.com',
