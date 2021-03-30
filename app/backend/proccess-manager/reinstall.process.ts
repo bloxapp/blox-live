@@ -25,7 +25,10 @@ export default class ReinstallProcess extends ProcessClass {
     const baseStore = new BaseStore();
     Connection.setup({
       currentUserId: baseStore.get('currentUserId'),
-      authToken: baseStore.get('authToken'),
+      tokenData: {
+        authToken: baseStore.get('authToken'),
+        refreshToken: baseStore.get('refreshToken'),
+      },
       prefix: tempStorePrefix
     });
     Connection.cloneCryptoKey({
