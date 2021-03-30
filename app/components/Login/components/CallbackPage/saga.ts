@@ -14,19 +14,21 @@ import {
 import {
   setIdToken,
   loginSuccess,
-  loginFailure
+  loginFailure,
+  setRefreshToken
 } from '~app/components/Login/components/CallbackPage/actions';
 
 const auth = new Auth();
 
 function* onLoginSuccess(authResult) {
-  const { idToken, idTokenPayload } = authResult;
+  const { idToken, refreshToken, idTokenPayload } = authResult;
   const userInfo = { os: getOsVersion(), appVersion: version };
   yield put(updateUserInfo(userInfo));
 
   yield put(setIdToken(idToken));
+  yield put(setRefreshToken(refreshToken));
   yield put(loginSuccess(idTokenPayload));
-  yield put(push('/'));
+  yield put(push('/logged-in'));
 }
 
 function* onLoginFailure(error: Record<string, any>) {

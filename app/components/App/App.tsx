@@ -18,9 +18,14 @@ import useRouting from '~app/common/hooks/useRouting';
 import { Log } from '~app/backend/common/logger/logger';
 import NotFoundPage from '~app/components/NotFoundPage';
 import GlobalStyle from '~app/common/styles/global-styles';
+import Http from '~app/backend/common/communication-manager/http';
 import BaseStore from '~app/backend/common/store-manager/base-store';
 import loginSaga from '~app/components/Login/components/CallbackPage/saga';
-import { deepLink, initApp, cleanDeepLink } from '~app/components/App/service';
+import {
+  deepLink,
+  initApp,
+  cleanDeepLink
+} from '~app/components/App/service';
 import * as loginActions from '~app/components/Login/components/CallbackPage/actions';
 import { getIsLoggedIn, getIsLoading } from '~app/components/Login/components/CallbackPage/selectors';
 
@@ -123,26 +128,39 @@ const App = (props: AppProps) => {
     await initApp();
   };
 
-  const sessionExpiredSubscribe = () => {
-    Auth.events.removeListener(Auth.AUTH_EVENTS.SESSION_EXPIRED, sessionExpiredListener);
-    Auth.events.once(Auth.AUTH_EVENTS.SESSION_EXPIRED, sessionExpiredListener);
+  const invalidTokenSubscribe = () => {
+    Http.EventEmitter.removeAllListeners(Http.EVENTS.INVALID_TOKEN);
+    Http.EventEmitter.once(Http.EVENTS.INVALID_TOKEN, sessionExpiredListener);
+  };
+
+  const accessTokenRefreshedSubscribe = () => {
+    Http.EventEmitter.removeAllListeners(Http.EVENTS.NEW_ACCESS_TOKEN);
+    Http.EventEmitter.once(Http.EVENTS.NEW_ACCESS_TOKEN, newAccessToken);
+  };
+
+  const newAccessToken = (obj) => {
+    if ('token_id' in obj) {
+      setSession(obj.token_id, obj.refresh_token);
+      invalidTokenSubscribe();
+    }
   };
 
   useEffect(() => {
     if (!didInitApp) {
       init();
     }
-    cleanDeepLink();
     deepLink(
-      (obj) => {
-        if ('token_id' in obj) {
-          setSession(obj.token_id);
-          sessionExpiredSubscribe();
-        }
-      },
+      newAccessToken,
       loginFailure
     );
     onLoginButtonClickedSubscribe();
+    accessTokenRefreshedSubscribe();
+    invalidTokenSubscribe();
+
+    return () => {
+      cleanDeepLink();
+      Http.EventEmitter.removeAllListeners(Http.EVENTS.INVALID_TOKEN);
+    };
   }, [didInitApp, isLoggedIn, isLoading]);
 
   if (!didInitApp || isLoading) {

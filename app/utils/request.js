@@ -40,3 +40,52 @@ function checkStatus(response) {
 export default function request(url, options) {
   return fetch(url, options).then(checkStatus).then(parseJSON);
 }
+
+/**
+ * This function allow you to modify a JS Promise by adding some status properties
+ */
+export const MakeQueryablePromise = (promise) => {
+  // Don't modify any promise that has been already modified.
+  if (promise.isResolved) return promise;
+
+  // Set initial state
+  let isPending = true;
+  let isRejected = false;
+  let isFulfilled = false;
+
+  // Observe the promise, saving the fulfillment in a closure scope.
+  const result = promise.then(
+    (v) => {
+      isFulfilled = true;
+      isPending = false;
+      return v;
+    },
+    (e) => {
+      isRejected = true;
+      isPending = false;
+      throw e;
+    }
+  );
+
+  result.isFulfilled = () => { return isFulfilled; };
+  result.isPending = () => { return isPending; };
+  result.isRejected = () => { return isRejected; };
+  return result;
+};
+
+export const checkJwtStructure = (token) => {
+  const parseJwtPart = (tokenPart) => {
+    return JSON.parse(Buffer.from(tokenPart, 'base64').toString('binary'));
+  };
+
+  try {
+    const tokenParts = String(token).split('.');
+    return {
+      header: parseJwtPart(tokenParts[0]),
+      body: parseJwtPart(tokenParts[1])
+    };
+  } catch (e) {
+    console.error('Token check error!', e);
+  }
+  return null;
+};
