@@ -4,10 +4,12 @@ import Store from '~app/backend/common/store-manager/store';
 
 const instances = {};
 
+type TokenData = { authToken: string, refreshToken: string };
+
 export default class Connection {
   private static userId: string;
 
-  static setup(payload: { currentUserId: string, authToken: string, prefix?: string }): void {
+  static setup(payload: { currentUserId: string, tokenData: TokenData, prefix?: string }): void {
     Connection.userId = payload.currentUserId;
     const name = `${payload.currentUserId}${payload.prefix || ''}`;
     instances[name] = new Store(payload.prefix);
@@ -17,9 +19,10 @@ export default class Connection {
   /**
    * Re-initialize with new auth token and user id without re-creating store
    */
-  static init(payload: { currentUserId: string, authToken: string, prefix?: string }) {
+  static init(payload: { currentUserId: string, tokenData: TokenData, prefix?: string }) {
+    const { authToken, refreshToken } = payload.tokenData;
     const name = `${payload.currentUserId}${payload.prefix || ''}`;
-    instances[name].init(payload.currentUserId, payload.authToken);
+    instances[name].init(payload.currentUserId, { authToken, refreshToken });
   }
 
   static db(prefix: string = ''): Store {

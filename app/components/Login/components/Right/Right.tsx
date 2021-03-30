@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import styled from 'styled-components';
-import Auth from '~app/components/Auth/Auth';
+import Auth from '~app/components/Auth';
 import { SOCIAL_APPS } from '~app/common/constants';
 import { useInjectSaga } from '~app/utils/injectSaga';
 import { openExternalLink } from '~app/components/common/service';

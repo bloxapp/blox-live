@@ -6,6 +6,7 @@ export const initialState: State = {
   isLoading: false,
   isLoggedIn: false,
   idToken: '',
+  refreshToken: '',
   error: null,
   userData: {},
 };
@@ -18,6 +19,9 @@ const loginReducer = (state = initialState, action: Action) => produce(state, (d
       case actionTypes.LOGIN_SET_ID_TOKEN:
         draft.idToken = action.payload;
         break;
+      case actionTypes.LOGIN_SET_REFRESH_TOKEN:
+        draft.refreshToken = action.payload;
+        break;
       case actionTypes.LOGIN_SUCCESS:
         draft.userData = { ...action.payload };
         draft.isLoggedIn = true;
@@ -26,6 +30,7 @@ const loginReducer = (state = initialState, action: Action) => produce(state, (d
         break;
       case actionTypes.LOGOUT:
         draft.idToken = initialState.idToken;
+        draft.refreshToken = initialState.refreshToken;
         draft.isLoggedIn = initialState.isLoggedIn;
         draft.userData = initialState.userData;
         break;

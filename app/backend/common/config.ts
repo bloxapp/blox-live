@@ -4,12 +4,14 @@ export default class Config {
   private static instance: Config;
   private settings: any = {
     stage: {
+      REFRESH_TOKEN_URL: 'http://oc.stage.bloxinfra.com/auth/token/refresh',
       AUTH0_DOMAIN: 'blox-infra.eu.auth0.com',
       AUTH0_CLIENT_ID: 'NsZvhkQvZOWwXT2rcA1RWGgA7YxxhsJZ',
       API_URL: 'https://api.stage.bloxstaking.com',
       WEB_APP_URL: 'https://app.stage.bloxstaking.com'
     },
     production: {
+      REFRESH_TOKEN_URL: 'http://oc.bloxinfra.com/auth/token/refresh',
       AUTH0_DOMAIN: 'blox-infra.eu.auth0.com',
       AUTH0_CLIENT_ID: 'UoQRP1Ndd5C0Y2VQyrHxZ7W9JXg7yRTv',
       API_URL: 'https://api.bloxstaking.com',
@@ -66,6 +68,9 @@ export default class Config {
       FLAGS: {
         DASHBOARD: {
           TESTNET_SHOW: 'dashboard:testNet:show',
+        },
+        AUTH: {
+          TEST_EXPIRED_ACCESS_TOKEN: 'auth:expired:test',
         },
         FEATURES: {
           IMPORT_NETWORK: 'feature:import:network'

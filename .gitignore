@@ -52,3 +52,4 @@ npm-debug.log.*
 *.d.ts.map
 
 .env
+release/*
