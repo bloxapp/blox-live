@@ -11,13 +11,18 @@ const KeyVaultUpdate = ({onSuccess, onClose}: Props) => {
   const [step, setStep] = useState(1);
   const move1StepForward = () => setStep(step + 1);
   const move2StepsForward = () => setStep(step + 2);
+  const defaultDialog = (
+    <ReinstallingModal
+      title={'Updating KeyVault'}
+      move1StepForward={move1StepForward}
+      move2StepsForward={move2StepsForward}
+      image={activeImage}
+      proposedProcessName="upgrade"
+    />
+  );
   switch (step) {
     case 1:
-      return (
-        <ReinstallingModal title={'Updating KeyVault'} move1StepForward={move1StepForward}
-          move2StepsForward={move2StepsForward} image={activeImage}
-        />
-      );
+      return defaultDialog;
     case 2:
       return <SuccessModal title={'KeyVault Updated!'} onSuccess={onSuccess} text={'All Validators are now performing normally.'} />;
     case 3:
@@ -25,11 +30,7 @@ const KeyVaultUpdate = ({onSuccess, onClose}: Props) => {
     case 4:
       return <ThankYouModal onClose={onClose} />;
     default:
-      return (
-        <ReinstallingModal title={'Updating KeyVault'} move1StepForward={move1StepForward}
-          move2StepsForward={move2StepsForward} image={activeImage}
-        />
-      );
+      return defaultDialog;
   }
 };
 

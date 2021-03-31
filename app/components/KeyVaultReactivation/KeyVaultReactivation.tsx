@@ -20,8 +20,13 @@ const KeyVaultReactivation = ({onSuccess, onClose}: Props) => {
       return <SuccessModal title={'KeyVault Reactivated!'} onSuccess={onSuccess} text={successText} />;
     case 4:
       return (
-        <ReinstallingModal title={'Reinstalling KeyVault'} description={'KeyVault still inactive. Starting the reinstall process.'}
-          move1StepForward={move1StepForward} move2StepsForward={move2StepsForward} image={inactiveImage}
+        <ReinstallingModal
+          title={'Reinstalling KeyVault'}
+          description={'KeyVault still inactive. Starting the reinstall process.'}
+          move1StepForward={move1StepForward}
+          move2StepsForward={move2StepsForward}
+          image={inactiveImage}
+          proposedProcessName="reinstall"
         />
       );
     case 5:
