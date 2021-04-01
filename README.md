@@ -109,6 +109,21 @@ logger.warn - console.log + trace.log file
 logger.error - console.log + trace.log file
 ```
 
+#### Development Flags
+
+For development and testing purposes you can set range of flags 
+in `blox.json` in order to change application behavior.
+
+```text
+// Set KeyVault version to be able to run update/reinstall
+"customKeyVaultVersion": "v0.3.0",
+
+// Show test page in menu
+"testPage": "true",
+
+
+```
+
 ## Tech Stack
 
 - <a href="https://www.electronjs.org">ElectronJS</a> To create a cross desktop app for all operating systems.

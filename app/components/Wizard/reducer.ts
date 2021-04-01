@@ -12,6 +12,8 @@ const initialState = {
   isFinished: false,
   isOpened: false,
   pageData: {},
+  page: 0,
+  step: 1,
 };
 
 /* eslint-disable default-case, no-param-reassign */
@@ -68,6 +70,14 @@ const wizardReducer = (state = initialState, action: Action) => produce(state, (
       draft.pageData = action.payload;
       break;
 
+    case actionTypes.SET_WIZARD_PAGE:
+      draft.page = action.payload;
+      break;
+
+    case actionTypes.SET_WIZARD_STEP:
+      draft.step = action.payload;
+      break;
+
     case actionTypes.CLEAR_DATA:
     case LOGOUT:
       draft.isLoading = initialState.isLoading;
@@ -78,6 +88,8 @@ const wizardReducer = (state = initialState, action: Action) => produce(state, (
       draft.account = initialState.account;
       draft.depositData = initialState.depositData;
       draft.pageData = initialState.pageData;
+      draft.page = initialState.page;
+      draft.step = initialState.step;
       break;
   }
 });

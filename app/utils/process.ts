@@ -1,6 +1,6 @@
 import { PROCESSES } from '~app/components/ProcessRunner/constants';
 
-export const getProcessNameByKeyVaultVersion = (keyVaultCurrentVersion: string, keyVaultLatestVersion: string): string => {
+export const getProcessNameForUpdate = (keyVaultCurrentVersion: string, keyVaultLatestVersion: string): string => {
   if (keyVaultCurrentVersion === keyVaultLatestVersion) {
     return PROCESSES.REINSTALL;
   }

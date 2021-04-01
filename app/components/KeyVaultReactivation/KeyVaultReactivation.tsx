@@ -26,7 +26,6 @@ const KeyVaultReactivation = ({onSuccess, onClose}: Props) => {
           move1StepForward={move1StepForward}
           move2StepsForward={move2StepsForward}
           image={inactiveImage}
-          proposedProcessName="reinstall"
         />
       );
     case 5:

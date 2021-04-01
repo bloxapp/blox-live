@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { SuccessIcon, Confetti } from 'common/components';
-import { Title, Paragraph, BigButton } from '../../common';
+import config from '~app/backend/common/config';
+import { SuccessIcon, Confetti } from '~app/common/components';
+import { Title, Paragraph, BigButton } from '~app/components/Wizard/components/common';
 
 const Wrapper = styled.div`
   position: relative;
@@ -10,10 +11,10 @@ const Wrapper = styled.div`
 `;
 
 const CongratulationPage = (props) => {
-  const { setPage, setStep, step } = props;
+  const { setPage, setStep } = props;
   const onClick = () => {
-    setStep(step + 1);
-    setPage(4);
+    setPage(config.WIZARD_PAGES.WALLET.IMPORT_OR_GENERATE_SEED);
+    setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
   };
   return (
     <>
@@ -33,7 +34,6 @@ const CongratulationPage = (props) => {
 
 CongratulationPage.propTypes = {
   setPage: PropTypes.func,
-  step: PropTypes.number,
   setStep: PropTypes.func,
 };
 

@@ -80,7 +80,27 @@ export const setWizardPageData = (data: any) => ({
   payload: data,
 });
 
+export const setWizardPage = (page: number) => ({
+  type: actionTypes.SET_WIZARD_PAGE,
+  payload: page,
+});
+
+export const setWizardStep = (step: number) => ({
+  type: actionTypes.SET_WIZARD_STEP,
+  payload: step,
+});
+
 export const clearWizardPageData = () => ({
   type: actionTypes.SET_WIZARD_PAGE_DATA,
   payload: {},
+});
+
+export const clearWizardPage = () => ({
+  type: actionTypes.SET_WIZARD_PAGE,
+  payload: 0,
+});
+
+export const clearWizardStep = () => ({
+  type: actionTypes.SET_WIZARD_STEP,
+  payload: 1,
 });

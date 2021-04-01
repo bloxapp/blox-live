@@ -17,7 +17,6 @@ const KeyVaultUpdate = ({onSuccess, onClose}: Props) => {
       move1StepForward={move1StepForward}
       move2StepsForward={move2StepsForward}
       image={activeImage}
-      proposedProcessName="upgrade"
     />
   );
   switch (step) {

@@ -39,6 +39,9 @@ const navigationRules = [
       return !props.accounts?.length;
     },
     done: (props: Record<string, any>): boolean => {
+      if (props.page === config.WIZARD_PAGES.WALLET.CONGRATULATIONS) {
+        return true;
+      }
       return props.step !== config.WIZARD_STEPS.KEY_VAULT_SETUP;
     },
     active: (props: Record<string, any>): boolean => {
@@ -108,7 +111,7 @@ const navigationRules = [
           if (props.page === config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT) {
             return false;
           }
-          return props.step === config.WIZARD_STEPS.VALIDATOR_SETUP;
+          return showCreateValidatorPage(props);
         }
       },
       {

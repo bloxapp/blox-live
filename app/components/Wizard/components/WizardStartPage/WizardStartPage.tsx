@@ -64,7 +64,7 @@ toolTipText += 'is requested to attest/propose. To do so, KeyVault must be onlin
 const WizardStartPage = (props: Props) => {
   useInjectSaga({ key: 'wizard', saga: wizardSaga, mode: '' });
 
-  const { setPage, setStep, step, actions, dashboardActions, wallet, accounts, isLoading,
+  const { page, setPage, setStep, step, actions, dashboardActions, wallet, accounts, isLoading,
           isDepositNeeded, addAnotherAccount, userInfo } = props;
   const { setModalDisplay } = dashboardActions;
   const { loadWallet } = actions;
@@ -135,6 +135,10 @@ const WizardStartPage = (props: Props) => {
       // No seed and just installed or recovered without accounts
       // Should import or generate seed
       if (finishedRecoveryOrInstallProcess && accounts?.length === 0) {
+        if (page === config.WIZARD_PAGES.WALLET.IMPORT_OR_GENERATE_SEED) {
+          setPage(config.WIZARD_PAGES.WALLET.CONGRATULATIONS);
+          return;
+        }
         redirectToImportOrGenerateSeed();
         return;
       }
@@ -217,6 +221,7 @@ type Props = {
   setPage: (page: number) => void;
   setStep: (step: number) => void;
   step: number;
+  page: number;
   actions: Record<string, any>;
   dashboardActions: Record<string, any>;
   wallet: Record<string, any>;

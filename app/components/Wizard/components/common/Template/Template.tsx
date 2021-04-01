@@ -82,9 +82,8 @@ const Template = (props: Props) => {
    *    - step == 2 means KeyVault setup already finished
    */
   const addAdditionalAccount =
-    (
-      accounts?.length > 1
-      || finishValidatorSetup
+    accounts?.length >= 1 && (
+      finishValidatorSetup
       || addAnotherAccount
     )
     && step === config.WIZARD_STEPS.VALIDATOR_SETUP;

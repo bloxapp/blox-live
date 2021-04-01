@@ -57,7 +57,7 @@ const CreateServer = (props: Props) => {
 
   const onSuccess = () => {
     actions.loadWallet();
-    setPage(config.WIZARD_PAGES.WALLET.IMPORT_OR_GENERATE_SEED);
+    setPage(config.WIZARD_PAGES.WALLET.CONGRATULATIONS);
   };
 
   const { isLoading, error, processMessage, loaderPercentage, accessKeyId, setAccessKeyId,
