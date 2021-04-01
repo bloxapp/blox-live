@@ -65,12 +65,9 @@ const Text = styled.span`
   font-weight: ${({isActive}) => isActive ? '400' : '300'};
 `;
 
-const SubMenuItem = ({ text, number, page }) => {
-  const isActive = page === number;
-  const isDone = page > number;
-  const showHorizontalLine = number !== 1;
+const SubMenuItem = ({ text, isActive, isDone, showLine }) => {
   return (
-    <Wrapper showHorizontalLine={showHorizontalLine}>
+    <Wrapper showHorizontalLine={showLine}>
       <Circle isActive={isActive} isDone={isDone}>
         {isDone && <Icon name="check" color="gray400" />}
       </Circle>
@@ -81,8 +78,9 @@ const SubMenuItem = ({ text, number, page }) => {
 
 SubMenuItem.propTypes = {
   text: PropTypes.string,
-  number: PropTypes.number,
-  page: PropTypes.number,
+  isActive: PropTypes.bool,
+  isDone: PropTypes.bool,
+  showLine: PropTypes.bool,
 };
 
 export default SubMenuItem;

@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import config from '~app/backend/common/config';
 import { Loader, DiscordButton } from '~app/common/components';
+import { clearWizardPageData } from '~app/components/Wizard/actions';
 import EventLogs from '~app/components/Dashboard/components/EventLogs';
 import * as dashboardSelectors from '~app/components/Dashboard/selectors';
 import { Wallet, Validators } from '~app/components/Dashboard/components';
@@ -25,7 +26,7 @@ const Wrapper = styled.div`
 `;
 
 const Dashboard = (props) => {
-  const { walletStatus, accounts, eventLogs,
+  const { walletStatus, accounts, eventLogs, callClearWizardPageData,
     walletVersion, walletNeedsUpdate, bloxLiveNeedsUpdate, isTestNetShow } = props;
   const showNetworkSwitcher = accountsHaveMoreThanOneNetwork(accounts);
   const [filteredAccounts, setFilteredAccounts] = React.useState(null);
@@ -38,6 +39,7 @@ const Dashboard = (props) => {
     if (!isLoading && isDone) {
       clearProcessState();
     }
+    callClearWizardPageData();
   });
 
   // All accounts and "network switch" effects
@@ -115,10 +117,17 @@ Dashboard.propTypes = {
   eventLogs: PropTypes.array,
   bloxLiveNeedsUpdate: PropTypes.bool,
   isTestNetShow: PropTypes.bool,
+  callClearWizardPageData: PropTypes.func
 };
 
 const mapStateToProps = (state) => ({
   isTestNetShow: dashboardSelectors.getTestNetShowFlag(state)
 });
 
-export default connect(mapStateToProps, null)(Dashboard);
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  callClearWizardPageData: () => dispatch(clearWizardPageData())
+});
+
+type Dispatch = (arg0: { type: string }) => any;
+
+export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);

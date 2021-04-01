@@ -14,7 +14,8 @@ const CreateValidator = (props: Props) => {
   const { isLoading, isDone, processData, error, startProcess, clearProcessState } = useProcessRunner();
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
   const { loadDataAfterNewAccount } = useDashboardData();
-  const { setPage, callLoadDepositData, callSetAddAnotherAccount, callSetDepositNeeded, selectedNetwork, depositData } = props;
+  const { setPage, callLoadDepositData, callSetAddAnotherAccount,
+    callSetDepositNeeded, selectedNetwork, depositData, setPageData } = props;
   const account = processData && processData.length ? processData[0] : processData;
 
   useEffect(() => {
@@ -55,7 +56,7 @@ const CreateValidator = (props: Props) => {
   return (
     <>
       {account && !error && depositData ? (
-        <KeysGenerated depositData={depositData} onClick={onContinueClick} validatorData={account} />
+        <KeysGenerated setPageData={setPageData} depositData={depositData} onClick={onContinueClick} validatorData={account} />
       ) : (
         <GenerateKeys network={selectedNetwork} onClick={onGenerateKeysClick} isLoading={isLoading} error={error} />
       )}
@@ -78,6 +79,7 @@ type Props = {
   page: number;
   network: string;
   setPage: (page: number) => void;
+  setPageData: (data: any) => void;
   step: number;
   setStep: (page: number) => void;
   processData?: Record<string, any> | null;

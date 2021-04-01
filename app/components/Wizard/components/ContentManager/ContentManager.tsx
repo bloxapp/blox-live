@@ -100,10 +100,14 @@ const mapStateToProps = (state: any) => ({
 
 type Props = {
   page: number;
+  pageData: any;
   setPage: (page: number) => void;
+  setPageData: (data: any) => void;
+  clearPageData: () => void;
   step: number;
   setStep: (page: number) => void;
   network: string;
+  accounts: any;
 };
 
 export default connect(mapStateToProps)(ContentManager);

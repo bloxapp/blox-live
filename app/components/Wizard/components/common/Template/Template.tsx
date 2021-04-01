@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import styled from 'styled-components';
 import { Icon } from 'common/components';
+import config from '~app/backend/common/config';
 import useRouting from '~app/common/hooks/useRouting';
 import * as actionsFromWizard from '~app/components/Wizard/actions';
 import * as actionsFromAccounts from '~app/components/Accounts/actions';
@@ -65,7 +66,8 @@ const BackButton = styled.div`
 
 const Template = (props: Props) => {
   const { component, bgImage, backButton, wizardActions, accountsActions, ...rest } = props;
-  const { isFinishedWizard, addAnotherAccount, step, page, setPage } = rest;
+  const { accounts, step, page, setPage, pageData, addAnotherAccount } = rest;
+  const { finishValidatorSetup } = pageData;
   const { clearAccountsData } = accountsActions;
   const { setFinishedWizard, clearWizardData } = wizardActions;
   const { goToPage, ROUTES } = useRouting();
@@ -79,7 +81,14 @@ const Template = (props: Props) => {
    *    - or it was drop-off during first installation
    *    - step == 2 means KeyVault setup already finished
    */
-  const addAdditionalAccount = !isFinishedWizard && addAnotherAccount && step === 2;
+  const addAdditionalAccount =
+    (
+      accounts?.length > 1
+      || finishValidatorSetup
+      || addAnotherAccount
+    )
+    && step === config.WIZARD_STEPS.VALIDATOR_SETUP;
+
   const { loadDashboardData } = useDashboardData();
 
   const onCloseClick = async () => {
@@ -133,6 +142,7 @@ type Props = {
   bgImage: string;
   backButton?: boolean;
   page: number;
+  pageData: any;
   setPage: (page: number) => void;
   step: number;
   setStep: (page: number) => void;
@@ -140,6 +150,7 @@ type Props = {
   accountsActions: Record<string, any>;
   isFinishedWizard: boolean;
   addAnotherAccount: boolean;
+  accounts: any;
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Template);

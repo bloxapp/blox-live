@@ -15,7 +15,8 @@ const Wrapper = styled.div`
 `;
 
 const CongratulationPage = (props: Props) => {
-  const { wizardActions, accountsActions, isImportValidators, importedValidatorsCount } = props;
+  const { wizardActions, accountsActions, pageData } = props;
+  const { isImportValidators, importedValidatorsCount } = pageData;
   const { clearAccountsData } = accountsActions;
   const { setFinishedWizard, setOpenedWizard, clearWizardData } = wizardActions;
   const { loadDashboardData } = useDashboardData();
@@ -78,8 +79,7 @@ type Props = {
   setPage: (page: number) => void;
   wizardActions: Record<string, any>;
   accountsActions: Record<string, any>;
-  isImportValidators?: boolean;
-  importedValidatorsCount?: number;
+  pageData: any;
 };
 
 type Dispatch = (arg0: { type: string }) => any;
