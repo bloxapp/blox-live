@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components/dist/styled-components.esm';
+import config from '~app/backend/common/config';
 import { Title } from '~app/components/Wizard/components/common';
 import BackButton from '~app/components/Wizard/components/common/BackButton';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
-import CongratulationPage from '~app/components/Wizard/components/Validators/CongratulationPage';
 import { EnterValidatorsNumber, ImportedValidatorsList } from './components';
 
 const ImportValidatorsWrapper = styled.div`
@@ -19,7 +19,7 @@ const ImportValidatorsWrapper = styled.div`
 `;
 
 const ImportValidators = (props: Props) => {
-  const { page, setPage } = props;
+  const { page, setPage, setPageData } = props;
   const { isLoading } = useProcessRunner();
   const [validators, setValidators] = useState([]);
   const [finishedImport, finishImport] = useState(false);
@@ -37,6 +37,16 @@ const ImportValidators = (props: Props) => {
       setPage(page - 1);
     }
   };
+
+  useEffect(() => {
+    if (finishedImport) {
+      setPageData({
+        isImportValidators: true,
+        importedValidatorsCount: validators.length
+      });
+      setPage(config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS);
+    }
+  }, [finishedImport]);
 
   return (
     <ImportValidatorsWrapper>
@@ -57,15 +67,6 @@ const ImportValidators = (props: Props) => {
           />
         </>
       )}
-
-      { finishedImport && (
-        <CongratulationPage
-          {...props}
-          isImportValidators
-          importedValidatorsCount={validators.length}
-        />
-      ) }
-
     </ImportValidatorsWrapper>
   );
 };
@@ -73,6 +74,7 @@ const ImportValidators = (props: Props) => {
 type Props = {
   page: number;
   setPage: (page: number) => void;
+  setPageData: (data: any) => void;
 };
 
 export default connect(null, null)(ImportValidators);

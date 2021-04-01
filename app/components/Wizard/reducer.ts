@@ -11,6 +11,7 @@ const initialState = {
   depositData: null,
   isFinished: false,
   isOpened: false,
+  pageData: {},
 };
 
 /* eslint-disable default-case, no-param-reassign */
@@ -63,6 +64,10 @@ const wizardReducer = (state = initialState, action: Action) => produce(state, (
       draft.isOpened = action.payload;
       break;
 
+    case actionTypes.SET_WIZARD_PAGE_DATA:
+      draft.pageData = action.payload;
+      break;
+
     case actionTypes.CLEAR_DATA:
     case LOGOUT:
       draft.isLoading = initialState.isLoading;
@@ -72,6 +77,7 @@ const wizardReducer = (state = initialState, action: Action) => produce(state, (
       draft.network = initialState.network;
       draft.account = initialState.account;
       draft.depositData = initialState.depositData;
+      draft.pageData = initialState.pageData;
       break;
   }
 });

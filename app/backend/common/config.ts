@@ -60,10 +60,8 @@ export default class Config {
         }
       },
       WIZARD_STEPS: {
-        WIZARD: {
-          KEY_VAULT_SETUP: 1,
-          VALIDATOR_SETUP: 2,
-        }
+        KEY_VAULT_SETUP: 1,
+        VALIDATOR_SETUP: 2
       },
       FLAGS: {
         DASHBOARD: {

@@ -74,3 +74,13 @@ export const setOpenedWizard = (isOpened: boolean) => ({
 export const clearWizardData = () => ({
   type: actionTypes.CLEAR_DATA,
 });
+
+export const setWizardPageData = (data: any) => ({
+  type: actionTypes.SET_WIZARD_PAGE_DATA,
+  payload: data,
+});
+
+export const clearWizardPageData = () => ({
+  type: actionTypes.SET_WIZARD_PAGE_DATA,
+  payload: {},
+});
