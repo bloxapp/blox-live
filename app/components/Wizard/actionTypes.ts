@@ -22,3 +22,5 @@ export const SET_OPENED_WIZARD = 'SET_OPENED_WIZARD';
 
 export const CLEAR_DATA = 'WIZARD/clear_data';
 export const SET_WIZARD_PAGE_DATA = 'WIZARD/set_page_data';
+export const SET_WIZARD_PAGE = 'WIZARD/set_page';
+export const SET_WIZARD_STEP = 'WIZARD/set_step';

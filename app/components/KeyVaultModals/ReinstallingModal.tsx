@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-// import { Log } from '~app/backend/common/logger/logger';
+import styled from 'styled-components';
+import { Log } from '~app/backend/common/logger/logger';
 import * as wizardSelectors from '~app/components/Wizard/selectors';
-import { ProcessLoader, ModalTemplate } from '~app/common/components';
-import Connection from '~app/backend/common/store-manager/connection';
+import { PROCESSES } from '~app/components/ProcessRunner/constants';
+import { getProcessNameForUpdate } from '~app/utils/process';
+import { ProcessLoader, ModalTemplate, Button } from '~app/common/components';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 import {
   Title,
@@ -13,69 +15,98 @@ import {
 } from '~app/common/components/ModalTemplate/components';
 import * as keyVaultSelectors from '~app/components/KeyVaultManagement/selectors';
 
-// enum ProcessName {
-//   UPGRADE = 'upgrade',
-//   REINSTALL = 'reinstall'
-// }
+const logger = new Log('ReinstallingModal');
 
-// const logger = new Log('ReinstallingModal');
-
-// const getProcessName = (keyVaultCurrentVersion: string, keyVaultLatestVersion: string): ProcessName => {
-//   if (keyVaultCurrentVersion === keyVaultLatestVersion) {
-//     return ProcessName.REINSTALL;
-//   }
-//   const versionRegexp = /(v)?((?<major>\d+)\.)?((?<minor>\d+)\.)?(?<mod>\d+)$/mgi;
-//   const parsedVersions = {
-//     current: new RegExp(versionRegexp).exec(keyVaultCurrentVersion)?.groups ?? null,
-//     latest: new RegExp(versionRegexp).exec(keyVaultLatestVersion)?.groups ?? null
-//   };
-//   if (!parsedVersions.current?.major || !parsedVersions.latest?.major) {
-//     return ProcessName.UPGRADE;
-//   }
-//   if (parseInt(parsedVersions.latest.major, 10) > parseInt(parsedVersions.current.major, 10)) {
-//     return ProcessName.REINSTALL;
-//   }
-//   if (!parsedVersions.current?.minor || !parsedVersions.latest?.minor) {
-//     return ProcessName.UPGRADE;
-//   }
-//   if (parseInt(parsedVersions.latest.minor, 10) > parseInt(parsedVersions.current.minor, 10)) {
-//     return ProcessName.REINSTALL;
-//   }
-//   return ProcessName.UPGRADE;
-// };
+const LastError = styled.div`
+  color: red;
+  padding-bottom: 15px;
+  font-size: 14px;
+`;
 
 const ReinstallingModal = (props: Props) => {
   const { isLoading, processMessage, isDone, isServerActive, processName,
-    startProcess, clearProcessState, loaderPercentage } = useProcessRunner();
+    startProcess, clearProcessState, loaderPercentage, error } = useProcessRunner();
   const {
     title, description, move1StepForward, move2StepsForward,
     onClose, image, keyVaultCurrentVersion, keyVaultLatestVersion } = props;
+  const [showingProposalToReinstall, showProposalToReinstall] = useState(false);
+  const [reinstallStarted, startReinstall] = useState(false);
+  const [modalTitle, setModalTitle] = useState(title);
+  const [modalDescription, setModalDescription] = useState(description);
+  const [lastError, setLastError] = useState(error);
+  const versionDependentProcessName = getProcessNameForUpdate(keyVaultCurrentVersion, keyVaultLatestVersion);
+  const [currentProcessName, setCurrentProcessName] = useState(versionDependentProcessName);
+  const processDefaultMessage = 'Checking KeyVault configuration...';
+
+  const onStartReinstall = () => {
+    startReinstall(true);
+    setModalTitle('Reinstalling KeyVault');
+    setModalDescription('KeyVault update failed. Trying to reinstall now..');
+    showProposalToReinstall(false);
+    setLastError('');
+    clearProcessState();
+    startProcess(currentProcessName, processDefaultMessage);
+  };
 
   useEffect(() => {
-    if (isDone) {
-      clearProcessState();
-      isServerActive ? move1StepForward() : move2StepsForward();
-    }
-    if (!isDone && !isLoading && !processMessage && !processName) {
-      // Old approach
-      const name = Connection.db().exists('upgradeRatherReinstall') ? 'upgrade' : 'reinstall';
+    const noProcess = !isDone && !isLoading && !processMessage && !processName;
 
-      // New approach
-      // const name = getProcessName(keyVaultCurrentVersion, keyVaultLatestVersion);
-      // logger.debug(`Current Version: ${keyVaultCurrentVersion}`);
-      // logger.debug(`Latest Version: ${keyVaultLatestVersion}`);
-      // logger.debug(`Identified Process Name: ${name}`);
+    switch (currentProcessName) {
+      case PROCESSES.UPGRADE:
+        if (isDone) {
+          if (error) {
+            showProposalToReinstall(true);
+            setLastError(error);
+            setCurrentProcessName(PROCESSES.REINSTALL);
+            logger.warn('Upgrade process failed. Asking to reinstall KeyVault..');
+            return;
+          }
 
-      startProcess(name, 'Checking KeyVault configuration...');
+          // Default previous flow for upgrade
+          clearProcessState();
+          isServerActive ? move1StepForward() : move2StepsForward();
+          logger.debug('Upgrade process finished.');
+          return;
+        }
+
+        // Default previous flow for upgrade
+        if (noProcess && !showingProposalToReinstall) {
+          logger.debug('Starting upgrade process..');
+          startProcess(currentProcessName, processDefaultMessage);
+        }
+        break;
+      case PROCESSES.REINSTALL:
+        // Default previous flow for reinstall
+        if (noProcess && !showingProposalToReinstall && !reinstallStarted) {
+          logger.debug('Starting default reinstall process as initial process..');
+          startProcess(currentProcessName, processDefaultMessage);
+          return;
+        }
+        if (isDone) {
+          clearProcessState();
+          isServerActive ? move1StepForward() : move2StepsForward();
+          logger.debug('Reinstall process finished.');
+          return;
+        }
+        if (error) {
+          setLastError(error);
+        }
+        break;
     }
   }, [isLoading, isDone, processMessage, keyVaultCurrentVersion, keyVaultLatestVersion]);
 
   return (
     <ModalTemplate onClose={onClose} image={image}>
-      <Title>{title}</Title>
+      <Title>{modalTitle}</Title>
       <Wrapper>
-        {description && <Description>{description}</Description>}
-        <ProcessLoader text={processMessage} precentage={loaderPercentage} />
+        {modalDescription && <Description>{modalDescription}</Description>}
+        {processMessage && <ProcessLoader text={processMessage} precentage={loaderPercentage} />}
+        {lastError && (
+          <LastError>{lastError}</LastError>
+        )}
+        {showingProposalToReinstall && !reinstallStarted && (
+          <Button onClick={onStartReinstall}>Reinstall KeyVault</Button>
+        )}
       </Wrapper>
       <SmallText withWarning />
     </ModalTemplate>

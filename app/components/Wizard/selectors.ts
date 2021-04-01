@@ -19,3 +19,7 @@ export const getNetwork = (state) => state.wizard && state.wizard.network;
 export const getAccount = (state) => state.wizard && state.wizard.account;
 
 export const getPageData = (state) => state.wizard && state.wizard.pageData;
+
+export const getPage = (state) => state.wizard && state.wizard.page;
+
+export const getStep = (state) => state.wizard && state.wizard.step;

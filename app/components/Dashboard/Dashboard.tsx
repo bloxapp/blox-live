@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import config from '~app/backend/common/config';
 import { Loader, DiscordButton } from '~app/common/components';
-import { clearWizardPageData } from '~app/components/Wizard/actions';
 import EventLogs from '~app/components/Dashboard/components/EventLogs';
 import * as dashboardSelectors from '~app/components/Dashboard/selectors';
 import { Wallet, Validators } from '~app/components/Dashboard/components';
@@ -15,6 +14,7 @@ import {
   accountsHaveMoreThanOneNetwork
 } from '~app/components/Dashboard/service';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
+import { clearWizardPage, clearWizardPageData, clearWizardStep } from '~app/components/Wizard/actions';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -27,7 +27,8 @@ const Wrapper = styled.div`
 
 const Dashboard = (props) => {
   const { walletStatus, accounts, eventLogs, callClearWizardPageData,
-    walletVersion, walletNeedsUpdate, bloxLiveNeedsUpdate, isTestNetShow } = props;
+    callClearWizardStep, callClearWizardPage, walletVersion, walletNeedsUpdate,
+    bloxLiveNeedsUpdate, isTestNetShow } = props;
   const showNetworkSwitcher = accountsHaveMoreThanOneNetwork(accounts);
   const [filteredAccounts, setFilteredAccounts] = React.useState(null);
   const [accountsSummary, setAccountsSummary] = React.useState(null);
@@ -40,6 +41,8 @@ const Dashboard = (props) => {
       clearProcessState();
     }
     callClearWizardPageData();
+    callClearWizardPage();
+    callClearWizardStep();
   });
 
   // All accounts and "network switch" effects
@@ -117,7 +120,9 @@ Dashboard.propTypes = {
   eventLogs: PropTypes.array,
   bloxLiveNeedsUpdate: PropTypes.bool,
   isTestNetShow: PropTypes.bool,
-  callClearWizardPageData: PropTypes.func
+  callClearWizardPageData: PropTypes.func,
+  callClearWizardPage: PropTypes.func,
+  callClearWizardStep: PropTypes.func,
 };
 
 const mapStateToProps = (state) => ({
@@ -125,7 +130,9 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  callClearWizardPageData: () => dispatch(clearWizardPageData())
+  callClearWizardPageData: () => dispatch(clearWizardPageData()),
+  callClearWizardPage: () => dispatch(clearWizardPage()),
+  callClearWizardStep: () => dispatch(clearWizardStep())
 });
 
 type Dispatch = (arg0: { type: string }) => any;
