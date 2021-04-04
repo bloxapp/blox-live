@@ -125,6 +125,7 @@ const ModalsManager = (props: Props) => {
         );
       case MODAL_TYPES.UPDATE_KEYVAULT_REQUEST:
       case MODAL_TYPES.REACTIVATE_KEYVAULT_REQUEST:
+      case MODAL_TYPES.COMPLIANCE_MODAL:
         return (
           <ConfirmationModal
             text={modalData.text}

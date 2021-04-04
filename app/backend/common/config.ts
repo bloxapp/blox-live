@@ -5,6 +5,8 @@ export default class Config {
   private settings: any = {
     stage: {
       REFRESH_TOKEN_URL: 'https://api.stage.bloxstaking.com/auth/token/refresh',
+      COMPLIANCE_URL: 'https://api.stage.bloxstaking.com/compliance/countries/restricted',
+      // COMPLIANCE_URL: 'http://localhost:3001/compliance/countries/restricted',
       AUTH0_DOMAIN: 'blox-infra.eu.auth0.com',
       AUTH0_CLIENT_ID: 'NsZvhkQvZOWwXT2rcA1RWGgA7YxxhsJZ',
       API_URL: 'https://api.stage.bloxstaking.com',
@@ -12,6 +14,7 @@ export default class Config {
     },
     production: {
       REFRESH_TOKEN_URL: 'https://api.bloxstaking.com/auth/token/refresh',
+      COMPLIANCE_URL: 'https://api.bloxstaking.com/compliance/countries/restricted',
       AUTH0_DOMAIN: 'blox-infra.eu.auth0.com',
       AUTH0_CLIENT_ID: 'UoQRP1Ndd5C0Y2VQyrHxZ7W9JXg7yRTv',
       API_URL: 'https://api.bloxstaking.com',
@@ -72,6 +75,9 @@ export default class Config {
         },
         FEATURES: {
           IMPORT_NETWORK: 'feature:import:network'
+        },
+        COMPLIANCE: {
+          RESTRICTED_TEST: 'compliance:restricted:test'
         }
       }
     }

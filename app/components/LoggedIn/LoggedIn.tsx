@@ -20,7 +20,6 @@ import webSocketSaga from '~app/components/WebSockets/saga';
 import { loadAccounts } from '~app/components/Accounts/actions';
 import * as actionsFromUser from '~app/components/User/actions';
 import * as userSelectors from '~app/components/User/selectors';
-import { ModalsManager } from '~app/components/Dashboard/components';
 import Connection from '~app/backend/common/store-manager/connection';
 import { allAccountsDeposited } from '~app/components/Accounts/service';
 import { connectToWebSockets } from '~app/components/WebSockets/actions';
@@ -116,7 +115,6 @@ const LoggedIn = (props: Props) => {
         <Route exact path={ROUTES.TEST_PAGE} component={TestPage} />
         <Route path={ROUTES.LOGGED_IN} component={RootPage} />
       </Switch>
-      <ModalsManager />
     </>
   );
 };
