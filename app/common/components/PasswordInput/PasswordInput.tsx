@@ -57,13 +57,25 @@ const PasswordInput = (props: Props) => {
     type === INPUT_TYPES.PASSWORD ? setType(INPUT_TYPES.TEXT) : setType(INPUT_TYPES.PASSWORD);
   };
 
+  const onInputChange = (e) => {
+    e.persist();
+    onChange(String(e.target.value).replace(/^\s+|\s+$/g, ''));
+  };
+
   return (
     <Wrapper width={width}>
       {title && <Label htmlFor={name}>{title}</Label>}
-      <TextField id={name} type={type} value={value} onChange={(e) => {
-        onChange(String(e.target.value).replace(/^\s+|\s+$/g, ''));
-      }}
-        disabled={isDisabled} onBlur={onBlur} {...rest} error={error} />
+      <TextField
+        id={name}
+        type={type}
+        value={value}
+        onPaste={onInputChange}
+        onChange={onInputChange}
+        disabled={isDisabled}
+        onBlur={onBlur}
+        {...rest}
+        error={error}
+      />
       <IconWrapper onClick={toggleType} title={title}>
         {isValid ? (
           <Icon name={'check'} fontSize={ICON_FONT_SIZE} color={'accent2400'} />

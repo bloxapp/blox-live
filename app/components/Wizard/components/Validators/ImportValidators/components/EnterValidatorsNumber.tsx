@@ -83,8 +83,9 @@ const EnterValidatorsNumber = ({ show, setValidators }: EnterValidatorsNumberPro
   }, [validatorsNumber, validatorsNumberError, confirmedValidatorsNumber, generatedValidators]);
 
   const onValidatorsNumberInput = (event) => {
+    event.persist();
     try {
-      setValidatorsNumber(Math.abs(parseInt(event.target.value)));
+      setValidatorsNumber(Math.abs(parseInt(event.target.value, 10)));
     } catch (e) {
       setValidatorsNumber(0);
     }
@@ -145,6 +146,7 @@ const EnterValidatorsNumber = ({ show, setValidators }: EnterValidatorsNumberPro
           value={validatorsNumber || ''}
           placeholder={'# of validator(s)'}
           onChange={onValidatorsNumberInput}
+          onPaste={onValidatorsNumberInput}
           error={validatorsNumberError}
           autoFocus
         />

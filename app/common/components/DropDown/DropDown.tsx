@@ -37,9 +37,9 @@ const Item = styled.div<{ showOrangeDot: boolean }>`
 `;
 
 const DropDown = (props: Props) => {
-  const { items } = props;
+  const { items, style } = props;
   return (
-    <Wrapper>
+    <Wrapper style={{ ...(style || {}) }}>
       {items.map((item, index) => {
         const { name, onClick, color } = item;
         return (
@@ -53,7 +53,8 @@ const DropDown = (props: Props) => {
 };
 
 type Props = {
-  items: [];
+  items: any[];
+  style?: any;
 };
 
 export default DropDown;

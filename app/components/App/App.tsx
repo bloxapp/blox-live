@@ -25,12 +25,9 @@ import { ModalsManager } from '~app/components/Dashboard/components';
 import BaseStore from '~app/backend/common/store-manager/base-store';
 import * as actionsFromDashboard from '~app/components/Dashboard/actions';
 import loginSaga from '~app/components/Login/components/CallbackPage/saga';
-import {
-  deepLink,
-  initApp,
-  cleanDeepLink
-} from '~app/components/App/service';
+import { deepLink, initApp, cleanDeepLink } from '~app/components/App/service';
 import * as loginActions from '~app/components/Login/components/CallbackPage/actions';
+import { ContextMenu, SelectionContextMenu } from '~app/components/common/ContextMenu/ContextMenu';
 import { getIsLoggedIn, getIsLoading } from '~app/components/Login/components/CallbackPage/selectors';
 
 const loginKey = 'login';
@@ -201,6 +198,11 @@ const App = (props: AppProps) => {
     <AppWrapper>
       <AppRouter isLoggedIn={isLoggedIn} />
       <ModalsManager />
+      <ContextMenu
+        menu={(event, text) => {
+          return <SelectionContextMenu event={event} text={text} />;
+        }}
+      />
       <GlobalStyle />
     </AppWrapper>
   );

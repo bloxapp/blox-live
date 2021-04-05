@@ -34,10 +34,22 @@ const ErrorMessage = styled.span`
 `;
 
 const Textarea = ({width, value, onChange, error, ...rest}: Props) => {
+  const onChangeValue = (e) => {
+    e.persist();
+    onChange(e.target.value);
+  };
+
   return (
     <Wrapper>
-      <Element value={value} onChange={(e) => onChange(e.target.value)} width={width}
-        placeholder={'Separate each word with a space'} error={error} {...rest} />
+      <Element
+        value={value}
+        onChange={onChangeValue}
+        onPaste={onChangeValue} 
+        width={width}
+        placeholder={'Separate each word with a space'}
+        error={error}
+        {...rest}
+      />
       {error && (<ErrorMessage>{error}</ErrorMessage>)}
     </Wrapper>
   );
