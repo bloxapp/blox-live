@@ -1,7 +1,8 @@
 import React, { forwardRef } from 'react';
+import { shell } from 'electron';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { DropDown } from '../../../../../common/components';
+import { DropDown } from '~app/common/components';
 import Button from './Button';
 
 const Wrapper = styled.div`
@@ -19,8 +20,9 @@ const AlertDot = styled.div`
 `;
 
 const menuItems = [
-  { name: "What's New?", onClick: () => false, color: true },
-  { name: 'Documentation', onClick: () => false, color: false },
+  { name: 'Contact us', onClick: () => shell.openExternal('http://bit.ly/2Nqy2Ao'), color: false },
+  { name: 'Knowledge Base', onClick: () => shell.openExternal('http://bit.ly/3eFOyHH'), color: false },
+  { name: 'Send Feedback', onClick: () => shell.openExternal('http://bit.ly/3eK2cts'), color: false },
 ];
 
 const FaqMenu = forwardRef(({ isOpen, onClick, showOrangeDot }, ref) => (

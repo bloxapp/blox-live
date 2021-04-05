@@ -3,7 +3,6 @@ import styled from 'styled-components';
 
 const Wrapper = styled.div`
   width: 240px;
-  height: 104px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -13,6 +12,8 @@ const Wrapper = styled.div`
   right: 0px;
   box-shadow: 0px 0px 4px 0px ${({ theme }) => theme.gray80015};
   border-radius: 4px;
+  padding-top: 5px;
+  padding-bottom: 5px;
 `;
 
 const Item = styled.div<{ showOrangeDot: boolean }>`
