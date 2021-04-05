@@ -114,15 +114,23 @@ logger.error - console.log + trace.log file
 For development and testing purposes you can set range of flags 
 in `blox.json` in order to change application behavior.
 
-```text
-// Set KeyVault version to be able to run update/reinstall
-"customKeyVaultVersion": "v0.3.0",
+1. Set KeyVault version to be able to run update/reinstall
 
-// Show test page in menu
-"testPage": "true",
+`"customKeyVaultVersion": "v0.3.0"`
 
+2. Show test page in menu
 
-```
+`"testPage": true`
+
+3. If auth:expired:test is true it will emulate 
+token expired scenario and will make request to refresh token only once, and will change auth:expired:test value back to false
+
+`"auth:expired:test": true`
+
+4. For testing purposes add your country to list of restricted countries:
+
+`"compliance:restricted:test": "North Korea"`
+
 
 ## Tech Stack
 

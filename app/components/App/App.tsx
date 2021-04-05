@@ -17,9 +17,13 @@ import NotLoggedIn from '~app/components/NotLoggedIn';
 import useRouting from '~app/common/hooks/useRouting';
 import { Log } from '~app/backend/common/logger/logger';
 import NotFoundPage from '~app/components/NotFoundPage';
+import { checkCompliance } from '~app/utils/compliance';
 import GlobalStyle from '~app/common/styles/global-styles';
 import Http from '~app/backend/common/communication-manager/http';
+import { MODAL_TYPES } from '~app/components/Dashboard/constants';
+import { ModalsManager } from '~app/components/Dashboard/components';
 import BaseStore from '~app/backend/common/store-manager/base-store';
+import * as actionsFromDashboard from '~app/components/Dashboard/actions';
 import loginSaga from '~app/components/Login/components/CallbackPage/saga';
 import {
   deepLink,
@@ -70,7 +74,8 @@ const App = (props: AppProps) => {
   const [didInitApp, setAppInitialised] = useState(false);
   useInjectSaga({key: userKey, saga: userSaga, mode: ''});
   useInjectSaga({key: loginKey, saga: loginSaga, mode: ''});
-  const { isLoggedIn, isLoading, actions } = props;
+  const { isLoggedIn, isLoading, actions, dashboardActions } = props;
+  const { setModalDisplay, clearModalDisplayData } = dashboardActions;
   const { setSession, loginFailure } = actions;
 
   const onLoginButtonClickedListener = () => {
@@ -138,10 +143,35 @@ const App = (props: AppProps) => {
     Http.EventEmitter.once(Http.EVENTS.NEW_ACCESS_TOKEN, newAccessToken);
   };
 
-  const newAccessToken = (obj) => {
+  const showComplianceDialog = () => {
+    setModalDisplay({
+      show: true,
+      type: MODAL_TYPES.COMPLIANCE_MODAL,
+      text: (
+        <div>
+          We are sorry, it seems that staking with Blox is restricted in your country. For additional information, feel free to reach us at
+          &nbsp;
+          <a href="mailto:contact@bloxstaking.com?subject=Blox is restricted in my country">contact@bloxstaking.com</a>.
+        </div>
+      ),
+      confirmation: {
+        title: 'Restricted Country',
+        confirmButtonText: 'Close',
+        onConfirmButtonClick: () => clearModalDisplayData(),
+        onCancelButtonClick: false
+      }
+    });
+  };
+
+  const newAccessToken = async (obj) => {
     if ('token_id' in obj) {
       setSession(obj.token_id, obj.refresh_token);
       invalidTokenSubscribe();
+      const restricted = await checkCompliance();
+      if (restricted) {
+        actions.logout();
+        showComplianceDialog();
+      }
     }
   };
 
@@ -170,6 +200,7 @@ const App = (props: AppProps) => {
   return (
     <AppWrapper>
       <AppRouter isLoggedIn={isLoggedIn} />
+      <ModalsManager />
       <GlobalStyle />
     </AppWrapper>
   );
@@ -179,6 +210,7 @@ type AppProps = {
   isLoggedIn: boolean;
   isLoading: boolean;
   actions: Record<string, any>;
+  dashboardActions: Record<string, any>;
 };
 
 const mapStateToProps = (state: any) => ({
@@ -187,7 +219,8 @@ const mapStateToProps = (state: any) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  actions: bindActionCreators(loginActions, dispatch)
+  actions: bindActionCreators(loginActions, dispatch),
+  dashboardActions: bindActionCreators(actionsFromDashboard, dispatch)
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

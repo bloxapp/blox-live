@@ -41,8 +41,8 @@ const CancelButton = styled.button`
   color: ${({theme}) => theme.gray600};
 `;
 
-const ConfirmButton = styled.button`
-  margin: auto auto auto 5px;
+const ConfirmButton = styled.button<{ cancelButtonShown: boolean }>`
+  margin: auto auto auto ${({ cancelButtonShown }) => cancelButtonShown ? '5px' : 'auto'};
   font-size: 12px;
   height: 32px;
   border-radius: 5px;
@@ -112,7 +112,7 @@ const ConfirmationModal = (props: ConfirmationModalProps) => {
 
   return (
     <ConfirmationModalTemplate
-      onClose={onClose}
+      onClose={onCancelButtonClick === false ? null : onClose}
       width={'600px'}
       height={'240px'}
     >
@@ -126,14 +126,17 @@ const ConfirmationModal = (props: ConfirmationModalProps) => {
         )}
 
         <ButtonsWrapper>
-          <CancelButton
-            onClick={onClose}
-          >
-            {cancelButtonText || 'Cancel'}
-          </CancelButton>
+          {onCancelButtonClick !== false && (
+            <CancelButton
+              onClick={onClose}
+            >
+              {cancelButtonText || 'Cancel'}
+            </CancelButton>
+          )}
 
           {onConfirmButtonClick && (
             <ConfirmButton
+              cancelButtonShown={onCancelButtonClick !== false}
               onClick={onConfirm}
             >
               {confirmButtonText || 'Confirm'}
@@ -153,7 +156,7 @@ type ConfirmationModalProps = {
     confirmButtonText: string,
     cancelButtonText: string,
     onConfirmButtonClick: () => {},
-    onCancelButtonClick: () => {}
+    onCancelButtonClick: any,
   },
   dashboardActions: any
 };

@@ -24,4 +24,5 @@ export const MODAL_TYPES: Record<string, any> = {
   FORGOT_PASSWORD: 'forgotPassword',
   VALIDATORS_IMPORT_FAILED: 'validators/import/failed',
   VALIDATORS_IMPORT_FAILED_THANKS: 'validators/import/failed/thanks',
+  COMPLIANCE_MODAL: 'compliance',
 };
