@@ -131,6 +131,16 @@ token expired scenario and will make request to refresh token only once, and wil
 
 `"compliance:restricted:test": "North Korea"`
 
+5. Specifically set network for beaconcha API
+
+`"network": "pyrmont"`
+
+6. Specifically set network for validators import feature.
+By default, it is `mainnet`.
+
+`"feature:import:network": "pyrmont"`
+
+
 
 ## Tech Stack
 
