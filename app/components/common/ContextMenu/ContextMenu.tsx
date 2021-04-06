@@ -32,7 +32,7 @@ const useContextMenu = () => {
       document.addEventListener('click', handleClick);
       document.removeEventListener('contextmenu', handleContextMenu);
     };
-  }, [event, text]);
+  });
 
   return { xPos, yPos, showMenu, event, text };
 };
