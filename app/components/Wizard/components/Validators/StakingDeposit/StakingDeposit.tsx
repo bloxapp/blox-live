@@ -66,7 +66,7 @@ const LaterBtn = styled.span`
 
 const StakingDeposit = (props: Props) => {
   const {
-    setPage, page, depositData, accountsFromApi, actions, callSetAddAnotherAccount, accountDataFromProcess,
+    setPage, depositData, accountsFromApi, actions, callSetAddAnotherAccount, accountDataFromProcess,
     isDepositNeeded, publicKey, callSetDepositNeeded, callClearAccountsData, accountIndex, network, idToken
   } = props;
   const {updateAccountStatus, loadDepositData, setFinishedWizard, clearWizardData} = actions;
@@ -83,7 +83,7 @@ const StakingDeposit = (props: Props) => {
     callSetAddAnotherAccount(false);
     deepLink((obj) => {
       if ('tx_hash' in obj && 'account_id' in obj) {
-        setPage(page + 1);
+        setPage(config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS);
         updateAccountStatus(obj.account_id, obj.tx_hash, true);
         callSetDepositNeeded({
           isNeeded: false,

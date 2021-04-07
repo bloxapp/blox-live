@@ -1,26 +1,23 @@
 import React, { useState } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-
-import { Regular, Backup } from './components';
-import { writeToTxtFile } from './service';
-
-import * as actionsFromPassword from '../../../../PasswordHandler/actions';
-import passwordSaga from '../../../../PasswordHandler/saga';
-
-import * as actionsFromKeyvault from '../../../../KeyVaultManagement/actions';
-import { getMnemonic, getIsLoading } from '../../../../KeyVaultManagement/selectors';
-import keyvaultSaga from '../../../../KeyVaultManagement/saga';
-
-import { useInjectSaga } from 'utils/injectSaga';
-import useCreatePassword from 'common/hooks/useCreatePassword';
-import BackButton from '../../common/BackButton';
+import config from '~app/backend/common/config';
+import { useInjectSaga } from '~app/utils/injectSaga';
+import passwordSaga from '~app/components/PasswordHandler/saga';
+import keyvaultSaga from '~app/components/KeyVaultManagement/saga';
+import useCreatePassword from '~app/common/hooks/useCreatePassword';
+import BackButton from '~app/components/Wizard/components/common/BackButton';
+import * as actionsFromPassword from '~app/components/PasswordHandler/actions';
+import * as actionsFromKeyvault from '~app/components/KeyVaultManagement/actions';
+import { getMnemonic, getIsLoading } from '~app/components/KeyVaultManagement/selectors';
+import { writeToTxtFile } from '~app/components/Wizard/components/Wallet/Passphrase/service';
+import { Regular, Backup } from '~app/components/Wizard/components/Wallet/Passphrase/components';
 
 const keyvaultKey = 'keyvaultManagement';
 const passwordKey = 'password';
 
 const Passphrase = (props: Props) => {
-  const { page, setPage, mnemonic, isLoading, keyvaultActions, passwordActions } = props;
+  const { setPage, mnemonic, isLoading, keyvaultActions, passwordActions } = props;
   const { keyvaultLoadMnemonic, keyvaultSaveMnemonic } = keyvaultActions;
   const { replacePassword } = passwordActions;
 
@@ -46,7 +43,7 @@ const Passphrase = (props: Props) => {
     if (canGenerate) {
       await replacePassword(password);
       await keyvaultSaveMnemonic(duplicatedMnemonic);
-      await !isButtonDisabled && setPage(page + 1);
+      !isButtonDisabled && setPage(config.WIZARD_PAGES.VALIDATOR.SELECT_NETWORK);
     }
   };
 
@@ -73,7 +70,7 @@ const Passphrase = (props: Props) => {
   };
 
   const onBackButtonClick = () => {
-    showBackup ? toggleBackupDisplay(false) : setPage(page - 1);
+    showBackup ? toggleBackupDisplay(false) : setPage(config.WIZARD_PAGES.WALLET.IMPORT_OR_GENERATE_SEED);
   };
   return (
     <div>

@@ -103,7 +103,11 @@ export const SelectionContextMenu = (props: SelectionContextMenuProps) => {
     name: 'Cut',
     onClick: () => {
       navigator.clipboard.writeText(text).then(() => {
-        triggerChangeEvent(event, '');
+        let newValue = '';
+        if (event.target?.value) {
+          newValue = String(event.target?.value).replace(text, '');
+        }
+        triggerChangeEvent(event, newValue);
       });
     },
     color: false

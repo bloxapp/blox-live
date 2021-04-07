@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import theme from '~app/theme';
 import Icon from '~app/common/components/Icon';
+import config from '~app/backend/common/config';
 import { Button } from '~app/components/Wizard/components/common';
 import Title from '~app/components/Wizard/components/common/Title';
 
@@ -99,7 +100,7 @@ const ImportOrGenerateSeed = (props: Props) => {
           style={btnStyle}
           width={btnWidth}
           height={btnHeight}
-          onClick={() => setPage(5)}
+          onClick={() => setPage(config.WIZARD_PAGES.WALLET.ENTER_MNEMONIC)}
           direction="center"
         >
           <Icon name="generate-seed-icon" fontSize="38px" color={'plgreen'} />
@@ -112,7 +113,7 @@ const ImportOrGenerateSeed = (props: Props) => {
           width={btnWidth}
           height={btnHeight}
           border={false}
-          onClick={() => setPage(10)}
+          onClick={() => setPage(config.WIZARD_PAGES.WALLET.IMPORT_MNEMONIC)}
           direction="center"
         >
           <Sticker isDisabled={false}>{'Mainnet Only'}</Sticker>

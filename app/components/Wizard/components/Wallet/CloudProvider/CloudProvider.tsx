@@ -1,11 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import CustomButton from './CustomButton';
-import { CLOUD_PROVIDERS } from './constants';
-import { Title, SubTitle, Paragraph, Link } from '../../common';
-import { keyvaultSetCouldProvider } from '../../../../KeyVaultManagement/actions';
-import { openExternalLink } from '../../../../common/service';
+import config from '~app/backend/common/config';
+import { openExternalLink } from '~app/components/common/service';
+import { keyvaultSetCouldProvider } from '~app/components/KeyVaultManagement/actions';
+import { Title, SubTitle, Paragraph, Link } from '~app/components/Wizard/components/common';
+import CustomButton from '~app/components/Wizard/components/Wallet/CloudProvider/CustomButton';
+import { CLOUD_PROVIDERS } from '~app/components/Wizard/components/Wallet/CloudProvider/constants';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -24,10 +25,10 @@ const ButtonsWrapper = styled.div`
 `;
 
 const onClick = (args) => {
-  const {setCloudProvider, label, isDisabled, setPage, page} = args;
+  const { setCloudProvider, label, isDisabled, setPage } = args;
   if (!isDisabled) {
     setCloudProvider(label);
-    setPage(page + 1);
+    setPage(config.WIZARD_PAGES.WALLET.CREATE_SERVER);
   }
 };
 

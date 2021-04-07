@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
+import config from '~app/backend/common/config';
 import { setNetworkType } from '~app/components/Wizard/actions';
 import { NETWORKS } from '~app/components/Wizard/components/Validators/constants';
 import { getUserData } from '~app/components/Login/components/CallbackPage/selectors';
@@ -18,8 +19,8 @@ const ButtonsWrapper = styled.div`
   justify-content: space-between;
 `;
 
-const onClick = ({ page, setPage, setNetwork }: Props, network) => {
-  setPage(page + 1);
+const onClick = ({ setPage, setNetwork }: Props, network) => {
+  setPage(config.WIZARD_PAGES.VALIDATOR.CREATE_VALIDATOR);
   setNetwork(network);
 };
 

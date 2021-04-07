@@ -19,7 +19,7 @@ const ImportValidatorsWrapper = styled.div`
 `;
 
 const ImportValidators = (props: Props) => {
-  const { page, setPage, setPageData } = props;
+  const { setPage, setPageData } = props;
   const { isLoading } = useProcessRunner();
   const [validators, setValidators] = useState([]);
   const [finishedImport, finishImport] = useState(false);
@@ -34,7 +34,7 @@ const ImportValidators = (props: Props) => {
       setValidators([]);
     } else {
       // We just in the beginning, should go back to import seed screen (mnemonic input)
-      setPage(page - 1);
+      setPage(config.WIZARD_PAGES.WALLET.IMPORT_MNEMONIC);
     }
   };
 

@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import Backup from './components/Backup';
-import passwordSaga from '../../../../PasswordHandler/saga';
-import BackButton from '../../common/BackButton/BackButton';
-import keyVaultSaga from '../../../../KeyVaultManagement/saga';
-import { useInjectSaga } from '../../../../../utils/injectSaga';
-import { getIsLoading } from '../../../../KeyVaultManagement/selectors';
-import * as actionsFromPassword from '../../../../PasswordHandler/actions';
-import * as actionsFromKeyvault from '../../../../KeyVaultManagement/actions';
-import useCreatePassword from '../../../../../common/hooks/useCreatePassword';
+import config from '~app/backend/common/config';
+import { useInjectSaga } from '~app/utils/injectSaga';
+import passwordSaga from '~app/components/PasswordHandler/saga';
+import keyVaultSaga from '~app/components/KeyVaultManagement/saga';
+import useCreatePassword from '~app/common/hooks/useCreatePassword';
+import { getIsLoading } from '~app/components/KeyVaultManagement/selectors';
+import * as actionsFromPassword from '~app/components/PasswordHandler/actions';
+import * as actionsFromKeyvault from '~app/components/KeyVaultManagement/actions';
+import BackButton from '~app/components/Wizard/components/common/BackButton/BackButton';
+import Backup from '~app/components/Wizard/components/Wallet/Passphrase/components/Backup';
 
 const keyVaultKey = 'keyvaultManagement';
 const passwordKey = 'password';
 
 const ImportPassphrase = (props: Props) => {
-  const { page, setPage, isLoading, keyVaultActions, passwordActions } = props;
+  const { setPage, isLoading, keyVaultActions, passwordActions } = props;
   const { keyvaultSaveMnemonic } = keyVaultActions;
   const { replacePassword } = passwordActions;
 
@@ -42,7 +43,7 @@ const ImportPassphrase = (props: Props) => {
       await replacePassword(password);
       // Generate seed and save
       await keyvaultSaveMnemonic(userMnemonic);
-      await (!isButtonDisabled && setPage(page + 1));
+      await (!isButtonDisabled && setPage(config.WIZARD_PAGES.WALLET.IMPORT_VALIDATORS));
     }
   };
 
@@ -58,7 +59,7 @@ const ImportPassphrase = (props: Props) => {
   };
 
   const onBackButtonClick = () => {
-    setPage(4);
+    setPage(config.WIZARD_PAGES.WALLET.IMPORT_OR_GENERATE_SEED);
   };
 
   return (
