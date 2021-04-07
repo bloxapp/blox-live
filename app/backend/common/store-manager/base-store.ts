@@ -13,6 +13,7 @@ export default class BaseStore {
   }
 
   set(key: string, value: any): void {
+    if (!value) return;
     this.storage.set(key, value);
   }
 
