@@ -25,11 +25,6 @@ const KeyWrapper = styled.div`
   margin-bottom:16px;
 `;
 
-const SmallText = styled.div`
-  margin:16px 0 24px 0;
-  font-size:12px;
-`;
-
 let publicKeyTooltip = 'The public (signing) key is used for signing the validator’s on-chain duties,';
 publicKeyTooltip += 'including proposing blocks and attesting to others. The validator public key must be online for signing 24/7.';
 
@@ -73,9 +68,6 @@ const KeysGenerated = (props: Props) => {
         Withdrawal Credentials
       </SubTitle>
       <KeyWrapper>{depositData.withdrawalCredentials}</KeyWrapper>
-      <SmallText>
-        You can later export your validator keys.
-      </SmallText>
 
       {!validatorData.deposited && (
         <BigButton onClick={onClick}>
