@@ -27,7 +27,7 @@ const ReinstallingModal = (props: Props) => {
   const { isLoading, processMessage, isDone, isServerActive, processName,
     startProcess, clearProcessState, loaderPercentage, error } = useProcessRunner();
   const {
-    title, description, move1StepForward, move2StepsForward,
+    title, description, move1StepForward, move2StepsForward, suggestedProcess,
     onClose, image, keyVaultCurrentVersion, keyVaultLatestVersion } = props;
   const [showingProposalToReinstall, showProposalToReinstall] = useState(false);
   const [reinstallStarted, startReinstall] = useState(false);
@@ -35,7 +35,7 @@ const ReinstallingModal = (props: Props) => {
   const [modalDescription, setModalDescription] = useState(description);
   const [lastError, setLastError] = useState(error);
   const versionDependentProcessName = getProcessNameForUpdate(keyVaultCurrentVersion, keyVaultLatestVersion);
-  const [currentProcessName, setCurrentProcessName] = useState(versionDependentProcessName);
+  const [currentProcessName, setCurrentProcessName] = useState(suggestedProcess ?? versionDependentProcessName);
   const processDefaultMessage = 'Checking KeyVault configuration...';
 
   const onStartReinstall = () => {
@@ -122,6 +122,7 @@ type Props = {
   move1StepForward: () => void;
   move2StepsForward: () => void;
   onClose?: () => void;
+  suggestedProcess: string;
 };
 
 const mapStateToProps = (state: State) => ({
