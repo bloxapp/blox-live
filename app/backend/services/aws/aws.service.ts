@@ -295,6 +295,8 @@ export default class AwsService {
     name: 'Establishing connection to your server...'
   })
   async rebootInstance() {
+    const configPort: any = Connection.db(this.storePrefix).get('port') || config.env.port;
+    const configIp: any = Connection.db(this.storePrefix).get('publicIp');
     await this.ec2.rebootInstances({ InstanceIds: [Connection.db(this.storePrefix).get('instanceId')] }).promise();
     await new Promise((resolve, reject) => {
       let totalSeconds = 0;
@@ -314,8 +316,7 @@ export default class AwsService {
         socket.setTimeout(1000);
         socket.once('error', onError);
         socket.once('timeout', onError);
-        const ip: any = Connection.db(this.storePrefix).get('publicIp');
-        socket.connect(Connection.db(this.storePrefix).get('port') || config.env.port, ip, () => {
+        socket.connect(configPort, configIp, () => {
           this.logger.debug('Server is online');
           socket.destroy();
           clearInterval(intervalId);
