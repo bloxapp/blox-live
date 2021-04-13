@@ -42,6 +42,9 @@ export default class Config {
       INFURA_API_KEY: 'ad49ce6ad5d64c2685f4b2ba86512c76',
       ETH_INITIAL_BALANCE: 32.00,
       UNAUTHORIZED_CHECK_INTERVAL: 10 * 60 * 1000,
+      CONTACT_US_LINK: 'http://bit.ly/2Nqy2Ao',
+      KNOWLEDGE_BASE_LINK: 'http://bit.ly/3eFOyHH',
+      SEND_FEEDBACK_LINK: 'http://bit.ly/3eK2cts',
 
       // Wizard pages constants in one central place, environment-independent
       WIZARD_PAGES: {

@@ -2,6 +2,7 @@ import React, { forwardRef } from 'react';
 import { shell } from 'electron';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import config from '~app/backend/common/config';
 import { DropDown } from '~app/common/components';
 import Button from './Button';
 
@@ -19,23 +20,46 @@ const AlertDot = styled.div`
   right: -1px;
 `;
 
-const menuItems = [
-  { name: 'Contact us', onClick: () => shell.openExternal('http://bit.ly/2Nqy2Ao'), color: false },
-  { name: 'Knowledge Base', onClick: () => shell.openExternal('http://bit.ly/3eFOyHH'), color: false },
-  { name: 'Send Feedback', onClick: () => shell.openExternal('http://bit.ly/3eK2cts'), color: false },
-];
+const FaqMenu = forwardRef(({ isOpen, onClick, showOrangeDot }, ref) => {
+  const menuItems = [
+    {
+      name: 'Contact us',
+      onClick: () => {
+        onClick(false);
+        return shell.openExternal(config.env.CONTACT_US_LINK);
+      },
+      color: false
+    },
+    {
+      name: 'Knowledge Base',
+      onClick: () => {
+        onClick(false);
+        return shell.openExternal(config.env.KNOWLEDGE_BASE_LINK);
+      },
+      color: false
+    },
+    {
+      name: 'Send Feedback',
+      onClick: () => {
+        onClick(false);
+        return shell.openExternal(config.env.SEND_FEEDBACK_LINK);
+      },
+      color: false
+    }
+  ];
 
-const FaqMenu = forwardRef(({ isOpen, onClick, showOrangeDot }, ref) => (
-  <Wrapper ref={ref}>
-    {showOrangeDot && <AlertDot />}
-    <Button
-      isOpen={isOpen}
-      className="icon-help"
-      onClick={() => onClick(!isOpen)}
-    />
-    {isOpen && <DropDown items={menuItems} />}
-  </Wrapper>
-));
+  return (
+    <Wrapper ref={ref}>
+      {showOrangeDot && <AlertDot />}
+      <Button
+        isOpen={isOpen}
+        className="icon-help"
+        onClick={() => onClick(!isOpen)}
+      />
+      {isOpen && <DropDown items={menuItems} />}
+    </Wrapper>
+  );
+});
 
 FaqMenu.propTypes = {
   isOpen: PropTypes.bool,
