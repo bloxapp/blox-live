@@ -105,7 +105,7 @@ export default class Auth {
       this.setSession({ id_token: idToken, refresh_token: refreshToken }, userProfile);
       if (idToken && userProfile) {
         resolve({
-          idToken,
+          ...tokenData,
           idTokenPayload: userProfile
         });
       } else {

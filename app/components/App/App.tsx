@@ -74,6 +74,7 @@ const App = (props: AppProps) => {
   const { isLoggedIn, isLoading, actions, dashboardActions } = props;
   const { setModalDisplay, clearModalDisplayData } = dashboardActions;
   const { setSession, loginFailure } = actions;
+  const [eventSessionData, setEventSessionData] = useState(null);
 
   const onLoginButtonClickedListener = () => {
     if (logoutNotification.key) {
@@ -137,7 +138,7 @@ const App = (props: AppProps) => {
 
   const accessTokenRefreshedSubscribe = () => {
     Http.EventEmitter.removeAllListeners(Http.EVENTS.NEW_ACCESS_TOKEN);
-    Http.EventEmitter.once(Http.EVENTS.NEW_ACCESS_TOKEN, newAccessToken);
+    Http.EventEmitter.on(Http.EVENTS.NEW_ACCESS_TOKEN, (obj) => { setEventSessionData(obj); });
   };
 
   const showComplianceDialog = () => {
@@ -171,6 +172,12 @@ const App = (props: AppProps) => {
       }
     }
   };
+
+  useEffect(() => {
+    if (eventSessionData) {
+      newAccessToken(eventSessionData);
+    }
+  }, [eventSessionData]);
 
   useEffect(() => {
     if (!didInitApp) {

@@ -121,7 +121,7 @@ export default class Http {
             if (authToken) {
               this.baseStore.set('authToken', authToken);
               this.baseStore.set('refreshToken', refreshToken);
-              const refreshedAuthData: RefreshedAuthData = { id_token: authToken, refresh_token: refreshToken };
+              const refreshedAuthData = { token_id: authToken, refresh_token: refreshToken };
               Http.EventEmitter.emit(Http.EVENTS.NEW_ACCESS_TOKEN, refreshedAuthData);
             } else {
               // Show login screen if access token is not renewed.
