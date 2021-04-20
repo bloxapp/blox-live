@@ -78,7 +78,8 @@ export default class WalletService {
     const payload = {
       url: `https://${Connection.db(this.storePrefix).get('publicIp')}:8200`,
       accessToken: Connection.db(this.storePrefix).get('vaultSignerToken'),
-      version: Connection.db().get('keyVaultVersion')
+      version: Connection.db().get('keyVaultVersion'),
+      pluginVersion: Connection.db().get('keyVaultPluginVersion'),
     };
     const ssh = await this.keyVaultSsh.getConnection();
     const command = this.keyVaultSsh.buildCurlCommand({

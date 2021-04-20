@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
+import { getGreaterVersion } from '~app/utils/version';
 import { Log } from '~app/backend/common/logger/logger';
+import { getProcessNameForUpdate } from '~app/utils/process';
 import * as wizardSelectors from '~app/components/Wizard/selectors';
 import { PROCESSES } from '~app/components/ProcessRunner/constants';
-import { getProcessNameForUpdate } from '~app/utils/process';
 import { ProcessLoader, ModalTemplate, Button } from '~app/common/components';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 import {
@@ -28,13 +29,14 @@ const ReinstallingModal = (props: Props) => {
     startProcess, clearProcessState, loaderPercentage, error } = useProcessRunner();
   const {
     title, description, move1StepForward, move2StepsForward, suggestedProcess,
-    onClose, image, keyVaultCurrentVersion, keyVaultLatestVersion } = props;
+    onClose, image, keyVaultCurrentVersion, keyVaultLatestVersion, keyVaultPluginCurrentVersion } = props;
   const [showingProposalToReinstall, showProposalToReinstall] = useState(false);
   const [reinstallStarted, startReinstall] = useState(false);
   const [modalTitle, setModalTitle] = useState(title);
   const [modalDescription, setModalDescription] = useState(description);
   const [lastError, setLastError] = useState(error);
-  const versionDependentProcessName = getProcessNameForUpdate(keyVaultCurrentVersion, keyVaultLatestVersion);
+  const higherWalletCurrentVersion = getGreaterVersion(keyVaultCurrentVersion, keyVaultPluginCurrentVersion);
+  const versionDependentProcessName = getProcessNameForUpdate(higherWalletCurrentVersion, keyVaultLatestVersion);
   const [currentProcessName, setCurrentProcessName] = useState(suggestedProcess ?? versionDependentProcessName);
   const processDefaultMessage = 'Checking KeyVault configuration...';
 
@@ -117,16 +119,18 @@ type Props = {
   image: string;
   title: string;
   keyVaultCurrentVersion: string;
+  keyVaultPluginCurrentVersion: string;
   keyVaultLatestVersion: string;
   description?: string;
   move1StepForward: () => void;
   move2StepsForward: () => void;
   onClose?: () => void;
-  suggestedProcess: string;
+  suggestedProcess?: string;
 };
 
 const mapStateToProps = (state: State) => ({
   keyVaultCurrentVersion: wizardSelectors.getWalletVersion(state),
+  keyVaultPluginCurrentVersion: wizardSelectors.getWalletPluginVersion(state),
   keyVaultLatestVersion: keyVaultSelectors.getLatestVersion(state),
 });
 

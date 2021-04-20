@@ -13,6 +13,7 @@ import { useInjectSaga } from '~app/utils/injectSaga';
 import Header from '~app/components/common/Header/Header';
 import Dashboard from '~app/components/Dashboard/Dashboard';
 import { loadWallet } from '~app/components/Wizard/actions';
+import { detectIfWalletNeedsUpdate } from '~app/utils/version';
 import useAccounts from '~app/components/Accounts/useAccounts';
 import useVersions from '~app/components/Versions/useVersions';
 import walletSaga from '~app/components/KeyVaultManagement/saga';
@@ -46,7 +47,7 @@ const walletKey = 'keyvaultManagement';
 const EntryPage = (props: Props) => {
   const {
     callLoadWallet, loadWalletLatestVersion, walletStatus, walletVersion,
-    isLoadingWallet, walletError, keyvaultCurrentVersion,
+    isLoadingWallet, walletError, keyvaultCurrentVersion, keyvaultPluginCurrentVersion,
     keyvaultLatestVersion, isLoadingKeyvault, keyvaultError,
     dashboardActions, isFinishedWizard, wizardWallet, isOpenedWizard
   } = props;
@@ -80,7 +81,18 @@ const EntryPage = (props: Props) => {
     }
   }, [isLoadingWallet, keyvaultLatestVersion]);
 
-  const walletNeedsUpdate = keyvaultCurrentVersion !== keyvaultLatestVersion;
+  const walletNeedsUpdate = detectIfWalletNeedsUpdate(
+    keyvaultLatestVersion,
+    keyvaultCurrentVersion,
+    keyvaultPluginCurrentVersion
+  );
+
+  console.warn({
+    walletNeedsUpdate,
+    keyvaultLatestVersion,
+    keyvaultCurrentVersion,
+    keyvaultPluginCurrentVersion
+  });
 
   const otherProps = {
     walletNeedsUpdate,
@@ -160,6 +172,7 @@ type Props = {
   loadWalletLatestVersion: () => void;
 
   keyvaultCurrentVersion: string;
+  keyvaultPluginCurrentVersion: string;
   keyvaultLatestVersion: string;
   isLoadingKeyvault: boolean;
   keyvaultError: string;
@@ -180,6 +193,7 @@ const mapStateToProps = (state: State) => ({
   walletError: wizardSelectors.getWalletError(state),
 
   keyvaultCurrentVersion: wizardSelectors.getWalletVersion(state),
+  keyvaultPluginCurrentVersion: wizardSelectors.getWalletPluginVersion(state),
   keyvaultLatestVersion: keyvaultSelectors.getLatestVersion(state),
   isLoadingKeyvault: keyvaultSelectors.getIsLoading(state),
   keyvaultError: keyvaultSelectors.getError(state),
