@@ -35,7 +35,7 @@ const ImportPassphrase = (props: Props) => {
   const allInputsAreValid = () => {
     const passwordsAreEqual = password === confirmPassword;
     const passwordsHaveMoreThan8Char = password.length >= 8 && confirmPassword.length >= 8;
-    return passwordsAreEqual && passwordsHaveMoreThan8Char;
+    return passwordsAreEqual && passwordsHaveMoreThan8Char && !userMnemonicError;
   };
 
   const onSaveAndConfirmClick = async () => {

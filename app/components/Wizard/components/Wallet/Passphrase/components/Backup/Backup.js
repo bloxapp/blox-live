@@ -56,8 +56,15 @@ const Backup = (props) => {
 
       {isImport && <Warning style={{ marginBottom: '34px'}} text={'Please be sure to store your 24 passphrase seed safely and do not share it with anyone.'} />}
 
-      <TextArea marginTop={0} value={duplicatedMnemonic} onChange={handleChange} onBlur={onDuplicateMnemonicBlur} autoFocus
-        placeholder={'Separate each word with a space'} error={showDuplicatedMnemonicError ? 'Passphrase not correct' : ''}
+      <TextArea
+        marginTop={0}
+        value={duplicatedMnemonic}
+        onChange={(value) => { handleChange(value); onDuplicateMnemonicBlur(value); }}
+        onBlur={(event) => { handleChange(event.target.value); onDuplicateMnemonicBlur(event.target.value); }}
+        onPaste={(event) => { handleChange(event.target.value); onDuplicateMnemonicBlur(event.target.value); }}
+        autoFocus
+        placeholder={'Separate each word with a space'}
+        error={showDuplicatedMnemonicError ? 'Passphrase not correct' : ''}
       />
 
       <PasswordInputsWrapper>
