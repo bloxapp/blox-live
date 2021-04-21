@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import navigationRules from './navigation-rules';
 import { MenuItem, SubMenuItem } from './components';
 import { Log } from '~app/backend/common/logger/logger';
+import { findPageAndStepPath } from '~app/utils/navigation';
 
 const Wrapper = styled.div`
   width: 19vw;
@@ -25,11 +26,15 @@ const Separator = styled.div`
 
 const logger = new Log('Navigation');
 
+const debugPageAndStep = (_page: number, _step: number) => {
+  logger.debug(`🔶 PAGE ▶️ ${findPageAndStepPath('page', _page, 0)}`);
+  logger.debug(`🔶 STEP ▶️ ${findPageAndStepPath('step', 0, _step)}`);
+};
+
 const Navigation = (props: Props) => {
   const { page, step, pageData, addAdditionalAccount, accounts } = props;
 
-  logger.debug('PAGE:', page);
-  logger.debug('STEP:', step);
+  debugPageAndStep(page, step);
 
   const rulesProps = {
     page,

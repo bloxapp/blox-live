@@ -54,6 +54,23 @@ export class Log {
     this.logger.warn(...args);
   }
 
+  /**
+   * Helper to get more readable debugs with data
+   * @param args
+   */
+  debugWithData(...args: any[]): void {
+    const finalArgs = [];
+    args.map((arg) => {
+      if (typeof arg !== 'object') {
+        finalArgs.push(arg);
+      } else {
+        finalArgs.push(JSON.stringify(arg));
+      }
+      return arg;
+    });
+    this.debug(...finalArgs);
+  }
+
   async getArchivedLogs(): Promise<string> {
     const outputArchivePath = path.join(this.userDataPath, 'logs.zip');
     const output = fs.createWriteStream(outputArchivePath);

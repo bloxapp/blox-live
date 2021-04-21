@@ -15,6 +15,7 @@ import { onWindowClose } from '~app/common/service';
 import wizardSaga from '~app/components/Wizard/saga';
 import useRouting from '~app/common/hooks/useRouting';
 import { useInjectSaga } from '~app/utils/injectSaga';
+import { Log } from '~app/backend/common/logger/logger';
 import accountsSaga from '~app/components/Accounts/saga';
 import webSocketSaga from '~app/components/WebSockets/saga';
 import { loadAccounts } from '~app/components/Accounts/actions';
@@ -51,6 +52,7 @@ const wizardKey = 'wizard';
 const accountsKey = 'accounts';
 const websocketKey = 'websocket';
 const userKey = 'user';
+const logger: Log = new Log('app/components/LoggedIn');
 
 const LoggedIn = (props: Props) => {
   useInjectSaga({ key: wizardKey, saga: wizardSaga, mode: '' });
@@ -82,17 +84,37 @@ const LoggedIn = (props: Props) => {
     const noErrors = !walletError && !accountsError && !webSocketError && !userInfoError;
     const doneLoading = !isLoadingWallet && !isLoadingAccounts && !isWebsocketLoading && !isLoadingUserInfo;
 
+    logger.debug('-------------------------');
+    logger.debug('💈 Loading Wallet Status:', isLoadingWallet);
+    logger.debug('💈 Loading Accounts Status:', isLoadingAccounts);
+    logger.debug('💈 Loading Web Socket Status:', isWebsocketLoading);
+    logger.debug('💈 Loading User Info Status:', isLoadingUserInfo);
+    logger.debug('-------------------------');
+    logger.debug('⭕ Loading Wallet Error:', walletError);
+    logger.debug('⭕ Loading Accounts Error:', accountsError);
+    logger.debug('⭕ Loading Web Socket Error:', webSocketError);
+    logger.debug('⭕ Loading User Info Error:', userInfoError);
+    logger.debug('-------------------------');
+    logger.debug('✅ Loaded Wallet Status:', walletStatus);
+    logger.debug('✅ Loaded Accounts:', accounts?.length);
+    logger.debug('✅ Loaded Web Socket:', websocket);
+    logger.debug('✅ Loaded User Info:', userInfo);
+
     if (allDataIsReady && noErrors && doneLoading) {
       const storedUuid = Connection.db().exists('uuid');
       const hasWallet = walletStatus === 'active' || walletStatus === 'offline';
       const shouldNavigateToDashboard = hasWallet && accounts.length > 0
         && allAccountsDeposited(accounts) && !addAnotherAccount;
 
+      logger.debug('ℹ️️ Should Navigate to Dashboard: ', shouldNavigateToDashboard);
+
+      logger.debug('ℹ️️ In Forgot Password Process: ', inForgotPasswordProcess());
       if (inForgotPasswordProcess()) {
         callSetFinishedWizard(true);
       }
 
       if ((!userInfo.uuid && storedUuid) || (isPrimaryDevice(userInfo.uuid) && !inRecoveryProcess())) {
+        logger.debug('ℹ️️ Should Navigate to Wizard:', shouldNavigateToDashboard);
         shouldNavigateToDashboard && callSetFinishedWizard(true);
       }
 

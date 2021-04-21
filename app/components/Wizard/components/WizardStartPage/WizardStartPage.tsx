@@ -6,6 +6,7 @@ import wizardSaga from '~app/components/Wizard/saga';
 import config from '~app/backend/common/config';
 import useRouting from '~app/common/hooks/useRouting';
 import { useInjectSaga } from '~app/utils/injectSaga';
+import { Log } from '~app/backend/common/logger/logger';
 import { InfoWithTooltip } from '~app/common/components';
 import * as userSelectors from '~app/components/User/selectors';
 import * as wizardActions from '~app/components/Wizard/actions';
@@ -61,6 +62,8 @@ let toolTipText = "Blox KeyVault is responsible for securing your private valida
 toolTipText += 'activity on the Beacon Chain. Blox will communicate with your secured KeyVault every time your validator';
 toolTipText += 'is requested to attest/propose. To do so, KeyVault must be online 24/7.';
 
+const logger: Log = new Log('WizardStartPage');
+
 const WizardStartPage = (props: Props) => {
   useInjectSaga({ key: 'wizard', saga: wizardSaga, mode: '' });
 
@@ -91,14 +94,22 @@ const WizardStartPage = (props: Props) => {
     const isInRecoveryProcess = Connection.db().get('inRecoveryProcess');
     const isPrimaryDevice = !!finishedRecoveryOrInstallProcess && (finishedRecoveryOrInstallProcess === userInfo.uuid);
 
+    logger.debug('ℹ️️ Has Wallet:', hasWallet);
+    logger.debug('ℹ️️ Has Seed:', hasSeed);
+    logger.debug('ℹ️️ Finished Recovery or Install Process:', Boolean(finishedRecoveryOrInstallProcess));
+    logger.debug('ℹ️️ Is in Recovery Process:', Boolean(isInRecoveryProcess));
+    logger.debug('ℹ️️ Is Primary Device:', isPrimaryDevice);
+
     if (hasWallet) {
       // Has wallet but run on different device
       if (!finishedRecoveryOrInstallProcess && !userInfo.uuid && accounts?.length > 0) {
         setModalDisplay({ show: true, type: MODAL_TYPES.DEVICE_SWITCH });
+        logger.debug('️️🔶 Redirect to device switch!');
         return;
       }
       if (userInfo.uuid && ((!isPrimaryDevice && accounts?.length > 0) || isInRecoveryProcess)) {
         setModalDisplay({ show: true, type: MODAL_TYPES.DEVICE_SWITCH });
+        logger.debug('️️🔶 Redirect to device switch!');
         return;
       }
 
@@ -107,6 +118,7 @@ const WizardStartPage = (props: Props) => {
         // Clicked on "Add Validator" button
         if (addAnotherAccount) {
           redirectToCreateAccount();
+          logger.debug('️️🔶 Redirect to create account!');
           return;
         }
 
@@ -116,11 +128,13 @@ const WizardStartPage = (props: Props) => {
           // Clicked on "Continue to deposit"
           if (isDepositNeeded) {
             redirectToDepositPage();
+            logger.debug('️️🔶 Redirect to deposit page!');
             return;
           }
 
           // Clicked on "I'll deposit later"
           goToPage(ROUTES.DASHBOARD);
+          logger.debug('️️🔶 Redirect to Dashboard after deposit later click!');
           return;
         }
 
@@ -128,6 +142,7 @@ const WizardStartPage = (props: Props) => {
         // Empty dash feature
         if (!accounts?.length) {
           setStep2Status(true);
+          logger.debug('️️🔶 Redirect to create account (not finished installation)!');
           return;
         }
       }
@@ -137,14 +152,17 @@ const WizardStartPage = (props: Props) => {
       if (finishedRecoveryOrInstallProcess && accounts?.length === 0) {
         if (page === config.WIZARD_PAGES.WALLET.IMPORT_OR_GENERATE_SEED) {
           setPage(config.WIZARD_PAGES.WALLET.CONGRATULATIONS);
+          logger.debug('️️🔶 Redirect to congratulations after import or generate seed!');
           return;
         }
         redirectToImportOrGenerateSeed();
+        logger.debug('️️🔶 Redirect to import or generate seed!');
         return;
       }
 
       // After all possible scenarios the only remaining is to return to dash
       goToDashboard();
+      logger.debug('️️🔶 Redirect to Dashboard!');
     }
   }, [isLoading]);
 
@@ -156,9 +174,10 @@ const WizardStartPage = (props: Props) => {
     if (wallet.status === 'offline') {
       const onSuccess = () => setModalDisplay({ show: true, type: MODAL_TYPES.REACTIVATION, text: ''});
       checkIfPasswordIsNeeded(onSuccess);
-    }
-    else if (wallet.status === 'active') {
+      logger.debug('️️🔶 Redirect to reactivation dialog because offline!');
+    } else if (wallet.status === 'active') {
       redirectToCreateAccount();
+      logger.debug('️️🔶 Redirect to create account as second Wizard step!');
     }
   };
 
@@ -170,15 +189,18 @@ const WizardStartPage = (props: Props) => {
     if (!accounts?.length) {
       setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
       setPage(config.WIZARD_PAGES.WALLET.IMPORT_OR_GENERATE_SEED);
+      logger.debug('️️🔶 Redirect to Import or Generate seed because no accounts!');
     } else {
       setStep(step + 1);
       setPage(config.WIZARD_PAGES.VALIDATOR.SELECT_NETWORK);
+      logger.debug('️️🔶 Redirect to select validator network!');
     }
   };
 
   const redirectToDepositPage = () => {
     setStep(step + 1);
     setPage(config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT);
+    logger.debug('️️🔶 Redirect to staking deposit!');
   };
 
   return (
