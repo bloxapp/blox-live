@@ -10,7 +10,6 @@ import Wizard from '~app/components/Wizard/Wizard';
 import wizardSaga from '~app/components/Wizard/saga';
 import useRouting from '~app/common/hooks/useRouting';
 import { useInjectSaga } from '~app/utils/injectSaga';
-import { Log } from '~app/backend/common/logger/logger';
 import Header from '~app/components/common/Header/Header';
 import Dashboard from '~app/components/Dashboard/Dashboard';
 import { loadWallet } from '~app/components/Wizard/actions';
@@ -24,7 +23,6 @@ import Connection from '~app/backend/common/store-manager/connection';
 import Content from '~app/components/EntryPage/routes/wrappers/Content';
 import * as actionsFromDashboard from '~app/components/Dashboard/actions';
 import SettingsRoute from '~app/components/EntryPage/routes/SettingsRoute';
-import { detectIfWalletNeedsUpdate, getGreaterVersion } from '~app/utils/version';
 import * as keyvaultSelectors from '~app/components/KeyVaultManagement/selectors';
 import { keyvaultLoadLatestVersion } from '~app/components/KeyVaultManagement/actions';
 
@@ -44,12 +42,11 @@ const WizardWrapper = styled.div`
 
 const wizardKey = 'wizard';
 const walletKey = 'keyvaultManagement';
-const logger = new Log('EntryPage');
 
 const EntryPage = (props: Props) => {
   const {
     callLoadWallet, loadWalletLatestVersion, walletStatus, walletVersion,
-    isLoadingWallet, walletError, keyvaultCurrentVersion, keyvaultPluginCurrentVersion,
+    isLoadingWallet, walletError, keyvaultCurrentVersion,
     keyvaultLatestVersion, isLoadingKeyvault, keyvaultError,
     dashboardActions, isFinishedWizard, wizardWallet, isOpenedWizard
   } = props;
@@ -83,18 +80,7 @@ const EntryPage = (props: Props) => {
     }
   }, [isLoadingWallet, keyvaultLatestVersion]);
 
-  const walletNeedsUpdate = detectIfWalletNeedsUpdate(
-    keyvaultLatestVersion,
-    keyvaultCurrentVersion,
-    keyvaultPluginCurrentVersion
-  );
-
-  logger.debug({
-    walletNeedsUpdate,
-    keyvaultLatestVersion,
-    keyvaultCurrentVersion,
-    keyvaultPluginCurrentVersion
-  });
+  const walletNeedsUpdate = keyvaultCurrentVersion !== keyvaultLatestVersion;
 
   const otherProps = {
     walletNeedsUpdate,
@@ -174,7 +160,6 @@ type Props = {
   loadWalletLatestVersion: () => void;
 
   keyvaultCurrentVersion: string;
-  keyvaultPluginCurrentVersion: string;
   keyvaultLatestVersion: string;
   isLoadingKeyvault: boolean;
   keyvaultError: string;
@@ -190,15 +175,11 @@ type Props = {
 
 const mapStateToProps = (state: State) => ({
   walletStatus: wizardSelectors.getWalletStatus(state),
-  walletVersion: getGreaterVersion(
-    wizardSelectors.getWalletVersion(state),
-    wizardSelectors.getWalletPluginVersion(state),
-  ),
+  walletVersion: wizardSelectors.getWalletVersion(state),
   isLoadingWallet: wizardSelectors.getIsLoading(state),
   walletError: wizardSelectors.getWalletError(state),
 
   keyvaultCurrentVersion: wizardSelectors.getWalletVersion(state),
-  keyvaultPluginCurrentVersion: wizardSelectors.getWalletPluginVersion(state),
   keyvaultLatestVersion: keyvaultSelectors.getLatestVersion(state),
   isLoadingKeyvault: keyvaultSelectors.getIsLoading(state),
   keyvaultError: keyvaultSelectors.getError(state),

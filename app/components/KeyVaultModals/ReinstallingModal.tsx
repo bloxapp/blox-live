@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import { getGreaterVersion } from '~app/utils/version';
 import { Log } from '~app/backend/common/logger/logger';
 import { getProcessNameForUpdate } from '~app/utils/process';
 import * as wizardSelectors from '~app/components/Wizard/selectors';
@@ -29,14 +28,13 @@ const ReinstallingModal = (props: Props) => {
     startProcess, clearProcessState, loaderPercentage, error } = useProcessRunner();
   const {
     title, description, move1StepForward, move2StepsForward, suggestedProcess,
-    onClose, image, keyVaultCurrentVersion, keyVaultLatestVersion, keyVaultPluginCurrentVersion } = props;
+    onClose, image, keyVaultCurrentVersion, keyVaultLatestVersion } = props;
   const [showingProposalToReinstall, showProposalToReinstall] = useState(false);
   const [reinstallStarted, startReinstall] = useState(false);
   const [modalTitle, setModalTitle] = useState(title);
   const [modalDescription, setModalDescription] = useState(description);
   const [lastError, setLastError] = useState(error);
-  const higherWalletCurrentVersion = getGreaterVersion(keyVaultCurrentVersion, keyVaultPluginCurrentVersion);
-  const versionDependentProcessName = getProcessNameForUpdate(higherWalletCurrentVersion, keyVaultLatestVersion);
+  const versionDependentProcessName = getProcessNameForUpdate(keyVaultCurrentVersion, keyVaultLatestVersion);
   const [currentProcessName, setCurrentProcessName] = useState(suggestedProcess ?? versionDependentProcessName);
   const processDefaultMessage = 'Checking KeyVault configuration...';
 
@@ -119,7 +117,6 @@ type Props = {
   image: string;
   title: string;
   keyVaultCurrentVersion: string;
-  keyVaultPluginCurrentVersion: string;
   keyVaultLatestVersion: string;
   description?: string;
   move1StepForward: () => void;
@@ -130,7 +127,6 @@ type Props = {
 
 const mapStateToProps = (state: State) => ({
   keyVaultCurrentVersion: wizardSelectors.getWalletVersion(state),
-  keyVaultPluginCurrentVersion: wizardSelectors.getWalletPluginVersion(state),
   keyVaultLatestVersion: keyVaultSelectors.getLatestVersion(state),
 });
 
