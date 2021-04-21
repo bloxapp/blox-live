@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { Log } from '~app/backend/common/logger/logger';
+import { getProcessNameForUpdate } from '~app/utils/process';
 import * as wizardSelectors from '~app/components/Wizard/selectors';
 import { PROCESSES } from '~app/components/ProcessRunner/constants';
-import { getProcessNameForUpdate } from '~app/utils/process';
 import { ProcessLoader, ModalTemplate, Button } from '~app/common/components';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 import {
@@ -122,7 +122,7 @@ type Props = {
   move1StepForward: () => void;
   move2StepsForward: () => void;
   onClose?: () => void;
-  suggestedProcess: string;
+  suggestedProcess?: string;
 };
 
 const mapStateToProps = (state: State) => ({
