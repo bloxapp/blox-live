@@ -10,10 +10,10 @@ import Wizard from '~app/components/Wizard/Wizard';
 import wizardSaga from '~app/components/Wizard/saga';
 import useRouting from '~app/common/hooks/useRouting';
 import { useInjectSaga } from '~app/utils/injectSaga';
+import { Log } from '~app/backend/common/logger/logger';
 import Header from '~app/components/common/Header/Header';
 import Dashboard from '~app/components/Dashboard/Dashboard';
 import { loadWallet } from '~app/components/Wizard/actions';
-import { detectIfWalletNeedsUpdate } from '~app/utils/version';
 import useAccounts from '~app/components/Accounts/useAccounts';
 import useVersions from '~app/components/Versions/useVersions';
 import walletSaga from '~app/components/KeyVaultManagement/saga';
@@ -24,6 +24,7 @@ import Connection from '~app/backend/common/store-manager/connection';
 import Content from '~app/components/EntryPage/routes/wrappers/Content';
 import * as actionsFromDashboard from '~app/components/Dashboard/actions';
 import SettingsRoute from '~app/components/EntryPage/routes/SettingsRoute';
+import { detectIfWalletNeedsUpdate, getGreaterVersion } from '~app/utils/version';
 import * as keyvaultSelectors from '~app/components/KeyVaultManagement/selectors';
 import { keyvaultLoadLatestVersion } from '~app/components/KeyVaultManagement/actions';
 
@@ -43,6 +44,7 @@ const WizardWrapper = styled.div`
 
 const wizardKey = 'wizard';
 const walletKey = 'keyvaultManagement';
+const logger = new Log('EntryPage');
 
 const EntryPage = (props: Props) => {
   const {
@@ -87,7 +89,7 @@ const EntryPage = (props: Props) => {
     keyvaultPluginCurrentVersion
   );
 
-  console.warn({
+  logger.debug({
     walletNeedsUpdate,
     keyvaultLatestVersion,
     keyvaultCurrentVersion,
@@ -188,7 +190,10 @@ type Props = {
 
 const mapStateToProps = (state: State) => ({
   walletStatus: wizardSelectors.getWalletStatus(state),
-  walletVersion: wizardSelectors.getWalletVersion(state),
+  walletVersion: getGreaterVersion(
+    wizardSelectors.getWalletVersion(state),
+    wizardSelectors.getWalletPluginVersion(state),
+  ),
   isLoadingWallet: wizardSelectors.getIsLoading(state),
   walletError: wizardSelectors.getWalletError(state),
 
