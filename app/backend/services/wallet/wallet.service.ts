@@ -75,11 +75,12 @@ export default class WalletService {
     name: 'Syncing KeyVault with Blox...'
   })
   async syncVaultWithBlox({ isNew }): Promise<void> {
+    const envKey = (Connection.db(this.storePrefix).get('env') || 'production');
     const payload = {
       url: `https://${Connection.db(this.storePrefix).get('publicIp')}:8200`,
       accessToken: Connection.db(this.storePrefix).get('vaultSignerToken'),
-      version: Connection.db().get('keyVaultVersion'),
-      pluginVersion: Connection.db().get('keyVaultPluginVersion'),
+      version: `${Connection.db().get('keyVaultVersion')}${envKey === 'production' ? '' : '-rc'}`,
+      pluginVersion: `${Connection.db().get('keyVaultPluginVersion')}${envKey === 'production' ? '' : '-rc'}`,
     };
     const ssh = await this.keyVaultSsh.getConnection();
     const command = this.keyVaultSsh.buildCurlCommand({
