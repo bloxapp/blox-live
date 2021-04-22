@@ -193,7 +193,7 @@ export default class KeyVaultService {
     );
     console.log('stdout', stdout);
     console.log('stderr', error);
-    Connection.db(this.storePrefix).set('keyVaultVersion', keyVaultVersion);
+    Connection.db(this.storePrefix).set('keyVaultVersion', `${keyVaultVersion}${envKey === 'production' ? '' : '-rc'}`);
 
     await sleep(12000);
 
