@@ -82,6 +82,7 @@ export default class WalletService {
       version: `${Connection.db().get('keyVaultVersion')}${envKey === 'production' ? '' : '-rc'}`,
       pluginVersion: `${Connection.db().get('keyVaultPluginVersion')}${envKey === 'production' ? '' : '-rc'}`,
     };
+    this.logger.debugWithData('Sync KeyVault with Blox Payload:', payload);
     const ssh = await this.keyVaultSsh.getConnection();
     const command = this.keyVaultSsh.buildCurlCommand({
       authToken: Connection.db(this.storePrefix).get('authToken'),
