@@ -20,7 +20,7 @@ export default class WalletService {
     this.keyManagerService = new KeyManagerService();
     this.bloxApi = new BloxApi();
     this.bloxApi.init();
-    this.logger = new Log();
+    this.logger = new Log('WalletService');
   }
 
   async get() {
@@ -74,15 +74,26 @@ export default class WalletService {
   @Step({
     name: 'Syncing KeyVault with Blox...'
   })
-  async syncVaultWithBlox({ isNew }): Promise<void> {
+  async syncVaultWithBlox({ isNew, processName }): Promise<void> {
     const envKey = (Connection.db(this.storePrefix).get('env') || 'production');
-    const payload = {
+    const payload: any = {
       url: `https://${Connection.db(this.storePrefix).get('publicIp')}:8200`,
-      accessToken: Connection.db(this.storePrefix).get('vaultSignerToken'),
-      version: `${Connection.db().get('keyVaultVersion')}${envKey === 'production' ? '' : '-rc'}`,
-      pluginVersion: `${Connection.db().get('keyVaultPluginVersion')}${envKey === 'production' ? '' : '-rc'}`,
+      accessToken: Connection.db(this.storePrefix).get('vaultSignerToken')
     };
-    this.logger.debugWithData('Sync KeyVault with Blox Payload:', payload);
+
+    // Send plugin version in all cases, but only if it's available
+    const pluginVersion: any = `${Connection.db(this.storePrefix).get('keyVaultPluginVersion')}${envKey === 'production' ? '' : '-rc'}`;
+    if (pluginVersion) {
+      payload.pluginVersion = pluginVersion;
+    }
+
+    // Send version in only recovery/install/reinstall cases
+    const version: any = `${Connection.db(this.storePrefix).get('keyVaultVersion')}${envKey === 'production' ? '' : '-rc'}`;
+    const shouldUpdateVersion: boolean = ['reinstall', 'install', 'recovery'].indexOf(processName) !== -1;
+    if (shouldUpdateVersion && version) {
+      payload.version = version;
+    }
+    this.logger.debugWithData('Sync KeyVault with Blox Payload:', { isNew, processName, ...payload });
     const ssh = await this.keyVaultSsh.getConnection();
     const command = this.keyVaultSsh.buildCurlCommand({
       authToken: Connection.db(this.storePrefix).get('authToken'),

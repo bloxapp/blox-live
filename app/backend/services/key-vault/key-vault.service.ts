@@ -194,6 +194,7 @@ export default class KeyVaultService {
     console.log('stdout', stdout);
     console.log('stderr', error);
     Connection.db(this.storePrefix).set('keyVaultVersion', keyVaultVersion);
+    Connection.db(this.storePrefix).set('keyVaultPluginVersion', keyVaultVersion);
 
     await sleep(12000);
 

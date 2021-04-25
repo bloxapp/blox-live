@@ -69,7 +69,7 @@ export default class ReinstallProcess extends ProcessClass {
       { instance: this.keyVaultServiceTmp, method: 'getKeyVaultStatus' },
       { instance: this.accountServiceTmp, method: 'restoreAccounts' },
       { instance: this.keyVaultServiceTmp, method: 'updateVaultMountsStorage' },
-      { instance: this.walletServiceTmp, method: 'syncVaultWithBlox', params: { isNew: false } },
+      { instance: this.walletServiceTmp, method: 'syncVaultWithBlox', params: { isNew: false, processName: 'reinstall' } },
       { instance: this.awsServiceTmp, method: 'truncateOldKvResources' },
       {
         instance: Connection,
@@ -77,7 +77,7 @@ export default class ReinstallProcess extends ProcessClass {
         params: {
           fromPrefix: tempStorePrefix,
           toPrefix: mainStorePrefix,
-          fields: ['uuid', 'addressId', 'publicIp', 'instanceId', 'vaultRootToken', 'keyVaultVersion', 'securityGroupId', 'port'],
+          fields: ['uuid', 'addressId', 'publicIp', 'instanceId', 'vaultRootToken', 'keyVaultVersion', 'keyVaultPluginVersion', 'securityGroupId', 'port'],
           postClean: {
             prefix: tempStorePrefix
           }
