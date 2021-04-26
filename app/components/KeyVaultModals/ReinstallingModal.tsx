@@ -5,7 +5,7 @@ import { Log } from '~app/backend/common/logger/logger';
 import { getProcessNameForUpdate } from '~app/utils/process';
 import * as wizardSelectors from '~app/components/Wizard/selectors';
 import { PROCESSES } from '~app/components/ProcessRunner/constants';
-import { ProcessLoader, ModalTemplate, Button } from '~app/common/components';
+import { ProcessLoader, ModalTemplate } from '~app/common/components';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 import {
   Title,
@@ -29,7 +29,6 @@ const ReinstallingModal = (props: Props) => {
   const {
     title, description, move1StepForward, move2StepsForward, suggestedProcess,
     onClose, image, keyVaultCurrentVersion, keyVaultLatestVersion } = props;
-  const [showingProposalToReinstall, showProposalToReinstall] = useState(false);
   const [reinstallStarted, startReinstall] = useState(false);
   const [modalTitle, setModalTitle] = useState(title);
   const [modalDescription, setModalDescription] = useState(description);
@@ -38,12 +37,10 @@ const ReinstallingModal = (props: Props) => {
   const [currentProcessName, setCurrentProcessName] = useState(suggestedProcess ?? versionDependentProcessName);
   const processDefaultMessage = 'Checking KeyVault configuration...';
 
-  const onStartReinstall = () => {
+  const initReinstall = () => {
     startReinstall(true);
     setModalTitle('Reinstalling KeyVault');
     setModalDescription('KeyVault update failed. Trying to reinstall now..');
-    showProposalToReinstall(false);
-    setLastError('');
     clearProcessState();
     startProcess(currentProcessName, processDefaultMessage);
   };
@@ -55,10 +52,9 @@ const ReinstallingModal = (props: Props) => {
       case PROCESSES.UPGRADE:
         if (isDone) {
           if (error) {
-            showProposalToReinstall(true);
-            setLastError(error);
             setCurrentProcessName(PROCESSES.REINSTALL);
             logger.warn('Upgrade process failed. Asking to reinstall KeyVault..');
+            initReinstall();
             return;
           }
 
@@ -70,14 +66,14 @@ const ReinstallingModal = (props: Props) => {
         }
 
         // Default previous flow for upgrade
-        if (noProcess && !showingProposalToReinstall) {
+        if (noProcess) {
           logger.debug('Starting upgrade process..');
           startProcess(currentProcessName, processDefaultMessage);
         }
         break;
       case PROCESSES.REINSTALL:
         // Default previous flow for reinstall
-        if (noProcess && !showingProposalToReinstall && !reinstallStarted) {
+        if (noProcess && !reinstallStarted) {
           logger.debug('Starting default reinstall process as initial process..');
           startProcess(currentProcessName, processDefaultMessage);
           return;
@@ -103,9 +99,6 @@ const ReinstallingModal = (props: Props) => {
         {processMessage && <ProcessLoader text={processMessage} precentage={loaderPercentage} />}
         {lastError && (
           <LastError>{lastError}</LastError>
-        )}
-        {showingProposalToReinstall && !reinstallStarted && (
-          <Button onClick={onStartReinstall}>Reinstall KeyVault</Button>
         )}
       </Wrapper>
       <SmallText withWarning />
