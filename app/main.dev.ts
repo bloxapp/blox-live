@@ -58,6 +58,7 @@ const createWindow = async (downloadsDir) => {
     show: false,
     width,
     height,
+    titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true,

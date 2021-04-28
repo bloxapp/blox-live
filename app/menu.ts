@@ -6,6 +6,8 @@ import {
   MenuItemConstructorOptions,
 } from 'electron';
 
+import { version } from '~app/package.json';
+
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
   submenu?: DarwinMenuItemConstructorOptions[] | Menu;
@@ -236,6 +238,9 @@ export default class MenuBuilder {
       {
         label: 'Help',
         submenu: [
+          {
+            label: `Blox Staking Version: ${version}`
+          },
           {
             label: 'Learn More',
             click() {
