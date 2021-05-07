@@ -329,7 +329,7 @@
     "source-map-support": "^0.5.19",
     "styled-components": "^5.1.1",
     "umzug": "^3.0.0-beta.6",
-    "underscore": "^1.12.0",
+    "underscore": "^1.12.1",
     "uuid": "^8.3.0",
     "windows-release": "^4.0.0",
     "winston": "^3.3.3",
