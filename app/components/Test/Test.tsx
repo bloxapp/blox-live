@@ -10,6 +10,7 @@ import { Observer } from '../../backend/proccess-manager/observer.interface';
 import { Subject } from '../../backend/proccess-manager/subject.interface';
 import AccountCreateProcess from '../../backend/proccess-manager/account-create.process';
 import KeyManagerService from '../../backend/services/key-manager/key-manager.service';
+import EthereumKeyStore from 'eth2-keystore-js';
 import KeyVaultService from '../../backend/services/key-vault/key-vault.service';
 import AccountService from '../../backend/services/account/account.service';
 import WalletService from '../../backend/services/wallet/wallet.service';
@@ -44,15 +45,24 @@ const Test = () => {
   const walletService = new WalletService();
   const versionService = new VersionService();
   const organizationService = new OrganizationService();
-  let [env, setEnv] = useState('');
+  const [env, setEnv] = useState('');
   let [cryptoKey, setCryptoKey] = useState('');
-  let [network, setNetwork] = useState(config.env.PYRMONT_NETWORK);
+  const [network, setNetwork] = useState(config.env.PYRMONT_NETWORK);
   let [accessKeyId, setAccessKeyId] = useState('');
   let [mnemonic, setMnemonic] = useState('');
-  let [publicKey, setPublicKey] = useState('');
-  let [index, setIndex] = useState(0);
+  const [publicKey, setPublicKey] = useState('');
+  const [index, setIndex] = useState(0);
   let [secretAccessKey, setSecretAccessKey] = useState('');
-  let [processStatus, setProcessStatus] = useState('');
+  const [processStatus, setProcessStatus] = useState('');
+  const [keyStore, setKeyStore] = useState(null);
+  const [keyStorePassword, setKeyStorePassword] = useState('');
+  const [keystoreError, setKeystoreError] = useState('');
+
+  const onFileChange = event => {
+    setKeyStore(event.target.files[0]);
+    console.log(keyStore);
+  };
+
   if (!isRendered) {
     if (Connection.db().exists('env')) {
       setEnv(Connection.db().get('env'));
@@ -91,8 +101,8 @@ const Test = () => {
       <div>
         <h3>Step 0. Set password and init storage</h3>
         <input type={'text'} value={cryptoKey} onChange={async (event) => await setCryptoKey(event.target.value)}
-               placeholder="Password"/>
-        <br/>
+          placeholder="Password" />
+        <br />
         <button
           onClick={async () => {
             const isValid = await Connection.db().isCryptoKeyValid(cryptoKey);
@@ -128,11 +138,11 @@ const Test = () => {
         </button>
         <h3>Step 2. Install server & key-vault</h3>
         <input type={'text'} value={accessKeyId} onChange={(event) => setAccessKeyId(event.target.value)}
-               placeholder="Access Key"/>
-        <br/>
+          placeholder="Access Key" />
+        <br />
         <input type={'text'} value={secretAccessKey} onChange={(event) => setSecretAccessKey(event.target.value)}
-               placeholder="Access Key Secret"/>
-        <br/>
+          placeholder="Access Key Secret" />
+        <br />
         <button
           onClick={async () => { // TODO: check this func
             const installProcess = new InstallProcess({ accessKeyId, secretAccessKey });
@@ -150,7 +160,7 @@ const Test = () => {
         </button>
         <h3>Step 3. Save mnemonic phrase</h3>
         <input type={'text'} value={mnemonic} onChange={(event) => setMnemonic(event.target.value)}
-               placeholder="Mnemonic phrase"/>
+          placeholder="Mnemonic phrase" />
         <button onClick={async () => {
           const seed = await keyManagerService.seedFromMnemonicGenerate(mnemonic);
           console.log('seed', seed);
@@ -183,8 +193,46 @@ const Test = () => {
         >
           Account Create
         </button>
+
+        <h3>Step 4. upload key store</h3>
+        <input onChange={onFileChange} type={'file'} />
+        <label htmlFor={'password'}>password</label>
+        <input onChange={(event => setKeyStorePassword(event.target.value))} name={'password'} />
+        <button
+          onClick={async () => {
+            setKeystoreError('');
+            keyStore?.text().then(async (string) => {
+              try {
+                const keyStoreFile = await new EthereumKeyStore(string);
+                const privateKey = await keyStoreFile.getPrivateKey(keyStorePassword);
+                const validationPubKey = keyStoreFile.getPublicKey();
+                const withdrawalKey = keyStoreFile.getPublicKey();
+                Connection.db().set('keystore', {
+                  privateKey,
+                  validationPubKey,
+                  withdrawalKey
+                });
+                await Connection.db().get('keystore');
+                const accountCreateProcess = new AccountCreateProcess(network, true);
+                const listener = new Listener(setProcessStatus);
+                accountCreateProcess.subscribe(listener);
+                try {
+                  await accountCreateProcess.run();
+                } catch (e) {
+                  setProcessStatus(e);
+                }
+                console.log('+ Congratulations. Account Created');
+              } catch (error) {
+                setKeystoreError(error.message);
+              }
+            });
+          }}
+        >
+          create validator
+        </button>
+        {keystoreError ? <h1 style={{color: 'red'}}>{keystoreError}</h1> : null}
       </div>
-      <p/>
+      <p />
       <div>
         <h2>Other</h2>
         <button
@@ -262,7 +310,7 @@ const Test = () => {
           Delete Accounts from local/blox/vault-plugin
         </button>
       </div>
-      <p/>
+      <p />
       <h2>Local Storage Only</h2>
       <div>
         <button onClick={async () => {
@@ -285,7 +333,7 @@ const Test = () => {
         }}>
           Delete Last Indexed Account
         </button>
-        <br/>
+        <br />
         <button onClick={async () => {
           console.log(Connection.db().get('seed'));
         }}>
@@ -296,11 +344,11 @@ const Test = () => {
         }}>
           Show key-pair in console
         </button>
-        <br/>
+        <br />
         <input type={'text'} value={publicKey} onChange={(event) => setPublicKey(event.target.value)}
-               placeholder="Public key"/>
+          placeholder="Public key" />
         <input type={'number'} value={index} onChange={(event) => setIndex(+event.target.value)}
-               placeholder="Index"/>
+          placeholder="Index" />
         <button onClick={async () => {
           await accountService.getDepositData(publicKey, index, network);
         }}>
@@ -308,7 +356,7 @@ const Test = () => {
         </button>
 
       </div>
-      <p/>
+      <p />
       <h2>Blox API</h2>
       <div>
         <button onClick={async () => {
@@ -347,7 +395,7 @@ const Test = () => {
           Get Organization Event Logs
         </button>
       </div>
-      <p/>
+      <p />
       <h2>Vault Plugin API</h2>
       <div>
         <button onClick={async () => {
@@ -379,8 +427,8 @@ const Test = () => {
           Export Slashing Data
         </button>
       </div>
-      <p/>
-      <textarea value={processStatus} cols={100} rows={10} readOnly={true}></textarea>
+      <p />
+      <textarea value={processStatus} cols={100} rows={10} readOnly></textarea>
     </div>
   );
 };

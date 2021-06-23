@@ -143,6 +143,12 @@ export default class AwsService {
           },
           {
             IpProtocol: 'tcp',
+            FromPort: 22,
+            ToPort: 22,
+            IpRanges: [{ CidrIp: '0.0.0.0/0' }]
+          },
+          {
+            IpProtocol: 'tcp',
             FromPort: config.env.TARGET_SSH_PORT,
             ToPort: config.env.TARGET_SSH_PORT,
             IpRanges: [{ CidrIp: '0.0.0.0/0' }]
