@@ -315,7 +315,6 @@ export default class AccountService {
     showErrorMessage: true
   })
   async recoverAccounts(): Promise<void> {
-    console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<recoverAccounts>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     const accounts = await this.get();
     const uniqueNetworks = [...new Set(accounts.map(acc => acc.network))];
     // eslint-disable-next-line no-restricted-syntax
@@ -329,7 +328,7 @@ export default class AccountService {
 
       const lastIndex = networkAccounts[networkAccounts.length - 1].name.split('-')[1];
       // eslint-disable-next-line no-await-in-loop
-      await this.strategy.createAccount(+lastIndex);
+      await this.createAccount({indexToRestore: +lastIndex });
     }
   }
 
