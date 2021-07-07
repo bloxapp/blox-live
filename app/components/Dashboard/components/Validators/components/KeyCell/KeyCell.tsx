@@ -29,8 +29,8 @@ const getNetworkLink = (network: string, publicKey: string): string => {
     default:
     case NETWORKS.mainnet.label:
       return `https://beaconcha.in/validator/${publicKey}`;
-    case NETWORKS.pyrmont.label:
-      return `https://pyrmont.beaconcha.in/validator/${publicKey}`;
+    case NETWORKS.prater.label:
+      return `https://prater.beaconcha.in/validator/${publicKey}`;
   }
 };
 
@@ -63,7 +63,7 @@ const KeyCell = ({ value }) => {
         <CopyToClipboard text={publicKey} onCopy={onCopy}>
           <Icon name="copy" color="gray800" fontSize="16px" onClick={() => false} />
         </CopyToClipboard>
-        {network === NETWORKS.pyrmont.label && <TestNet>Pyrmont Testnet</TestNet>}
+        {network === NETWORKS.prater.label && <TestNet>Prater Testnet</TestNet>}
         {network === NETWORKS.mainnet.label && <TestNet>MainNet</TestNet>}
       </Right>
     </Wrapper>

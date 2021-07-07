@@ -79,7 +79,7 @@ const getProvider = (accountNetwork) => {
     case config.env.MAINNET_NETWORK:
       networkType = config.env.MAINNET_NETWORK;
       break;
-    case config.env.PYRMONT_NETWORK:
+    case config.env.PRATER_NETWORK:
       networkType = config.env.TESTNET.GOERLI_NETWORK;
       break;
   }

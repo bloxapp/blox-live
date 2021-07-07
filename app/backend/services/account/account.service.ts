@@ -314,7 +314,7 @@ export default class AccountService {
     displayMessage: 'Failed to delete all accounts'
   })
   async deleteAllAccounts(): Promise<void> {
-    const supportedNetworks = [config.env.PYRMONT_NETWORK, config.env.MAINNET_NETWORK];
+    const supportedNetworks = [config.env.PRATER_NETWORK, config.env.MAINNET_NETWORK];
     // eslint-disable-next-line no-restricted-syntax
     for (const network of supportedNetworks) {
       Connection.db(this.storePrefix).set('network', network);
@@ -361,7 +361,7 @@ export default class AccountService {
     }
     const accountToCompareWith = accounts[0];
     const index = accountToCompareWith.name.split('-')[1];
-    const account = await this.keyManagerService.getAccount(seed, index, config.env.PYRMONT_NETWORK);
+    const account = await this.keyManagerService.getAccount(seed, index, config.env.PRATER_NETWORK);
 
     if (account.validationPubKey !== accountToCompareWith.publicKey.replace(/^(0x)/, '')) {
       throw new Error('Passphrase not linked to your account.');
