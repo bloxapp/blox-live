@@ -131,6 +131,23 @@ export default class Store {
     return !!this.cryptoKey;
   }
 
+  /**
+   * Method checks if the password is default temporary or it even doesn't exists.
+   */
+  shouldSetupPassword() {
+    try {
+      const encryptedSavedCredentials = this.storage.get('credentials');
+      if (!encryptedSavedCredentials) {
+        return false;
+      }
+      const userInputCryptoKey = this.createCryptoKey('temp');
+      const decrypted = this.decrypt(userInputCryptoKey, encryptedSavedCredentials);
+      return !!decrypted;
+    } catch (e) {
+      return false;
+    }
+  }
+
   @Catch()
   createCryptoKey(cryptoKey: string) {
     return crypto.createHash('sha256').update(String(cryptoKey)).digest('base64').substr(0, 32);

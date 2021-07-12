@@ -53,10 +53,14 @@ export default class Config {
           SELECT_CLOUD_PROVIDER: 1,
           CREATE_SERVER: 2,
           CONGRATULATIONS: 3,
+          SEED_OR_KEYSTORE: 3.5,
           IMPORT_OR_GENERATE_SEED: 4,
           ENTER_MNEMONIC: 5,
           IMPORT_MNEMONIC: 10,
           IMPORT_VALIDATORS: 11
+        },
+        ACCOUNT: {
+          SET_PASSWORD: 20,
         },
         VALIDATOR: {
           SELECT_NETWORK: 6,
@@ -67,7 +71,8 @@ export default class Config {
       },
       WIZARD_STEPS: {
         KEY_VAULT_SETUP: 1,
-        VALIDATOR_SETUP: 2
+        VALIDATOR_SETUP: 2,
+        ACCOUNT_SETUP: 3,
       },
       FLAGS: {
         DASHBOARD: {

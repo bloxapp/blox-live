@@ -3,12 +3,16 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import config from '~app/backend/common/config';
 import { Template } from '~app/components/Wizard/components/common';
-import WizardStartPage from '~app/components/Wizard/components/WizardStartPage';
 import * as WalletPages from '~app/components/Wizard/components/Wallet';
 import { getDepositToNetwork } from '~app/components/Accounts/selectors';
 import * as ValidatorPages from '~app/components/Wizard/components/Validators';
+import WizardStartPage from '~app/components/Wizard/components/WizardStartPage';
+import * as AccountSetupPages from '~app/components/Wizard/components/AccountSetup';
+// @ts-ignore
 import walletImage from 'components/Wizard/assets/img-key-vault.svg';
+// @ts-ignore
 import testnetValidatorImage from '../../assets/img-validator-test-net.svg';
+// @ts-ignore
 import mainnetValidatorImage from '../../assets/img-validator-main-net.svg';
 
 const Wrapper = styled.div`
@@ -41,6 +45,17 @@ const switcher = (props: Props) => {
     case config.WIZARD_PAGES.WALLET.IMPORT_OR_GENERATE_SEED:
       bgImage = validatorImage;
       component = <WalletPages.ImportOrGenerateSeed {...props} />;
+      break;
+
+    case config.WIZARD_PAGES.WALLET.SEED_OR_KEYSTORE:
+      bgImage = validatorImage;
+      component = <code>TODO: SEED OR KEYSTORE</code>;
+      // component = <WalletPages.ImportOrGenerateSeed {...props} />;
+      break;
+
+    case config.WIZARD_PAGES.ACCOUNT.SET_PASSWORD:
+      bgImage = validatorImage;
+      component = <AccountSetupPages.SetPassword {...props} />;
       break;
 
     case config.WIZARD_PAGES.WALLET.ENTER_MNEMONIC:

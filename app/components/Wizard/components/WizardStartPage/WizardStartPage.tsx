@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
-import wizardSaga from '~app/components/Wizard/saga';
 import config from '~app/backend/common/config';
+import wizardSaga from '~app/components/Wizard/saga';
 import useRouting from '~app/common/hooks/useRouting';
 import { useInjectSaga } from '~app/utils/injectSaga';
 import { Log } from '~app/backend/common/logger/logger';
@@ -19,8 +19,11 @@ import * as actionsFromDashboard from '~app/components/Dashboard/actions';
 import useDashboardData from '~app/components/Dashboard/useDashboardData';
 import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
 import ButtonWithIcon from '~app/components/Wizard/components/WizardStartPage/ButtonWithIcon';
+// @ts-ignore
 import keyVaultImg from '../../assets/img-key-vault.svg';
+// @ts-ignore
 import mainNetImg from '../../assets/img-validator-main-net.svg';
+// @ts-ignore
 import bgImage from '../../../../assets/images/bg_staking.jpg';
 
 const Wrapper = styled.div`
@@ -147,22 +150,25 @@ const WizardStartPage = (props: Props) => {
         }
       }
 
+      if (Connection.db().shouldSetupPassword()) {
+        redirectToPasswordSetup();
+        return;
+      }
+
       // No seed and just installed or recovered without accounts
       // Should import or generate seed
       if (finishedRecoveryOrInstallProcess && accounts?.length === 0) {
         if (page === config.WIZARD_PAGES.WALLET.IMPORT_OR_GENERATE_SEED) {
-          setPage(config.WIZARD_PAGES.WALLET.CONGRATULATIONS);
-          logger.debug('️️🔶 Redirect to congratulations after import or generate seed!');
+          redirectToCongratulationsPage();
           return;
         }
+
         redirectToImportOrGenerateSeed();
-        logger.debug('️️🔶 Redirect to import or generate seed!');
         return;
       }
 
       // After all possible scenarios the only remaining is to return to dash
-      goToDashboard();
-      logger.debug('️️🔶 Redirect to Dashboard!');
+      redirectToDashboard();
     }
   }, [isLoading]);
 
@@ -181,8 +187,25 @@ const WizardStartPage = (props: Props) => {
     }
   };
 
+  const redirectToCongratulationsPage = () => {
+    setPage(config.WIZARD_PAGES.WALLET.CONGRATULATIONS);
+    logger.debug('️️🔶 Redirect to congratulations after import or generate seed!');
+  };
+
+  const redirectToDashboard = () => {
+    goToDashboard();
+    logger.debug('️️🔶 Redirect to Dashboard!');
+  };
+
   const redirectToImportOrGenerateSeed = () => {
     setPage(config.WIZARD_PAGES.WALLET.IMPORT_OR_GENERATE_SEED);
+    logger.debug('️️🔶 Redirect to import or generate seed!');
+  };
+
+  const redirectToPasswordSetup = () => {
+    setStep(config.WIZARD_STEPS.ACCOUNT_SETUP);
+    setPage(config.WIZARD_PAGES.ACCOUNT.SET_PASSWORD);
+    logger.debug('️️🔶 Redirect to set password screen!');
   };
 
   const redirectToCreateAccount = () => {
