@@ -23,17 +23,21 @@ const ButtonsWrapper = styled.div`
 const SeedOrKeystore = (props: SeedOrKeystoreProps) => {
   const { setPage, setStep } = props;
 
+  /**
+   * Clicking on seed/seedless buttons
+   * @param mode
+   */
   const onClick = ({ mode }: { mode: string }) => {
     Connection.db().set(config.FLAGS.VALIDATORS_MODE.KEY, mode);
     switch (mode) {
       case config.FLAGS.VALIDATORS_MODE.SEED:
         setPage(config.WIZARD_PAGES.VALIDATOR.IMPORT_OR_GENERATE_SEED);
-        setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
         break;
       case config.FLAGS.VALIDATORS_MODE.KEYSTORE:
-        // TODO: create keystore first screen and redirect there
+        setPage(config.WIZARD_PAGES.VALIDATOR.SELECT_NETWORK);
         break;
     }
+    setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
   };
 
   const imageWrapperStyle = {
