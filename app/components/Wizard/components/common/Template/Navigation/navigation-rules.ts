@@ -137,7 +137,7 @@ const navigationRules = [
           if (props.page === config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT) {
             return false;
           }
-          if (props.page >= config.WIZARD_PAGES.WALLET.SEED_OR_KEYSTORE) {
+          if (props.step === config.WIZARD_STEPS.VALIDATOR_SETUP) {
             return true;
           }
           return showCreateValidatorPage(props);

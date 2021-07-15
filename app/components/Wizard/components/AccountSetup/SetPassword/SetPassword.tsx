@@ -135,7 +135,6 @@ type SetPasswordProps = {
   setPage: (page: number) => void;
   step: number;
   setStep: (page: number) => void;
-  passwordActions: Record<string, any>;
 };
 
 export default connect(null, null)(SetPassword);

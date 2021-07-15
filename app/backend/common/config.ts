@@ -86,7 +86,12 @@ export default class Config {
         },
         COMPLIANCE: {
           RESTRICTED_TEST: 'compliance:restricted:test'
-        }
+        },
+        VALIDATORS_MODE: {
+          KEY: 'VALIDATORS_MODE',
+          SEED: 'seed',
+          KEYSTORE: 'keystore'
+        },
       }
     }
   };

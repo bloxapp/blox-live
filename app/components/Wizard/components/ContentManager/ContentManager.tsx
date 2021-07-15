@@ -43,14 +43,13 @@ const switcher = (props: Props) => {
       break;
 
     case config.WIZARD_PAGES.WALLET.IMPORT_OR_GENERATE_SEED:
-      bgImage = validatorImage;
+      bgImage = '';
       component = <WalletPages.ImportOrGenerateSeed {...props} />;
       break;
 
     case config.WIZARD_PAGES.WALLET.SEED_OR_KEYSTORE:
-      bgImage = validatorImage;
-      component = <code>TODO: SEED OR KEYSTORE</code>;
-      // component = <WalletPages.ImportOrGenerateSeed {...props} />;
+      bgImage = '';
+      component = <WalletPages.SeedOrKeystore {...props} />;
       break;
 
     case config.WIZARD_PAGES.ACCOUNT.SET_PASSWORD:
