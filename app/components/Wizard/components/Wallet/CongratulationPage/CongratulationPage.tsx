@@ -13,8 +13,8 @@ const Wrapper = styled.div`
 const CongratulationPage = (props) => {
   const { setPage, setStep } = props;
   const onClick = () => {
-    setPage(config.WIZARD_PAGES.WALLET.IMPORT_OR_GENERATE_SEED);
-    setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
+    setPage(config.WIZARD_PAGES.ACCOUNT.SET_PASSWORD);
+    setStep(config.WIZARD_STEPS.ACCOUNT_SETUP);
   };
   return (
     <>
@@ -24,9 +24,9 @@ const CongratulationPage = (props) => {
         <Title color="accent2400" style={{ marginTop: 30 }}>KeyVault created successfully!</Title>
         <Paragraph>
           Your private keys have been secured in your vault. <br />
-          Now, let’s create your validator.
+          Now, let&apos;s set up your account password.
         </Paragraph>
-        <BigButton onClick={onClick}>Create a Validator</BigButton>
+        <BigButton onClick={onClick}>Set Account Password</BigButton>
       </Wrapper>
     </>
   );

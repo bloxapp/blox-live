@@ -52,17 +52,18 @@ const TitleText = styled.span`
 `;
 
 const CustomButton = (props) => {
-  const { width, height, title, image, sticker, onClick, isDisabled } = props;
+  const { width, height, title, image, sticker, onClick, isDisabled, imageWrapperStyle, imageStyle, style } = props;
   return (
     <Button
       width={width}
       height={height}
       onClick={onClick}
       isDisabled={isDisabled}
+      style={style ?? {}}
     >
       {sticker && <Sticker isDisabled={isDisabled}>{sticker}</Sticker>}
-      <ImageWrapper>
-        <Image src={image} />
+      <ImageWrapper style={imageWrapperStyle ?? {}}>
+        <Image src={image} style={imageStyle ?? {}} />
       </ImageWrapper>
       <TextWrapper>
         <TitleText>{title}</TitleText>
@@ -79,7 +80,9 @@ CustomButton.propTypes = {
   sticker: PropTypes.string,
   onClick: PropTypes.func,
   isDisabled: PropTypes.bool,
-  direction: PropTypes.string,
+  style: PropTypes.any,
+  imageStyle: PropTypes.any,
+  imageWrapperStyle: PropTypes.any,
 };
 
 export default CustomButton;

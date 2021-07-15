@@ -12,6 +12,13 @@ export const findPageAndStepPath = (where: string, page: number, step: number) =
         return `WALLET.${key}`;
       }
     }
+    keys = Object.keys(config.WIZARD_PAGES.ACCOUNT);
+    for (let i = 0; i < keys.length; i += 1) {
+      const key = keys[i];
+      if (config.WIZARD_PAGES.ACCOUNT[key] === page) {
+        return `ACCOUNT.${key}`;
+      }
+    }
     keys = Object.keys(config.WIZARD_PAGES.VALIDATOR);
     for (let i = 0; i < keys.length; i += 1) {
       const key = keys[i];
@@ -28,5 +35,5 @@ export const findPageAndStepPath = (where: string, page: number, step: number) =
       }
     }
   }
-  return `UNKNOWN: ${where}`;
+  return `UNKNOWN: ${where} (page: ${page}, step: ${step})`;
 };

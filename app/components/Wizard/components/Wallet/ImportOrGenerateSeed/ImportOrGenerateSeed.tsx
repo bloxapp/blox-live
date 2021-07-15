@@ -5,6 +5,7 @@ import Icon from '~app/common/components/Icon';
 import config from '~app/backend/common/config';
 import { Button } from '~app/components/Wizard/components/common';
 import Title from '~app/components/Wizard/components/common/Title';
+import BackButton from '~app/components/Wizard/components/common/BackButton/BackButton';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -87,6 +88,7 @@ const ImportOrGenerateSeed = (props: Props) => {
 
   return (
     <Wrapper>
+      <BackButton onClick={() => { setPage(config.WIZARD_PAGES.WALLET.SEED_OR_KEYSTORE); }} />
       <Title>Import or Generate Seed</Title>
       <SubTitle style={{'paddingRight': '200px'}}>
         {'Create a new validator with Blox Staking or import the Seed of an existing'}

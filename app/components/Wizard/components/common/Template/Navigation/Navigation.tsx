@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import navigationRules from './navigation-rules';
 import { MenuItem, SubMenuItem } from './components';
 import { Log } from '~app/backend/common/logger/logger';
 import { findPageAndStepPath } from '~app/utils/navigation';
+import Connection from '~app/backend/common/store-manager/connection';
 
 const Wrapper = styled.div`
   width: 19vw;
@@ -33,6 +34,11 @@ const debugPageAndStep = (_page: number, _step: number) => {
 
 const Navigation = (props: Props) => {
   const { page, step, pageData, addAdditionalAccount, accounts } = props;
+  const [shouldSetupPassword, setShouldSetupPassword] = useState(false);
+
+  useEffect(() => {
+    setShouldSetupPassword(Connection.db().shouldSetupPassword());
+  });
 
   debugPageAndStep(page, step);
 
@@ -41,7 +47,8 @@ const Navigation = (props: Props) => {
     step,
     pageData,
     addAdditionalAccount,
-    accounts
+    accounts,
+    shouldSetupPassword,
   };
 
   return (
@@ -60,13 +67,15 @@ const Navigation = (props: Props) => {
             <MenuItem
               key={`step-${menuItemIndex}`}
               text={menuItem.name}
-              stepNumber={menuItem.step}
+              stepNumber={menuItemIndex + 1}
               hideNumber={hideStepNumber}
               isActive={isStepActive}
               isDone={isStepDone}
             />
 
-            {!isStepDone && menuItem.pages.map((menuItemPage, menuItemPageIndex) => {
+            {!isStepDone &&
+            // @ts-ignore
+            menuItem.pages.map((menuItemPage, menuItemPageIndex) => {
               const show = menuItemPage.show ? menuItemPage.show(rulesProps) : true;
               if (!show) {
                 return '';
