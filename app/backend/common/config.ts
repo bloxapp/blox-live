@@ -45,6 +45,10 @@ export default class Config {
       CONTACT_US_LINK: 'http://bit.ly/2Nqy2Ao',
       KNOWLEDGE_BASE_LINK: 'http://bit.ly/3eFOyHH',
       SEND_FEEDBACK_LINK: 'http://bit.ly/3eK2cts',
+      LAUNCHPAD_URL: {
+        MAINNET: 'https://launchpad.ethereum.org/',
+        TESTNET: 'https://prater.launchpad.ethereum.org/',
+      },
 
       // Wizard pages constants in one central place, environment-independent
       WIZARD_PAGES: {
@@ -53,18 +57,23 @@ export default class Config {
           SELECT_CLOUD_PROVIDER: 1,
           CREATE_SERVER: 2,
           CONGRATULATIONS: 3,
-          SEED_OR_KEYSTORE: 3.5,
+          SEED_OR_KEYSTORE: 3.5, // Keystore or Seed mode switch
           IMPORT_OR_GENERATE_SEED: 4,
           ENTER_MNEMONIC: 5,
           IMPORT_MNEMONIC: 10,
           IMPORT_VALIDATORS: 11
         },
         ACCOUNT: {
-          SET_PASSWORD: 20,
+          SET_PASSWORD: 20, // Keystore mode
         },
         VALIDATOR: {
           SELECT_NETWORK: 6,
+          UPLOAD_KEYSTORE_FILE: 6.5, // Keystore mode
           CREATE_VALIDATOR: 7,
+          VALIDATOR_SUMMARY: 7.1, // Keystore mode
+          SLASHING_WARNING: 7.2, // Keystore mode - shown only for "deposited" validators
+          DEPOSIT_OVERVIEW: 7.3, // Keystore mode - shown only for "not deposited" validators
+          UPLOAD_DEPOSIT_FILE: 7.4, // Keystore mode - shown only for "not deposited" validators
           STAKING_DEPOSIT: 8,
           CONGRATULATIONS: 9
         }
@@ -72,7 +81,7 @@ export default class Config {
       WIZARD_STEPS: {
         KEY_VAULT_SETUP: 1,
         VALIDATOR_SETUP: 2,
-        ACCOUNT_SETUP: 3,
+        ACCOUNT_SETUP: 3, // Keystore mode
       },
       FLAGS: {
         DASHBOARD: {

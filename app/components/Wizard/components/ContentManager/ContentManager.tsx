@@ -66,6 +66,10 @@ const switcher = (props: Props) => {
       component = <ValidatorPages.SelectNetwork {...props} />;
       break;
 
+    case config.WIZARD_PAGES.VALIDATOR.UPLOAD_KEYSTORE_FILE:
+      component = <ValidatorPages.UploadKeystoreFile {...props} />;
+      break;
+
     case config.WIZARD_PAGES.VALIDATOR.CREATE_VALIDATOR:
       bgImage = validatorImage;
       component = <ValidatorPages.CreateValidator {...props} />;

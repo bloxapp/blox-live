@@ -8,6 +8,7 @@ import useRouting from '~app/common/hooks/useRouting';
 import { useInjectSaga } from '~app/utils/injectSaga';
 import { Log } from '~app/backend/common/logger/logger';
 import { InfoWithTooltip } from '~app/common/components';
+import { getSelectedValidatorMode, selectedKeystoreMode, selectedSeedMode } from '~app/common/service';
 import * as userSelectors from '~app/components/User/selectors';
 import * as wizardActions from '~app/components/Wizard/actions';
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
@@ -163,8 +164,21 @@ const WizardStartPage = (props: Props) => {
           return;
         }
 
-        redirectToImportOrGenerateSeed();
-        return;
+        if (!getSelectedValidatorMode()) {
+          redirectToSelectValidatorMode();
+          return;
+        }
+
+        if (selectedSeedMode()) {
+          redirectToImportOrGenerateSeed();
+          return;
+        }
+
+        if (selectedKeystoreMode()) {
+          // Select network
+          redirectToSelectNetwork();
+          return;
+        }
       }
 
       // After all possible scenarios the only remaining is to return to dash
@@ -192,9 +206,21 @@ const WizardStartPage = (props: Props) => {
     logger.debug('️️🔶 Redirect to congratulations after import or generate seed!');
   };
 
+  const redirectToSelectValidatorMode = () => {
+    setPage(config.WIZARD_PAGES.WALLET.SEED_OR_KEYSTORE);
+    setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
+    logger.debug('️️🔶 Redirect to select seed or keystore mode!');
+  };
+
   const redirectToDashboard = () => {
     goToDashboard();
     logger.debug('️️🔶 Redirect to Dashboard!');
+  };
+
+  const redirectToSelectNetwork = () => {
+    setPage(config.WIZARD_PAGES.VALIDATOR.SELECT_NETWORK);
+    setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
+    logger.debug('️️🔶 Redirect to select network!');
   };
 
   const redirectToImportOrGenerateSeed = () => {
