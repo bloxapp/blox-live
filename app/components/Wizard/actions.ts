@@ -104,3 +104,18 @@ export const clearWizardStep = () => ({
   type: actionTypes.SET_WIZARD_STEP,
   payload: 1,
 });
+
+export const decryptKeyStores = (keyStores) => ({
+  type: actionTypes.DECRYPT_KEY_STORES,
+  payload: keyStores,
+});
+
+export const decryptKeyStoresSuccess = (payload: Record<string, any>) => ({
+  type: actionTypes.DECRYPT_KEY_STORES_SUCCESS,
+  payload,
+});
+
+export const decryptKeyStoresFailure = (error: Record<string, any>) => ({
+  type: actionTypes.DECRYPT_KEY_STORES_FAILURE,
+  payload: error,
+});

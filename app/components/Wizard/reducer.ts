@@ -8,6 +8,8 @@ const initialState = {
   wallet: null,
   network: '',
   account: null,
+  decryptedKeyStores: [],
+  decryptedKeyStoresError: '',
   depositData: null,
   isFinished: false,
   isOpened: false,
@@ -90,6 +92,19 @@ const wizardReducer = (state = initialState, action: Action) => produce(state, (
       draft.pageData = initialState.pageData;
       draft.page = initialState.page;
       draft.step = initialState.step;
+      break;
+    case actionTypes.DECRYPT_KEY_STORES:
+      console.log('<<<<<<<<<<<<1>>>>>>>>>>>>');
+      draft.isLoading = true;
+      break;
+    case actionTypes.DECRYPT_KEY_STORES_SUCCESS:
+      console.log('<<<<<<<<<<<<2>>>>>>>>>>>>');
+      draft.isLoading = false;
+      draft.decryptedKeyStores = action.payload;
+      break;
+    case actionTypes.DECRYPT_KEY_STORES_FAILURE:
+      draft.isLoading = false;
+      draft.decryptedKeyStoresError = action.payload.message;
       break;
   }
 });

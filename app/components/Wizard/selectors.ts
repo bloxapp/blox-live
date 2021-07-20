@@ -23,3 +23,5 @@ export const getPageData = (state) => state.wizard && state.wizard.pageData;
 export const getPage = (state) => state.wizard && state.wizard.page;
 
 export const getStep = (state) => state.wizard && state.wizard.step;
+
+export const getDecryptedKeyStores = (state) => state.wizard && state.wizard.decryptedKeyStores;

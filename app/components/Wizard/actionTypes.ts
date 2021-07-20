@@ -24,3 +24,7 @@ export const CLEAR_DATA = 'WIZARD/clear_data';
 export const SET_WIZARD_PAGE_DATA = 'WIZARD/set_page_data';
 export const SET_WIZARD_PAGE = 'WIZARD/set_page';
 export const SET_WIZARD_STEP = 'WIZARD/set_step';
+
+export const DECRYPT_KEY_STORES = 'decrypt_key_stores';
+export const DECRYPT_KEY_STORES_SUCCESS = 'decrypt_key_stores_success';
+export const DECRYPT_KEY_STORES_FAILURE = 'decrypt_key_stores_failure';

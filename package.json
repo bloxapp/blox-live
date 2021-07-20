@@ -280,6 +280,7 @@
   "dependencies": {
     "@hot-loader/react-dom": "^16.13.0",
     "@material-ui/core": "^4.11.0",
+    "@material-ui/icons": "^4.11.2",
     "@reduxjs/toolkit": "^1.4.0",
     "about-window": "^1.13.4",
     "analytics": "^0.7.0",

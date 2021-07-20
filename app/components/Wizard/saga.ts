@@ -1,6 +1,6 @@
 import {call, put, takeLatest} from 'redux-saga/effects';
 import {notification} from 'antd';
-import {LOAD_WALLET, LOAD_DEPOSIT_DATA, UPDATE_ACCOUNT_STATUS} from './actionTypes';
+import {LOAD_WALLET, LOAD_DEPOSIT_DATA, UPDATE_ACCOUNT_STATUS, DECRYPT_KEY_STORES} from './actionTypes';
 import * as actions from './actions';
 import WalletService from '../../backend/services/wallet/wallet.service';
 import AccountService from '../../backend/services/account/account.service';
@@ -72,8 +72,32 @@ function* startUpdatingAccountStatus(action) {
   }
 }
 
+function* onDecryptSuccess(response) {
+  if (response) {
+    yield put(actions.decryptKeyStoresSuccess(response));
+  }
+}
+
+function* onDecryptFailure(error, silent?: boolean) {
+  if (!silent) {
+    yield put(actions.decryptKeyStoresFailure(error));
+    notification.error({message: 'Error', description: error.message});
+  }
+}
+
+function* startDecryptKeyStores(action) {
+  const {payload} = action;
+  try {
+    console.log('<<<<<<<<<<<<saga>>>>>>>>>>>>');
+    yield call(onDecryptSuccess, payload);
+  } catch (error) {
+    yield call(onDecryptFailure, error);
+  }
+}
+
 export default function* organizationActions() {
   yield takeLatest(LOAD_WALLET, loadWallet);
   yield takeLatest(LOAD_DEPOSIT_DATA, loadDepositData);
   yield takeLatest(UPDATE_ACCOUNT_STATUS, startUpdatingAccountStatus);
+  yield takeLatest(DECRYPT_KEY_STORES, startDecryptKeyStores);
 }

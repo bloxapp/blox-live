@@ -65,7 +65,6 @@ const rejectStyle = {
 };
 
 type DropZoneProps = {
-  accept: string;
   title?: string;
   subTitle?: string;
   icon?: any;
@@ -74,7 +73,7 @@ type DropZoneProps = {
 };
 
 const DropZone = (props: DropZoneProps) => {
-  const { onFileStateUpdate, onFiles, title, subTitle, icon, accept } = props;
+  const { onFileStateUpdate, onFiles, title, subTitle, icon } = props;
 
   const {
     acceptedFiles,
@@ -83,7 +82,7 @@ const DropZone = (props: DropZoneProps) => {
     isDragActive,
     isDragAccept,
     isDragReject
-  } = useDropzone({ accept });
+  } = useDropzone();
 
   const style: any = useMemo(() => ({
     ...baseStyle,
