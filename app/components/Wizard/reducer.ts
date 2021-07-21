@@ -4,12 +4,16 @@ import { LOGOUT } from '~app/components/Login/components/CallbackPage/actionType
 
 const initialState = {
   isLoading: false,
+  isDecryptingKeyStores: false,
   error: null,
   wallet: null,
   network: '',
   account: null,
+  keyStores: [],
   decryptedKeyStores: [],
-  decryptedKeyStoresError: '',
+  keyStoreErrorMessage: '',
+  shouldDisplayError: false,
+  filesDecrypted: 0,
   depositData: null,
   isFinished: false,
   isOpened: false,
@@ -92,19 +96,32 @@ const wizardReducer = (state = initialState, action: Action) => produce(state, (
       draft.pageData = initialState.pageData;
       draft.page = initialState.page;
       draft.step = initialState.step;
+      draft.shouldDisplayError = initialState.shouldDisplayError;
+      draft.keyStoreErrorMessage = initialState.keyStoreErrorMessage;
+      draft.decryptedKeyStores = initialState.decryptedKeyStores;
+      draft.keyStores = initialState.keyStores;
+      break;
+    case actionTypes.INCREMENT_FILES_DECYPTED:
+      draft.filesDecrypted = action.payload;
+      break;
+    case actionTypes.UPLOAD_KEY_STORES:
+      draft.keyStores = action.payload;
+      break;
+    case actionTypes.DISPLAY_KEY_STORE_ERROR:
+      draft.shouldDisplayError = action.payload.status;
+      draft.keyStoreErrorMessage = action.payload.message;
       break;
     case actionTypes.DECRYPT_KEY_STORES:
-      console.log('<<<<<<<<<<<<1>>>>>>>>>>>>');
-      draft.isLoading = true;
+      draft.isDecryptingKeyStores = true;
       break;
     case actionTypes.DECRYPT_KEY_STORES_SUCCESS:
-      console.log('<<<<<<<<<<<<2>>>>>>>>>>>>');
-      draft.isLoading = false;
+      draft.isDecryptingKeyStores = false;
       draft.decryptedKeyStores = action.payload;
       break;
     case actionTypes.DECRYPT_KEY_STORES_FAILURE:
-      draft.isLoading = false;
-      draft.decryptedKeyStoresError = action.payload.message;
+      draft.isDecryptingKeyStores = false;
+      draft.keyStoreErrorMessage = action.payload.message;
+      draft.shouldDisplayError = true;
       break;
   }
 });

@@ -105,9 +105,19 @@ export const clearWizardStep = () => ({
   payload: 1,
 });
 
-export const decryptKeyStores = (keyStores) => ({
+export const displayKeyStoreError = (payload) => ({
+  type: actionTypes.DISPLAY_KEY_STORE_ERROR,
+  payload,
+});
+
+export const uploadKeyStores = (payload) => ({
+  type: actionTypes.UPLOAD_KEY_STORES,
+  payload,
+});
+
+export const decryptKeyStores = (payload) => ({
   type: actionTypes.DECRYPT_KEY_STORES,
-  payload: keyStores,
+  payload,
 });
 
 export const decryptKeyStoresSuccess = (payload: Record<string, any>) => ({
@@ -117,5 +127,9 @@ export const decryptKeyStoresSuccess = (payload: Record<string, any>) => ({
 
 export const decryptKeyStoresFailure = (error: Record<string, any>) => ({
   type: actionTypes.DECRYPT_KEY_STORES_FAILURE,
-  payload: error,
+  payload: error
+});
+export const incrementFilesDecryptedCounter = (payload) => ({
+  type: actionTypes.INCREMENT_FILES_DECYPTED,
+  payload,
 });
