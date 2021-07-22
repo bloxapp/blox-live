@@ -41,7 +41,7 @@ const Body = ({ data, columns, totalCount, rowMinHeight }) => (
 
     {data &&
       data.length > 0 &&
-      data.map((item, dataIndex) => {
+      data.map((row, dataIndex) => {
         const gridTemplateColumns = normalizeCellsWidth(columns)
           .toString()
           .replace(/,/gi, ' ');
@@ -53,7 +53,7 @@ const Body = ({ data, columns, totalCount, rowMinHeight }) => (
           >
             {columns.map((column, index) => (
               <Cell key={index} justifyContent={column.justifyContent}>
-                {column.valueRender(item[column.key], totalCount, item)}
+                {column.valueRender(row[column.key], totalCount, row, dataIndex)}
               </Cell>
             ))}
           </Row>
