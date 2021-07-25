@@ -19,7 +19,7 @@ const showCreateValidatorPage = (props: Record<string, any>): boolean => {
     config.WIZARD_PAGES.WALLET.ENTER_MNEMONIC,
     config.WIZARD_PAGES.VALIDATOR.SELECT_NETWORK,
     config.WIZARD_PAGES.VALIDATOR.CREATE_VALIDATOR,
-    config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT
+    config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT,
   ].indexOf(props.page) !== -1;
 };
 
@@ -287,6 +287,99 @@ const navigationRules = [
         page: config.WIZARD_PAGES.VALIDATOR.VALIDATOR_SUMMARY,
         done: (props: Record<string, any>): boolean => {
           return props.page > config.WIZARD_PAGES.VALIDATOR.VALIDATOR_SUMMARY;
+        },
+        show: (props: Record<string, any>): boolean => {
+          if (selectedSeedMode()) {
+            return false;
+          }
+          if (props.page <= config.WIZARD_PAGES.WALLET.SEED_OR_KEYSTORE) {
+            return false;
+          }
+          if (props.accounts?.length === 1) {
+            return props.page === config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT;
+          }
+          if (props.addAdditionalAccount) {
+            return false;
+          }
+          if (props.pageData?.finishValidatorSetup) {
+            return false;
+          }
+          if (props.page === config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT) {
+            return false;
+          }
+          if (props.step === config.WIZARD_STEPS.VALIDATOR_SETUP) {
+            return true;
+          }
+          return showCreateValidatorPage(props);
+        }
+      },
+      {
+        name: 'Slashing Warning',
+        page: config.WIZARD_PAGES.VALIDATOR.SLASHING_WARNING,
+        done: (props: Record<string, any>): boolean => {
+          return props.page > config.WIZARD_PAGES.VALIDATOR.SLASHING_WARNING;
+        },
+        show: (props: Record<string, any>): boolean => {
+          if (selectedSeedMode()) {
+            return false;
+          }
+          if (props.page <= config.WIZARD_PAGES.WALLET.SEED_OR_KEYSTORE) {
+            return false;
+          }
+          if (props.accounts?.length === 1) {
+            return props.page === config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT;
+          }
+          if (props.addAdditionalAccount) {
+            return false;
+          }
+          if (props.pageData?.finishValidatorSetup) {
+            return false;
+          }
+          if (props.page === config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT) {
+            return false;
+          }
+          if (props.step === config.WIZARD_STEPS.VALIDATOR_SETUP) {
+            return true;
+          }
+          return showCreateValidatorPage(props);
+        }
+      },
+      {
+        name: 'Upload Deposit File',
+        page: config.WIZARD_PAGES.VALIDATOR.DEPOSIT_OVERVIEW,
+        done: (props: Record<string, any>): boolean => {
+          return props.page > config.WIZARD_PAGES.VALIDATOR.DEPOSIT_OVERVIEW;
+        },
+        show: (props: Record<string, any>): boolean => {
+          if (selectedSeedMode()) {
+            return false;
+          }
+          if (props.page <= config.WIZARD_PAGES.WALLET.SEED_OR_KEYSTORE) {
+            return false;
+          }
+          if (props.accounts?.length === 1) {
+            return props.page === config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT;
+          }
+          if (props.addAdditionalAccount) {
+            return false;
+          }
+          if (props.pageData?.finishValidatorSetup) {
+            return false;
+          }
+          if (props.page === config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT) {
+            return false;
+          }
+          if (props.step === config.WIZARD_STEPS.VALIDATOR_SETUP) {
+            return true;
+          }
+          return showCreateValidatorPage(props);
+        }
+      },
+      {
+        name: 'Upload Deposit File',
+        page: config.WIZARD_PAGES.VALIDATOR.UPLOAD_DEPOSIT_FILE,
+        done: (props: Record<string, any>): boolean => {
+          return props.page > config.WIZARD_PAGES.VALIDATOR.UPLOAD_DEPOSIT_FILE;
         },
         show: (props: Record<string, any>): boolean => {
           if (selectedSeedMode()) {

@@ -74,6 +74,18 @@ const switcher = (props: Props) => {
       component = <ValidatorPages.ValidatorsSummary {...props} />;
       break;
 
+    case config.WIZARD_PAGES.VALIDATOR.SLASHING_WARNING:
+      component = <ValidatorPages.SlashingWarning {...props} />;
+      break;
+
+    case config.WIZARD_PAGES.VALIDATOR.DEPOSIT_OVERVIEW:
+      component = <ValidatorPages.DepositOverview {...props} />;
+      break;
+
+    case config.WIZARD_PAGES.VALIDATOR.UPLOAD_DEPOSIT_FILE:
+      component = <ValidatorPages.UploadDepositFile {...props} />;
+      break;
+
     case config.WIZARD_PAGES.VALIDATOR.CREATE_VALIDATOR:
       bgImage = validatorImage;
       component = <ValidatorPages.CreateValidator {...props} />;

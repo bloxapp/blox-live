@@ -88,10 +88,11 @@ function* onDecryptFailure(error, silent?: boolean) {
 
 function* startDecryptKeyStores(action) {
   const {payload} = action;
-  const {keyStores, password} = payload;
+  const {keyStores, password, incrementFilesDecryptedCounter} = payload;
   try {
-    const keyStoresData = yield call(extractKeyStores, keyStores, password);
+    const keyStoresData = yield call(extractKeyStores, keyStores, password, incrementFilesDecryptedCounter);
     yield call(onDecryptSuccess, keyStoresData);
+    incrementFilesDecryptedCounter(0);
   } catch (error) {
     yield call(onDecryptFailure, error);
   }

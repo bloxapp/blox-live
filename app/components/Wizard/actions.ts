@@ -129,7 +129,12 @@ export const decryptKeyStoresFailure = (error: Record<string, any>) => ({
   type: actionTypes.DECRYPT_KEY_STORES_FAILURE,
   payload: error
 });
+
 export const incrementFilesDecryptedCounter = (payload) => ({
   type: actionTypes.INCREMENT_FILES_DECYPTED,
   payload,
+});
+
+export const clearDecryptKeyStores = () => ({
+  type: actionTypes.CLEAR_DECRYPT_KEY_STORES,
 });

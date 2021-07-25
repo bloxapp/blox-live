@@ -158,13 +158,16 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
     isDecryptingKeyStores,
     decryptedKeyStores
   } = props;
-  const { decryptKeyStores, uploadKeyStores, displayKeyStoreError } = wizardActions;
+  const { decryptKeyStores, uploadKeyStores, displayKeyStoreError, incrementFilesDecryptedCounter } = wizardActions;
   const [allFilesJson, setAllFilesJson] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const [goToNextPage, setGoToNextPage] = useState(false);
   const [password, setPassword] = useState('');
 
   useEffect(() => {
-    if(decryptedKeyStores.length > 0) setPage(config.WIZARD_PAGES.VALIDATOR.VALIDATOR_SUMMARY); setPage(config.WIZARD_PAGES.VALIDATOR.VALIDATOR_SUMMARY);
+    if(decryptedKeyStores.length > 0 && goToNextPage){
+      setPage(config.WIZARD_PAGES.VALIDATOR.VALIDATOR_SUMMARY);
+    }
     const newKeyStores = [...keyStores];
     let allFilesJson = true;
     newKeyStores.map((keyStore) => {
@@ -178,14 +181,19 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
       uploadKeyStores(newKeyStores);
     }, 1000);
 
-    const removeErrorMessage = setTimeout(() => {
-      displayKeyStoreError({status: false, message: ''});
-    }, 3000);
     return () => {
       clearTimeout(updateStateTimeOut);
-      clearTimeout(removeErrorMessage);
     };
-  },[keyStores.length, decryptedFilesCount]);
+  },[keyStores.length, decryptedFilesCount, goToNextPage, decryptedKeyStores]);
+
+  useEffect(() => {
+    const removeErrorMessage = setTimeout(() => {
+      displayKeyStoreError({status: false, message: ''});
+    }, 10000);
+    return () => {
+      clearTimeout(removeErrorMessage);
+    }
+  },[shouldDisplayError]);
 
   /**
    * Opening launchpad link depending of selected network.
@@ -202,8 +210,11 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
   };
 
   const onFilesSelected = (files: File[]) => {
+    if(isDecryptingKeyStores) {
+      return;
+    }
     let newFileList = [...files, ...keyStores];
-    if(newFileList.length > 10 ){
+    if(newFileList.length > 100) {
       displayKeyStoreError({status: true, message: 'You can’t run more than 100 validators per account.'});
       return;
     }
@@ -230,8 +241,9 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
     event.preventDefault();
   };
 
-  const goToNextScreen = async () => {
-   await decryptKeyStores({keyStores, password});
+  const decryptFiles = async () => {
+    decryptKeyStores({keyStores, password, incrementFilesDecryptedCounter});
+    setGoToNextPage(true);
   };
 
   const clearKeyStores = () => {
@@ -278,7 +290,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
                     <RemoveFileImage
                       src={removeFileImage}
                       onClick={() => {
-                        removeFile(fileIndex);
+                        if(!isDecryptingKeyStores) removeFile(fileIndex);
                       }}
                     />
                   </td>
@@ -308,9 +320,10 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
               )}
               labelWidth={70}
             />
-            <Button disabled={!(allFilesJson && password && keyStores.length > 0 && !isDecryptingKeyStores)} onClick={goToNextScreen}>
+            <Button disabled={!(allFilesJson && password && keyStores.length > 0 && !isDecryptingKeyStores)} onClick={decryptFiles}>
               {isDecryptingKeyStores ? <FileDecodeProgress /> : 'Next'}
             </Button>
+            {isDecryptingKeyStores && `${decryptedFilesCount}/${keyStores.length} Files Decrypted`}
           </PasswordWrapper>
         </>
     </Wrapper>
