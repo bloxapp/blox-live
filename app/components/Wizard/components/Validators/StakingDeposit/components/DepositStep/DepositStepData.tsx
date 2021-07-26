@@ -61,6 +61,17 @@ const MediumTitle = styled.div`
     align-items:flex-end;
 `;
 
+const SmallTitle = styled.div`
+    font-size: 12px;
+    font-weight: 500;
+    color: ${({theme, color}) => theme[color] || theme.gray500};
+    margin-left: 4px;
+    // height: 100%;
+    display:flex;
+  margin-top: 5px;
+    align-items:flex-end;
+`;
+
 const HintTitle = styled.div`
     height: 12px;
     font-size: 12px;
@@ -112,7 +123,7 @@ const FreeTag = styled.div`
 `;
 
 const DepositStepData = (props: Props) => {
-  const {step, title, tag, hint, amount, token, tooltip, children} = props;
+  const {step, title, tag, hint, amount, token, tooltip, children, amountOfValidators} = props;
   return (
     <Wrapper>
       <TagWrapper>
@@ -122,6 +133,7 @@ const DepositStepData = (props: Props) => {
         <StepNumber>{step}</StepNumber>
         <LeftWrapper>
           <BigTitle>{amount} <MediumTitle>{token}</MediumTitle></BigTitle>
+          {amountOfValidators && <SmallTitle>x{amountOfValidators} Validators</SmallTitle>}
           <HintTitle style={{textDecorationLine: 'line-through', textDecorationStyle: 'solid'}}>{hint ? '0.5 ETH' : ''}</HintTitle>
         </LeftWrapper>
         <InfoWrapper>
@@ -147,6 +159,7 @@ type Props = {
   token?: string;
   tooltip?: string;
   children: React.ReactNode;
+  amountOfValidators?: number;
 };
 
 export default DepositStepData;

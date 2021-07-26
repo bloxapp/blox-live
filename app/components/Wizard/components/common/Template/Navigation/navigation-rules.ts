@@ -375,37 +375,6 @@ const navigationRules = [
           return showCreateValidatorPage(props);
         }
       },
-      {
-        name: 'Upload Deposit File',
-        page: config.WIZARD_PAGES.VALIDATOR.UPLOAD_DEPOSIT_FILE,
-        done: (props: Record<string, any>): boolean => {
-          return props.page > config.WIZARD_PAGES.VALIDATOR.UPLOAD_DEPOSIT_FILE;
-        },
-        show: (props: Record<string, any>): boolean => {
-          if (selectedSeedMode()) {
-            return false;
-          }
-          if (props.page <= config.WIZARD_PAGES.WALLET.SEED_OR_KEYSTORE) {
-            return false;
-          }
-          if (props.accounts?.length === 1) {
-            return props.page === config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT;
-          }
-          if (props.addAdditionalAccount) {
-            return false;
-          }
-          if (props.pageData?.finishValidatorSetup) {
-            return false;
-          }
-          if (props.page === config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT) {
-            return false;
-          }
-          if (props.step === config.WIZARD_STEPS.VALIDATOR_SETUP) {
-            return true;
-          }
-          return showCreateValidatorPage(props);
-        }
-      },
     ]
   }
 ];
