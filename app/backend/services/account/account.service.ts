@@ -221,15 +221,19 @@ export default class AccountService {
     displayMessage: 'CLI Create Account failed'
   })
   async restoreAccounts(): Promise<void> {
+    const supportedNetworks = [config.env.PRATER_NETWORK, config.env.MAINNET_NETWORK];
+
     const indices = Connection.db(this.storePrefix).get('index');
     if (indices) {
       // eslint-disable-next-line no-restricted-syntax
       for (const [network, lastIndex] of Object.entries(indices)) {
-        const index = +lastIndex;
-        if (index > -1) {
-          Connection.db(this.storePrefix).set('network', network);
-          // eslint-disable-next-line no-await-in-loop
-          await this.createAccount({ indexToRestore: index });
+        if(supportedNetworks.indexOf(network) > -1) {
+          const index = +lastIndex;
+          if (index > -1) {
+            Connection.db(this.storePrefix).set('network', network);
+            // eslint-disable-next-line no-await-in-loop
+            await this.createAccount({ indexToRestore: index });
+          }
         }
       }
     }
