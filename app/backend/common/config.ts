@@ -1,6 +1,4 @@
 import BaseStore from '~app/backend/common/store-manager/base-store';
-import Connection from './store-manager/connection';
-import { isVersionHigherOrEqual } from '../../utils/service';
 
 export default class Config {
   private static instance: Config;
@@ -32,13 +30,6 @@ export default class Config {
       HTTP_RETRY_DELAY: 1000,
       PRATER_NETWORK: 'prater',
       MAINNET_NETWORK: 'mainnet',
-      TEST_NET_WORK: () => {
-        const keyVaultVersion = Connection.db('').get('keyVaultVersion');
-        if (isVersionHigherOrEqual(keyVaultVersion, 'v1.2.0')) {
-          return 'prater';
-        }
-        return 'pyrmont';
-      },
       SSL_SUPPORTED_TAG: 'v0.1.25',
       HIGHEST_ATTESTATION_SUPPORTED_TAG: 'v0.3.2',
       DEFAULT_SSH_PORT: 22,

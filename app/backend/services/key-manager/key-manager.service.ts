@@ -65,9 +65,6 @@ export default class KeyManagerService {
       --highest-source=${highestSource} \
       --highest-target=${highestTarget} \
       --highest-proposal=${highestProposal}`;
-    console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<gagale>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-    console.log(getAccountCommand);
-    console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<gagale>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     try {
       const { stdout } = await this.executor(getAccountCommand);
       return stdout ? JSON.parse(stdout) : {};
