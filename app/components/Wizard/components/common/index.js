@@ -13,3 +13,4 @@ export { default as TextArea } from './TextArea/TextArea';
 export { default as contentAnimation } from './contentAnimation';
 export { default as ErrorMessage } from './ErrorMessage';
 export { default as Checkbox } from './Checkbox';
+export {default as BackButton} from './BackButton';

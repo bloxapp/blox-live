@@ -1,24 +1,37 @@
-/* eslint-disable jsx-a11y/anchor-is-valid jsx-a11y/click-events-have-key-events */
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { shell } from 'electron';
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import styled from 'styled-components';
+import {bindActionCreators} from 'redux';
 import { CircularProgress } from '@material-ui/core';
+import IconButton from '@material-ui/core/IconButton';
+import Visibility from '@material-ui/icons/Visibility';
+import OutlinedInput from '@material-ui/core/OutlinedInput';
+import VisibilityOff from '@material-ui/icons/VisibilityOff';
+import InputAdornment from '@material-ui/core/InputAdornment';
 import config from '~app/backend/common/config';
 import DropZone from '~app/common/components/DropZone';
-import { getNetwork } from '~app/components/Wizard/selectors';
+import { Warning } from '~app/components/Wizard/components/common';
 import { Title, Paragraph } from '~app/components/Wizard/components/common';
 import BackButton from '~app/components/Wizard/components/common/BackButton';
 import { NETWORKS } from '~app/components/Wizard/components/Validators/constants';
+import { getNetwork,
+  getDecryptedKeyStoresError,
+  getKeyStores,
+  getDecryptedKeyStores,
+  getShouldDisplayError,
+  getDecryptedFilesCount,
+  getIsDecryptingKeyStores } from '~app/components/Wizard/selectors';
 // @ts-ignore
-import fileDecodedCheckmark from '../../../../../assets/images/file-decoded-checkmark.svg';
+import * as actionsFromWizard from '../../../actions';
+import removeFileImage from '../../../../../assets/images/remove-file.svg';
 // @ts-ignore
 import fileDecodeFailure from '../../../../../assets/images/file-decode-failure.svg';
 // @ts-ignore
-import removeFileImage from '../../../../../assets/images/remove-file.svg';
+import fileDecodedCheckmark from '../../../../../assets/images/file-decoded-checkmark.svg';
 
 const Wrapper = styled.div`
-  width:650px;
+  width: 650px;
 `;
 
 const UploadedFilesHeader = styled.div`
@@ -32,19 +45,42 @@ const SelectedFilesTable = styled.table`
   margin-top: 15px;
 `;
 
+const Button = styled.button`
+  display: block;
+  width: 200px;
+  height: 35px;
+  color: white;
+  border-radius: 10px;
+  border: none;
+  background-color: #2536b8;
+  margin-top: 20px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #2546b2;
+  }
+
+  &:disabled {
+    background-color: lightgrey;
+  }
+`;
+
 const FileTail = styled.tr`
   border-color: rgba(195, 200, 207, 1);
   border-width: 1px;
   border-style: solid;
   height: 40px;
   background-color: white;
+
   & > td {
     padding-left: 15px;
     padding-right: 15px;
+
     &:last-child {
       text-align: right;
     }
   }
+
   &:not(:first-child) {
     border-top-width: 0;
   }
@@ -56,25 +92,48 @@ const RemoveFileImage = styled.img`
   cursor: pointer;
 `;
 
+const PasswordWrapper = styled.div`
+  margin-top: 20px;
+  flex-direction: row;
+  align-content: flex-start
+`;
+
+const PasswordText = styled.span`
+  display: block;
+`;
+
+const FileDecodeFailureImage = styled.img`
+  width: 15px;
+  height: 15px;
+`;
+
+const FileDecodedImage = styled.img`
+  width: 20px;
+  height: 15px;
+`;
+
+const ClearKeyStores = styled.div`
+  color: black;
+  cursor: pointer;
+`;
+
+const UploadedFilesHeaderWrapper = styled.div`
+  width: 100%;
+  justify-content: space-between;
+  display: flex;
+`;
+
 const FileDecodeProgress = () => (
   <CircularProgress style={{ color: 'black', width: 15, height: 15, marginTop: 6 }} />
 );
 
 const FileDecodeFailure = () => {
-  const FileDecodeFailureImage = styled.img`
-    width: 15px;
-    height: 15px;
-  `;
   return (
     <FileDecodeFailureImage src={fileDecodeFailure} />
   );
 };
 
 const FileDecodeSuccess = () => {
-  const FileDecodedImage = styled.img`
-    width: 20px;
-    height: 15px;
-  `;
   return (
     <FileDecodedImage src={fileDecodedCheckmark} />
   );
@@ -95,13 +154,57 @@ const FileDecodeStatus = ({ status }: { status: DECODE_STATUS }) => {
     case DECODE_STATUS.FAILURE:
       return <FileDecodeFailure />;
   }
-  return <></>;
 };
 
 const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
-  const { setPage, setStep, network } = props;
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const [decryptedFilesList, setDecryptedFilesList] = useState({});
+  const {
+    setPage,
+    setStep,
+    network,
+    wizardActions,
+    keyStores,
+    shouldDisplayError,
+    errorMessage,
+    decryptedFilesCount,
+    isDecryptingKeyStores,
+    decryptedKeyStores
+  } = props;
+  const { decryptKeyStores, uploadKeyStores, displayKeyStoreError, incrementFilesDecryptedCounter } = wizardActions;
+  const [allFilesJson, setAllFilesJson] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const [goToNextPage, setGoToNextPage] = useState(false);
+  const [password, setPassword] = useState('');
+
+  useEffect(() => {
+    if(decryptedKeyStores.length > 0 && goToNextPage){
+      setPage(config.WIZARD_PAGES.VALIDATOR.VALIDATOR_SUMMARY);
+    }
+    const newKeyStores = [...keyStores];
+    let allFilesJson = true;
+    newKeyStores.map((keyStore) => {
+      const isJson = keyStore.type === 'application/json';
+      keyStore.status = isJson ? 1 : 2;
+      if (!isJson) allFilesJson = false;
+    });
+
+    const updateStateTimeOut = setTimeout(() => {
+      setAllFilesJson(allFilesJson);
+      uploadKeyStores(newKeyStores);
+    }, 1000);
+
+    return () => {
+      clearTimeout(updateStateTimeOut);
+    };
+  },[keyStores.length, decryptedFilesCount, goToNextPage, decryptedKeyStores]);
+
+  useEffect(() => {
+    const removeErrorMessage = setTimeout(() => {
+      displayKeyStoreError({status: false, message: ''});
+    }, 10000);
+    return () => {
+      clearTimeout(removeErrorMessage);
+    }
+  },[shouldDisplayError]);
 
   /**
    * Opening launchpad link depending of selected network.
@@ -118,46 +221,20 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
   };
 
   const onFilesSelected = (files: File[]) => {
-    files.sort((a, b) => a.name.localeCompare(b.name));
-    setSelectedFiles(files);
-  };
-
-  type DecryptedFile = {
-    file: File,
-    decrypted: any,
-    status: number,
-  };
-
-  /**
-   * Decrypt one file
-   * @param file
-   */
-  const decryptFile = async (file: File): Promise<DecryptedFile> => {
-    if (decryptedFilesList[file.name]) {
-      return decryptedFilesList[file.name];
+    if(isDecryptingKeyStores) {
+      return;
     }
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          file,
-          decrypted: 'anything',
-          status: Math.round(Math.random() * 1) + 1,
-        });
-      }, Math.random() * 5000);
+    let newFileList = [...files, ...keyStores];
+    if(newFileList.length > 100) {
+      displayKeyStoreError({status: true, message: 'You can’t run more than 100 validators per account.'});
+      return;
+    }
+    displayKeyStoreError({status: false, message: ''});
+    newFileList = newFileList.filter((v, i, a) => a.findIndex(t => (t.name === v.name)) === i);
+    newFileList.map((file) => {
+      file.status = 0;
     });
-  };
-
-  /**
-   * Decrypt all files
-   * @param files
-   */
-  const decryptFiles = (files: File[]) => {
-    return files.map((file: File) => {
-      return decryptFile(file).then((decrypted: DecryptedFile) => {
-        decryptedFilesList[file.name] = decrypted;
-        setDecryptedFilesList({...decryptedFilesList});
-      });
-    });
+    uploadKeyStores(newFileList);
   };
 
   /**
@@ -165,48 +242,23 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
    * @param fileName
    * @param fileIndex
    */
-  const removeFile = (fileName: string, fileIndex: number) => {
-    delete decryptedFilesList[fileName];
-    setDecryptedFilesList({...decryptedFilesList});
-    selectedFiles.splice(fileIndex, 1)
-    setSelectedFiles([...selectedFiles]);
+  const removeFile = (fileIndex: number) => {
+    const newKeysStores = [...keyStores];
+    newKeysStores.splice(fileIndex, 1);
+    uploadKeyStores([...newKeysStores]);
   };
 
-  useEffect(() => {
-    if (selectedFiles?.length) {
-      setDecryptedFilesList({});
-      decryptFiles(selectedFiles);
-    }
-  }, [selectedFiles]);
+  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+  };
 
-  const renderSelectedFiles = () => {
-    return (
-      <SelectedFilesTable>
-        <tbody>
-          {selectedFiles.map((file: File, fileIndex: number) => {
-            // @ts-ignore
-            return (
-              <FileTail key={`file-tail-${fileIndex}`}>
-                <td key="file-progress">
-                  <FileDecodeStatus status={decryptedFilesList[file.name]?.status ?? DECODE_STATUS.IN_PROGRESS} />
-                </td>
-                <td key="file-name">
-                  {file.name}
-                </td>
-                <td key="file-delete">
-                  <RemoveFileImage
-                    src={removeFileImage}
-                    onClick={() => {
-                      removeFile(file.name, fileIndex);
-                    }}
-                  />
-                </td>
-              </FileTail>
-            );
-          })}
-        </tbody>
-      </SelectedFilesTable>
-    );
+  const decryptFiles = async () => {
+    decryptKeyStores({keyStores, password, incrementFilesDecryptedCounter});
+    setGoToNextPage(true);
+  };
+
+  const clearKeyStores = () => {
+    uploadKeyStores([]);
   };
 
   return (
@@ -225,32 +277,101 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
       <br />
 
       <DropZone
-        accept=".json,application/json"
         onFiles={onFilesSelected}
       />
 
-      {selectedFiles?.length ? (
+      {shouldDisplayError && <Warning style={{maxWidth: '100%', marginTop: '20px'}} text={errorMessage} />}
+
         <>
           <br />
-          <UploadedFilesHeader>Uploaded Files</UploadedFilesHeader>
-          {renderSelectedFiles()}
+          <UploadedFilesHeaderWrapper>
+            <UploadedFilesHeader>Uploaded Files</UploadedFilesHeader>
+            <ClearKeyStores onClick={clearKeyStores}>Clear All</ClearKeyStores>
+          </UploadedFilesHeaderWrapper>
+          <SelectedFilesTable>
+            <tbody>
+              {keyStores && keyStores.map((file: File, fileIndex: number) => {
+              // @ts-ignore
+              return (
+                <FileTail key={fileIndex}>
+                  <td key="file-progress">
+                    <FileDecodeStatus status={file?.status} />
+                  </td>
+                  <td key="file-name">
+                    {file.name}
+                  </td>
+                  <td key="file-delete">
+                    <RemoveFileImage
+                      src={removeFileImage}
+                      onClick={() => {
+                        if(!isDecryptingKeyStores) removeFile(fileIndex);
+                      }}
+                    />
+                  </td>
+                </FileTail>
+              );
+            })}
+            </tbody>
+          </SelectedFilesTable>
+          <PasswordWrapper>
+            <PasswordText>Keystore Password</PasswordText>
+            <OutlinedInput
+              style={{height: '40px'}}
+              id="outlined-adornment-password"
+              type={showPassword ? 'text' : 'password'}
+              onBlur={(e) => { setPassword(e.target.value) }}
+              endAdornment={(
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={() => { setShowPassword(!showPassword); }}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>
+              )}
+              labelWidth={70}
+            />
+            <Button disabled={!(allFilesJson && password && keyStores.length > 0 && !isDecryptingKeyStores)} onClick={decryptFiles}>
+              {isDecryptingKeyStores ? <FileDecodeProgress /> : 'Next'}
+            </Button>
+            {isDecryptingKeyStores && `${decryptedFilesCount}/${keyStores.length} Files Decrypted`}
+          </PasswordWrapper>
         </>
-      ) : ''}
     </Wrapper>
   );
 };
 
 type UploadKeystoreFileProps = {
   network: string;
+  keyStores: Array<any>,
   page: number;
   setPage: (page: number) => void;
   step: number;
   setStep: (page: number) => void;
   setPageData: (data: any) => void;
+  wizardActions: Record<string, any>;
+  errorMessage: string,
+  shouldDisplayError: boolean,
+  decryptedFilesCount: number,
+  isDecryptingKeyStores: boolean,
+  decryptedKeyStores: Array<any>;
 };
 
 const mapStateToProps = (state: any) => ({
   network: getNetwork(state),
+  keyStores: getKeyStores(state),
+  errorMessage: getDecryptedKeyStoresError(state),
+  shouldDisplayError: getShouldDisplayError(state),
+  decryptedFilesCount: getDecryptedFilesCount(state),
+  decryptedKeyStores: getDecryptedKeyStores(state),
+  isDecryptingKeyStores: getIsDecryptingKeyStores(state),
 });
 
-export default connect(mapStateToProps, null)(UploadKeystoreFile);
+const mapDispatchToProps = (dispatch) => ({
+  wizardActions: bindActionCreators(actionsFromWizard, dispatch),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(UploadKeystoreFile);

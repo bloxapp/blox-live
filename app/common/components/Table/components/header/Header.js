@@ -25,7 +25,7 @@ const Header = ({columns, selectedSorting, sortType, onSortClick, height}) => {
     <Wrapper
       height={height}
     >
-      {columns.map((column) => {
+      {columns.map((column, index) => {
         const {key, title, width, justifyContent, compareFunction} = column;
         const withSorting = compareFunction && sortType !== 'disabled';
 
@@ -33,7 +33,7 @@ const Header = ({columns, selectedSorting, sortType, onSortClick, height}) => {
           return (
             <Cell
               width={width}
-              key={key}
+              key={index}
               justifyContent={justifyContent}
             >
               {title}
@@ -51,7 +51,7 @@ const Header = ({columns, selectedSorting, sortType, onSortClick, height}) => {
         return (
           <Cell
             width={width}
-            key={key}
+            key={index}
             justifyContent={justifyContent}
           >
             {title}

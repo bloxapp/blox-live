@@ -23,3 +23,15 @@ export const getPageData = (state) => state.wizard && state.wizard.pageData;
 export const getPage = (state) => state.wizard && state.wizard.page;
 
 export const getStep = (state) => state.wizard && state.wizard.step;
+
+export const getKeyStores = (state) => state.wizard && state.wizard.keyStores;
+
+export const getDecryptedKeyStores = (state) => state.wizard && state.wizard.decryptedKeyStores;
+
+export const getDecryptedFilesCount = (state) => state.wizard && state.wizard.filesDecrypted;
+
+export const getShouldDisplayError = (state) => state.wizard && state.wizard.shouldDisplayError;
+
+export const getIsDecryptingKeyStores = (state) => state.wizard && state.wizard.isDecryptingKeyStores;
+
+export const getDecryptedKeyStoresError = (state) => state.wizard && state.wizard.keyStoreErrorMessage;

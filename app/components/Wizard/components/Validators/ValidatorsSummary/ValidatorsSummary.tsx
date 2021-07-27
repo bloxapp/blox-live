@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
+import {bindActionCreators} from 'redux';
+import React, { useEffect, useState } from 'react';
 import config from '~app/backend/common/config';
 import Table from '~app/common/components/Table';
 import { Checkbox } from '~app/common/components';
-import { getNetwork } from '~app/components/Wizard/selectors';
 import { handlePageClick } from '~app/common/components/Table/service';
 import BloxApi from '~app/backend/common/communication-manager/blox-api';
-import BackButton from '~app/components/Wizard/components/common/BackButton';
-import { Title, Paragraph, Link } from '~app/components/Wizard/components/common';
+import { getNetwork, getDecryptedKeyStores } from '~app/components/Wizard/selectors';
+import { Title, Paragraph, Link, Warning, BackButton } from '~app/components/Wizard/components/common';
 import tableColumns from './components/table-columns';
+import * as actionsFromWizard from '../../../actions';
 
 const Wrapper = styled.div`
   width:650px;
@@ -49,30 +50,23 @@ const bloxApi = new BloxApi();
 bloxApi.init();
 
 const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
-  const { setPage, setStep, network } = props;
+  const { setPage, setStep, network, wizardActions, decryptedKeyStores } = props;
+  const { clearDecryptKeyStores } = wizardActions;
   const [pagedValidators, setPagedValidators] = useState([]);
   const [paginationInfo, setPaginationInfo] = useState(null);
+  const [allDeposited, setAllDeposited] = useState(false);
   const [isAgreementReadCheckbox, setAgreementReadCheckbox] = useState(false);
   const [isContinueButtonDisabled, setContinueButtonDisabled] = useState(false);
-  const [allValidatorsHaveSameStatus, setAllValidatorsHaveSameStatus] = useState(false);
+  const [allValidatorsHaveSameStatus, setAllValidatorsHaveSameStatus] = useState(true);
   const [isValidatorsOfflineCheckbox, setValidatorsOfflineCheckbox] = useState(false);
+  const [validators, setValidators] = useState(decryptedKeyStores);
   const checkboxStyle = { marginRight: 5 };
   const checkboxLabelStyle = { fontSize: 12 };
   const privacyPolicyLink = 'https://www.bloxstaking.com/privacy-policy/';
   const serviceAgreementLink = 'https://www.bloxstaking.com/license-agreement/';
   const PAGE_SIZE = 5;
-  const validators = [
-    { publicKey: '80001866ce324de7d80ec73be15e2d064dcf121adf1b34a0d679f2b9ecbab40ce021e03bb877e1a2fe72eaaf475e6e21', privateKey: '111', deposited: null },
-    { publicKey: '8002001dedaa9cc2842ecec377836aab68b76dae6fbfd9d8c297c28be80f58383b3298dfb2d5b52a3888883ac0513bf4', privateKey: '222', deposited: null },
-    { publicKey: '0x123123123123123123123123123123123123123123123', privateKey: '333', deposited: null },
-    { publicKey: '0x123123123123123123123123123123123123123123123', privateKey: '444', deposited: null },
-    { publicKey: '0x123123123123123123123123123123123123123123123', privateKey: '555', deposited: null },
-    { publicKey: '0x123123123123123123123123123123123123123123123', privateKey: '666', deposited: null },
-    { publicKey: '0x123123123123123123123123123123123123123123123', privateKey: '777', deposited: null },
-    { publicKey: '0x123123123123123123123123123123123123123123123', privateKey: '888', deposited: null },
-    { publicKey: '0x123123123123123123123123123123123123123123123', privateKey: '999', deposited: null },
-    { publicKey: '0x123123123123123123123123123123123123123123123', privateKey: '101', deposited: null },
-  ];
+
+  const notTheSameError = 'Only batches of the same status are supported (“deposited” / “not deposited”). Please go back and adjust your validators\' uploaded keystore files (you could upload the rest later on).';
 
   const onPageClick = (offset) => {
     handlePageClick(validators, offset, setPagedValidators, setPaginationInfo, PAGE_SIZE);
@@ -96,21 +90,31 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
       }
       return validator;
     });
-    setAllValidatorsHaveSameStatus(validators.length === notDepositedCount || validators.length === depositedCount);
-    setContinueButtonDisabled(!(isValidatorsOfflineCheckbox && isAgreementReadCheckbox && allValidatorsHaveSameStatus));
-    bloxApi.request('GET', `/ethereum2/validators-deposits/?network=${network}&publicKeys=${publicKeys.join(',')}`).then((deposits: any) => {
 
-    });
-    // TODO: make waterfall requests to beaconchain api to get deposited status
-    //  https://pyrmont.beaconcha.in/api/v1/validator/{validatorPublicKey}/deposits
-    //  data.amount should be not null and data.tx_hash too
-    //  if data is empty array - it is not deposited (=== false)
-    //  if not checked yet - deposited remains null
-    //  use BeaconchaApi class
-  }, [validators]);
+    setAllValidatorsHaveSameStatus(!(notDepositedCount > 0 && depositedCount > 0));
+    setAllDeposited(depositedCount > 0);
+    setContinueButtonDisabled(!(isValidatorsOfflineCheckbox && isAgreementReadCheckbox && allValidatorsHaveSameStatus));
+    if (publicKeys.length > 0) { bloxApi.request('GET', `/ethereum2/validators-deposits/?network=${network}&publicKeys=${publicKeys.join(',')}`).then((deposits: any) => {
+      const newValidatorsStatuses = validators.map((validator) => {
+        const newValidator = { ...validator};
+        if (deposits[validator.publicKey]) {
+          newValidator.deposited = true;
+        } else {
+          newValidator.deposited = false;
+        }
+        return newValidator;
+      });
+      setValidators(newValidatorsStatuses);
+    }); }
+    onPageClick(0);
+  }, [validators, isAgreementReadCheckbox, isValidatorsOfflineCheckbox, allValidatorsHaveSameStatus]);
 
   const onNextButtonClick = () => {
-    alert('Implement next button');
+    if (allDeposited) {
+      setPage(config.WIZARD_PAGES.VALIDATOR.SLASHING_WARNING);
+    } else {
+      setPage(config.WIZARD_PAGES.VALIDATOR.DEPOSIT_OVERVIEW);
+    }
   };
 
   if (!paginationInfo) {
@@ -122,6 +126,7 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
       <BackButton onClick={() => {
         setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
         setPage(config.WIZARD_PAGES.VALIDATOR.UPLOAD_KEYSTORE_FILE);
+        clearDecryptKeyStores();
       }} />
       <Title>Validators Summary</Title>
       <Paragraph style={{ marginBottom: 10 }}>
@@ -145,6 +150,7 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
           footerHeight="40px"
         />
       </TableWrapper>
+      {!allValidatorsHaveSameStatus && <Warning style={{maxWidth: '100%', marginTop: '20px'}} text={notTheSameError} />}
 
       <Checkbox
         checked={isAgreementReadCheckbox}
@@ -195,10 +201,17 @@ type ValidatorsSummaryProps = {
   setStep: (page: number) => void;
   setPageData: (data: any) => void;
   network: string;
+  wizardActions: Record<string, any>;
+  decryptedKeyStores: Array<any>,
 };
 
 const mapStateToProps = (state: any) => ({
   network: getNetwork(state),
+  decryptedKeyStores: getDecryptedKeyStores(state),
 });
 
-export default connect(mapStateToProps, null)(ValidatorsSummary);
+const mapDispatchToProps = (dispatch) => ({
+  wizardActions: bindActionCreators(actionsFromWizard, dispatch),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(ValidatorsSummary);

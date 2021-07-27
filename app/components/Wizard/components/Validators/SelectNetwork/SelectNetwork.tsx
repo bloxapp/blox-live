@@ -5,8 +5,8 @@ import config from '~app/backend/common/config';
 import { selectedKeystoreMode } from '~app/common/service';
 import { setNetworkType } from '~app/components/Wizard/actions';
 import { NETWORKS } from '~app/components/Wizard/components/Validators/constants';
-import { getUserData } from '~app/components/Login/components/CallbackPage/selectors';
 import { Title, SubTitle, Paragraph } from '~app/components/Wizard/components/common';
+import { getUserData } from '~app/components/Login/components/CallbackPage/selectors';
 import BackButton from '~app/components/Wizard/components/common/BackButton/BackButton';
 import CustomButton from '~app/components/Wizard/components/Validators/SelectNetwork/CustomButton';
 
@@ -23,6 +23,7 @@ const ButtonsWrapper = styled.div`
 
 const onClick = ({ setPage, setNetwork }: ValidatorsProps, network) => {
   setNetwork(network);
+  console.log(setNetwork);
   if (selectedKeystoreMode()) {
     setPage(config.WIZARD_PAGES.VALIDATOR.UPLOAD_KEYSTORE_FILE);
   } else {
