@@ -24,14 +24,14 @@ import { getNetwork,
   getIsDecryptingKeyStores } from '~app/components/Wizard/selectors';
 // @ts-ignore
 import * as actionsFromWizard from '../../../actions';
-import fileDecodedCheckmark from '../../../../../assets/images/file-decoded-checkmark.svg';
+import removeFileImage from '../../../../../assets/images/remove-file.svg';
 // @ts-ignore
 import fileDecodeFailure from '../../../../../assets/images/file-decode-failure.svg';
 // @ts-ignore
-import removeFileImage from '../../../../../assets/images/remove-file.svg';
+import fileDecodedCheckmark from '../../../../../assets/images/file-decoded-checkmark.svg';
 
 const Wrapper = styled.div`
-  width:650px;
+  width: 650px;
 `;
 
 const UploadedFilesHeader = styled.div`
@@ -55,9 +55,11 @@ const Button = styled.button`
   background-color: #2536b8;
   margin-top: 20px;
   cursor: pointer;
+
   &:hover {
     background-color: #2546b2;
   }
+
   &:disabled {
     background-color: lightgrey;
   }
@@ -69,13 +71,16 @@ const FileTail = styled.tr`
   border-style: solid;
   height: 40px;
   background-color: white;
+
   & > td {
     padding-left: 15px;
     padding-right: 15px;
+
     &:last-child {
       text-align: right;
     }
   }
+
   &:not(:first-child) {
     border-top-width: 0;
   }
@@ -98,18 +103,24 @@ const PasswordText = styled.span`
 `;
 
 const FileDecodeFailureImage = styled.img`
-    width: 15px;
-    height: 15px;
+  width: 15px;
+  height: 15px;
 `;
 
 const FileDecodedImage = styled.img`
-    width: 20px;
-    height: 15px;
+  width: 20px;
+  height: 15px;
 `;
-const ClearKeyStores = styled.span`
-    width: 20px;
-    height: 15px;
+
+const ClearKeyStores = styled.div`
   color: black;
+  cursor: pointer;
+`;
+
+const UploadedFilesHeaderWrapper = styled.div`
+  width: 100%;
+  justify-content: space-between;
+  display: flex;
 `;
 
 const FileDecodeProgress = () => (
@@ -273,7 +284,10 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
 
         <>
           <br />
-          <UploadedFilesHeader>Uploaded Files <ClearKeyStores onClick={clearKeyStores}></ClearKeyStores></UploadedFilesHeader>
+          <UploadedFilesHeaderWrapper>
+            <UploadedFilesHeader>Uploaded Files</UploadedFilesHeader>
+            <ClearKeyStores onClick={clearKeyStores}>Clear All</ClearKeyStores>
+          </UploadedFilesHeaderWrapper>
           <SelectedFilesTable>
             <tbody>
               {keyStores && keyStores.map((file: File, fileIndex: number) => {

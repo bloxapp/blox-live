@@ -1,8 +1,6 @@
 import React from 'react';
-import electron from 'electron';
+import electron, {shell} from 'electron';
 import styled from 'styled-components';
-const { BrowserWindow } = electron.remote;
-import { Link } from '@material-ui/core';
 import { truncateText } from '~app/components/common/service';
 import { compareFunction } from '~app/common/components/Table/service';
 import beaconChain from '../../../../../../assets/images/beacon-chain.png';
@@ -33,12 +31,7 @@ const FlexWrapper = styled.div`
 `;
 
 const openBeaconChain = (publicKey) => {
-  const win = new BrowserWindow({
-    // width: 1000,
-    // height: 600,
-  });
-
-  win.loadURL(`http://prater.beaconcha.in/validator/${publicKey}`);
+    shell.openExternal(`http://prater.beaconcha.in/validator/${publicKey}`);
 };
 
 export default [
@@ -74,7 +67,7 @@ export default [
             return (
               <>
                 {row.deposited === null ? 'Checking..' : ''}
-                {row.deposited === true ? <FlexWrapper><BeaconChainText>Deposited</BeaconChainText><BeaconChain onClick={() => {openBeaconChain(row.publicKey)}} /></FlexWrapper> : ''}
+                {row.deposited === true ? <FlexWrapper><BeaconChainText>Deposited</BeaconChainText><BeaconChain onClick={() => { openBeaconChain(row.publicKey); }} /></FlexWrapper> : ''}
                 {row.deposited === false ? 'Not Deposited' : ''}
               </>
             );

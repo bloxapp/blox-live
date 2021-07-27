@@ -7,8 +7,8 @@ import Table from '~app/common/components/Table';
 import { Checkbox } from '~app/common/components';
 import { handlePageClick } from '~app/common/components/Table/service';
 import BloxApi from '~app/backend/common/communication-manager/blox-api';
-import { Title, Paragraph, Link, Warning, BackButton } from '~app/components/Wizard/components/common';
 import { getNetwork, getDecryptedKeyStores } from '~app/components/Wizard/selectors';
+import { Title, Paragraph, Link, Warning, BackButton } from '~app/components/Wizard/components/common';
 import tableColumns from './components/table-columns';
 import * as actionsFromWizard from '../../../actions';
 
