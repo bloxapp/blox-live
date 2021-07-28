@@ -1,5 +1,5 @@
 import { Log } from '../../common/logger/logger';
-import { Catch, CatchClass, Step } from '../../decorators';
+import { Catch, Step } from '../../decorators';
 import Connection from '../../common/store-manager/connection';
 import BloxApi from '../../common/communication-manager/blox-api';
 import KeyManagerService from '../key-manager/key-manager.service';
@@ -75,34 +75,45 @@ export default class WalletService {
     name: 'Syncing KeyVault with Blox...'
   })
   async syncVaultWithBlox({ isNew, processName }): Promise<void> {
+    console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<1>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     const envKey = (Connection.db(this.storePrefix).get('env') || 'production');
+    console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     const payload: any = {
       url: `https://${Connection.db(this.storePrefix).get('publicIp')}:8200`,
       accessToken: Connection.db(this.storePrefix).get('vaultSignerToken')
     };
+    console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<3>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
 
     // Send plugin version in all cases, but only if it's available
     const pluginVersion: any = `${Connection.db(this.storePrefix).get('keyVaultPluginVersion')}${envKey === 'production' ? '' : '-rc'}`;
+    console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<4>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     if (pluginVersion) {
       payload.pluginVersion = pluginVersion;
     }
-
+    console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<5>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     // Send version in only recovery/install/reinstall cases
     const version: any = `${Connection.db(this.storePrefix).get('keyVaultVersion')}${envKey === 'production' ? '' : '-rc'}`;
     const shouldUpdateVersion: boolean = ['reinstall', 'install', 'recovery'].indexOf(processName) !== -1;
     if (shouldUpdateVersion && version) {
       payload.version = version;
     }
+    console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<6>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     this.logger.debugWithData('Sync KeyVault with Blox Payload:', { isNew, processName, ...payload });
     const ssh = await this.keyVaultSsh.getConnection();
+    console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<7>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     const command = this.keyVaultSsh.buildCurlCommand({
       authToken: Connection.db(this.storePrefix).get('authToken'),
       method: !isNew ? METHOD.PATCH : METHOD.POST,
       data: payload,
       route: `${this.bloxApi.baseUrl}/wallets/sync`
     });
+    console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<8>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     this.logger.debug(command);
     const { stdout, stderr } = await ssh.execCommand(command, {});
+    console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<9>>>>>>>>>>>>>>>>>>>>>>>>>>');
+    console.log(stdout);
+    console.log(stderr);
+    console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<9>>>>>>>>>>>>>>>>>>>>>>>>>>');
     if (stderr || +stdout !== 200) throw Error(`${stdout || stderr}. Sync kv with blox failed`);
     Connection.db(this.storePrefix).delete('vaultSignerToken');
   }

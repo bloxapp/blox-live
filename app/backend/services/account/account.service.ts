@@ -10,6 +10,9 @@ import { METHOD } from '~app/backend/common/communication-manager/constants';
 import KeyVaultService from '~app/backend/services/key-vault/key-vault.service';
 import BeaconchaApi from '~app/backend/common/communication-manager/beaconcha-api';
 import KeyManagerService from '~app/backend/services/key-manager/key-manager.service';
+import Seed from './Strategy/Seed.strategy';
+import SeedLess from './Strategy/SeedLess.strategy';
+import Strategy from './Strategy/strategy.interface';
 
 export default class AccountService {
   private readonly walletService: WalletService;
@@ -17,10 +20,11 @@ export default class AccountService {
   private readonly keyManagerService: KeyManagerService;
   private readonly bloxApi: BloxApi;
   private readonly beaconchaApi: BeaconchaApi;
+  private readonly strategy: Strategy;
   private storePrefix: string;
   private logger: Log;
 
-  constructor(prefix: string = '') {
+  constructor(prefix: string = '', seedless: boolean = false) {
     this.storePrefix = prefix;
     this.walletService = new WalletService();
     this.keyVaultService = new KeyVaultService();
@@ -28,6 +32,11 @@ export default class AccountService {
     this.bloxApi = new BloxApi();
     this.bloxApi.init();
     this.logger = new Log('accounts');
+    if (seedless) {
+      this.strategy = new SeedLess(this);
+    } else {
+      this.strategy = new Seed(this);
+    }
 
     this.beaconchaApi = new BeaconchaApi();
   }
@@ -115,34 +124,7 @@ export default class AccountService {
     displayMessage: 'Create Blox Accounts failed'
   })
   async createBloxAccounts({ indexToRestore }: { indexToRestore?: number }): Promise<any> {
-    const network = Connection.db(this.storePrefix).get('network');
-    const lastNetworkIndex = +Connection.db(this.storePrefix).get(`index.${network}`);
-    const index: number = indexToRestore ?? (lastNetworkIndex + 1);
-    const accumulate = indexToRestore != null;
-
-    // Get cumulative accounts list or one account
-    let accounts = await this.keyManagerService.getAccount(
-      Connection.db(this.storePrefix).get('seed'),
-      index,
-      network,
-      accumulate
-    );
-
-    if (accumulate) {
-      // Reverse for account-0 on index 0 etc
-      accounts = { data: accounts.reverse(), network };
-    } else {
-      accounts = { data: [accounts], network };
-    }
-
-    // Set imported flag for imported accounts
-    accounts.data = accounts.data.map((acc) => {
-      acc.imported = accumulate;
-      return acc;
-    });
-
-    this.logger.debug('Created accounts', accounts);
-
+    const accounts = await this.strategy.createBloxAccounts(indexToRestore);
     const account = await this.create(accounts);
     if (account.error && account.error instanceof Error) return;
     return { data: account };
@@ -157,9 +139,9 @@ export default class AccountService {
   async createAccount({ indexToRestore }: { indexToRestore?: number }): Promise<void> {
     const network = Connection.db(this.storePrefix).get('network');
     const index: number = indexToRestore ?? await this.getNextIndex(network);
-    // 1. get public-keys to create
-    const accounts = await this.keyManagerService.getAccount(Connection.db(this.storePrefix).get('seed'), index, network, true);
+    const accounts = await this.strategy.createAccount(index);
     const accountsHash = Object.assign({}, ...accounts.map(account => ({ [account.validationPubKey]: account })));
+
     const publicKeysToGetHighestAttestation = [];
 
     // 2. get slashing data if exists
@@ -204,12 +186,12 @@ export default class AccountService {
     let highestProposal = '';
     const accountsArray = Object.values(accountsHash);
     for (let i = index; i >= 0; i -= 1) {
-      highestSource += `${accountsArray[i]['highest_source_epoch']}${i === 0 ? '' : ','}`;
-      highestTarget += `${accountsArray[i]['highest_target_epoch']}${i === 0 ? '' : ','}`;
-      highestProposal += `${accountsArray[i]['highest_proposal_slot']}${i === 0 ? '' : ','}`;
+      highestSource += `${accountsArray[i].highest_source_epoch}${i === 0 ? '' : ','}`;
+      highestTarget += `${accountsArray[i].highest_target_epoch}${i === 0 ? '' : ','}`;
+      highestProposal += `${accountsArray[i].highest_proposal_slot}${i === 0 ? '' : ','}`;
     }
 
-    // 6. create accounts
+    // // 6. create accounts
     const storage = await this.keyManagerService.createAccount(Connection.db(this.storePrefix).get('seed'), index, network, highestSource, highestTarget, highestProposal);
     Connection.db(this.storePrefix).set(`keyVaultStorage.${network}`, storage);
   }
@@ -229,7 +211,7 @@ export default class AccountService {
         if (index > -1) {
           Connection.db(this.storePrefix).set('network', network);
           // eslint-disable-next-line no-await-in-loop
-          await this.createAccount({ indexToRestore: index });
+          await this.strategy.createAccount(index);
         }
       }
     }
@@ -346,7 +328,7 @@ export default class AccountService {
 
       const lastIndex = networkAccounts[networkAccounts.length - 1].name.split('-')[1];
       // eslint-disable-next-line no-await-in-loop
-      await this.createAccount({ indexToRestore: +lastIndex });
+      await this.createAccount({indexToRestore: +lastIndex });
     }
   }
 
@@ -354,20 +336,7 @@ export default class AccountService {
     showErrorMessage: true
   })
   async recovery({ mnemonic, password }: Record<string, any>): Promise<void> {
-    const seed = await this.keyManagerService.seedFromMnemonicGenerate(mnemonic);
-    const accounts = await this.get();
-    if (accounts.length === 0) {
-      throw new Error('Validators not found');
-    }
-    const accountToCompareWith = accounts[0];
-    const index = accountToCompareWith.name.split('-')[1];
-    const account = await this.keyManagerService.getAccount(seed, index, config.env.PYRMONT_NETWORK);
-
-    if (account.validationPubKey !== accountToCompareWith.publicKey.replace(/^(0x)/, '')) {
-      throw new Error('Passphrase not linked to your account.');
-    }
-    Connection.db(this.storePrefix).clear();
-    await Connection.db(this.storePrefix).setNewPassword(password, false);
-    Connection.db(this.storePrefix).set('seed', seed);
+    console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<recovery>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+    return await this.strategy.recovery({ mnemonic, password });
   }
 }
