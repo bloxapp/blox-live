@@ -9,6 +9,9 @@ import { getNetwork, getDecryptedKeyStores } from '~app/components/Wizard/select
 import { MainNetKeyStoreText } from '~app/components/Wizard/components/Validators/StakingDeposit/components';
 import * as actionsFromWizard from '../../../actions';
 import theme from '../../../../../theme';
+import {openExternalLink} from "../../../../common/service";
+import {NETWORKS} from "../constants";
+import {getData} from "../../../../ProcessRunner/selectors";
 
 const Wrapper = styled.div`
   width:650px;
@@ -43,11 +46,14 @@ bloxApi.init();
 
 const DepositOverview = (props: ValidatorsSummaryProps) => {
   const { setPage, setStep, decryptedKeyStores } = props;
+
+  const moveToWebDeposit = async () => {
+    await openExternalLink('', `${config.env.WEB_APP_URL}/upload_deposit_file`);
+  };
   // const { } = wizardActions;
   return (
     <Wrapper>
       <BackButton onClick={() => {
-        console.log(props);
         setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
         setPage(config.WIZARD_PAGES.VALIDATOR.VALIDATOR_SUMMARY);
       }} />
@@ -66,7 +72,7 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
       </SmallText>
 
       <ButtonsWrapper>
-        <BigButton onClick={() => { alert('bla'); }}>Continue to Web Deposit</BigButton>
+        <BigButton onClick={() => { moveToWebDeposit() }}>Continue to Web Deposit</BigButton>
         <LaterBtn onClick={() => { alert('bla'); }}>I&apos;ll Deposit Later</LaterBtn>
       </ButtonsWrapper>
     </Wrapper>
