@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import { shell } from 'electron';
+import {shell} from 'electron';
 import {connect} from 'react-redux';
 import styled from 'styled-components';
 import {bindActionCreators} from 'redux';
-import { CircularProgress } from '@material-ui/core';
+import {CircularProgress} from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import Visibility from '@material-ui/icons/Visibility';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
@@ -11,17 +11,18 @@ import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import config from '~app/backend/common/config';
 import DropZone from '~app/common/components/DropZone';
-import { Warning } from '~app/components/Wizard/components/common';
-import { Title, Paragraph } from '~app/components/Wizard/components/common';
+import {Title, Paragraph, Warning} from '~app/components/Wizard/components/common';
 import BackButton from '~app/components/Wizard/components/common/BackButton';
-import { NETWORKS } from '~app/components/Wizard/components/Validators/constants';
-import { getNetwork,
+import {NETWORKS} from '~app/components/Wizard/components/Validators/constants';
+import {
+  getNetwork,
   getDecryptedKeyStoresError,
   getKeyStores,
   getDecryptedKeyStores,
   getShouldDisplayError,
   getDecryptedFilesCount,
-  getIsDecryptingKeyStores } from '~app/components/Wizard/selectors';
+  getIsDecryptingKeyStores
+} from '~app/components/Wizard/selectors';
 // @ts-ignore
 import * as actionsFromWizard from '../../../actions';
 import removeFileImage from '../../../../../assets/images/remove-file.svg';
@@ -124,7 +125,7 @@ const UploadedFilesHeaderWrapper = styled.div`
 `;
 
 const FileDecodeProgress = () => (
-  <CircularProgress style={{ color: 'black', width: 15, height: 15, marginTop: 6 }} />
+  <CircularProgress style={{color: 'black', width: 15, height: 15, marginTop: 6}} />
 );
 
 const FileDecodeFailure = () => {
@@ -145,7 +146,7 @@ enum DECODE_STATUS {
   FAILURE
 }
 
-const FileDecodeStatus = ({ status }: { status: DECODE_STATUS }) => {
+const FileDecodeStatus = ({status}: { status: DECODE_STATUS }) => {
   switch (status) {
     case DECODE_STATUS.IN_PROGRESS:
       return <FileDecodeProgress />;
@@ -169,42 +170,42 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
     isDecryptingKeyStores,
     decryptedKeyStores
   } = props;
-  const { decryptKeyStores, uploadKeyStores, displayKeyStoreError, incrementFilesDecryptedCounter } = wizardActions;
+  const {decryptKeyStores, uploadKeyStores, displayKeyStoreError, incrementFilesDecryptedCounter} = wizardActions;
   const [allFilesJson, setAllFilesJson] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [goToNextPage, setGoToNextPage] = useState(false);
   const [password, setPassword] = useState('');
 
   useEffect(() => {
-    if(decryptedKeyStores.length > 0 && goToNextPage){
+    if (decryptedKeyStores.length > 0 && goToNextPage) {
       setPage(config.WIZARD_PAGES.VALIDATOR.VALIDATOR_SUMMARY);
     }
     const newKeyStores = [...keyStores];
-    let allFilesJson = true;
+    let isAllFilesJson = true;
     newKeyStores.map((keyStore) => {
       const isJson = keyStore.type === 'application/json';
       keyStore.status = isJson ? 1 : 2;
-      if (!isJson) allFilesJson = false;
+      if (!isJson) isAllFilesJson = false;
     });
 
     const updateStateTimeOut = setTimeout(() => {
-      setAllFilesJson(allFilesJson);
+      setAllFilesJson(isAllFilesJson);
       uploadKeyStores(newKeyStores);
     }, 1000);
 
     return () => {
       clearTimeout(updateStateTimeOut);
     };
-  },[keyStores.length, decryptedFilesCount, goToNextPage, decryptedKeyStores]);
+  }, [keyStores.length, decryptedFilesCount, goToNextPage, decryptedKeyStores]);
 
   useEffect(() => {
     const removeErrorMessage = setTimeout(() => {
       displayKeyStoreError({status: false, message: ''});
-    }, 10000);
+    }, 3000);
     return () => {
       clearTimeout(removeErrorMessage);
-    }
-  },[shouldDisplayError]);
+    };
+  }, [shouldDisplayError]);
 
   /**
    * Opening launchpad link depending of selected network.
@@ -221,19 +222,17 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
   };
 
   const onFilesSelected = (files: File[]) => {
-    if(isDecryptingKeyStores) {
+    if (isDecryptingKeyStores) {
       return;
     }
     let newFileList = [...files, ...keyStores];
-    if(newFileList.length > 100) {
+    if (newFileList.length > 100) {
       displayKeyStoreError({status: true, message: 'You can’t run more than 100 validators per account.'});
       return;
     }
     displayKeyStoreError({status: false, message: ''});
     newFileList = newFileList.filter((v, i, a) => a.findIndex(t => (t.name === v.name)) === i);
-    newFileList.map((file) => {
-      file.status = 0;
-    });
+    newFileList.map(file => file.status = 0);
     uploadKeyStores(newFileList);
   };
 
@@ -268,7 +267,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
         setPage(config.WIZARD_PAGES.VALIDATOR.SELECT_NETWORK);
       }} />
       <Title>Upload Keystore File</Title>
-      <Paragraph style={{ marginBottom: 10 }}>
+      <Paragraph style={{marginBottom: 10}}>
         Got more than one validator? Upload multiple keystore files at once.
         <br />
         <br />
@@ -280,66 +279,70 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
         onFiles={onFilesSelected}
       />
 
-      {shouldDisplayError && <Warning style={{maxWidth: '100%', marginTop: '20px'}} text={errorMessage} />}
+      {shouldDisplayError && <Warning style={{maxWidth: '100%', marginTop: '20px'}} text={errorMessage}/>}
 
-        <>
-          <br />
-          <UploadedFilesHeaderWrapper>
-            <UploadedFilesHeader>Uploaded Files</UploadedFilesHeader>
-            <ClearKeyStores onClick={clearKeyStores}>Clear All</ClearKeyStores>
-          </UploadedFilesHeaderWrapper>
-          <SelectedFilesTable>
-            <tbody>
-              {keyStores && keyStores.map((file: File, fileIndex: number) => {
-              // @ts-ignore
-              return (
-                <FileTail key={fileIndex}>
-                  <td key="file-progress">
-                    <FileDecodeStatus status={file?.status} />
-                  </td>
-                  <td key="file-name">
-                    {file.name}
-                  </td>
-                  <td key="file-delete">
-                    <RemoveFileImage
-                      src={removeFileImage}
-                      onClick={() => {
-                        if(!isDecryptingKeyStores) removeFile(fileIndex);
-                      }}
-                    />
-                  </td>
-                </FileTail>
-              );
-            })}
-            </tbody>
-          </SelectedFilesTable>
-          <PasswordWrapper>
-            <PasswordText>Keystore Password</PasswordText>
-            <OutlinedInput
-              style={{height: '40px'}}
-              id="outlined-adornment-password"
-              type={showPassword ? 'text' : 'password'}
-              onBlur={(e) => { setPassword(e.target.value) }}
-              endAdornment={(
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={() => { setShowPassword(!showPassword); }}
-                    onMouseDown={handleMouseDownPassword}
-                    edge="end"
-                  >
-                    {showPassword ? <Visibility /> : <VisibilityOff />}
-                  </IconButton>
-                </InputAdornment>
-              )}
-              labelWidth={70}
-            />
-            <Button disabled={!(allFilesJson && password && keyStores.length > 0 && !isDecryptingKeyStores)} onClick={decryptFiles}>
-              {isDecryptingKeyStores ? <FileDecodeProgress /> : 'Next'}
-            </Button>
-            {isDecryptingKeyStores && `${decryptedFilesCount}/${keyStores.length} Files Decrypted`}
-          </PasswordWrapper>
-        </>
+      <>
+        <br />
+        <UploadedFilesHeaderWrapper>
+          <UploadedFilesHeader>Uploaded Files</UploadedFilesHeader>
+          <ClearKeyStores onClick={clearKeyStores}>Clear All</ClearKeyStores>
+        </UploadedFilesHeaderWrapper>
+        <SelectedFilesTable>
+          <tbody>
+          {keyStores && keyStores.map((file: File, fileIndex: number) => {
+            // @ts-ignore
+            return (
+              <FileTail key={fileIndex}>
+                <td key="file-progress">
+                  <FileDecodeStatus status={file?.status} />
+                </td>
+                <td key="file-name">
+                  {file.name}
+                </td>
+                <td key="file-delete">
+                  <RemoveFileImage
+                    src={removeFileImage}
+                    onClick={() => {
+                      if (!isDecryptingKeyStores) removeFile(fileIndex);
+                    }}
+                  />
+                </td>
+              </FileTail>
+            );
+          })}
+          </tbody>
+        </SelectedFilesTable>
+        <PasswordWrapper>
+          <PasswordText>Keystore Password</PasswordText>
+          <OutlinedInput
+            style={{height: '40px'}}
+            id="outlined-adornment-password"
+            type={showPassword ? 'text' : 'password'}
+            onBlur={(e) => {
+              setPassword(e.target.value);
+            }}
+            endAdornment={(
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={() => {
+                    setShowPassword(!showPassword);
+                  }}
+                  onMouseDown={handleMouseDownPassword}
+                  edge="end"
+                >
+                  {showPassword ? <Visibility /> : <VisibilityOff />}
+                </IconButton>
+              </InputAdornment>
+            )}
+            labelWidth={70}
+          />
+          <Button disabled={!(allFilesJson && password && keyStores.length > 0 && !isDecryptingKeyStores)} onClick={decryptFiles}>
+            {isDecryptingKeyStores ? <FileDecodeProgress /> : 'Next'}
+          </Button>
+          {isDecryptingKeyStores && `${decryptedFilesCount}/${keyStores.length} Files Decrypted`}
+        </PasswordWrapper>
+      </>
     </Wrapper>
   );
 };

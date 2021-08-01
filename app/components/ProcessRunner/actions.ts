@@ -4,10 +4,13 @@ type Credentials = {
   accessKeyId: string;
   secretAccessKey: string;
 };
+
+// inputData may be seed or keyStores
 export type ProcessParams = {
   credentials?: Credentials | null,
   network?: string,
   indexToRestore?: number
+  inputData?: Array<any> | string
 };
 
 export const processSubscribe = (name: string, defaultMessage: string, params?: ProcessParams) => {

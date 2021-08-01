@@ -94,14 +94,11 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
     setAllValidatorsHaveSameStatus(!(notDepositedCount > 0 && depositedCount > 0));
     setAllDeposited(depositedCount > 0);
     setContinueButtonDisabled(!(isValidatorsOfflineCheckbox && isAgreementReadCheckbox && allValidatorsHaveSameStatus));
+
     if (publicKeys.length > 0) { bloxApi.request('GET', `/ethereum2/validators-deposits/?network=${network}&publicKeys=${publicKeys.join(',')}`).then((deposits: any) => {
       const newValidatorsStatuses = validators.map((validator) => {
         const newValidator = { ...validator};
-        if (deposits[validator.publicKey]) {
-          newValidator.deposited = true;
-        } else {
-          newValidator.deposited = false;
-        }
+        newValidator.deposited = !!deposits[validator.publicKey];
         return newValidator;
       });
       setValidators(newValidatorsStatuses);

@@ -3,6 +3,7 @@ import { exec } from 'child_process';
 import { execPath } from '~app/binaries';
 import { Log } from '~app/backend/common/logger/logger';
 import { Catch, CatchClass } from '~app/backend/decorators';
+import Connection from '../../common/store-manager/connection';
 
 @CatchClass<KeyManagerService>()
 export default class KeyManagerService {
@@ -27,10 +28,16 @@ export default class KeyManagerService {
   @Catch({
     displayMessage: 'Create Keyvault account failed'
   })
-  async createAccount(seed: string, index: number, network: string, highestSource: string, highestTarget: string, highestProposal: string): Promise<string> {
+  async createAccount(seedOrKeyStores: string | Array<any>, index: number, network: string, highestSource: string, highestTarget: string, highestProposal: string): Promise<string> {
+    const isSeed = Connection.db().get('VALIDATORS_MODE') === 'seed';
+    if (typeof seedOrKeyStores !== 'string') {
+      // eslint-disable-next-line no-param-reassign
+      seedOrKeyStores = seedOrKeyStores.map(k => k.privateKey).join(',');
+    }
+
     try {
       const { stdout } = await this.executor(
-        `${this.executablePath} wallet account create --seed=${seed} --index=${index} --network=${network} --accumulate=true --highest-source=${highestSource} --highest-target=${highestTarget} --highest-proposal=${highestProposal}`
+        `${this.executablePath} wallet account create${!isSeed ? '-seedless --private-key' : ' --seed'}=${seedOrKeyStores} --index=${index} --network=${network} --accumulate=true --highest-source=${highestSource} --highest-target=${highestTarget} --highest-proposal=${highestProposal}`
       );
       return stdout.replace('\n', '');
     } catch (e) {
@@ -38,7 +45,14 @@ export default class KeyManagerService {
     }
   }
 
-  async getAccount(seed: string, index: number, network: string, accumulate: boolean = false): Promise<any> {
+  async getAccount(seedOrKeyStores: string | Array<any>, index: number, network: string, accumulate: boolean = false): Promise<any> {
+    const isSeed = Connection.db().get('VALIDATORS_MODE') === 'seed';
+
+    if (typeof seedOrKeyStores !== 'string') {
+      // eslint-disable-next-line no-param-reassign
+      seedOrKeyStores = seedOrKeyStores.map(k => k.privateKey).join(',');
+    }
+
     let highestSource = '';
     let highestTarget = '';
     let highestProposal = '';
@@ -56,21 +70,22 @@ export default class KeyManagerService {
     }
 
     const getAccountCommand = `${this.executablePath} \
-      wallet account create \
-      --seed=${seed} \
+      wallet account create${!isSeed ? '-seedless' : ''} \
+      ${isSeed ? '--seed' : '--private-key'}=${seedOrKeyStores} \
       --index=${index} \
       --network=${network} \
       --response-type=object \
       --accumulate=${accumulate} \
       --highest-source=${highestSource} \
       --highest-target=${highestTarget} \
-      --highest-proposal=${highestProposal}`;
+      --highest-proposal=${highestProposal} \
+      `;
 
     try {
       const { stdout } = await this.executor(getAccountCommand);
       return stdout ? JSON.parse(stdout) : {};
     } catch (error) {
-      console.error('KeyManagerService::getAccount error', { command: getAccountCommand.replace(seed, '***'), error });
+      console.error('KeyManagerService::getAccount error', { command: getAccountCommand.replace(seedOrKeyStores, '***'), error });
       throw new Error(`Get keyvault account with index ${JSON.stringify(index)} was failed.`);
     }
   }

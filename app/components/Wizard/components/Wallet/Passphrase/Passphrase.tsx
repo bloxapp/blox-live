@@ -33,6 +33,8 @@ const Passphrase = (props: Props) => {
   useInjectSaga({key: keyvaultKey, saga: keyvaultSaga, mode: ''});
   useInjectSaga({key: passwordKey, saga: passwordSaga, mode: ''});
 
+  console.log(mnemonic);
+
   const onPassphraseClick = () => {
     if (mnemonic || isLoading) { return; }
     keyvaultLoadMnemonic();

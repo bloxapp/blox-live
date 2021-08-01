@@ -31,7 +31,7 @@ const FlexWrapper = styled.div`
 `;
 
 const openBeaconChain = (publicKey) => {
-    shell.openExternal(`http://prater.beaconcha.in/validator/${publicKey}`);
+    shell.openExternal(`http://pyrmont.beaconcha.in/validator/${publicKey}`);
 };
 
 export default [

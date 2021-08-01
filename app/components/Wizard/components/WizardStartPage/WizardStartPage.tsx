@@ -94,6 +94,7 @@ const WizardStartPage = (props: Props) => {
 
     const hasWallet = wallet && (wallet.status === 'active' || wallet.status === 'offline');
     const hasSeed = Connection.db().exists('seed');
+    const keyStoreMode = Connection.db().get('VALIDATORS_MODE') === 'keystore';
     const finishedRecoveryOrInstallProcess = Connection.db().get('uuid');
     const isInRecoveryProcess = Connection.db().get('inRecoveryProcess');
     const isPrimaryDevice = !!finishedRecoveryOrInstallProcess && (finishedRecoveryOrInstallProcess === userInfo.uuid);
@@ -118,7 +119,7 @@ const WizardStartPage = (props: Props) => {
       }
 
       // Having saved seed in the app
-      if (hasSeed) {
+      if (hasSeed || keyStoreMode) {
         // Clicked on "Add Validator" button
         if (addAnotherAccount) {
           redirectToCreateAccount();

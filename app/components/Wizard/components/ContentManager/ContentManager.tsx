@@ -82,10 +82,6 @@ const switcher = (props: Props) => {
       component = <ValidatorPages.DepositOverview {...props} />;
       break;
 
-    case config.WIZARD_PAGES.VALIDATOR.UPLOAD_DEPOSIT_FILE:
-      component = <ValidatorPages.UploadDepositFile {...props} />;
-      break;
-
     case config.WIZARD_PAGES.VALIDATOR.CREATE_VALIDATOR:
       bgImage = validatorImage;
       component = <ValidatorPages.CreateValidator {...props} />;

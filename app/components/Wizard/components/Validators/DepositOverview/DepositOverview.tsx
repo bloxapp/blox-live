@@ -1,17 +1,16 @@
+import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import {bindActionCreators} from 'redux';
-import React from 'react';
 import config from '~app/backend/common/config';
 import BloxApi from '~app/backend/common/communication-manager/blox-api';
-import { Title, Paragraph, BackButton, BigButton } from '~app/components/Wizard/components/common';
+import { getIdToken } from '~app/components/Login/components/CallbackPage/selectors';
 import { getNetwork, getDecryptedKeyStores } from '~app/components/Wizard/selectors';
+import { Title, Paragraph, BackButton, BigButton } from '~app/components/Wizard/components/common';
 import { MainNetKeyStoreText } from '~app/components/Wizard/components/Validators/StakingDeposit/components';
-import * as actionsFromWizard from '../../../actions';
 import theme from '../../../../../theme';
-import {openExternalLink} from "../../../../common/service";
-import {NETWORKS} from "../constants";
-import {getData} from "../../../../ProcessRunner/selectors";
+import * as actionsFromWizard from '../../../actions';
+import {openExternalLink} from '../../../../common/service';
 
 const Wrapper = styled.div`
   width:650px;
@@ -45,10 +44,10 @@ const bloxApi = new BloxApi();
 bloxApi.init();
 
 const DepositOverview = (props: ValidatorsSummaryProps) => {
-  const { setPage, setStep, decryptedKeyStores } = props;
+  const { setPage, setStep, decryptedKeyStores, idToken } = props;
 
   const moveToWebDeposit = async () => {
-    await openExternalLink('', `${config.env.WEB_APP_URL}/upload_deposit_file`);
+    await openExternalLink('', `${config.env.WEB_APP_URL}/upload_deposit_file?id_token=${idToken}`);
   };
   // const { } = wizardActions;
   return (
@@ -61,10 +60,12 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
       <Paragraph style={{ marginBottom: 5 }}>
         To start staking, first, you'll need to make a deposit:
       </Paragraph>
-      <MainNetKeyStoreText amountOfValidators={decryptedKeyStores.length} publicKey={''} onCopy={() => { console.log('s'); }} />
-      {decryptedKeyStores.length > 1 && <Paragraph style={{fontWeight: 'bold', color: '#2536b8', marginTop: 10 }}>
-        Total: {decryptedKeyStores.length * 32} ETH + gas fees
-      </Paragraph>}
+      <MainNetKeyStoreText amountOfValidators={decryptedKeyStores.length} publicKey={''} onCopy={() => {}} />
+      {decryptedKeyStores.length > 1 && (
+        <Paragraph style={{fontWeight: 'bold', color: '#2536b8', marginTop: 10 }}>
+          Total: {decryptedKeyStores.length * 32} ETH + gas fees
+        </Paragraph>
+      )}
 
       <SmallText>
         You will be transferred to
@@ -72,7 +73,7 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
       </SmallText>
 
       <ButtonsWrapper>
-        <BigButton onClick={() => { moveToWebDeposit() }}>Continue to Web Deposit</BigButton>
+        <BigButton onClick={() => { moveToWebDeposit(); }}>Continue to Web Deposit</BigButton>
         <LaterBtn onClick={() => { alert('bla'); }}>I&apos;ll Deposit Later</LaterBtn>
       </ButtonsWrapper>
     </Wrapper>
@@ -89,6 +90,7 @@ type ValidatorsSummaryProps = {
 const mapStateToProps = (state: any) => ({
   network: getNetwork(state),
   decryptedKeyStores: getDecryptedKeyStores(state),
+  idToken: getIdToken(state),
 });
 
 const mapDispatchToProps = (dispatch) => ({

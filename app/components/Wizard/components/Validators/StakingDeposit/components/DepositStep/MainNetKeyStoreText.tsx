@@ -31,6 +31,7 @@ const MainNetKeyStoreText = (props: Props) => {
 type Props = {
   publicKey: string;
   onCopy: () => void;
+  amountOfValidators: number;
 };
 
 export default MainNetKeyStoreText;

@@ -23,7 +23,6 @@ const ButtonsWrapper = styled.div`
 
 const onClick = ({ setPage, setNetwork }: ValidatorsProps, network) => {
   setNetwork(network);
-  console.log(setNetwork);
   if (selectedKeystoreMode()) {
     setPage(config.WIZARD_PAGES.VALIDATOR.UPLOAD_KEYSTORE_FILE);
   } else {

@@ -10,7 +10,7 @@ export default class AccountCreateProcess extends ProcessClass {
   public readonly actions: Array<any>;
   public readonly fallbackActions: Array<any>;
 
-  constructor(network: string, indexToRestore?: number) {
+  constructor(network: string, indexToRestore?: number, inputData?: Array<any> | string) {
     super('Account creation');
     Connection.db().set('network', network);
     this.keyVaultService = new KeyVaultService();
@@ -24,7 +24,8 @@ export default class AccountCreateProcess extends ProcessClass {
         instance: this.accountService,
         method: 'createAccount',
         params: {
-          indexToRestore
+          indexToRestore,
+          inputData
         }
       },
       {
@@ -35,7 +36,8 @@ export default class AccountCreateProcess extends ProcessClass {
         instance: this.accountService,
         method: 'createBloxAccounts',
         params: {
-          indexToRestore
+          indexToRestore,
+          inputData
         }
       },
       {

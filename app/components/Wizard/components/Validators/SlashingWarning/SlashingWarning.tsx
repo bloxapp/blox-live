@@ -1,13 +1,24 @@
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import React, { useEffect, useState } from 'react';
 import { getNetwork, getDecryptedKeyStores } from '~app/components/Wizard/selectors';
 import { Title, Paragraph, BackButton } from '~app/components/Wizard/components/common';
+import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
+import {loadDepositData} from '../../../actions';
 import config from '../../../../../backend/common/config';
-import {Checkbox} from '../../../../../common/components';
+import useRouting from '../../../../../common/hooks/useRouting';
+import {setAddAnotherAccount} from '../../../../Accounts/actions';
+import useDashboardData from '../../../../Dashboard/useDashboardData';
+import {Checkbox, ProcessLoader} from '../../../../../common/components';
+import usePasswordHandler from '../../../../PasswordHandler/usePasswordHandler';
 
 const Wrapper = styled.div`
   width:650px;
+`;
+
+const ProgressWrapper = styled.div`
+  width:238px;
+  margin-top:20px;
 `;
 
 const ButtonWrapper = styled.div`
@@ -31,9 +42,14 @@ const Button = styled.button<{ isDisabled }>`
 `;
 
 const SlashingWarning = (props: SlashingWarningProps) => {
-  const { setPage, setStep } = props;
+  const { isLoading, isDone, processData, error, startProcess, clearProcessState, loaderPercentage } = useProcessRunner();
+  const { loadDataAfterNewAccount } = useDashboardData();
+  const { checkIfPasswordIsNeeded } = usePasswordHandler();
+  const { setPage, setStep, decryptedKeyStores, callSetAddAnotherAccount } = props;
   const [isChecked, setIsChecked] = useState(false);
+  const { goToPage, ROUTES } = useRouting();
   const [isContinueButtonDisabled, setContinueButtonDisabled] = useState(true);
+  const account = processData && processData.length ? processData[0] : processData;
   const checkboxStyle = { marginRight: 5 };
   const checkboxLabelStyle = { fontSize: 12 };
 
@@ -41,8 +57,32 @@ const SlashingWarning = (props: SlashingWarningProps) => {
     setContinueButtonDisabled(!isChecked);
   }, [isChecked]);
 
+  useEffect(() => {
+    if (isDone && account && !error) {
+      onValidatorCreation();
+    }
+  }, [isLoading, account, error]);
+
+  const onValidatorCreation = async () => {
+    await loadDataAfterNewAccount();
+    await callSetAddAnotherAccount(false);
+    goToPage(ROUTES.DASHBOARD);
+  };
+
   const onNextButtonClick = () => {
-    alert('need to implememnt');
+    const onSuccess = () => {
+      if (error) {
+        clearProcessState();
+      }
+      if (!isLoading) {
+        startProcess('createAccount',
+          'Importing Validators...',
+          {
+            inputData: decryptedKeyStores
+          });
+      }
+    };
+    checkIfPasswordIsNeeded(onSuccess);
   };
 
   return (
@@ -80,6 +120,11 @@ const SlashingWarning = (props: SlashingWarningProps) => {
           onClick={() => { !isContinueButtonDisabled && onNextButtonClick(); }}>
           Confirm & Run Validator with BloxStaking
         </Button>
+        {isLoading && (
+          <ProgressWrapper>
+            <ProcessLoader text={`Importing validator${account?.length === 1 ? '' : 's'}`} precentage={loaderPercentage} />
+          </ProgressWrapper>
+        )}
       </ButtonWrapper>
     </Wrapper>
   );
@@ -93,6 +138,8 @@ type SlashingWarningProps = {
   setPageData: (data: any) => void;
   network: string;
   decryptedKeyStores: Array<any>,
+  callSetAddAnotherAccount: (payload: boolean) => void;
+  callLoadDepositData: (publicKey: string, accountIndex: number, network: string) => void;
 };
 
 const mapStateToProps = (state: any) => ({
@@ -100,4 +147,11 @@ const mapStateToProps = (state: any) => ({
   decryptedKeyStores: getDecryptedKeyStores(state),
 });
 
-export default connect(mapStateToProps, null)(SlashingWarning);
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  callLoadDepositData: (publicKey, accountIndex, network) => dispatch(loadDepositData(publicKey, accountIndex, network)),
+  callSetAddAnotherAccount: (payload: boolean) => dispatch(setAddAnotherAccount(payload)),
+});
+
+type Dispatch = (arg0: { type: string }) => any;
+
+export default connect(mapStateToProps, mapDispatchToProps)(SlashingWarning);
