@@ -285,7 +285,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
         <br />
         <UploadedFilesHeaderWrapper>
           <UploadedFilesHeader>Uploaded Files</UploadedFilesHeader>
-          <ClearKeyStores onClick={clearKeyStores}>Clear All</ClearKeyStores>
+          {keyStores && keyStores.length > 1 && <ClearKeyStores onClick={clearKeyStores}>Clear All</ClearKeyStores>}
         </UploadedFilesHeaderWrapper>
         <SelectedFilesTable>
           <tbody>

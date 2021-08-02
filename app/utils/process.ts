@@ -16,10 +16,16 @@ export const getProcessNameForUpdate = (keyVaultCurrentVersion: string, keyVault
     return PROCESSES.REINSTALL;
   }
   if (!parsedVersions.current?.minor || !parsedVersions.latest?.minor) {
-    return PROCESSES.UPGRADE;
+    return PROCESSES.REINSTALL;
   }
   if (parseInt(parsedVersions.latest.minor, 10) > parseInt(parsedVersions.current.minor, 10)) {
     return PROCESSES.REINSTALL;
+  }
+  if (!parsedVersions.current?.mod || !parsedVersions.latest?.mod) {
+    return PROCESSES.UPGRADE;
+  }
+  if (parseInt(parsedVersions.latest.mod, 10) > parseInt(parsedVersions.current.mod, 10)) {
+    return PROCESSES.UPGRADE;
   }
   return PROCESSES.UPGRADE;
 };

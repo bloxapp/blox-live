@@ -143,13 +143,13 @@ const StakingDeposit = (props: Props) => {
 
         <SubTitle>To Start Staking, you&apos;ll need to make 2 deposits:</SubTitle>
 
-        {NETWORKS[network].label === NETWORKS.pyrmont.label
+        {NETWORKS[network].label === NETWORKS.prater.label
           ? <TestNetText publicKey={publicKey} onCopy={onCopy} />
           : <MainNetText publicKey={publicKey} onCopy={onCopy} />
         }
 
         <SmallText>
-          Total: 32 {NETWORKS[network].label === NETWORKS.pyrmont.label ? 'GoETH' : 'ETH'} + gas
+          Total: 32 {NETWORKS[network].label === NETWORKS.prater.label ? 'GoETH' : 'ETH'} + gas
           fees
         </SmallText>
 

@@ -69,34 +69,6 @@ export default class SeedLess implements Strategy {
   }
 
   async createBloxAccounts(indexToRestore: number): Promise<any> {
-    const network = Connection.db(this.storePrefix).get('network');
-    const lastNetworkIndex = +Connection.db(this.storePrefix).get(`index.${network}`);
-    const index: number = indexToRestore ?? (lastNetworkIndex + 1);
-    const accumulate = indexToRestore != null;
 
-    // Get cumulative accounts list or one account
-    let accounts = await this.keyManagerService.getAccount(
-      Connection.db(this.storePrefix).get('pending_key_stores'),
-      index,
-      network,
-      accumulate
-    );
-
-    if (accumulate) {
-      // Reverse for account-0 on index 0 etc
-      accounts = { data: accounts.reverse(), network };
-    } else {
-      accounts = { data: [accounts], network };
-    }
-
-    // Set imported flag for imported accounts
-    accounts.data = accounts.data.map((acc) => {
-      acc.withdrawalPubKey = '123123';
-      acc.imported = accumulate;
-      return acc;
-    });
-
-    this.logger.debug('Created accounts', accounts);
-    return accounts;
   }
 }

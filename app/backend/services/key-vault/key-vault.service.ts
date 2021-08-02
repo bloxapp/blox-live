@@ -82,14 +82,14 @@ export default class KeyVaultService {
       path: `ethereum/${config.env.MAINNET_NETWORK}/version`,
       isNetworkRequired: false
     });
-    const pyrmontVersion = await this.keyVaultApi.requestThruSsh({
+    const praterVersion = await this.keyVaultApi.requestThruSsh({
       method: METHOD.GET,
-      path: `ethereum/${config.env.PYRMONT_NETWORK}/version`,
+      path: `ethereum/${config.env.PRATER_NETWORK}/version`,
       isNetworkRequired: false
     });
     const result = {
       mainnetVersion,
-      pyrmontVersion
+      praterVersion
     };
     this.logger.trace('KV server healthcheck', result);
     return result;
@@ -286,7 +286,7 @@ export default class KeyVaultService {
     name: 'Import key-vault data...',
   })
   async importKeyVaultData(): Promise<any> {
-    const supportedNetworks = [config.env.PYRMONT_NETWORK, config.env.MAINNET_NETWORK];
+    const supportedNetworks = [config.env.TESTNET_NETWORK(), config.env.MAINNET_NETWORK];
     // eslint-disable-next-line no-restricted-syntax
     for (const network of supportedNetworks) {
       Connection.db(this.storePrefix).set('network', network);

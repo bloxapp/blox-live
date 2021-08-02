@@ -62,7 +62,7 @@ const Validators = ({ accounts, isTestNetShow, showNetworkSwitcher }) => {
         if (!isTestNetShow) {
           return account.network === config.env.MAINNET_NETWORK;
         }
-        return account.network === config.env.PYRMONT_NETWORK;
+        return account.network === config.env.PRATER_NETWORK;
       }));
     }
     setPaginationInfo(null);

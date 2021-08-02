@@ -36,8 +36,9 @@ export default class KeyManagerService {
     }
 
     try {
+      console.log(`${this.executablePath} wallet account create${!isSeed ? '-seedless --private-key' : ' --seed --accumulate=true'}=${seedOrKeyStores} --index=${index} --network=${network} --highest-source=${highestSource} --highest-target=${highestTarget} --highest-proposal=${highestProposal}`);
       const { stdout } = await this.executor(
-        `${this.executablePath} wallet account create${!isSeed ? '-seedless --private-key' : ' --seed'}=${seedOrKeyStores} --index=${index} --network=${network} --accumulate=true --highest-source=${highestSource} --highest-target=${highestTarget} --highest-proposal=${highestProposal}`
+        `${this.executablePath} wallet account create${!isSeed ? '-seedless --private-key' : ' --seed --accumulate=true'}=${seedOrKeyStores} --index=${index} --network=${network} --highest-source=${highestSource} --highest-target=${highestTarget} --highest-proposal=${highestProposal}`
       );
       return stdout.replace('\n', '');
     } catch (e) {
@@ -48,7 +49,7 @@ export default class KeyManagerService {
   async getAccount(seedOrKeyStores: string | Array<any>, index: number, network: string, accumulate: boolean = false): Promise<any> {
     const isSeed = Connection.db().get('VALIDATORS_MODE') === 'seed';
 
-    if (typeof seedOrKeyStores !== 'string') {
+    if (Array.isArray(seedOrKeyStores)) {
       // eslint-disable-next-line no-param-reassign
       seedOrKeyStores = seedOrKeyStores.map(k => k.privateKey).join(',');
     }
@@ -135,6 +136,7 @@ export default class KeyManagerService {
       throw new Error('Passphrase not correct');
     }
   }
+
 
   @Catch({
     showErrorMessage: true

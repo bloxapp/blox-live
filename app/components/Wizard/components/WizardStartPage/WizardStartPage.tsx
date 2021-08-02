@@ -79,6 +79,7 @@ const WizardStartPage = (props: Props) => {
   const { loadDataAfterNewAccount } = useDashboardData();
   const { goToPage, ROUTES } = useRouting();
   const [showStep2, setStep2Status] = useState(false);
+  const [ keyStoreMode, setKeyStoreMode ] = useState(Connection.db().get('VALIDATORS_MODE') === 'keystore');
 
   const goToDashboard = () => {
     // Reload accounts and event logs before reaching dash
@@ -94,7 +95,7 @@ const WizardStartPage = (props: Props) => {
 
     const hasWallet = wallet && (wallet.status === 'active' || wallet.status === 'offline');
     const hasSeed = Connection.db().exists('seed');
-    const keyStoreMode = Connection.db().get('VALIDATORS_MODE') === 'keystore';
+    setKeyStoreMode(Connection.db().get('VALIDATORS_MODE') === 'keystore')
     const finishedRecoveryOrInstallProcess = Connection.db().get('uuid');
     const isInRecoveryProcess = Connection.db().get('inRecoveryProcess');
     const isPrimaryDevice = !!finishedRecoveryOrInstallProcess && (finishedRecoveryOrInstallProcess === userInfo.uuid);
@@ -236,7 +237,7 @@ const WizardStartPage = (props: Props) => {
   };
 
   const redirectToCreateAccount = () => {
-    if (!accounts?.length) {
+    if (!accounts?.length && !keyStoreMode ) {
       setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
       setPage(config.WIZARD_PAGES.WALLET.IMPORT_OR_GENERATE_SEED);
       logger.debug('️️🔶 Redirect to Import or Generate seed because no accounts!');

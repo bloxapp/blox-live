@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import { getNetwork, getDecryptedKeyStores } from '~app/components/Wizard/selectors';
-import { Title, Paragraph, BackButton } from '~app/components/Wizard/components/common';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
+import { getNetwork, getDecryptedKeyStores } from '~app/components/Wizard/selectors';
+import { Title, Paragraph, BackButton, ErrorMessage } from '~app/components/Wizard/components/common';
 import {loadDepositData} from '../../../actions';
 import config from '../../../../../backend/common/config';
-import useRouting from '../../../../../common/hooks/useRouting';
 import {setAddAnotherAccount} from '../../../../Accounts/actions';
 import useDashboardData from '../../../../Dashboard/useDashboardData';
 import {Checkbox, ProcessLoader} from '../../../../../common/components';
 import usePasswordHandler from '../../../../PasswordHandler/usePasswordHandler';
+import { SmallText } from '../../../../../common/components/ModalTemplate/components';
 
 const Wrapper = styled.div`
   width:650px;
@@ -42,12 +42,11 @@ const Button = styled.button<{ isDisabled }>`
 `;
 
 const SlashingWarning = (props: SlashingWarningProps) => {
-  const { isLoading, isDone, processData, error, startProcess, clearProcessState, loaderPercentage } = useProcessRunner();
+  const { isLoading, isDone, processData, error, startProcess, clearProcessState, loaderPercentage, processMessage } = useProcessRunner();
   const { loadDataAfterNewAccount } = useDashboardData();
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
   const { setPage, setStep, decryptedKeyStores, callSetAddAnotherAccount } = props;
   const [isChecked, setIsChecked] = useState(false);
-  const { goToPage, ROUTES } = useRouting();
   const [isContinueButtonDisabled, setContinueButtonDisabled] = useState(true);
   const account = processData && processData.length ? processData[0] : processData;
   const checkboxStyle = { marginRight: 5 };
@@ -66,7 +65,7 @@ const SlashingWarning = (props: SlashingWarningProps) => {
   const onValidatorCreation = async () => {
     await loadDataAfterNewAccount();
     await callSetAddAnotherAccount(false);
-    goToPage(ROUTES.DASHBOARD);
+    setPage(config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS);
   };
 
   const onNextButtonClick = () => {
@@ -76,7 +75,7 @@ const SlashingWarning = (props: SlashingWarningProps) => {
       }
       if (!isLoading) {
         startProcess('createAccount',
-          'Importing Validators...',
+          `Create Validator${decryptedKeyStores.length > 0 ? 's' : ''}...`,
           {
             inputData: decryptedKeyStores
           });
@@ -122,8 +121,15 @@ const SlashingWarning = (props: SlashingWarningProps) => {
         </Button>
         {isLoading && (
           <ProgressWrapper>
-            <ProcessLoader text={`Importing validator${account?.length === 1 ? '' : 's'}`} precentage={loaderPercentage} />
+            {/*<ProcessLoader text={`Importing validator${account?.length === 1 ? '' : 's'}`} precentage={loaderPercentage} />*/}
+            <ProcessLoader text={processMessage} precentage={loaderPercentage} />
+            <SmallText withWarning />
           </ProgressWrapper>
+        )}
+        {error && (
+          <ErrorMessage>
+            {error}, please try again.
+          </ErrorMessage>
         )}
       </ButtonWrapper>
     </Wrapper>
@@ -137,6 +143,7 @@ type SlashingWarningProps = {
   setStep: (page: number) => void;
   setPageData: (data: any) => void;
   network: string;
+  wizardActions: Record<string, any>;
   decryptedKeyStores: Array<any>,
   callSetAddAnotherAccount: (payload: boolean) => void;
   callLoadDepositData: (publicKey: string, accountIndex: number, network: string) => void;

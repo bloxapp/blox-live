@@ -133,12 +133,12 @@ token expired scenario and will make request to refresh token only once, and wil
 
 5. Specifically set network for beaconcha API
 
-`"network": "pyrmont"`
+`"network": "prater"`
 
 6. Specifically set network for validators import feature.
 By default, it is `mainnet`.
 
-`"feature:import:network": "pyrmont"`
+`"feature:import:network": "prater"`
 
 
 
