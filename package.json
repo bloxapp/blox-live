@@ -275,8 +275,7 @@
     "webpack-bundle-analyzer": "^3.8.0",
     "webpack-cli": "^3.3.10",
     "webpack-dev-server": "^3.11.0",
-    "webpack-merge": "^4.2.2",
-    "eth2-keystore-js": "^1.0.5"
+    "webpack-merge": "^4.2.2"
   },
   "dependencies": {
     "@hot-loader/react-dom": "^16.13.0",
@@ -299,7 +298,6 @@
     "electron-store": "^6.0.0",
     "electron-unhandled": "^3.0.2",
     "electron-updater": "^4.3.1",
-    "eth2-keystore-js": "^1.0.5",
     "form-data": "3.0.0",
     "glob": "^7.1.6",
     "history": "4.7.2",

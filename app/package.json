@@ -16,6 +16,7 @@
   "license": "GPL-3.0",
   "dependencies": {
     "@material-ui/icons": "^4.11.2",
+    "eth2-keystore-js": "^1.0.8",
     "got": "11.5.2",
     "web3": "^1.2.11"
   }
