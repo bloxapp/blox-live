@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import {bindActionCreators} from 'redux';
@@ -11,6 +11,10 @@ import { MainNetKeyStoreText } from '~app/components/Wizard/components/Validator
 import theme from '../../../../../theme';
 import * as actionsFromWizard from '../../../actions';
 import {openExternalLink} from '../../../../common/service';
+import useProcessRunner from "../../../../ProcessRunner/useProcessRunner";
+import useDashboardData from "../../../../Dashboard/useDashboardData";
+import usePasswordHandler from "../../../../PasswordHandler/usePasswordHandler";
+import {loadUserInfo} from "../../../../User/actions";
 
 const Wrapper = styled.div`
   width:650px;
@@ -45,9 +49,40 @@ bloxApi.init();
 
 const DepositOverview = (props: ValidatorsSummaryProps) => {
   const { setPage, setStep, decryptedKeyStores, idToken } = props;
+  const { isLoading, isDone, processData, error, startProcess, clearProcessState, loaderPercentage, processMessage } = useProcessRunner();
+  const { loadDataAfterNewAccount } = useDashboardData();
+  const { checkIfPasswordIsNeeded } = usePasswordHandler();
+  const [moveToDepositPage, setMoveToDepositPage] = useState(true);
 
-  const moveToWebDeposit = async () => {
-    await openExternalLink('', `${config.env.WEB_APP_URL}/upload_deposit_file?id_token=${idToken}`);
+  useEffect(() => {
+    if (!isLoading && isDone && !error) {
+      clearProcessState();
+      const depositIds = processData.map(user => user.id).join(',');
+      console.log('<<<<<<<<<<<<<<<<<here>>>>>>>>>>>>>>>>>');
+      console.log(depositIds);
+      console.log('<<<<<<<<<<<<<<<<<here>>>>>>>>>>>>>>>>>');
+      if (moveToDepositPage) moveToWebDeposit(depositIds)
+    }
+  }, [isLoading, isDone, error]);
+
+  const moveToWebDeposit = async (ids: string) => {
+    await openExternalLink('', `${config.env.WEB_APP_URL}/upload_deposit_file?id_token=${idToken}&id=${ids}`);
+  };
+
+  const onNextButtonClick = () => {
+    const onSuccess = () => {
+      if (error) {
+        clearProcessState();
+      }
+      if (!isLoading) {
+        startProcess('createAccount',
+          `Create Validator${decryptedKeyStores.length > 0 ? 's' : ''}...`,
+          {
+            inputData: decryptedKeyStores
+          });
+      }
+    };
+    checkIfPasswordIsNeeded(onSuccess);
   };
   // const { } = wizardActions;
   return (
@@ -73,8 +108,8 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
       </SmallText>
 
       <ButtonsWrapper>
-        <BigButton onClick={() => { moveToWebDeposit(); }}>Continue to Web Deposit</BigButton>
-        <LaterBtn onClick={() => { alert('bla'); }}>I&apos;ll Deposit Later</LaterBtn>
+        <BigButton onClick={() => { setMoveToDepositPage(true) ; onNextButtonClick() }}>Continue to Web Deposit</BigButton>
+        <LaterBtn onClick={onNextButtonClick}>I&apos;ll Deposit Later</LaterBtn>
       </ButtonsWrapper>
     </Wrapper>
   );
