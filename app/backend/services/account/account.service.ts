@@ -3,6 +3,7 @@ import { hexDecode } from '~app/utils/service';
 import config from '~app/backend/common/config';
 import { Catch, Step } from '~app/backend/decorators';
 import { Log } from '~app/backend/common/logger/logger';
+import { selectedKeystoreMode } from '~app/common/service';
 import Connection from '~app/backend/common/store-manager/connection';
 import WalletService from '~app/backend/services/wallet/wallet.service';
 import BloxApi from '~app/backend/common/communication-manager/blox-api';
@@ -10,6 +11,12 @@ import { METHOD } from '~app/backend/common/communication-manager/constants';
 import KeyVaultService from '~app/backend/services/key-vault/key-vault.service';
 import BeaconchaApi from '~app/backend/common/communication-manager/beaconcha-api';
 import KeyManagerService from '~app/backend/services/key-manager/key-manager.service';
+
+type CreateBloxAccountsInBatchParams = {
+  network: string,
+  accounts: any,
+  imported: boolean
+};
 
 export default class AccountService {
   private readonly walletService: WalletService;
@@ -108,44 +115,117 @@ export default class AccountService {
     return await this.bloxApi.request(METHOD.PATCH, `accounts/${route}`, payload);
   }
 
+  /**
+   * Create blox accounts in batch
+   * @param indexToRestore
+   */
+  async createBloxAccountsInBatch({ network, accounts, imported }: CreateBloxAccountsInBatchParams): Promise<any> {
+    const accountsList = { data: accounts, network };
+    // Set imported flag for imported accounts
+    accountsList.data = accountsList.data.map((acc) => {
+      acc.imported = imported;
+      return acc;
+    });
+
+    // Create accounts in blox api
+    return this.create(accountsList);
+  }
+
   @Step({
     name: 'Create Blox Accounts'
   })
   @Catch({
     displayMessage: 'Create Blox Accounts failed'
   })
-  async createBloxAccounts({ indexToRestore }: { indexToRestore?: number }): Promise<any> {
+  async createBloxAccounts({ indexToRestore, privateKeys }: { indexToRestore?: number, privateKeys?: string[] }): Promise<any> {
     const network = Connection.db(this.storePrefix).get('network');
     const lastNetworkIndex = +Connection.db(this.storePrefix).get(`index.${network}`);
     const index: number = indexToRestore ?? (lastNetworkIndex + 1);
     const accumulate = indexToRestore != null;
+    const seedless = selectedKeystoreMode();
 
     // Get cumulative accounts list or one account
-    let accounts = await this.keyManagerService.getAccount(
-      Connection.db(this.storePrefix).get('seed'),
-      index,
-      network,
-      accumulate
-    );
-
-    if (accumulate) {
-      // Reverse for account-0 on index 0 etc
-      accounts = { data: accounts.reverse(), network };
+    let accounts;
+    if (seedless) {
+      accounts = await this.keyManagerService.getSeedlessAccount(
+        privateKeys,
+        index,
+        network
+      );
     } else {
-      accounts = { data: [accounts], network };
+      accounts = await this.keyManagerService.getAccount(
+        Connection.db(this.storePrefix).get('seed'),
+        index,
+        network,
+        accumulate
+      );
     }
 
-    // Set imported flag for imported accounts
-    accounts.data = accounts.data.map((acc) => {
-      acc.imported = accumulate;
-      return acc;
-    });
+    // For accumulated accounts - they are already an array
+    // For seedless accounts - they are also an array
+    if (!accumulate && !seedless) {
+      accounts = [accounts];
+    }
 
-    this.logger.debug('Created accounts', accounts);
+    /**
+     * Sort accounts by account index
+     * @param account1
+     * @param account2
+     */
+    const accountsSorter = (account1, account2) => {
+      const account1Index = parseInt(account1.name.replace('account-', 0), 10);
+      const account2Index = parseInt(account2.name.replace('account-', 0), 10);
+      if (account1Index > account2Index) {
+        return 1;
+      }
+      if (account1Index < account2Index) {
+        return -1;
+      }
+      return 0;
+    };
 
-    const account = await this.create(accounts);
-    if (account.error && account.error instanceof Error) return;
-    return { data: account };
+    accounts.sort(accountsSorter);
+
+    console.debug('Accounts about to register:', accounts);
+
+    const batchSize = config.env.CREATE_BLOX_ACCOUNTS_BATCH_SIZE;
+    let createdAccounts = [];
+    for (let batch = 0; batch < Math.ceil(accounts.length / batchSize); batch += 1) {
+      // Get next batch
+      const batchIndexFrom = batch * batchSize;
+      const batchIndexTo = batch * batchSize + batchSize;
+      const batchedAccounts = accounts.slice(batchIndexFrom, batchIndexTo);
+
+      console.debug(`Registering batched accounts in Blox with indexes '${batchIndexFrom}':'${batchIndexTo}'.`);
+      console.debug('Accounts:', batchedAccounts);
+
+      // Try few times
+      const createAccountsMaxAttempts = 3;
+      let isError = false;
+      for (let i = 1; i <= createAccountsMaxAttempts; i += 1) {
+        // eslint-disable-next-line no-await-in-loop
+        const account = await this.createBloxAccountsInBatch({
+          network,
+          accounts: batchedAccounts,
+          imported: accumulate,
+        });
+        isError = account.error && account.error instanceof Error;
+        if (!isError) {
+          createdAccounts = [...createdAccounts, ...account];
+          break;
+        }
+      }
+      if (isError) {
+        // When error persistently happens - return nothing, it means process doesn't go well
+        return;
+      }
+    }
+
+    // Sort all the final accounts in ascending mode to return from this step
+    createdAccounts.sort(accountsSorter);
+
+    this.logger.debug('Created accounts', createdAccounts);
+    return { data: createdAccounts };
   }
 
   @Step({
@@ -204,9 +284,12 @@ export default class AccountService {
     let highestProposal = '';
     const accountsArray = Object.values(accountsHash);
     for (let i = index; i >= 0; i -= 1) {
-      highestSource += `${accountsArray[i]['highest_source_epoch']}${i === 0 ? '' : ','}`;
-      highestTarget += `${accountsArray[i]['highest_target_epoch']}${i === 0 ? '' : ','}`;
-      highestProposal += `${accountsArray[i]['highest_proposal_slot']}${i === 0 ? '' : ','}`;
+      // @ts-ignore
+      highestSource += `${accountsArray[i].highest_source_epoch}${i === 0 ? '' : ','}`;
+      // @ts-ignore
+      highestTarget += `${accountsArray[i].highest_target_epoch}${i === 0 ? '' : ','}`;
+      // @ts-ignore
+      highestProposal += `${accountsArray[i].highest_proposal_slot}${i === 0 ? '' : ','}`;
     }
 
     // 6. create accounts

@@ -1,8 +1,7 @@
-import util from 'util';
-import { exec } from 'child_process';
 import { execPath } from '~app/binaries';
 import { Log } from '~app/backend/common/logger/logger';
 import { Catch, CatchClass } from '~app/backend/decorators';
+import { cliExecutor } from '~app/backend/common/cli-executor';
 
 @CatchClass<KeyManagerService>()
 export default class KeyManagerService {
@@ -12,7 +11,7 @@ export default class KeyManagerService {
 
   constructor() {
     this.logger = new Log(KeyManagerService.name);
-    this.executor = util.promisify(exec);
+    this.executor = cliExecutor;
     this.executablePath = execPath;
   }
 
@@ -28,17 +27,52 @@ export default class KeyManagerService {
     displayMessage: 'Create Keyvault account failed'
   })
   async createAccount(seed: string, index: number, network: string, highestSource: string, highestTarget: string, highestProposal: string): Promise<string> {
+    let createAccountCommand = '';
     try {
-      const { stdout } = await this.executor(
-        `${this.executablePath} wallet account create --seed=${seed} --index=${index} --network=${network} --accumulate=true --highest-source=${highestSource} --highest-target=${highestTarget} --highest-proposal=${highestProposal}`
-      );
+      createAccountCommand = `${this.executablePath} wallet account create --seed=${seed} --index=${index} --network=${network} --accumulate=true --highest-source=${highestSource} --highest-target=${highestTarget} --highest-proposal=${highestProposal}`;
+      const { stdout } = await this.executor(createAccountCommand);
       return stdout.replace('\n', '');
-    } catch (e) {
+    } catch (error) {
+      console.error('KeyManagerService::createAccount error', { command: createAccountCommand.replace(seed, '***'), error });
       throw new Error(`Create account with index ${JSON.stringify(index)} was failed`);
     }
   }
 
-  async getAccount(seed: string, index: number, network: string, accumulate: boolean = false): Promise<any> {
+  /**
+   * Get seedless accounts from private keys
+   * @param privateKeys
+   * @param indexFrom
+   * @param network
+   */
+  async getSeedlessAccount(privateKeys: string[], indexFrom: number, network: string): Promise<any> {
+    const { highestSource, highestTarget, highestProposal } = this.getHighestValues(true, indexFrom);
+    const privateKeysString = privateKeys.join(',');
+
+    const getAccountCommand = `${this.executablePath} \
+      wallet account create-seedless \
+      --private-keys=${privateKeysString} \
+      --index-from=${indexFrom} \
+      --network=${network} \
+      --response-type=object \
+      --highest-source=${highestSource} \
+      --highest-target=${highestTarget} \
+      --highest-proposal=${highestProposal}`;
+
+    try {
+      const { stdout } = await this.executor(getAccountCommand);
+      return stdout ? JSON.parse(stdout) : {};
+    } catch (error) {
+      console.error('KeyManagerService::getSeedlessAccount error', { command: getAccountCommand.replace(privateKeysString, '***'), error });
+      throw new Error(`Get keyvault account with index ${JSON.stringify(indexFrom)} was failed.`);
+    }
+  }
+
+  /**
+   * Return highest values to get account with
+   * @param accumulate
+   * @param index
+   */
+  getHighestValues(accumulate: boolean, index: number) {
     let highestSource = '';
     let highestTarget = '';
     let highestProposal = '';
@@ -54,6 +88,22 @@ export default class KeyManagerService {
       }
       highestProposal = highestSource;
     }
+    return {
+      highestSource,
+      highestTarget,
+      highestProposal,
+    };
+  }
+
+  /**
+   * Get accounts from seed
+   * @param seed
+   * @param index
+   * @param network
+   * @param accumulate
+   */
+  async getAccount(seed: string, index: number, network: string, accumulate: boolean = false): Promise<any> {
+    const { highestSource, highestTarget, highestProposal } = this.getHighestValues(accumulate, index);
 
     const getAccountCommand = `${this.executablePath} \
       wallet account create \
@@ -75,6 +125,13 @@ export default class KeyManagerService {
     }
   }
 
+  /**
+   * Get deposit data from seed
+   * @param seed
+   * @param index
+   * @param publicKey
+   * @param network
+   */
   async getDepositData(seed: string, index: number, publicKey: string, network: string): Promise<any> {
     const getDepositDataCommand = `${this.executablePath} \
       wallet account deposit-data \

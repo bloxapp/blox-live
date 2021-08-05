@@ -24,7 +24,7 @@ export const selectedKeystoreMode = () => {
  * Returns true if user selected seed moe during setup.
  */
 export const selectedSeedMode = () => {
-  return getSelectedValidatorMode() === config.FLAGS.VALIDATORS_MODE.SEED;
+  return getSelectedValidatorMode() === config.FLAGS.VALIDATORS_MODE.SEED || !selectedKeystoreMode();
 };
 
 export const saveLastConnection = () => {

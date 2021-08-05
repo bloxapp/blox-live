@@ -49,6 +49,7 @@ export default class Config {
         MAINNET: 'https://launchpad.ethereum.org/',
         TESTNET: 'https://prater.launchpad.ethereum.org/',
       },
+      CREATE_BLOX_ACCOUNTS_BATCH_SIZE: 50,
 
       // Wizard pages constants in one central place, environment-independent
       WIZARD_PAGES: {

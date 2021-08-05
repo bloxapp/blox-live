@@ -16,7 +16,7 @@ const Image = styled.img`
 
 const Question = styled.div`
   font-size: 18px;
-  color: ${({ theme }) => theme.gray800 };
+  color: ${({ theme }) => theme.gray800};
   margin-bottom: 15px;
 `;
 
@@ -64,14 +64,15 @@ const EnterValidatorsNumber = ({ show, setValidators }: EnterValidatorsNumberPro
   const [validatorsNumberError, setValidatorsNumberError] = useState('');
   const [confirmedValidatorsNumber, confirmValidatorsNumber] = useState(false);
   const [validatorsNumberButtonDisabled, setValidatorsNumberButtonDisabled] = useState(true);
+  const validatorsMaximumLimit = 500;
 
   useEffect(() => {
     // Confirm validators number button
-    setValidatorsNumberButtonDisabled(!(!validatorsNumberError && validatorsNumber > 0 && validatorsNumber <= 100));
+    setValidatorsNumberButtonDisabled(!(!validatorsNumberError && validatorsNumber > 0 && validatorsNumber <= validatorsMaximumLimit));
 
     // Error about entered validators number
-    if (validatorsNumber > 100) {
-      setValidatorsNumberError('Import is limited to 100 validators');
+    if (validatorsNumber > validatorsMaximumLimit) {
+      setValidatorsNumberError(`Import is limited to ${validatorsMaximumLimit} validators`);
     } else {
       setValidatorsNumberError('');
     }
