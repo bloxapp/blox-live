@@ -5,10 +5,9 @@ import config from '~app/backend/common/config';
 import { useInjectSaga } from '~app/utils/injectSaga';
 import passwordSaga from '~app/components/PasswordHandler/saga';
 import keyvaultSaga from '~app/components/KeyVaultManagement/saga';
-import useCreatePassword from '~app/common/hooks/useCreatePassword';
 import BackButton from '~app/components/Wizard/components/common/BackButton';
-import * as actionsFromPassword from '~app/components/PasswordHandler/actions';
 import * as actionsFromKeyvault from '~app/components/KeyVaultManagement/actions';
+import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
 import { getMnemonic, getIsLoading } from '~app/components/KeyVaultManagement/selectors';
 import { writeToTxtFile } from '~app/components/Wizard/components/Wallet/Passphrase/service';
 import { Regular, Backup } from '~app/components/Wizard/components/Wallet/Passphrase/components';
@@ -16,19 +15,15 @@ import { Regular, Backup } from '~app/components/Wizard/components/Wallet/Passph
 const keyvaultKey = 'keyvaultManagement';
 const passwordKey = 'password';
 
-const Passphrase = (props: Props) => {
-  const { setPage, mnemonic, isLoading, keyvaultActions, passwordActions } = props;
+const Passphrase = (props: PassphraseProps) => {
+  const { setPage, mnemonic, isLoading, keyvaultActions } = props;
   const { keyvaultLoadMnemonic, keyvaultSaveMnemonic } = keyvaultActions;
-  const { replacePassword } = passwordActions;
-
-  const { password, setPassword, confirmPassword, setConfirmPassword, showPasswordError,
-          showConfirmPasswordError, onPasswordBlur, onConfirmPasswordBlur
-        } = useCreatePassword();
 
   const [showBackup, toggleBackupDisplay] = useState(false);
   const [duplicatedMnemonic, setDuplicatedMnemonic] = useState('');
   const [showDuplicatedMnemonicError, setDuplicatedMnemonicErrorDisplay] = useState(false);
   const isButtonDisabled = !mnemonic;
+  const { checkIfPasswordIsNeeded } = usePasswordHandler();
 
   useInjectSaga({key: keyvaultKey, saga: keyvaultSaga, mode: ''});
   useInjectSaga({key: passwordKey, saga: passwordSaga, mode: ''});
@@ -41,9 +36,10 @@ const Passphrase = (props: Props) => {
   const onSaveAndConfirmClick = async () => {
     const canGenerate = canGenerateMnemonic();
     if (canGenerate) {
-      await replacePassword(password);
-      await keyvaultSaveMnemonic(duplicatedMnemonic);
-      !isButtonDisabled && setPage(config.WIZARD_PAGES.VALIDATOR.SELECT_NETWORK);
+      checkIfPasswordIsNeeded(() => {
+        keyvaultSaveMnemonic(duplicatedMnemonic);
+        !isButtonDisabled && setPage(config.WIZARD_PAGES.VALIDATOR.SELECT_NETWORK);
+      });
     }
   };
 
@@ -55,10 +51,7 @@ const Passphrase = (props: Props) => {
   const showBackupScreen = () => mnemonic && toggleBackupDisplay(true);
 
   const canGenerateMnemonic = () => {
-    const mnemonicsAreEqual = mnemonic === duplicatedMnemonic;
-    const passwordsAreEqual = password === confirmPassword;
-    const passwordshaveMoreThan8Char = password.length >= 8 && confirmPassword.length >= 8;
-    return mnemonicsAreEqual && passwordsAreEqual && passwordshaveMoreThan8Char;
+    return mnemonic === duplicatedMnemonic;
   };
 
   const onDuplicateMnemonicBlur = () => {
@@ -76,17 +69,22 @@ const Passphrase = (props: Props) => {
     <div>
       <BackButton onClick={onBackButtonClick} />
       {showBackup ? (
-        <Backup onNextButtonClick={onSaveAndConfirmClick}
-          password={password} setPassword={setPassword} confirmPassword={confirmPassword}
-          setConfirmPassword={setConfirmPassword} isSaveAndConfirmEnabled={canGenerateMnemonic}
-          duplicatedMnemonic={duplicatedMnemonic} setDuplicatedMnemonic={setDuplicatedMnemonic}
-          showDuplicatedMnemonicError={showDuplicatedMnemonicError} onDuplicateMnemonicBlur={onDuplicateMnemonicBlur}
-          isLoading={isLoading} showPasswordError={showPasswordError} showConfirmPasswordError={showConfirmPasswordError}
-          onPasswordBlur={onPasswordBlur} onConfirmPasswordBlur={onConfirmPasswordBlur}
+        <Backup
+          isLoading={isLoading}
+          duplicatedMnemonic={duplicatedMnemonic}
+          onNextButtonClick={onSaveAndConfirmClick}
+          isSaveAndConfirmEnabled={canGenerateMnemonic}
+          setDuplicatedMnemonic={setDuplicatedMnemonic}
+          onDuplicateMnemonicBlur={onDuplicateMnemonicBlur}
+          showDuplicatedMnemonicError={showDuplicatedMnemonicError}
         />
       ) : (
-        <Regular mnemonic={mnemonic} isLoading={isLoading} onPassphraseClick={onPassphraseClick}
-          onNextButtonClick={showBackupScreen} onDownloadClick={onDownloadClick}
+        <Regular
+          mnemonic={mnemonic}
+          isLoading={isLoading}
+          onDownloadClick={onDownloadClick}
+          onNextButtonClick={showBackupScreen}
+          onPassphraseClick={onPassphraseClick}
         />
       )}
     </div>
@@ -95,13 +93,12 @@ const Passphrase = (props: Props) => {
 
 type Page = number;
 
-type Props = {
+type PassphraseProps = {
   page: Page;
   setPage: (page: Page) => void;
   mnemonic: string;
   isLoading: boolean;
   keyvaultActions: Record<string, any>;
-  passwordActions: Record<string, any>;
 };
 
 const mapStateToProps = (state) => ({
@@ -111,7 +108,6 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   keyvaultActions: bindActionCreators(actionsFromKeyvault, dispatch),
-  passwordActions: bindActionCreators(actionsFromPassword, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Passphrase);

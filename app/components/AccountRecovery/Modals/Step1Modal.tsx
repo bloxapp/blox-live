@@ -10,6 +10,7 @@ import * as actionsFromKeyvault from '~app/components/KeyVaultManagement/actions
 import { Title, Description } from '~app/common/components/ModalTemplate/components';
 import { ModalTemplate, Button, PasswordInput, Spinner } from '~app/common/components';
 import { getIsLoading, getRecoveryValidStatus, getError } from '~app/components/KeyVaultManagement/selectors';
+// @ts-ignore
 import image from 'assets/images/img-recovery.svg';
 
 const key = 'keyvaultManagement';

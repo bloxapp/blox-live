@@ -44,7 +44,7 @@ const Textarea = ({width, value, onChange, error, ...rest}: Props) => {
       <Element
         value={value}
         onChange={onChangeValue}
-        onPaste={onChangeValue} 
+        onPaste={onChangeValue}
         width={width}
         placeholder={'Separate each word with a space'}
         error={error}
@@ -56,13 +56,16 @@ const Textarea = ({width, value, onChange, error, ...rest}: Props) => {
 };
 
 type Props = {
-  width: string;
+  width?: string;
   value: string;
   onChange: (value: string) => void;
   error?: string;
   autoFocus?: boolean;
   placeholder?: string;
   isDisabled?: boolean;
+  marginTop?: any;
+  onBlur?: any;
+  onPaste?: any;
 };
 
 export default Textarea;

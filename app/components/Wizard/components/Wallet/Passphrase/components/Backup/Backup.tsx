@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Button, Spinner, PasswordInput } from 'common/components';
 import { Title, Paragraph, Warning, TextArea } from '../../../../common';
@@ -29,7 +28,7 @@ const ButtonWrapper = styled.div`
   margin-bottom:41px;
 `;
 
-const Backup = (props) => {
+const Backup = (props: BackupProps) => {
   const { isImport, onNextButtonClick, password, setPassword, confirmPassword,
           setConfirmPassword, isSaveAndConfirmEnabled, duplicatedMnemonic, setDuplicatedMnemonic,
           isLoading, showDuplicatedMnemonicError, onDuplicateMnemonicBlur,
@@ -37,10 +36,41 @@ const Backup = (props) => {
         } = props;
 
   const confirmButtonStyle = { width: 190, height: 40 };
+  const shouldShowPassword = setPassword && setConfirmPassword;
 
   const handleChange = event => {
     const value = event.replace(/[\r\n\v]+/g, '');
     setDuplicatedMnemonic(value);
+  };
+
+  /**
+   * If password inputs required in backup then show it.
+   * @returns {JSX.Element|string}
+   */
+  const renderPasswordInputs = () => {
+    if (!shouldShowPassword) {
+      return '';
+    }
+    return (
+      <PasswordInputsWrapper>
+        <PasswordInput
+          name={'password'}
+          title={'Password (min 8 chars)'}
+          onChange={setPassword}
+          value={password}
+          onBlur={onPasswordBlur}
+          error={showPasswordError ? 'The password is too short' : ''}
+        />
+        <PasswordInput
+          name={'confirmPassword'}
+          title={'Confirm Password'}
+          onChange={setConfirmPassword}
+          value={confirmPassword}
+          onBlur={onConfirmPasswordBlur}
+          error={showConfirmPasswordError ? 'Passwords don\'t match' : ''}
+        />
+      </PasswordInputsWrapper>
+    );
   };
 
   return (
@@ -67,16 +97,7 @@ const Backup = (props) => {
         error={showDuplicatedMnemonicError ? 'Passphrase not correct' : ''}
       />
 
-      <PasswordInputsWrapper>
-        <PasswordInput name={'password'} title={'Password (min 8 chars)'}
-          onChange={setPassword} value={password} onBlur={onPasswordBlur}
-          error={showPasswordError ? 'The password is too short' : ''}
-        />
-        <PasswordInput name={'confirmPassword'} title={'Confirm Password'}
-          onChange={setConfirmPassword} value={confirmPassword} onBlur={onConfirmPasswordBlur}
-          error={showConfirmPasswordError ? 'Passwords don\'t match' : ''}
-        />
-      </PasswordInputsWrapper>
+      {renderPasswordInputs()}
 
       <ButtonWrapper>
         <Button
@@ -84,33 +105,35 @@ const Backup = (props) => {
           isDisabled={!isSaveAndConfirmEnabled()}
           onClick={onNextButtonClick}
         >
-          Save &amp; Confirm
+          {shouldShowPassword ? <>Save &amp; Confirm</> : 'Save'}
         </Button>
         {isLoading && <Spinner />}
       </ButtonWrapper>
 
-      { !isImport && <Warning text={'The only way to restore your account or to reset your password is using your passphrase.'} />}
+      {!isImport && <Warning text={'The only way to restore your account or to reset your password is using your passphrase.'} />}
     </Wrapper>
   );
 };
 
-Backup.propTypes = {
-  isImport: PropTypes.bool,
-  onNextButtonClick: PropTypes.func,
-  password: PropTypes.string,
-  setPassword: PropTypes.func,
-  confirmPassword: PropTypes.string,
-  setConfirmPassword: PropTypes.func,
-  isSaveAndConfirmEnabled: PropTypes.func,
-  duplicatedMnemonic: PropTypes.string,
-  setDuplicatedMnemonic: PropTypes.func,
-  isLoading: PropTypes.bool,
-  showDuplicatedMnemonicError: PropTypes.bool,
-  showPasswordError: PropTypes.bool,
-  showConfirmPasswordError: PropTypes.bool,
-  onDuplicateMnemonicBlur: PropTypes.func,
-  onPasswordBlur: PropTypes.func,
-  onConfirmPasswordBlur: PropTypes.func,
+type BackupProps = {
+  isImport?: boolean,
+  isLoading: boolean,
+  onNextButtonClick: any,
+  duplicatedMnemonic: string,
+  setDuplicatedMnemonic: any,
+  isSaveAndConfirmEnabled: any,
+  onDuplicateMnemonicBlur: any,
+  showDuplicatedMnemonicError: boolean,
+
+  // Passwords related properties
+  password?: string,
+  setPassword?: any,
+  onPasswordBlur?: any,
+  confirmPassword?: string,
+  setConfirmPassword?: any,
+  onConfirmPasswordBlur?: any,
+  showPasswordError?: boolean,
+  showConfirmPasswordError?: boolean,
 };
 
 export default Backup;
