@@ -11,10 +11,10 @@ import { MainNetKeyStoreText } from '~app/components/Wizard/components/Validator
 import theme from '../../../../../theme';
 import * as actionsFromWizard from '../../../actions';
 import {openExternalLink} from '../../../../common/service';
-import useProcessRunner from "../../../../ProcessRunner/useProcessRunner";
-import useDashboardData from "../../../../Dashboard/useDashboardData";
-import usePasswordHandler from "../../../../PasswordHandler/usePasswordHandler";
-import {loadUserInfo} from "../../../../User/actions";
+import useProcessRunner from '../../../../ProcessRunner/useProcessRunner';
+import useDashboardData from '../../../../Dashboard/useDashboardData';
+import usePasswordHandler from '../../../../PasswordHandler/usePasswordHandler';
+import {NETWORKS} from '../constants';
 
 const Wrapper = styled.div`
   width:650px;
@@ -48,7 +48,7 @@ const bloxApi = new BloxApi();
 bloxApi.init();
 
 const DepositOverview = (props: ValidatorsSummaryProps) => {
-  const { setPage, setStep, decryptedKeyStores, idToken } = props;
+  const { setPage, setStep, decryptedKeyStores, idToken, network } = props;
   const { isLoading, isDone, processData, error, startProcess, clearProcessState, loaderPercentage, processMessage } = useProcessRunner();
   const { loadDataAfterNewAccount } = useDashboardData();
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
@@ -58,15 +58,12 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
     if (!isLoading && isDone && !error) {
       clearProcessState();
       const depositIds = processData.map(user => user.id).join(',');
-      console.log('<<<<<<<<<<<<<<<<<here>>>>>>>>>>>>>>>>>');
-      console.log(depositIds);
-      console.log('<<<<<<<<<<<<<<<<<here>>>>>>>>>>>>>>>>>');
-      if (moveToDepositPage) moveToWebDeposit(depositIds)
+      if (moveToDepositPage) moveToWebDeposit(depositIds);
     }
   }, [isLoading, isDone, error]);
 
   const moveToWebDeposit = async (ids: string) => {
-    await openExternalLink('', `${config.env.WEB_APP_URL}/upload_deposit_file?id_token=${idToken}&id=${ids}`);
+    await openExternalLink('', `${config.env.WEB_APP_URL}/upload_deposit_file?id_token=${idToken}&id=${ids}&network_id=${NETWORKS[network].chainId}`);
   };
 
   const onNextButtonClick = () => {
@@ -108,7 +105,7 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
       </SmallText>
 
       <ButtonsWrapper>
-        <BigButton onClick={() => { setMoveToDepositPage(true) ; onNextButtonClick() }}>Continue to Web Deposit</BigButton>
+        <BigButton onClick={() => { setMoveToDepositPage(true); onNextButtonClick(); }}>Continue to Web Deposit</BigButton>
         <LaterBtn onClick={onNextButtonClick}>I&apos;ll Deposit Later</LaterBtn>
       </ButtonsWrapper>
     </Wrapper>

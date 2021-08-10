@@ -12,7 +12,7 @@ export default class Config {
       AUTH0_DOMAIN: 'blox-infra.eu.auth0.com',
       AUTH0_CLIENT_ID: 'NsZvhkQvZOWwXT2rcA1RWGgA7YxxhsJZ',
       API_URL: 'https://api.stage.bloxstaking.com',
-      WEB_APP_URL: 'http://localhost:3000'
+      WEB_APP_URL: 'https://app.stage.bloxstaking.com'
     },
     production: {
       REFRESH_TOKEN_URL: 'https://api.bloxstaking.com/auth/token/refresh',
