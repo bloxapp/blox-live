@@ -33,12 +33,12 @@ const GenerateKeys = (props: Props) => {
   const [checkedAwarenessCheckbox, setAwarenessCheckboxChecked] = useState(false);
   const isWalletImported = wallet && wallet.imported;
   const showCheckbox = (
-      // The checkbox should appear when the wallet is imported and network is not pyrmont.
-      isWalletImported && network !== config.env.PYRMONT_NETWORK
+      // The checkbox should appear when the wallet is imported and network is not prater.
+      isWalletImported && network !== config.env.PRATER_NETWORK
     ) || (
-      // Or when import feature network is pyrmont and current selected network is pyrmont too.
-      Connection.db().get('feature:import:network') === config.env.PYRMONT_NETWORK
-      && isWalletImported && network === config.env.PYRMONT_NETWORK
+      // Or when import feature network is prater and current selected network is prater too.
+      Connection.db().get('feature:import:network') === config.env.PRATER_NETWORK
+      && isWalletImported && network === config.env.PRATER_NETWORK
     );
   const [isButtonDisabled, setButtonDisabled] = useState(showCheckbox);
 

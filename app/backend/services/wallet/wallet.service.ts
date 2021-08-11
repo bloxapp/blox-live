@@ -1,5 +1,5 @@
 import { Log } from '../../common/logger/logger';
-import { Catch, CatchClass, Step } from '../../decorators';
+import { Catch, Step } from '../../decorators';
 import Connection from '../../common/store-manager/connection';
 import BloxApi from '../../common/communication-manager/blox-api';
 import KeyManagerService from '../key-manager/key-manager.service';
@@ -86,7 +86,6 @@ export default class WalletService {
     if (pluginVersion) {
       payload.pluginVersion = pluginVersion;
     }
-
     // Send version in only recovery/install/reinstall cases
     const version: any = `${Connection.db(this.storePrefix).get('keyVaultVersion')}${envKey === 'production' ? '' : '-rc'}`;
     const shouldUpdateVersion: boolean = ['reinstall', 'install', 'recovery'].indexOf(processName) !== -1;

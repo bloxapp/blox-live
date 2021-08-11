@@ -22,7 +22,7 @@ const Wrapper = styled.div`
 
 const switcher = (props: Props) => {
   const { page, network } = props;
-  const validatorImage = network === config.env.PYRMONT_NETWORK ? testnetValidatorImage : mainnetValidatorImage;
+  const validatorImage = network === config.env.PRATER_NETWORK ? testnetValidatorImage : mainnetValidatorImage;
   let component;
   let bgImage = '';
 
@@ -80,10 +80,6 @@ const switcher = (props: Props) => {
 
     case config.WIZARD_PAGES.VALIDATOR.DEPOSIT_OVERVIEW:
       component = <ValidatorPages.DepositOverview {...props} />;
-      break;
-
-    case config.WIZARD_PAGES.VALIDATOR.UPLOAD_DEPOSIT_FILE:
-      component = <ValidatorPages.UploadDepositFile {...props} />;
       break;
 
     case config.WIZARD_PAGES.VALIDATOR.CREATE_VALIDATOR:

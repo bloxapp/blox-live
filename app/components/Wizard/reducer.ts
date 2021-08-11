@@ -96,10 +96,11 @@ const wizardReducer = (state = initialState, action: Action) => produce(state, (
       draft.pageData = initialState.pageData;
       draft.page = initialState.page;
       draft.step = initialState.step;
+      draft.isDecryptingKeyStores = false;
+      draft.keyStores = initialState.keyStores;
+      draft.decryptedKeyStores = initialState.decryptedKeyStores;
       draft.shouldDisplayError = initialState.shouldDisplayError;
       draft.keyStoreErrorMessage = initialState.keyStoreErrorMessage;
-      draft.decryptedKeyStores = initialState.decryptedKeyStores;
-      draft.keyStores = initialState.keyStores;
       break;
     case actionTypes.INCREMENT_FILES_DECYPTED:
       draft.filesDecrypted = action.payload;
@@ -115,6 +116,8 @@ const wizardReducer = (state = initialState, action: Action) => produce(state, (
       draft.isDecryptingKeyStores = true;
       break;
     case actionTypes.DECRYPT_KEY_STORES_SUCCESS:
+      draft.keyStoreErrorMessage = '';
+      draft.shouldDisplayError = false;
       draft.isDecryptingKeyStores = false;
       draft.decryptedKeyStores = action.payload;
       break;

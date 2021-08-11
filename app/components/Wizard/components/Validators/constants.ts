@@ -3,12 +3,12 @@ import testNetImage from '../../assets/img-validator-test-net.svg';
 import mainNetImage from '../../assets/img-validator-main-net.svg';
 
 export const NETWORKS = {
-  pyrmont: {
+  prater: {
     chainId: 5,
-    name: 'Pyrmont',
-    title: 'Test on Pyrmont',
+    name: 'Prater',
+    title: 'Test on Prater',
     image: testNetImage,
-    label: config.env.PYRMONT_NETWORK,
+    label: config.env.PRATER_NETWORK,
   },
   mainnet: {
     chainId: 1,
@@ -20,4 +20,4 @@ export const NETWORKS = {
 };
 
 export const INTRO_TOOLTIP_TEXT = `GoETH are test tokens needed in order to participate in the Goerli Test Network.
-  'You need at least 32 GoETH test tokens in order to stake on ${NETWORKS.pyrmont.name}. GoETH have no real value!`;
+  'You need at least 32 GoETH test tokens in order to stake on ${NETWORKS.prater.name}. GoETH have no real value!`;

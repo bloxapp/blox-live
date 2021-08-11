@@ -42,7 +42,7 @@ const EventLogs = ({ events, isTestNetShow, showNetworkSwitcher }) => {
         if (!isTestNetShow) {
           return event.network === config.env.MAINNET_NETWORK;
         }
-        return event.network === config.env.PYRMONT_NETWORK;
+        return event.network === config.env.PRATER_NETWORK;
       }));
     }
     setPaginationInfo(null);
