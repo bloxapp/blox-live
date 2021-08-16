@@ -128,7 +128,7 @@ const StakingDeposit = (props: Props) => {
 
     if (currentAccount) {
       const { txData } = depositData;
-      await openExternalLink('', `${config.env.WEB_APP_URL}/staking-deposit?account_id=${currentAccount.id}&network_id=${NETWORKS[network].chainId}&public_key=${publicKey}&tx_data=${txData}&id_token=${idToken}`);
+      await openExternalLink('', `${config.env.WEB_APP_URL}/staking-deposit?account_id=${currentAccount.id}&network_id=${NETWORKS[network].chainId}&tx_data=${txData}&id_token=${idToken}`);
     } else {
       notification.error({ message: 'Account not found' });
     }

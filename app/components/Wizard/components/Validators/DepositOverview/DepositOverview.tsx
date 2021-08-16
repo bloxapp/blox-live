@@ -15,9 +15,32 @@ import useProcessRunner from '../../../../ProcessRunner/useProcessRunner';
 import useDashboardData from '../../../../Dashboard/useDashboardData';
 import usePasswordHandler from '../../../../PasswordHandler/usePasswordHandler';
 import {NETWORKS} from '../constants';
+import {CircularProgress} from '@material-ui/core';
+import {cleanDeepLink, deepLink} from "../../../../App/service";
+import {notification} from "antd";
 
 const Wrapper = styled.div`
   width:650px;
+`;
+
+const Button = styled.button`
+  display: block;
+  width: 250px;
+  height: 35px;
+  color: white;
+  border-radius: 10px;
+  border: none;
+  background-color: #2536b8;
+  margin-top: 20px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #2546b2;
+  }
+
+  &:disabled {
+    background-color: lightgrey;
+  }
 `;
 
 const SmallText = styled.div`
@@ -34,15 +57,9 @@ const ButtonsWrapper = styled.div`
   text-align: center;
 `;
 
-const LaterBtn = styled.span`
-    // width: 100%;
-    font-size: 16px;
-    font-weight: 900;
-    cursor:pointer;
-    display: inline-block;
-    margin-top:10px;
-    color: ${({theme, color}) => theme[color] || theme.primary900};
-`;
+const FileDecodeProgress = () => (
+  <CircularProgress style={{color: 'black', width: 15, height: 15, marginTop: 6}} />
+);
 
 const bloxApi = new BloxApi();
 bloxApi.init();
@@ -55,6 +72,15 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
   const [moveToDepositPage, setMoveToDepositPage] = useState(true);
 
   useEffect(() => {
+    deepLink((obj) => {
+      if ('success' in obj && 'account_id' in obj) {
+        setPage(config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS);
+      }
+    }, (e) => notification.error({ message: e }));
+    return () => cleanDeepLink();
+  }, []);
+
+  useEffect(() => {
     if (!isLoading && isDone && !error) {
       clearProcessState();
       const depositIds = processData.map(user => user.id).join(',');
@@ -63,7 +89,7 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
   }, [isLoading, isDone, error]);
 
   const moveToWebDeposit = async (ids: string) => {
-    await openExternalLink('', `${config.env.WEB_APP_URL}/upload_deposit_file?id_token=${idToken}&id=${ids}&network_id=${NETWORKS[network].chainId}`);
+    await openExternalLink('', `${config.env.WEB_APP_URL}/upload_deposit_file?id_token=${idToken}&account_id=${ids}&network_id=${NETWORKS[network].chainId}`);
   };
 
   const onNextButtonClick = () => {
@@ -88,7 +114,7 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
         setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
         setPage(config.WIZARD_PAGES.VALIDATOR.VALIDATOR_SUMMARY);
       }} />
-      <Title>Mainnet Staking Deposit</Title>
+      <Title>{NETWORKS[network].name} Staking Deposit</Title>
       <Paragraph style={{ marginBottom: 5 }}>
         To start staking, first, you'll need to make a deposit:
       </Paragraph>
@@ -105,8 +131,9 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
       </SmallText>
 
       <ButtonsWrapper>
-        <BigButton onClick={() => { setMoveToDepositPage(true); onNextButtonClick(); }}>Continue to Web Deposit</BigButton>
-        <LaterBtn onClick={onNextButtonClick}>I&apos;ll Deposit Later</LaterBtn>
+        <Button disabled={isLoading} onClick={() => { setMoveToDepositPage(true); onNextButtonClick(); }}>
+          {isLoading ? <FileDecodeProgress /> : 'Continue to Web Deposit'}
+        </Button>
       </ButtonsWrapper>
     </Wrapper>
   );
