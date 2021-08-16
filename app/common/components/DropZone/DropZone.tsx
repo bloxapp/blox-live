@@ -65,15 +65,17 @@ const rejectStyle = {
 };
 
 type DropZoneProps = {
+  icon?: any;
   title?: string;
   subTitle?: string;
-  icon?: any;
+  disabled?: boolean;
+  containerStyle?: any;
   onFiles?: (files: File[]) => void;
   onFileStateUpdate?: (state: { isDragActive: boolean, isDragAccept: boolean, isDragReject: boolean }) => void;
 };
 
 const DropZone = (props: DropZoneProps) => {
-  const { onFileStateUpdate, onFiles, title, subTitle, icon } = props;
+  const { disabled, onFileStateUpdate, onFiles, title, subTitle, icon, containerStyle } = props;
 
   const {
     acceptedFiles,
@@ -82,9 +84,10 @@ const DropZone = (props: DropZoneProps) => {
     isDragActive,
     isDragAccept,
     isDragReject
-  } = useDropzone();
+  } = useDropzone({ disabled: Boolean(disabled) });
 
   const style: any = useMemo(() => ({
+    ...(containerStyle ?? {}),
     ...baseStyle,
     ...(isDragActive ? activeStyle : {}),
     ...(isDragAccept ? acceptStyle : {}),
@@ -112,14 +115,12 @@ const DropZone = (props: DropZoneProps) => {
   }, [acceptedFiles]);
 
   return (
-    <>
-      <div {...getRootProps({ style })}>
-        <input {...getInputProps()} />
-        <DropZoneIcon src={icon ?? fileUploadIcon} />
-        <DropZoneHeader>{title ?? <>Drag &amp; Drop</>}</DropZoneHeader>
-        <DropZoneSubHeader>{subTitle ?? 'Or select files from your computer'}</DropZoneSubHeader>
-      </div>
-    </>
+    <div {...getRootProps({ style })}>
+      <input {...getInputProps()} />
+      <DropZoneIcon src={icon ?? fileUploadIcon} />
+      <DropZoneHeader>{title ?? <>Drag &amp; Drop</>}</DropZoneHeader>
+      <DropZoneSubHeader>{subTitle ?? 'Or select files from your computer'}</DropZoneSubHeader>
+    </div>
   );
 };
 

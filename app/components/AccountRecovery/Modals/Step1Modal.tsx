@@ -10,46 +10,17 @@ import * as actionsFromKeyvault from '~app/components/KeyVaultManagement/actions
 import { Title, Description } from '~app/common/components/ModalTemplate/components';
 import { ModalTemplate, Button, PasswordInput, Spinner } from '~app/common/components';
 import { getIsLoading, getRecoveryValidStatus, getError } from '~app/components/KeyVaultManagement/selectors';
+import { ButtonWrapper, LoadingWrapper, StepIndicator, PasswordInputsWrapper } from '~app/components/AccountRecovery/components';
 // @ts-ignore
 import image from 'assets/images/img-recovery.svg';
 
 const key = 'keyvaultManagement';
-
-const StepIndicator = styled.div`
-  font-size: 12px;
-  font-weight: 500;
-  color:${({theme}) => theme.gray400};
-  margin-bottom:8px;
-`;
-
-const PasswordInputsWrapper = styled.div`
-  width: 400px;
-  margin-top:21px;
-  display: flex;
-  justify-content:space-between;
-  font-size: 16px;
-  font-weight: 500;
-`;
-
-const ButtonWrapper = styled.div`
-  margin-top:41px;
-  margin-bottom:41px;
-  position:relative;
-`;
 
 const Message = styled.span<{ error?: string }>`
   font-size: 12px;
   font-weight: 900;
   line-height: 1.67;
   color: ${({theme, error}) => error ? theme.destructive600 : theme.primary900};
-`;
-
-const LoadingWrapper = styled.div`
-  display:flex;
-  align-items: center;
-  margin-top: 8px;
-  width: 90%;
-  justify-content: space-between;
 `;
 
 const Step1Modal = (props: Props) => {

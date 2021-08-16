@@ -54,6 +54,9 @@ const PasswordInput = (props: Props) => {
   const eyeIconColor = type === INPUT_TYPES.PASSWORD ? 'gray400' : 'gray800';
 
   const toggleType = () => {
+    if (isDisabled) {
+      return;
+    }
     type === INPUT_TYPES.PASSWORD ? setType(INPUT_TYPES.TEXT) : setType(INPUT_TYPES.PASSWORD);
   };
 
@@ -90,19 +93,19 @@ const PasswordInput = (props: Props) => {
 };
 
 type Props = {
-  autoFocus?: any
   name: string;
-  title?: string;
-  width?: string;
-  onChange: (value: string) => void;
-  onBlur?: () => void;
-  onFocus?: () => void;
-  onKeyDown?: (event: Record<string, any>) => void;
   type?: string;
   value: string;
-  isDisabled?: boolean;
-  isValid?: boolean;
+  title?: string;
+  width?: string;
   error?: string;
+  autoFocus?: any
+  isValid?: boolean;
+  isDisabled?: boolean;
+  onFocus?: () => void;
+  onBlur?: (event: any) => void;
+  onChange: (value: string) => void;
+  onKeyDown?: (event: Record<string, any>) => void;
 };
 
 export default PasswordInput;

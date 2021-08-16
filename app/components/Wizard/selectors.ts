@@ -2,6 +2,8 @@ export const getIsLoading = (state) => state.wizard.isLoading;
 
 export const getWallet = (state) => state.wizard.wallet;
 
+export const getWalletSeedlessFlag = (state) => state.wizard.wallet?.seedless || false;
+
 export const getWalletStatus = (state) => state.wizard.wallet && state.wizard.wallet.status;
 
 export const getWalletError = (state) => state.wizard && state.wizard.error;

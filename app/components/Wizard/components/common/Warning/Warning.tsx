@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Icon } from 'common/components';
+import { Icon } from '~app/common/components';
 
 const Wrapper = styled.div`
   width:auto;
@@ -35,7 +35,7 @@ const Warning = (props) => {
 };
 
 Warning.propTypes = {
-  text: PropTypes.string,
+  text: PropTypes.any,
   style: PropTypes.object
 };
 

@@ -33,3 +33,4 @@ export const DECRYPT_KEY_STORES_FAILURE = 'decrypt_key_stores_failure';
 export const DISPLAY_KEY_STORE_ERROR = 'display_key_store_error';
 export const INCREMENT_FILES_DECYPTED = 'increment_files_decrypted';
 export const CLEAR_DECRYPT_KEY_STORES = 'clear_decrypt_key_stores';
+export const CLEAR_DECRYPT_PROGRESS = 'clear_decrypt_progress';

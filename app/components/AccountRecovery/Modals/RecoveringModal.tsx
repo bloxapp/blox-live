@@ -4,11 +4,12 @@ import Connection from '~app/backend/common/store-manager/connection';
 import { ProcessLoader, ModalTemplate } from '~app/common/components';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 import { Title, SmallText, Wrapper } from '~app/common/components/ModalTemplate/components';
+// @ts-ignore
 import image from 'assets/images/img-recovery.svg';
 
 const RecoveringModal = (props: Props) => {
-  const { isLoading, processMessage, isDone, isServerActive, clearProcessState, loaderPercentage } = useProcessRunner();
   const { move1StepForward, move2StepsForward, type } = props;
+  const { isLoading, processMessage, isDone, isServerActive, clearProcessState, loaderPercentage } = useProcessRunner();
 
   const onSuccess = () => {
     move1StepForward();
@@ -41,9 +42,9 @@ const RecoveringModal = (props: Props) => {
 };
 
 type Props = {
+  type: string;
   move1StepForward: () => void;
   move2StepsForward: () => void;
-  type: string;
 };
 
 export default RecoveringModal;
