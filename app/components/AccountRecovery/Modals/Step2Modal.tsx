@@ -51,31 +51,38 @@ const Step1Modal = (props: Props) => {
   // In Seedless mode provide extracted keystore data to the process
 
   const getInputData = () => {
-    const inputData = [];
+    if (!isSeedless) {
+      return null;
+    }
+    const inputData = {};
     for (let accountIndex = 0; accountIndex < accounts.length; accountIndex += 1) {
       const accountPublicKey = accounts[accountIndex].publicKey.substr(2);
+      const accountNetwork = accounts[accountIndex].network;
+      inputData[accountNetwork] = inputData[accountNetwork] || '';
       for (let keystoreIndex = 0; keystoreIndex < decryptedKeyStores.length; keystoreIndex += 1) {
         const keyStore = decryptedKeyStores[keystoreIndex];
-        if (accountPublicKey === keyStore.publicKey && inputData.indexOf(keyStore.publicKey) === -1) {
-          inputData.push(keyStore.privateKey);
+        if (accountPublicKey === keyStore.publicKey && inputData[accountNetwork].indexOf(keyStore.privateKey) === -1) {
+          console.debug('Should add keyStore.privateKey', keyStore.privateKey, 'to the network', accountNetwork);
+          inputData[accountNetwork] = `${inputData[accountNetwork]},${keyStore.privateKey}`;
         }
       }
+      inputData[accountNetwork] = inputData[accountNetwork].replace(/^[,]+/, '').replace(/[,]+$/, '');
     }
-    return inputData.join(',');
+    return inputData;
   };
 
   const { accessKeyId, setAccessKeyId, secretAccessKey, setSecretAccessKey,
           onStartProcessClick, isPasswordInputDisabled, isButtonDisabled
-        } = useCreateServer({ onStart, inputData: getInputData() });
+        } = useCreateServer({ onStart, inputData: { privateKeys: getInputData() } });
 
   const onButtonClick = () => validateAwsKeys({ accessKeyId, secretAccessKey });
 
   return (
     <ModalTemplate
       image={image}
+      height="560px"
       justifyContent={'initial'}
       padding={'30px 32px 30px 64px'}
-      height={isSeedless ? '900px' : '560px'}
     >
       <Title>Recover Account Data</Title>
       <StepIndicator>Step 0{isSeedless ? 4 : 2}</StepIndicator>
@@ -84,7 +91,7 @@ const Step1Modal = (props: Props) => {
         process that only takes a few minutes. Provide access to your <br />
         AWS tokens below for Blox to complete this step
       </Description>
-      <PasswordInputsWrapper>
+      <PasswordInputsWrapper style={{ flexDirection: 'column' }}>
         <PasswordInput
           autoFocus
           value={accessKeyId}
@@ -93,6 +100,7 @@ const Step1Modal = (props: Props) => {
           onChange={setAccessKeyId}
           isDisabled={isPasswordInputDisabled}
         />
+        <br />
         <PasswordInput
           width={'320px'}
           value={secretAccessKey}

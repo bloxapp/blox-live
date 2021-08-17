@@ -17,7 +17,7 @@ export default class RecoveryProcess extends ProcessClass {
   public readonly actions: Array<any>;
   public readonly fallbackActions: Array<any>;
 
-  constructor({ accessKeyId, secretAccessKey, isNew = true }) {
+  constructor({ accessKeyId, secretAccessKey, isNew = true, inputData = null }) {
     super('Recovery');
     this.accountService = new AccountService();
     this.awsService = new AwsService();
@@ -29,9 +29,10 @@ export default class RecoveryProcess extends ProcessClass {
     Connection.db().set('uuid', uuid);
     Connection.db().set('credentials', { accessKeyId, secretAccessKey });
     this.userService.update({ uuid });
-
+    const privateKeys = inputData?.privateKeys || null;
+    console.debug('RecoveryProcess privateKeys:', privateKeys, inputData);
     this.actions = [
-      { instance: this.accountService, method: 'recoverAccounts' },
+      { instance: this.accountService, method: 'recoverAccounts', params: { privateKeys }},
       { instance: this.awsService, method: 'setAWSCredentials' },
       { instance: this.awsService, method: 'validateAWSPermissions' },
       { instance: this.awsService, method: 'createEc2KeyPair' },
@@ -44,7 +45,7 @@ export default class RecoveryProcess extends ProcessClass {
       { instance: this.keyVaultService, method: 'getKeyVaultRootToken' },
       { instance: this.keyVaultService, method: 'getKeyVaultStatus' },
       { instance: this.keyVaultService, method: 'updateVaultMountsStorage' },
-      { instance: this.walletService, method: 'syncVaultWithBlox', params: { isNew, processName: 'recovery' } },
+      { instance: this.walletService, method: 'syncVaultWithBlox', params: { isNew, processName: 'recovery', isSeedless: !!privateKeys } },
       { instance: this.awsService, method: 'truncateOldKvResources' },
       {
         hook: async () => {

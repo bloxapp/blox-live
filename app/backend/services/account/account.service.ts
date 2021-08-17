@@ -223,7 +223,7 @@ export default class AccountService {
   @Catch({
     displayMessage: 'CLI Create Account failed'
   })
-  async createAccount({indexToRestore, inputData}: { indexToRestore?: number, inputData?: string }): Promise<void> {
+  async createAccount({ indexToRestore, inputData }: { indexToRestore?: number, inputData?: string }): Promise<void> {
     const seedless = selectedKeystoreMode();
     const network = Connection.db(this.storePrefix).get('network');
     const index: number = indexToRestore ?? await this.getNextIndex(network);
@@ -293,13 +293,14 @@ export default class AccountService {
         highestProposal += `${accountsArray[i].highest_proposal_slot}${i === 0 ? '' : ','}`;
       }
     } else {
+      // eslint-disable-next-line guard-for-in,no-restricted-syntax
       for (const i in accountsArray) {
         // @ts-ignore
-        highestSource += `${accountsArray[i].highest_source_epoch}${parseInt(i) === accountsArray.length - 1 ? '' : ','}`;
+        highestSource += `${accountsArray[i].highest_source_epoch}${parseInt(i, 10) === accountsArray.length - 1 ? '' : ','}`;
         // @ts-ignore
-        highestTarget += `${accountsArray[i].highest_target_epoch}${parseInt(i) === accountsArray.length - 1 ? '' : ','}`;
+        highestTarget += `${accountsArray[i].highest_target_epoch}${parseInt(i, 10) === accountsArray.length - 1 ? '' : ','}`;
         // @ts-ignore
-        highestProposal += `${accountsArray[i].highest_proposal_slot}${parseInt(i) === accountsArray.length - 1 ? '' : ','}`;
+        highestProposal += `${accountsArray[i].highest_proposal_slot}${parseInt(i, 10) === accountsArray.length - 1 ? '' : ','}`;
       }
     }
 
@@ -430,7 +431,7 @@ export default class AccountService {
   @Catch({
     showErrorMessage: true
   })
-  async recoverAccounts(): Promise<void> {
+  async recoverAccounts({ privateKeys }: { privateKeys?: any }): Promise<void> {
     const accounts = await this.get();
     const uniqueNetworks = [...new Set(accounts.map(acc => acc.network))];
     // eslint-disable-next-line no-restricted-syntax
@@ -442,9 +443,10 @@ export default class AccountService {
         .filter(acc => acc.network === network)
         .sort((a, b) => a.name.split('-')[1] - b.name.split('-')[1]);
 
-      const lastIndex = networkAccounts[networkAccounts.length - 1].name.split('-')[1];
-      // eslint-disable-next-line no-await-in-loop
-      await this.createAccount({indexToRestore: +lastIndex});
+        const lastIndex = networkAccounts[networkAccounts.length - 1].name.split('-')[1];
+        const networkPrivateKeys = privateKeys ? privateKeys[String(network)] : '';
+        // eslint-disable-next-line no-await-in-loop
+        await this.createAccount({ indexToRestore: +lastIndex, inputData: networkPrivateKeys });
     }
   }
 

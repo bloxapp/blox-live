@@ -75,12 +75,13 @@ export default class WalletService {
   @Step({
     name: 'Syncing KeyVault with Blox...'
   })
-  async syncVaultWithBlox({ isNew, processName }): Promise<void> {
+  async syncVaultWithBlox({ isNew, processName, isSeedless }: { isNew?: boolean, processName?: string, isSeedless?: boolean }): Promise<void> {
     const envKey = (Connection.db(this.storePrefix).get('env') || 'production');
+    const seedless = isSeedless ?? selectedKeystoreMode();
     const payload: any = {
       url: `https://${Connection.db(this.storePrefix).get('publicIp')}:8200`,
       accessToken: Connection.db(this.storePrefix).get('vaultSignerToken'),
-      seedless: selectedKeystoreMode(),
+      seedless,
     };
 
     // Send plugin version in all cases, but only if it's available
