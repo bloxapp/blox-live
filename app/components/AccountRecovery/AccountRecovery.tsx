@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
+import config from '~app/backend/common/config';
 import * as Modals from '~app/components/AccountRecovery/Modals';
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
+import Connection from '~app/backend/common/store-manager/connection';
 import { getWalletSeedlessFlag } from '~app/components/Wizard/selectors';
 import * as SeedlessModals from '~app/components/AccountRecovery/SeedlessModals';
 import { FailureModal, SuccessModal, ThankYouModal } from '~app/components/KeyVaultModals';
@@ -17,6 +19,12 @@ const AccountRecovery = (props: AccountRecoveryProps) => {
   const move1StepBackward = () => setStep(step - 1);
   const move2StepsForward = () => setStep(step + 2);
   const onCloseClick = type !== MODAL_TYPES.DEVICE_SWITCH ? () => onClose() : null;
+
+  useEffect(() => {
+    if (isSeedless) {
+      Connection.db().set(config.FLAGS.VALIDATORS_MODE.KEY, config.FLAGS.VALIDATORS_MODE.KEYSTORE);
+    }
+  }, [isSeedless]);
 
   if (isSeedless) {
     switch (step) {
