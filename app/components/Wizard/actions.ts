@@ -138,3 +138,7 @@ export const incrementFilesDecryptedCounter = (payload) => ({
 export const clearDecryptKeyStores = () => ({
   type: actionTypes.CLEAR_DECRYPT_KEY_STORES,
 });
+
+export const clearDecryptProgress = () => ({
+  type: actionTypes.CLEAR_DECRYPT_PROGRESS,
+});

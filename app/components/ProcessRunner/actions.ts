@@ -7,10 +7,10 @@ type Credentials = {
 
 // inputData may be seed or keyStores
 export type ProcessParams = {
-  credentials?: Credentials | null,
   network?: string,
+  inputData?: string,
   indexToRestore?: number
-  inputData?: string
+  credentials?: Credentials | null,
 };
 
 export const processSubscribe = (name: string, defaultMessage: string, params?: ProcessParams) => {

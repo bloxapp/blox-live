@@ -1,28 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { shell } from 'electron';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
-import config from '~app/backend/common/config';
-import { PasswordInput } from '~app/common/components';
 import DropZone from '~app/common/components/DropZone';
 import * as actionsFromWizard from '~app/components/Wizard/actions';
-import BackButton from '~app/components/Wizard/components/common/BackButton';
-import { NETWORKS } from '~app/components/Wizard/components/Validators/constants';
-import { Title, Paragraph, Warning } from '~app/components/Wizard/components/common';
+import { ModalTemplate, PasswordInput } from '~app/common/components';
+import { Title, Warning } from '~app/components/Wizard/components/common';
+import { StepIndicator } from '~app/components/AccountRecovery/components';
+import { Description } from '~app/common/components/ModalTemplate/components';
 import { DECODE_STATUS, FileDecodeProgress } from '~app/common/components/DropZone/components/FileDecode';
 import { SelectedFilesTable, RemoveFileDataType } from '~app/common/components/DropZone/components/SelectedFilesTable';
 import {
-  getNetwork, getDecryptedKeyStoresError, getKeyStores, getDecryptedKeyStores,
+  getDecryptedKeyStoresError, getKeyStores, getDecryptedKeyStores,
   getShouldDisplayError, getDecryptedFilesCount, getIsDecryptingKeyStores
 } from '~app/components/Wizard/selectors';
 
-const Wrapper = styled.div`
-  width: 650px;
-`;
+// @ts-ignore
+import recoveryImage from 'assets/images/img-recovery.svg';
 
 const UploadedFilesHeader = styled.div`
-  font-size: 20px;
+  font-size: 14px;
   font-style: normal;
   font-weight: 500;
 `;
@@ -48,7 +45,7 @@ const Button = styled.button`
 `;
 
 const PasswordWrapper = styled.div`
-  margin-top: 20px;
+  margin-top: 15px;
   flex-direction: row;
   align-content: flex-start
 `;
@@ -56,19 +53,21 @@ const PasswordWrapper = styled.div`
 const ClearKeyStores = styled.div`
   color: black;
   cursor: pointer;
+  font-size: 14px;
 `;
 
 const UploadedFilesHeaderWrapper = styled.div`
   width: 100%;
   justify-content: space-between;
   display: flex;
+  margin-top: 15px;
+  margin-bottom: 15px;
 `;
 
 const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
   const {
-    setPage,
-    setStep,
-    network,
+    onClose,
+    onClick,
     wizardActions,
     keyStores,
     shouldDisplayError,
@@ -77,15 +76,17 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
     isDecryptingKeyStores,
     decryptedKeyStores
   } = props;
-  const {decryptKeyStores, uploadKeyStores, displayKeyStoreError, incrementFilesDecryptedCounter} = wizardActions;
+  const { decryptKeyStores, uploadKeyStores, displayKeyStoreError, incrementFilesDecryptedCounter } = wizardActions;
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [allFilesJson, setAllFilesJson] = useState(true);
   const [goToNextPage, setGoToNextPage] = useState(false);
+  const warningStyle = { maxWidth: '100%', marginTop: 20, width: '100%' };
+  const commonWarningStyle = { ...warningStyle, marginTop: -10, marginBottom: 20 };
 
   useEffect(() => {
     if (decryptedKeyStores.length > 0 && goToNextPage) {
-      setPage(config.WIZARD_PAGES.VALIDATOR.VALIDATOR_SUMMARY);
+      return onClick && onClick();
     }
     const newKeyStores = [...keyStores];
     let isAllFilesJson = true;
@@ -111,33 +112,18 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
 
   useEffect(() => {
     const removeErrorMessage = setTimeout(() => {
-      displayKeyStoreError({status: false, message: ''});
+      displayKeyStoreError({ status: false, message: '' });
     }, 3000);
     return () => {
       clearTimeout(removeErrorMessage);
     };
   }, [shouldDisplayError]);
 
-  // Password Error
   useEffect(() => {
-    setPasswordError((password && password?.length < 8) ? 'Password is too short' : '');
-  }, [password]);
-
-  /**
-   * Opening launchpad link depending of selected network.
-   */
-  const openLaunchpadLink = async (event: any) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    let url = '';
-    if (network === String(NETWORKS.mainnet.name).toLowerCase()) {
-      url = config.env.LAUNCHPAD_URL.MAINNET;
-    } else {
-      url = config.env.LAUNCHPAD_URL.TESTNET;
+    if (!isDecryptingKeyStores && decryptedFilesCount > 0 && decryptedFilesCount === keyStores.length) {
+      setGoToNextPage(true);
     }
-    await shell.openExternal(url);
-  };
+  }, [isDecryptingKeyStores, decryptedFilesCount]);
 
   const onFilesSelected = (files: File[]) => {
     if (isDecryptingKeyStores) {
@@ -145,10 +131,11 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
     }
     let newFileList = [...files, ...keyStores];
     if (newFileList.length > 100) {
-      displayKeyStoreError({status: true, message: 'You can’t run more than 100 validators per account.'});
+      displayKeyStoreError({ status: true, message: 'You can’t run more than 100 validators per account.' });
       return;
     }
-    displayKeyStoreError({status: false, message: ''});
+
+    displayKeyStoreError({ status: false, message: '' });
     newFileList = newFileList.filter((v, i, a) => a.findIndex(t => (t.name === v.name)) === i);
     newFileList.map((file: any) => {
       // eslint-disable-next-line no-param-reassign
@@ -167,17 +154,18 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
   };
 
   const decryptFiles = async () => {
-    decryptKeyStores({keyStores, password, incrementFilesDecryptedCounter});
-    setGoToNextPage(true);
+    decryptKeyStores({ keyStores, password, incrementFilesDecryptedCounter });
   };
 
   const clearKeyStores = () => {
+    if (isDecryptingKeyStores) {
+      return;
+    }
     uploadKeyStores([]);
   };
 
   const renderCommonError = () => {
     if (shouldDisplayError) {
-      const warningStyle = {maxWidth: '100%', marginTop: '20px'};
       return (
         <Warning
           text={errorMessage}
@@ -189,6 +177,9 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
   };
 
   const renderPasswordInput = () => {
+    if (!keyStores.length) {
+      return '';
+    }
     const onBlur = (e: any) => {
       setPasswordError((e.target.value && e.target.value?.length < 8) ? 'Password is too short' : '');
       setPassword(e.target.value);
@@ -207,8 +198,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
           error={passwordError || ''}
           isDisabled={isDecryptingKeyStores}
         />
-        <br />
-        <Button disabled={buttonDisabled} onClick={decryptFiles}>
+        <Button disabled={buttonDisabled} onClick={decryptFiles} style={{ marginTop: 30 }}>
           {isDecryptingKeyStores ? <FileDecodeProgress /> : 'Next'}
         </Button>
         {isDecryptingKeyStores && `${decryptedFilesCount}/${keyStores.length} Files Decrypted`}
@@ -216,61 +206,67 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
     );
   };
 
+  const onCloseClick = () => {
+    onClose && onClose();
+  };
+
   const renderFilesHeadings = () => {
+    if (!keyStores.length) {
+      return '';
+    }
     return (
-      <>
-        <br />
-        <UploadedFilesHeaderWrapper>
-          <UploadedFilesHeader>Uploaded Files</UploadedFilesHeader>
-          {keyStores && keyStores.length > 1 && <ClearKeyStores onClick={clearKeyStores}>Clear All</ClearKeyStores>}
-        </UploadedFilesHeaderWrapper>
-      </>
+      <UploadedFilesHeaderWrapper>
+        <UploadedFilesHeader>Uploaded Files</UploadedFilesHeader>
+        {keyStores && keyStores.length > 1 && <ClearKeyStores onClick={clearKeyStores}>Clear All</ClearKeyStores>}
+      </UploadedFilesHeaderWrapper>
     );
   };
 
   return (
-    <Wrapper>
-      <BackButton onClick={() => {
-        setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
-        setPage(config.WIZARD_PAGES.VALIDATOR.SELECT_NETWORK);
-      }} />
-      <Title>Upload Keystore File</Title>
-      <Paragraph style={{marginBottom: 10}}>
-        Got more than one validator? Upload multiple keystore files at once.
-        <br />
-        <br />
-        Dont have a keystore file? Generate keys using <a href="/" onClick={openLaunchpadLink}>Ethereum Launchpad</a>.
-      </Paragraph>
-      <br />
+    <ModalTemplate
+      width="900px"
+      image={recoveryImage}
+      justifyContent={'initial'}
+      padding={'30px 32px 30px 64px'}
+      onClose={onClose ? onCloseClick : null}
+    >
+      <Title style={{ marginBottom: 0 }}>Recover Account Data</Title>
+      <StepIndicator>Step 01</StepIndicator>
+
+      <Description>
+        To recover your account, please upload all of your validator&lsquo;s keystore files.
+      </Description>
+
+      <Warning
+        text="Only keystore files with the same password are supported. If you have other keystore files with a different password you should upload them later in a different batch."
+        style={commonWarningStyle}
+      />
 
       <DropZone
         onFiles={onFilesSelected}
         disabled={isDecryptingKeyStores}
+        containerStyle={{ width: '100%', maxHeight: 100 }}
       />
 
       {renderCommonError()}
+      {renderFilesHeadings()}
 
-      <>
-        {renderFilesHeadings()}
-        <SelectedFilesTable
-          onRemoveFile={removeFile}
-          keyStores={keyStores ?? []}
-          isDecryptingKeyStores={isDecryptingKeyStores}
-        />
-        {renderPasswordInput()}
-      </>
-    </Wrapper>
+      <SelectedFilesTable
+        onRemoveFile={removeFile}
+        keyStores={keyStores ?? []}
+        isDecryptingKeyStores={isDecryptingKeyStores}
+      />
+
+      {renderPasswordInput()}
+
+    </ModalTemplate>
   );
 };
 
 type UploadKeystoreFileProps = {
-  network: string;
+  onClick: () => void;
+  onClose: () => void | null;
   keyStores: Array<any>,
-  page: number;
-  setPage: (page: number) => void;
-  step: number;
-  setStep: (page: number) => void;
-  setPageData: (data: any) => void;
   wizardActions: Record<string, any>;
   errorMessage: string,
   shouldDisplayError: boolean,
@@ -280,7 +276,6 @@ type UploadKeystoreFileProps = {
 };
 
 const mapStateToProps = (state: any) => ({
-  network: getNetwork(state),
   keyStores: getKeyStores(state),
   errorMessage: getDecryptedKeyStoresError(state),
   shouldDisplayError: getShouldDisplayError(state),

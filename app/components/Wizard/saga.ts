@@ -1,10 +1,16 @@
 import {notification} from 'antd';
-import {call, put, takeLatest} from 'redux-saga/effects';
-import {LOAD_WALLET, LOAD_DEPOSIT_DATA, UPDATE_ACCOUNT_STATUS, DECRYPT_KEY_STORES} from './actionTypes';
-import * as actions from './actions';
-import WalletService from '../../backend/services/wallet/wallet.service';
-import AccountService from '../../backend/services/account/account.service';
-import {extractKeyStores} from './helpers/decreyptKeyStores';
+import { call, put, takeLatest, select } from 'redux-saga/effects';
+import * as actions from '~app/components/Wizard/actions';
+import WalletService from '~app/backend/services/wallet/wallet.service';
+import { getDecryptedKeyStores } from '~app/components/Wizard/selectors';
+import AccountService from '~app/backend/services/account/account.service';
+import { extractKeyStores } from '~app/components/Wizard/helpers/decreyptKeyStores';
+import {
+  LOAD_WALLET,
+  LOAD_DEPOSIT_DATA,
+  UPDATE_ACCOUNT_STATUS,
+  DECRYPT_KEY_STORES
+} from '~app/components/Wizard/actionTypes';
 
 function* onAccountStatusUpdateSuccess() {
   yield put(actions.updateAccountStatusSuccess());
@@ -90,7 +96,8 @@ function* startDecryptKeyStores(action) {
   const {payload} = action;
   const {keyStores, password, incrementFilesDecryptedCounter} = payload;
   try {
-    const keyStoresData = yield call(extractKeyStores, keyStores, password, incrementFilesDecryptedCounter);
+    const decryptedKeyStores = yield select(getDecryptedKeyStores);
+    const keyStoresData = yield call(extractKeyStores, decryptedKeyStores, keyStores, password, incrementFilesDecryptedCounter);
     yield call(onDecryptSuccess, keyStoresData);
     incrementFilesDecryptedCounter(0);
   } catch (error) {

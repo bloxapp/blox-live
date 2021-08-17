@@ -1,10 +1,11 @@
-import { Log } from '../../common/logger/logger';
-import { Catch, Step } from '../../decorators';
-import Connection from '../../common/store-manager/connection';
-import BloxApi from '../../common/communication-manager/blox-api';
-import KeyManagerService from '../key-manager/key-manager.service';
-import { METHOD } from '../../common/communication-manager/constants';
-import KeyVaultSsh from '../../common/communication-manager/key-vault-ssh';
+import { Catch, Step } from '~app/backend/decorators';
+import { Log } from '~app/backend/common/logger/logger';
+import { selectedKeystoreMode } from '~app/common/service';
+import Connection from '~app/backend/common/store-manager/connection';
+import BloxApi from '~app/backend/common/communication-manager/blox-api';
+import { METHOD } from '~app/backend/common/communication-manager/constants';
+import KeyVaultSsh from '~app/backend/common/communication-manager/key-vault-ssh';
+import KeyManagerService from '~app/backend/services/key-manager/key-manager.service';
 
 // @CatchClass<WalletService>()
 export default class WalletService {
@@ -78,7 +79,8 @@ export default class WalletService {
     const envKey = (Connection.db(this.storePrefix).get('env') || 'production');
     const payload: any = {
       url: `https://${Connection.db(this.storePrefix).get('publicIp')}:8200`,
-      accessToken: Connection.db(this.storePrefix).get('vaultSignerToken')
+      accessToken: Connection.db(this.storePrefix).get('vaultSignerToken'),
+      seedless: selectedKeystoreMode(),
     };
 
     // Send plugin version in all cases, but only if it's available

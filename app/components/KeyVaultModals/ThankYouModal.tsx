@@ -5,6 +5,7 @@ import { Button, ModalTemplate } from '~app/common/components';
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
 import * as actionsFromDashboard from '~app/components/Dashboard/actions';
 import { Title, Description } from '~app/common/components/ModalTemplate/components';
+// @ts-ignore
 import image from '../Wizard/assets/img-key-vault-inactive.svg';
 
 const ThankYouModal = ({ onClose, type, customImage, clearModalDisplayData }) => {
