@@ -58,35 +58,41 @@ const ModalsManager = (props: Props) => {
     goToPage(ROUTES.DASHBOARD);
   };
 
+  const onClose = () => {
+    clearModalDisplayData();
+    clearDecryptKeyStores();
+    clearDecryptProgress();
+  };
+
   if (showModal) {
     switch (modalType) {
       case MODAL_TYPES.PASSWORD:
         return (
           <PasswordModal
             onClick={onPasswordSuccess}
-            onClose={() => clearModalDisplayData()}
+            onClose={() => onClose()}
           />
         );
       case MODAL_TYPES.REACTIVATION:
         return (
           <KeyVaultReactivation
             onSuccess={() => onKeyVaultProcessSuccess()}
-            onClose={() => clearModalDisplayData()}
+            onClose={() => onClose()}
           />
         );
       case MODAL_TYPES.UPDATE:
         return (
           <KeyVaultUpdate
             onSuccess={() => onKeyVaultProcessSuccess()}
-            onClose={() => clearModalDisplayData()}
+            onClose={() => onClose()}
           />
         );
       case MODAL_TYPES.DEPOSIT_INFO:
-        return <DepositInfoModal onClose={() => clearModalDisplayData()} />;
+        return <DepositInfoModal onClose={() => onClose()} />;
       case MODAL_TYPES.ACTIVE_VALIDATOR:
         return activeValidators.length > 0 && (
           <ActiveValidatorModal
-            onClose={() => clearModalDisplayData()}
+            onClose={() => onClose()}
             activeValidators={activeValidators}
           />
         );
@@ -95,7 +101,7 @@ const ModalsManager = (props: Props) => {
         return (
           <AccountRecovery
             onSuccess={() => onAccountRecoverySuccess()}
-            onClose={() => clearModalDisplayData()}
+            onClose={() => onClose()}
             type={modalType}
           />
         );
@@ -106,7 +112,7 @@ const ModalsManager = (props: Props) => {
             subtitle="Please contact our support to help with the import."
             customImage={imageImportFailed}
             onClose={() => {
-              clearModalDisplayData();
+              onClose();
               goToPage(ROUTES.DASHBOARD);
             }}
             onClick={() => {
@@ -120,7 +126,7 @@ const ModalsManager = (props: Props) => {
             onClose={async () => {
               setFinishedWizard(true);
               await loadDashboardData();
-              clearModalDisplayData();
+              onClose();
               goToPage(ROUTES.DASHBOARD);
             }}
             customImage={imageImportFailed}
