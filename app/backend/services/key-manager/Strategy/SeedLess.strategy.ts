@@ -1,5 +1,5 @@
-import Strategy, {GetAccountProps, HighestValuesProps} from './strategy.interface';
-import {execPath} from '../../../../binaries';
+import { execPath } from '~app/binaries';
+import Strategy, { GetAccountProps, HighestValuesProps } from '~app/backend/services/key-manager/Strategy/strategy.interface';
 
 export default class SeedLess implements Strategy {
   executablePath: string;

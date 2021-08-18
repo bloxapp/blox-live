@@ -1,12 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
-import analytics from '../analytics';
-import ProcessClass from './process.class';
-import AwsService from '../services/aws/aws.service';
-import UsersService from '../services/users/users.service';
-import Connection from '../common/store-manager/connection';
-import WalletService from '../services/wallet/wallet.service';
-import AccountService from '../services/account/account.service';
-import KeyVaultService from '../services/key-vault/key-vault.service';
+import analytics from '~app/backend/analytics';
+import AwsService from '~app/backend/services/aws/aws.service';
+import UsersService from '~app/backend/services/users/users.service';
+import Connection from '~app/backend/common/store-manager/connection';
+import ProcessClass from '~app/backend/proccess-manager/process.class';
+import WalletService from '~app/backend/services/wallet/wallet.service';
+import AccountService from '~app/backend/services/account/account.service';
+import KeyVaultService from '~app/backend/services/key-vault/key-vault.service';
 
 export default class RecoveryProcess extends ProcessClass {
   private readonly accountService: AccountService;

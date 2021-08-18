@@ -1,13 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
-// import DropZone from '~app/common/components/DropZone';
+import { Typography } from '@material-ui/core';
 import {
   FileDecode,
   FileDecodeFailure,
   FileDecodeSuccess,
   RemoveFileButton
 } from '~app/common/components/DropZone/components/FileDecode';
-import {Typography} from '@material-ui/core';
 
 const SelectedFilesTableContainer = styled.table`
   width: 100%;

@@ -1,6 +1,6 @@
+import { isVersionHigherOrEqual } from '~app/utils/service';
 import BaseStore from '~app/backend/common/store-manager/base-store';
-import Connection from './store-manager/connection';
-import { isVersionHigherOrEqual } from '../../utils/service';
+import Connection from '~app/backend/common/store-manager/connection';
 
 export default class Config {
   private static instance: Config;

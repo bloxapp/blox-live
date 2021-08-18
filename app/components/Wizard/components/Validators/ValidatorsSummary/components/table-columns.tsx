@@ -1,8 +1,9 @@
 import React from 'react';
-import electron, {shell} from 'electron';
+import { shell } from 'electron';
 import styled from 'styled-components';
 import { truncateText } from '~app/components/common/service';
 import { compareFunction } from '~app/common/components/Table/service';
+// @ts-ignore
 import beaconChain from '../../../../../../assets/images/beacon-chain.png';
 
 const AddressKey = styled.div`

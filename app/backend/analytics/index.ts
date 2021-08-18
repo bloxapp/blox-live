@@ -1,5 +1,5 @@
 import Analytics from 'analytics';
-import bloxAnalyticsPlugin from './blox-analytics-plugin';
+import bloxAnalyticsPlugin from '~app/backend/analytics/blox-analytics-plugin';
 
 const analytics = Analytics({
   app: 'blox-live',

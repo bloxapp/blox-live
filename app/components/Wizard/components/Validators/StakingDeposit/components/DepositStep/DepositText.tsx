@@ -1,9 +1,9 @@
 import React from 'react';
-import {openExternalLink, truncateText} from '../../../../../../common/service';
 import styled from 'styled-components';
-import {CopyToClipboard} from 'react-copy-to-clipboard/lib/index';
-import {Link} from '../../../../common';
-import theme from '../../../../../../../theme';
+import { CopyToClipboard } from 'react-copy-to-clipboard/lib/index';
+import theme from '~app/theme';
+import { Link } from '~app/components/Wizard/components/common';
+import { openExternalLink, truncateText } from '~app/components/common/service';
 
 const TextInfo = styled.span`
   font-size: 12px;
@@ -33,26 +33,29 @@ const DepositText = (props: Props) => {
   const truncatePubKey = truncateText(publicKey, 6, 6);
   return (
     <TextInfo>
-      {
-        amountOfValidators ?
-          <TextInfo>Deposit to the Mainnet network to activate your validators. <br/></TextInfo> :
-          <>
-            <TextInfo>Deposit to the {token} network to activate your validator ({truncatePubKey}).</TextInfo>
-            <CopyToClipboard text={publicKey} onCopy={onCopy}>
-              <CustomIcon
-                className={'icon-copy'}
-                color={'primary900'}
-                fontSize={'14px'}
-                onClick={() => {
-                }}
-                isDisabled={false}
-              />
-            </CopyToClipboard>
-          </>
-      }
+      {amountOfValidators ? (
+        <TextInfo>Deposit to the Mainnet network to activate your validators. <br /></TextInfo>
+      ) : (
+        <>
+          <TextInfo>Deposit to the {token} network to activate your validator ({truncatePubKey}).</TextInfo>
+          <CopyToClipboard text={publicKey} onCopy={onCopy}>
+            <CustomIcon
+              className={'icon-copy'}
+              color={'primary900'}
+              fontSize={'14px'}
+              onClick={() => {
+              }}
+              isDisabled={false}
+            />
+          </CopyToClipboard>
+        </>
+      )}
       <TextInfo>Network gas fees will apply. </TextInfo>
-      <Link style={{color: theme.primary600}} onClick={() => openExternalLink('documents/eth2/#eth2-roadmap')}>Learn
-        more</Link>
+      <Link href="/" style={{color: theme.primary600}} onClick={(event: any) => {
+        event.preventDefault();
+        event.stopPropagation();
+        openExternalLink('documents/eth2/#eth2-roadmap');
+      }}>Learn more</Link>
     </TextInfo>
   );
 };
