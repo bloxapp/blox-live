@@ -3,13 +3,15 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
 import React, {useEffect, useState} from 'react';
-import { CircularProgress } from '@material-ui/core';
 import theme from '~app/theme';
 import config from '~app/backend/common/config';
+import useRouting from '~app/common/hooks/useRouting';
+import ProcessLoader from '~app/common/components/ProcessLoader';
 import { openExternalLink } from '~app/components/common/service';
 import * as actionsFromWizard from '~app/components/Wizard/actions';
 import { cleanDeepLink, deepLink } from '~app/components/App/service';
 import BloxApi from '~app/backend/common/communication-manager/blox-api';
+import useDashboardData from '~app/components/Dashboard/useDashboardData';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 import { NETWORKS } from '~app/components/Wizard/components/Validators/constants';
 import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
@@ -32,6 +34,7 @@ const Button = styled.button`
   background-color: #2536b8;
   margin-top: 20px;
   cursor: pointer;
+  margin-bottom: 20px;
 
   &:hover {
     background-color: #2546b2;
@@ -56,25 +59,31 @@ const ButtonsWrapper = styled.div`
   text-align: center;
 `;
 
-const FileDecodeProgress = () => (
-  <CircularProgress style={{color: 'black', width: 15, height: 15, marginTop: 6}} />
-);
-
 const bloxApi = new BloxApi();
 bloxApi.init();
 
 const DepositOverview = (props: ValidatorsSummaryProps) => {
-  const { setPage, setStep, decryptedKeyStores, idToken, network } = props;
-  const { isLoading, isDone, processData, error, startProcess, clearProcessState } = useProcessRunner();
+  const { setPage, setStep, decryptedKeyStores, idToken, wizardActions, network } = props;
+  const { clearDecryptKeyStores } = wizardActions;
+  const { isLoading, isDone, processData, error, startProcess, clearProcessState, loaderPercentage, processMessage } = useProcessRunner();
+  const { loadDataAfterNewAccount } = useDashboardData();
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
+  const { goToPage, ROUTES } = useRouting();
   const [moveToDepositPage, setMoveToDepositPage] = useState(true);
 
   useEffect(() => {
-    deepLink((obj) => {
+    deepLink(async (obj) => {
       if ('account_id' in obj) {
         const depositedValidators = obj.account_id;
-        console.log(depositedValidators.split(',').length);
-        // setPage(config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS);
+        await loadDataAfterNewAccount();
+        clearDecryptKeyStores();
+        clearProcessState();
+
+        if (depositedValidators) {
+          setPage(config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS);
+        } else {
+          goToPage(ROUTES.DASHBOARD);
+        }
       }
     }, (e) => notification.error({ message: e }));
     return () => cleanDeepLink();
@@ -132,8 +141,9 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
 
       <ButtonsWrapper>
         <Button disabled={isLoading} onClick={() => { setMoveToDepositPage(true); onNextButtonClick(); }}>
-          {isLoading ? <FileDecodeProgress /> : 'Continue to Web Deposit'}
+          Continue to Web Deposit
         </Button>
+        {processMessage && <ProcessLoader text={processMessage} precentage={loaderPercentage} />}
       </ButtonsWrapper>
     </Wrapper>
   );
