@@ -21,7 +21,7 @@ const AddValidatorButtonWrapper = (props: AddValidatorButtonWrapperProps) => {
     keyvaultCurrentVersion, keyvaultLatestVersion, children, style } = props;
   const { setModalDisplay, clearModalDisplayData } = dashboardActions;
   const { setAddAnotherAccount } = accountsActions;
-  const { setFinishedWizard, setOpenedWizard } = wizardActions;
+  const { setFinishedWizard, setOpenedWizard, clearDecryptKeyStores, clearDecryptProgress } = wizardActions;
   const walletNeedsUpdate = keyvaultCurrentVersion !== keyvaultLatestVersion;
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
   const { goToPage, ROUTES } = useRouting();
@@ -31,6 +31,8 @@ const AddValidatorButtonWrapper = (props: AddValidatorButtonWrapperProps) => {
    * Open create/import validator wizard
    */
   const createValidatorWizardActivator = () => {
+    clearDecryptKeyStores();
+    clearDecryptProgress();
     setAddAnotherAccount(true);
     setFinishedWizard(false);
     setOpenedWizard(true);
