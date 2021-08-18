@@ -61,7 +61,7 @@ const LaterBtn = styled.span`
     cursor:pointer;
     display: inline-block;
     margin-top:10px;
-    color: ${({theme, color}) => theme[color] || theme.primary900};
+    color: ${(props: any) => theme[props.color] || props.theme.primary900};
 `;
 
 const StakingDeposit = (props: Props) => {
@@ -69,7 +69,8 @@ const StakingDeposit = (props: Props) => {
     setPage, depositData, accountsFromApi, actions, callSetAddAnotherAccount, accountDataFromProcess,
     isDepositNeeded, publicKey, callSetDepositNeeded, callClearAccountsData, accountIndex, network, idToken
   } = props;
-  const {updateAccountStatus, loadDepositData, setFinishedWizard, clearWizardData} = actions;
+  const { updateAccountStatus, loadDepositData, setFinishedWizard, clearWizardData,
+    clearDecryptKeyStores, clearDecryptProgress } = actions;
   const [showMoveToBrowserModal, setShowMoveToBrowserModal] = React.useState(false);
   const { goToPage, ROUTES } = useRouting();
 
@@ -103,6 +104,8 @@ const StakingDeposit = (props: Props) => {
   const onCopy = () => notification.success({ message: 'Copied to clipboard!' });
 
   const moveToDashboard = async () => {
+    clearDecryptKeyStores();
+    clearDecryptProgress();
     await callClearAccountsData();
     await clearWizardData();
     await setFinishedWizard(true);

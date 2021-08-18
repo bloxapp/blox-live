@@ -18,11 +18,14 @@ const CongratulationPage = (props: Props) => {
   const { wizardActions, accountsActions, pageData } = props;
   const { isImportValidators, importedValidatorsCount } = pageData;
   const { clearAccountsData } = accountsActions;
-  const { setFinishedWizard, setOpenedWizard, clearWizardData } = wizardActions;
+  const { setFinishedWizard, setOpenedWizard, clearWizardData,
+    clearDecryptKeyStores, clearDecryptProgress } = wizardActions;
   const { loadDashboardData } = useDashboardData();
   const { goToPage, ROUTES } = useRouting();
 
   const onClick = async () => {
+    clearDecryptKeyStores();
+    clearDecryptProgress();
     await clearAccountsData();
     await clearWizardData();
     await setFinishedWizard(true);

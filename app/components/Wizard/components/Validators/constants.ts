@@ -1,5 +1,7 @@
 import config from '~app/backend/common/config';
+// @ts-ignore
 import testNetImage from '../../assets/img-validator-test-net.svg';
+// @ts-ignore
 import mainNetImage from '../../assets/img-validator-main-net.svg';
 
 export const NETWORKS = {

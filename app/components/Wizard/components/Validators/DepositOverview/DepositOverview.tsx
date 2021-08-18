@@ -1,26 +1,24 @@
 import {notification} from 'antd';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import {bindActionCreators} from 'redux';
+import { bindActionCreators } from 'redux';
 import React, {useEffect, useState} from 'react';
-import {CircularProgress} from '@material-ui/core';
+import theme from '~app/theme';
 import config from '~app/backend/common/config';
+import useRouting from '~app/common/hooks/useRouting';
+import ProcessLoader from '~app/common/components/ProcessLoader';
+import { openExternalLink } from '~app/components/common/service';
+import * as actionsFromWizard from '~app/components/Wizard/actions';
+import { cleanDeepLink, deepLink } from '~app/components/App/service';
 import BloxApi from '~app/backend/common/communication-manager/blox-api';
+import useDashboardData from '~app/components/Dashboard/useDashboardData';
+import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
+import { NETWORKS } from '~app/components/Wizard/components/Validators/constants';
+import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
 import { getIdToken } from '~app/components/Login/components/CallbackPage/selectors';
 import { getNetwork, getDecryptedKeyStores } from '~app/components/Wizard/selectors';
 import { Title, Paragraph, BackButton } from '~app/components/Wizard/components/common';
 import { MainNetKeyStoreText } from '~app/components/Wizard/components/Validators/StakingDeposit/components';
-import {NETWORKS} from '../constants';
-import theme from '../../../../../theme';
-import * as actionsFromWizard from '../../../actions';
-import {openExternalLink} from '../../../../common/service';
-import {cleanDeepLink, deepLink} from '../../../../App/service';
-import useDashboardData from '../../../../Dashboard/useDashboardData';
-import useProcessRunner from '../../../../ProcessRunner/useProcessRunner';
-import usePasswordHandler from '../../../../PasswordHandler/usePasswordHandler';
-import {ProcessLoader} from '../../../../../common/components';
-import useRouting from '../../../../../common/hooks/useRouting';
-import {clearDecryptKeyStores} from '../../../actions';
 
 const Wrapper = styled.div`
   width:650px;
@@ -60,10 +58,6 @@ const ButtonsWrapper = styled.div`
   // align-items: center;
   text-align: center;
 `;
-
-const FileDecodeProgress = () => (
-  <CircularProgress style={{color: 'black', width: 15, height: 15, marginTop: 6}} />
-);
 
 const bloxApi = new BloxApi();
 bloxApi.init();
@@ -131,7 +125,7 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
       }} />
       <Title>{NETWORKS[network].name} Staking Deposit</Title>
       <Paragraph style={{ marginBottom: 5 }}>
-        To start staking, first, you'll need to make a deposit:
+        To start staking, first, you&apos;ll need to make a deposit:
       </Paragraph>
       <MainNetKeyStoreText amountOfValidators={decryptedKeyStores.length} publicKey={''} onCopy={() => {}} />
       {decryptedKeyStores.length > 1 && (
@@ -160,6 +154,8 @@ type ValidatorsSummaryProps = {
   wizardActions: Record<string, any>;
   setPage: (page: number) => void;
   setStep: (page: number) => void;
+  decryptedKeyStores: any;
+  idToken: any;
 };
 
 const mapStateToProps = (state: any) => ({
