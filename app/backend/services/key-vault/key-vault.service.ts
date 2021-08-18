@@ -1,14 +1,13 @@
-import config from '../../common/config';
-import { Log } from '../../common/logger/logger';
-import WalletService from '../wallet/wallet.service';
-import VersionService from '../version/version.service';
-import { Catch, CatchClass, Step } from '../../decorators';
-import Connection from '../../common/store-manager/connection';
-import { isVersionHigherOrEqual } from '../../../utils/service';
-import BloxApi from '../../common/communication-manager/blox-api';
-import { METHOD } from '../../common/communication-manager/constants';
-import KeyVaultSsh from '../../common/communication-manager/key-vault-ssh';
-import KeyVaultApi from '../../common/communication-manager/key-vault-api';
+import config from '~app/backend/common/config';
+import { Catch, Step } from '~app/backend/decorators';
+import { Log } from '~app/backend/common/logger/logger';
+import { isVersionHigherOrEqual } from '~app/utils/service';
+import Connection from '~app/backend/common/store-manager/connection';
+import BloxApi from '~app/backend/common/communication-manager/blox-api';
+import VersionService from '~app/backend/services/version/version.service';
+import { METHOD } from '~app/backend/common/communication-manager/constants';
+import KeyVaultSsh from '~app/backend/common/communication-manager/key-vault-ssh';
+import KeyVaultApi from '~app/backend/common/communication-manager/key-vault-api';
 
 function sleep(milliseconds) {
   return new Promise(resolve => {
@@ -16,12 +15,10 @@ function sleep(milliseconds) {
   });
 }
 
-// @CatchClass<KeyVaultService>()
 export default class KeyVaultService {
   private readonly keyVaultSsh: KeyVaultSsh;
   private readonly keyVaultApi: KeyVaultApi;
   private readonly versionService: VersionService;
-  private readonly walletService: WalletService;
   private readonly bloxApi: BloxApi;
   private storePrefix: string;
   private logger: Log;
@@ -31,7 +28,6 @@ export default class KeyVaultService {
     this.keyVaultSsh = new KeyVaultSsh(this.storePrefix);
     this.versionService = new VersionService();
     this.keyVaultApi = new KeyVaultApi(this.storePrefix);
-    this.walletService = new WalletService(this.storePrefix);
     this.bloxApi = new BloxApi();
     this.bloxApi.init();
     this.logger = new Log('key-vault');

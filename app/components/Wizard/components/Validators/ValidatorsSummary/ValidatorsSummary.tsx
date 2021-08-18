@@ -5,12 +5,12 @@ import React, { useEffect, useState } from 'react';
 import config from '~app/backend/common/config';
 import Table from '~app/common/components/Table';
 import { Checkbox } from '~app/common/components';
+import * as actionsFromWizard from '~app/components/Wizard/actions';
 import { handlePageClick } from '~app/common/components/Table/service';
 import BloxApi from '~app/backend/common/communication-manager/blox-api';
 import { getNetwork, getDecryptedKeyStores } from '~app/components/Wizard/selectors';
 import { Title, Paragraph, Link, Warning, BackButton } from '~app/components/Wizard/components/common';
-import tableColumns from './components/table-columns';
-import * as actionsFromWizard from '../../../actions';
+import tableColumns from '~app/components/Wizard/components/Validators/ValidatorsSummary/components/table-columns';
 
 const Wrapper = styled.div`
   width:650px;
@@ -51,7 +51,7 @@ bloxApi.init();
 
 const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
   const { setPage, setStep, network, wizardActions, decryptedKeyStores } = props;
-  const { clearDecryptKeyStores } = wizardActions;
+  const { clearDecryptKeyStores, clearDecryptProgress } = wizardActions;
   const [pagedValidators, setPagedValidators] = useState([]);
   const [paginationInfo, setPaginationInfo] = useState(null);
   const [allDeposited, setAllDeposited] = useState(false);
@@ -124,6 +124,7 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
         setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
         setPage(config.WIZARD_PAGES.VALIDATOR.UPLOAD_KEYSTORE_FILE);
         clearDecryptKeyStores();
+        clearDecryptProgress();
       }} />
       <Title>Validators Summary</Title>
       <Paragraph style={{ marginBottom: 10 }}>

@@ -26,11 +26,12 @@ export default class RecoveryProcess extends ProcessClass {
     this.walletService = new WalletService();
 
     const uuid = uuidv4();
+    const privateKeys = inputData?.privateKeys || null;
+
     Connection.db().set('uuid', uuid);
     Connection.db().set('credentials', { accessKeyId, secretAccessKey });
     this.userService.update({ uuid });
-    const privateKeys = inputData?.privateKeys || null;
-    console.debug('RecoveryProcess privateKeys:', privateKeys, inputData);
+
     this.actions = [
       { instance: this.accountService, method: 'recoverAccounts', params: { privateKeys }},
       { instance: this.awsService, method: 'setAWSCredentials' },

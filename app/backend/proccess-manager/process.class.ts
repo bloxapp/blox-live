@@ -1,8 +1,8 @@
-import { Log } from '../common/logger/logger';
-import { Subject } from './subject.interface';
-import { Observer } from './observer.interface';
-import { Catch, catchDecoratorStore } from '../decorators';
-import BaseStore from '../common/store-manager/base-store';
+import { Log } from '~app/backend/common/logger/logger';
+import { Catch, catchDecoratorStore } from '~app/backend/decorators';
+import BaseStore from '~app/backend/common/store-manager/base-store';
+import { Subject } from '~app/backend/proccess-manager/subject.interface';
+import { Observer } from '~app/backend/proccess-manager/observer.interface';
 
 export default class ProcessClass implements Subject {
   readonly actions: Array<any>;

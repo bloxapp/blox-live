@@ -21,13 +21,14 @@ import {
   FailureModal,
   ThankYouModal,
   ConfirmationModal } from '~app/components/KeyVaultModals';
+// @ts-ignore
 import imageImportFailed from '../../../Wizard/assets/img-import-failed.svg';
 
 const ModalsManager = (props: Props) => {
   const { dashboardActions, wizardActions, accountsActions, userActions,
     showModal, modalType, onSuccess, activeValidators, modalData } = props;
   const { clearModalDisplayData, setModalDisplay } = dashboardActions;
-  const { loadWallet, setFinishedWizard } = wizardActions;
+  const { loadWallet, setFinishedWizard, clearDecryptKeyStores, clearDecryptProgress } = wizardActions;
   const { loadAccounts } = accountsActions;
   const { loadUserInfo } = userActions;
   const { loadDashboardData } = useDashboardData();
@@ -46,6 +47,8 @@ const ModalsManager = (props: Props) => {
   };
 
   const onAccountRecoverySuccess = async () => {
+    clearDecryptKeyStores();
+    clearDecryptProgress();
     setFinishedWizard(true);
     loadUserInfo();
     loadWallet();
