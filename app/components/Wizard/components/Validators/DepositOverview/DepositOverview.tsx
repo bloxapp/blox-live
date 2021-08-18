@@ -18,6 +18,9 @@ import {cleanDeepLink, deepLink} from '../../../../App/service';
 import useDashboardData from '../../../../Dashboard/useDashboardData';
 import useProcessRunner from '../../../../ProcessRunner/useProcessRunner';
 import usePasswordHandler from '../../../../PasswordHandler/usePasswordHandler';
+import {ProcessLoader} from '../../../../../common/components';
+import useRouting from '../../../../../common/hooks/useRouting';
+import {clearDecryptKeyStores} from '../../../actions';
 
 const Wrapper = styled.div`
   width:650px;
@@ -33,6 +36,7 @@ const Button = styled.button`
   background-color: #2536b8;
   margin-top: 20px;
   cursor: pointer;
+  margin-bottom: 20px;
 
   &:hover {
     background-color: #2546b2;
@@ -65,18 +69,27 @@ const bloxApi = new BloxApi();
 bloxApi.init();
 
 const DepositOverview = (props: ValidatorsSummaryProps) => {
-  const { setPage, setStep, decryptedKeyStores, idToken, network } = props;
-  const { isLoading, isDone, processData, error, startProcess, clearProcessState, /*loaderPercentage, processMessage*/ } = useProcessRunner();
+  const { setPage, setStep, decryptedKeyStores, idToken, wizardActions, network } = props;
+  const { clearDecryptKeyStores } = wizardActions;
+  const { isLoading, isDone, processData, error, startProcess, clearProcessState, loaderPercentage, processMessage } = useProcessRunner();
   const { loadDataAfterNewAccount } = useDashboardData();
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
+  const { goToPage, ROUTES } = useRouting();
   const [moveToDepositPage, setMoveToDepositPage] = useState(true);
 
   useEffect(() => {
-    deepLink((obj) => {
+    deepLink(async (obj) => {
       if ('account_id' in obj) {
         const depositedValidators = obj.account_id;
-        console.log(depositedValidators.split(',').length);
-        // setPage(config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS);
+        await loadDataAfterNewAccount();
+        clearDecryptKeyStores();
+        clearProcessState();
+
+        if (depositedValidators) {
+          setPage(config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS);
+        } else {
+          goToPage(ROUTES.DASHBOARD);
+        }
       }
     }, (e) => notification.error({ message: e }));
     return () => cleanDeepLink();
@@ -134,8 +147,9 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
 
       <ButtonsWrapper>
         <Button disabled={isLoading} onClick={() => { setMoveToDepositPage(true); onNextButtonClick(); }}>
-          {isLoading ? <FileDecodeProgress /> : 'Continue to Web Deposit'}
+          Continue to Web Deposit
         </Button>
+        {processMessage && <ProcessLoader text={processMessage} precentage={loaderPercentage} />}
       </ButtonsWrapper>
     </Wrapper>
   );
