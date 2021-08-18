@@ -1,23 +1,23 @@
-import React, {useEffect, useState} from 'react';
+import {notification} from 'antd';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import {bindActionCreators} from 'redux';
+import React, {useEffect, useState} from 'react';
+import {CircularProgress} from '@material-ui/core';
 import config from '~app/backend/common/config';
 import BloxApi from '~app/backend/common/communication-manager/blox-api';
 import { getIdToken } from '~app/components/Login/components/CallbackPage/selectors';
 import { getNetwork, getDecryptedKeyStores } from '~app/components/Wizard/selectors';
-import { Title, Paragraph, BackButton, BigButton } from '~app/components/Wizard/components/common';
+import { Title, Paragraph, BackButton } from '~app/components/Wizard/components/common';
 import { MainNetKeyStoreText } from '~app/components/Wizard/components/Validators/StakingDeposit/components';
+import {NETWORKS} from '../constants';
 import theme from '../../../../../theme';
 import * as actionsFromWizard from '../../../actions';
 import {openExternalLink} from '../../../../common/service';
-import useProcessRunner from '../../../../ProcessRunner/useProcessRunner';
+import {cleanDeepLink, deepLink} from '../../../../App/service';
 import useDashboardData from '../../../../Dashboard/useDashboardData';
+import useProcessRunner from '../../../../ProcessRunner/useProcessRunner';
 import usePasswordHandler from '../../../../PasswordHandler/usePasswordHandler';
-import {NETWORKS} from '../constants';
-import {CircularProgress} from '@material-ui/core';
-import {cleanDeepLink, deepLink} from "../../../../App/service";
-import {notification} from "antd";
 
 const Wrapper = styled.div`
   width:650px;
@@ -66,15 +66,17 @@ bloxApi.init();
 
 const DepositOverview = (props: ValidatorsSummaryProps) => {
   const { setPage, setStep, decryptedKeyStores, idToken, network } = props;
-  const { isLoading, isDone, processData, error, startProcess, clearProcessState, loaderPercentage, processMessage } = useProcessRunner();
+  const { isLoading, isDone, processData, error, startProcess, clearProcessState, /*loaderPercentage, processMessage*/ } = useProcessRunner();
   const { loadDataAfterNewAccount } = useDashboardData();
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
   const [moveToDepositPage, setMoveToDepositPage] = useState(true);
 
   useEffect(() => {
     deepLink((obj) => {
-      if ('success' in obj && 'account_id' in obj) {
-        setPage(config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS);
+      if ('account_id' in obj) {
+        const depositedValidators = obj.account_id;
+        console.log(depositedValidators.split(',').length);
+        // setPage(config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS);
       }
     }, (e) => notification.error({ message: e }));
     return () => cleanDeepLink();

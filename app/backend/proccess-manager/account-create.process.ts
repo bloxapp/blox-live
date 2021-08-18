@@ -1,12 +1,14 @@
 import analytics from '../analytics';
 import ProcessClass from './process.class';
 import Connection from '../common/store-manager/connection';
+import WalletService from '../services/wallet/wallet.service';
 import AccountService from '../services/account/account.service';
 import KeyVaultService from '../services/key-vault/key-vault.service';
 
 export default class AccountCreateProcess extends ProcessClass {
   private readonly accountService: AccountService;
   private readonly keyVaultService: KeyVaultService;
+  private readonly walletService: WalletService;
   public readonly actions: Array<any>;
   public readonly fallbackActions: Array<any>;
 
@@ -15,6 +17,7 @@ export default class AccountCreateProcess extends ProcessClass {
     Connection.db().set('network', network);
     this.keyVaultService = new KeyVaultService();
     this.accountService = new AccountService();
+    this.walletService = new WalletService();
     this.actions = [
       {
         instance: this.keyVaultService,
@@ -39,6 +42,11 @@ export default class AccountCreateProcess extends ProcessClass {
           indexToRestore,
           inputData
         }
+      },
+      {
+        instance: this.walletService,
+        method: 'syncVaultWithBlox',
+        params: {isNew: false, processName: 'account-create'}
       },
       {
         hook: async () => {
