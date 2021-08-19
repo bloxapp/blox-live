@@ -89,17 +89,29 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
     }
     const newKeyStores = [...keyStores];
     let isAllFilesJson = true;
+    let corruptFileName;
     newKeyStores.map((keyStore: any) => {
       const isJson = keyStore.type === 'application/json';
       // eslint-disable-next-line no-param-reassign
       keyStore.status = isJson ? 1 : 2;
       if (!isJson) {
+        if (!corruptFileName) corruptFileName = keyStore.name;
         isAllFilesJson = false;
       }
       return keyStore;
     });
 
+    if(newKeyStores.length === 0){
+      displayKeyStoreError({status: false, message: ''});
+    }
+    if(isAllFilesJson){
+      displayKeyStoreError({status: false, message: ''});
+    }
+
     const updateStateTimeOut = setTimeout(() => {
+      if (!isAllFilesJson) {
+        displayKeyStoreError({status: true, message: <div>Invalid file format <strong>{corruptFileName}</strong> - only .json files are supported.</div>});
+      }
       setAllFilesJson(isAllFilesJson);
       uploadKeyStores(newKeyStores);
     }, 1000);
@@ -107,16 +119,9 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
     return () => {
       clearTimeout(updateStateTimeOut);
     };
-  }, [keyStores.length, decryptedFilesCount, goToNextPage, decryptedKeyStores]);
+  }, [JSON.stringify(keyStores), decryptedFilesCount, goToNextPage, decryptedKeyStores]);
 
-  useEffect(() => {
-    const removeErrorMessage = setTimeout(() => {
-      displayKeyStoreError({status: false, message: ''});
-    }, 3000);
-    return () => {
-      clearTimeout(removeErrorMessage);
-    };
-  }, [shouldDisplayError]);
+
 
   // Password Error
   useEffect(() => {
