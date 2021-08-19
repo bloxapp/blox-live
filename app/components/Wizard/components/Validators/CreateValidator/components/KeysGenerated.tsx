@@ -45,7 +45,7 @@ const KeysGenerated = (props: Props) => {
   };
 
   useEffect(() => {
-    setTestNetShowFlag(validatorData.network === config.env.PYRMONT_NETWORK);
+    setTestNetShowFlag(validatorData.network === config.env.PRATER_NETWORK);
     setPageData({
       newValidatorDeposited: validatorData.deposited
     });

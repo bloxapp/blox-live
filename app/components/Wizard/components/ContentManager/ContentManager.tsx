@@ -18,7 +18,7 @@ const Wrapper = styled.div`
 
 const switcher = (props: Props) => {
   const { page, network } = props;
-  const validatorImage = network === config.env.PYRMONT_NETWORK ? testnetValidatorImage : mainnetValidatorImage;
+  const validatorImage = [config.env.PYRMONT_NETWORK, config.env.PRATER_NETWORK].indexOf(network) > -1 ? testnetValidatorImage : mainnetValidatorImage;
   let component;
   let bgImage = '';
 

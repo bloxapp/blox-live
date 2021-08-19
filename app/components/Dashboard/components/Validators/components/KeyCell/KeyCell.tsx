@@ -16,6 +16,7 @@ import {
   Right,
   TestNet
 } from '~app/components/Dashboard/components/Validators/components/KeyCell/components';
+import config from "../../../../../../backend/common/config";
 
 const Wrapper = styled.div`
   width: 90%;
@@ -31,6 +32,8 @@ const getNetworkLink = (network: string, publicKey: string): string => {
       return `https://beaconcha.in/validator/${publicKey}`;
     case NETWORKS.pyrmont.label:
       return `https://pyrmont.beaconcha.in/validator/${publicKey}`;
+    case NETWORKS.prater.label:
+      return `https://prater.beaconcha.in/validator/${publicKey}`;
   }
 };
 
@@ -63,7 +66,7 @@ const KeyCell = ({ value }) => {
         <CopyToClipboard text={publicKey} onCopy={onCopy}>
           <Icon name="copy" color="gray800" fontSize="16px" onClick={() => false} />
         </CopyToClipboard>
-        {network === NETWORKS.pyrmont.label && <TestNet>Pyrmont Testnet</TestNet>}
+        {[config.env.PYRMONT_NETWORK, config.env.PRATER_NETWORK].indexOf(network) > -1 && <TestNet>Prater Testnet</TestNet>}
         {network === NETWORKS.mainnet.label && <TestNet>MainNet</TestNet>}
       </Right>
     </Wrapper>

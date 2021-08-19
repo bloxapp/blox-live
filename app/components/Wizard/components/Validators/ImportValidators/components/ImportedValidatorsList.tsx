@@ -91,7 +91,7 @@ const ImportedValidatorsList = ({ show, validators, onDone, dashboardActions }: 
 
   useEffect(() => {
     if (isDone && processData && !error) {
-      setTestNetShowFlag(getNetworkForImport() === config.env.PYRMONT_NETWORK);
+      setTestNetShowFlag(getNetworkForImport() === config.env.PRATER_NETWORK);
       onDone();
       analytics.track('import-completed');
     } else if (isDone && error && !isLoading) {

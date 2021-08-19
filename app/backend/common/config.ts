@@ -29,6 +29,7 @@ export default class Config {
       HTTP_RETRIES: 3,
       HTTP_RETRY_DELAY: 1000,
       PYRMONT_NETWORK: 'pyrmont',
+      PRATER_NETWORK: 'prater',
       MAINNET_NETWORK: 'mainnet',
       TESTNET: {
         GOERLI_NETWORK: 'goerli'
@@ -39,6 +40,7 @@ export default class Config {
       TARGET_SSH_PORT: 2200,
       BEACONCHA_URL: 'https://beaconcha.in/api/v1',
       PYRMONT_BEACONCHA_URL: 'https://pyrmont.beaconcha.in/api/v1',
+      PRATER_BEACONCHA_URL: 'https://prater.beaconcha.in/api/v1',
       INFURA_API_KEY: 'ad49ce6ad5d64c2685f4b2ba86512c76',
       ETH_INITIAL_BALANCE: 32.00,
       UNAUTHORIZED_CHECK_INTERVAL: 10 * 60 * 1000,

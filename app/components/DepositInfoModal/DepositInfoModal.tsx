@@ -107,7 +107,7 @@ const DepositInfoModal = ({onClose, depositData, actions}: Props) => {
             </Row>
           );
         })}
-        {depositData?.network === NETWORKS.pyrmont.label && (
+        {depositData?.network === NETWORKS.prater.label && (
           <WarningText>
             Make sure you send GoETH Testnet tokens and not real ETH!
           </WarningText>

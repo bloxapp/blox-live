@@ -10,6 +10,13 @@ export const NETWORKS = {
     image: testNetImage,
     label: config.env.PYRMONT_NETWORK,
   },
+  prater: {
+    chainId: 5,
+    name: 'Prater',
+    title: 'Test on Prater',
+    image: testNetImage,
+    label: config.env.PRATER_NETWORK,
+  },
   mainnet: {
     chainId: 1,
     name: 'Mainnet',
@@ -20,4 +27,4 @@ export const NETWORKS = {
 };
 
 export const INTRO_TOOLTIP_TEXT = `GoETH are test tokens needed in order to participate in the Goerli Test Network.
-  'You need at least 32 GoETH test tokens in order to stake on ${NETWORKS.pyrmont.name}. GoETH have no real value!`;
+  'You need at least 32 GoETH test tokens in order to stake on ${NETWORKS.prater.name}. GoETH have no real value!`;

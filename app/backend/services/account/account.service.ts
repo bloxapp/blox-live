@@ -204,9 +204,9 @@ export default class AccountService {
     let highestProposal = '';
     const accountsArray = Object.values(accountsHash);
     for (let i = index; i >= 0; i -= 1) {
-      highestSource += `${accountsArray[i]['highest_source_epoch']}${i === 0 ? '' : ','}`;
-      highestTarget += `${accountsArray[i]['highest_target_epoch']}${i === 0 ? '' : ','}`;
-      highestProposal += `${accountsArray[i]['highest_proposal_slot']}${i === 0 ? '' : ','}`;
+      highestSource += `${accountsArray[i].highest_source_epoch}${i === 0 ? '' : ','}`;
+      highestTarget += `${accountsArray[i].highest_target_epoch}${i === 0 ? '' : ','}`;
+      highestProposal += `${accountsArray[i].highest_proposal_slot}${i === 0 ? '' : ','}`;
     }
 
     // 6. create accounts
@@ -221,15 +221,18 @@ export default class AccountService {
     displayMessage: 'CLI Create Account failed'
   })
   async restoreAccounts(): Promise<void> {
+    const supportedNetworks = [config.env.PYRMONT_NETWORK, config.env.PRATER_NETWORK, config.env.MAINNET_NETWORK];
     const indices = Connection.db(this.storePrefix).get('index');
     if (indices) {
       // eslint-disable-next-line no-restricted-syntax
       for (const [network, lastIndex] of Object.entries(indices)) {
-        const index = +lastIndex;
-        if (index > -1) {
-          Connection.db(this.storePrefix).set('network', network);
-          // eslint-disable-next-line no-await-in-loop
-          await this.createAccount({ indexToRestore: index });
+        if (supportedNetworks.indexOf(network) > -1) {
+          const index = +lastIndex;
+          if (index > -1) {
+            Connection.db(this.storePrefix).set('network', network);
+            // eslint-disable-next-line no-await-in-loop
+            await this.createAccount({ indexToRestore: index });
+          }
         }
       }
     }
@@ -314,7 +317,7 @@ export default class AccountService {
     displayMessage: 'Failed to delete all accounts'
   })
   async deleteAllAccounts(): Promise<void> {
-    const supportedNetworks = [config.env.PYRMONT_NETWORK, config.env.MAINNET_NETWORK];
+    const supportedNetworks = [config.env.PYRMONT_NETWORK, config.env.PRATER_NETWORK, config.env.MAINNET_NETWORK];
     // eslint-disable-next-line no-restricted-syntax
     for (const network of supportedNetworks) {
       Connection.db(this.storePrefix).set('network', network);

@@ -37,6 +37,9 @@ export default class KeyVaultApi extends Http {
     let network: string;
     if (isNetworkRequired) {
       network = Connection.db(this.storePrefix).get('network');
+
+      if (network === 'prater') network = 'pyrmont';
+
       if (!network) {
         throw new Error('Configuration settings network not found');
       }

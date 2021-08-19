@@ -82,6 +82,9 @@ const getProvider = (accountNetwork) => {
     case config.env.PYRMONT_NETWORK:
       networkType = config.env.TESTNET.GOERLI_NETWORK;
       break;
+    case config.env.PRATER_NETWORK:
+      networkType = config.env.TESTNET.GOERLI_NETWORK;
+      break;
   }
   return `https://${networkType}.infura.io/v3/${config.env.INFURA_API_KEY}`;
 };
