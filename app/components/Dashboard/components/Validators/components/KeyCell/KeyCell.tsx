@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { notification } from 'antd';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Icon } from '~app/common/components';
+import config from '~app/backend/common/config';
 import { truncateText } from '~app/components/common/service';
 import { Link } from '~app/components/Wizard/components/common';
 import { NETWORKS } from '~app/components/Wizard/components/Validators/constants';
@@ -16,7 +17,6 @@ import {
   Right,
   TestNet
 } from '~app/components/Dashboard/components/Validators/components/KeyCell/components';
-import config from "../../../../../../backend/common/config";
 
 const Wrapper = styled.div`
   width: 90%;
@@ -66,7 +66,7 @@ const KeyCell = ({ value }) => {
         <CopyToClipboard text={publicKey} onCopy={onCopy}>
           <Icon name="copy" color="gray800" fontSize="16px" onClick={() => false} />
         </CopyToClipboard>
-        {[config.env.PYRMONT_NETWORK, config.env.PRATER_NETWORK].indexOf(network) > -1 && <TestNet>Prater Testnet</TestNet>}
+        {[config.env.PYRMONT_NETWORK, config.env.PRATER_NETWORK].indexOf(network) > -1 && <TestNet>{NETWORKS[network].name} Testnet</TestNet>}
         {network === NETWORKS.mainnet.label && <TestNet>MainNet</TestNet>}
       </Right>
     </Wrapper>

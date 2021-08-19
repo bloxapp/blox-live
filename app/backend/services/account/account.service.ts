@@ -364,7 +364,10 @@ export default class AccountService {
     }
     const accountToCompareWith = accounts[0];
     const index = accountToCompareWith.name.split('-')[1];
-    const account = await this.keyManagerService.getAccount(seed, index, config.env.PYRMONT_NETWORK);
+    let account = await this.keyManagerService.getAccount(seed, index, config.env.PYRMONT_NETWORK);
+    if (!account) {
+      account = await this.keyManagerService.getAccount(seed, index, config.env.PRATER_NETWORK);
+    }
 
     if (account.validationPubKey !== accountToCompareWith.publicKey.replace(/^(0x)/, '')) {
       throw new Error('Passphrase not linked to your account.');

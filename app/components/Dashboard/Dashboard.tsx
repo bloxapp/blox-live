@@ -55,7 +55,7 @@ const Dashboard = (props) => {
         if (!isTestNetShow) {
           return account.network === config.env.MAINNET_NETWORK;
         }
-        return account.network === config.env.PRATER_NETWORK;
+        return [config.env.PYRMONT_NETWORK, config.env.PRATER_NETWORK].indexOf(account.network) > -1;
       }));
     } else {
       setFilteredAccounts(null);
