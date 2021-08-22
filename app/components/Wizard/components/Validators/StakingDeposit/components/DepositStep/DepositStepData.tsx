@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import {InfoWithTooltip} from '../../../../../../../common/components';
+import { InfoWithTooltip } from '~app/common/components';
 
 const Wrapper = styled.div`
   width:100%;

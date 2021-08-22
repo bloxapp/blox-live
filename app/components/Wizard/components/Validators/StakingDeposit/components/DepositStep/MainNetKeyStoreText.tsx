@@ -1,7 +1,7 @@
 import React from 'react';
-import DepositStepData from './DepositStepData';
 import styled from 'styled-components';
-import DepositText from './DepositText';
+import DepositText from '~app/components/Wizard/components/Validators/StakingDeposit/components/DepositStep/DepositText';
+import DepositStepData from '~app/components/Wizard/components/Validators/StakingDeposit/components/DepositStep/DepositStepData';
 
 const TextInfo = styled.span`
     font-size: 12px;

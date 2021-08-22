@@ -4,12 +4,12 @@ import config from '~app/backend/common/config';
 import { getNetwork } from '~app/components/Wizard/selectors';
 import { loadDepositData } from '~app/components/Wizard/actions';
 import * as wizardSelectors from '~app/components/Wizard/selectors';
+import Connection from '~app/backend/common/store-manager/connection';
 import useDashboardData from '~app/components/Dashboard/useDashboardData';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
 import { setDepositNeeded, setAddAnotherAccount } from '~app/components/Accounts/actions';
 import { GenerateKeys, KeysGenerated } from '~app/components/Wizard/components/Validators/CreateValidator/components';
-import Connection from "../../../../../backend/common/store-manager/connection";
 
 const CreateValidator = (props: Props) => {
   const { isLoading, isDone, processData, error, startProcess, clearProcessState } = useProcessRunner();

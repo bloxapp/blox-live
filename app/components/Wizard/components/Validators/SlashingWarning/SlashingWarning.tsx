@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
+import config from '~app/backend/common/config';
+import { loadDepositData } from '~app/components/Wizard/actions';
+import { Checkbox, ProcessLoader } from '~app/common/components';
+import { setAddAnotherAccount } from '~app/components/Accounts/actions';
+import useDashboardData from '~app/components/Dashboard/useDashboardData';
+import { SmallText } from '~app/common/components/ModalTemplate/components';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
+import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
 import { getNetwork, getDecryptedKeyStores } from '~app/components/Wizard/selectors';
 import { Title, Paragraph, BackButton, ErrorMessage } from '~app/components/Wizard/components/common';
-import {loadDepositData} from '../../../actions';
-import config from '../../../../../backend/common/config';
-import {setAddAnotherAccount} from '../../../../Accounts/actions';
-import useDashboardData from '../../../../Dashboard/useDashboardData';
-import {Checkbox, ProcessLoader} from '../../../../../common/components';
-import usePasswordHandler from '../../../../PasswordHandler/usePasswordHandler';
-import { SmallText } from '../../../../../common/components/ModalTemplate/components';
 
 const Wrapper = styled.div`
   width:650px;
@@ -77,7 +77,7 @@ const SlashingWarning = (props: SlashingWarningProps) => {
         startProcess('createAccount',
           `Create Validator${decryptedKeyStores.length > 0 ? 's' : ''}...`,
           {
-            inputData: decryptedKeyStores.map(account => account.privateKey).join(',')
+            inputData: decryptedKeyStores.map(acc => acc.privateKey).join(',')
           });
       }
     };
@@ -111,7 +111,7 @@ const SlashingWarning = (props: SlashingWarningProps) => {
         checkboxStyle={checkboxStyle}
         labelStyle={checkboxLabelStyle}
       >
-        I'm aware that before running my validators, to avoid slashing risks, my validators needs to be offline.
+        I&apos;m aware that before running my validators, to avoid slashing risks, my validators needs to be offline.
       </Checkbox>
       <ButtonWrapper>
         <Button
@@ -121,7 +121,6 @@ const SlashingWarning = (props: SlashingWarningProps) => {
         </Button>
         {isLoading && (
           <ProgressWrapper>
-            {/*<ProcessLoader text={`Importing validator${account?.length === 1 ? '' : 's'}`} precentage={loaderPercentage} />*/}
             <ProcessLoader text={processMessage} precentage={loaderPercentage} />
             <SmallText withWarning />
           </ProgressWrapper>

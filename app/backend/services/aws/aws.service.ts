@@ -1,12 +1,12 @@
 import net from 'net';
 import * as AWS from 'aws-sdk';
 import { v4 as uuidv4 } from 'uuid';
-import config from '../../common/config';
-import UserService from '../users/users.service';
-import { Log } from '../../common/logger/logger';
-import VersionService from '../version/version.service';
-import { Catch, CatchClass, Step } from '../../decorators';
-import Connection from '../../common/store-manager/connection';
+import config from '~app/backend/common/config';
+import { Log } from '~app/backend/common/logger/logger';
+import { Catch, CatchClass, Step } from '~app/backend/decorators';
+import UserService from '~app/backend/services/users/users.service';
+import Connection from '~app/backend/common/store-manager/connection';
+import VersionService from '~app/backend/services/version/version.service';
 
 // TODO import from .env
 const defaultAwsOptions = {
