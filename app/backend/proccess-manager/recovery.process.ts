@@ -48,6 +48,7 @@ export default class RecoveryProcess extends ProcessClass {
       { instance: this.keyVaultService, method: 'updateVaultMountsStorage' },
       { instance: this.walletService, method: 'syncVaultWithBlox', params: { isNew, processName: 'recovery', isSeedless: !!privateKeys } },
       { instance: this.awsService, method: 'truncateOldKvResources' },
+      { instance: this.awsService, method: 'optimizeInstanceSecurity' },
       {
         hook: async () => {
           await analytics.track('recovery-completed');

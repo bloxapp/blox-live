@@ -160,6 +160,29 @@ export default class AwsService {
   }
 
   @Step({
+    name: 'Optimizing security...'
+  })
+  async optimizeInstanceSecurity() {
+    const securityGroupId = Connection.db(this.storePrefix).get('securityGroupId');
+    if (!securityGroupId) {
+      this.logger.error('securityGroupId is not set!');
+      throw new Error('No security group exists in configuration file.');
+    }
+    await this.ec2
+      .revokeSecurityGroupIngress({
+        GroupId: securityGroupId,
+        IpPermissions: [
+          {
+            IpProtocol: 'tcp',
+            FromPort: 22,
+            ToPort: 22,
+            IpRanges: [{ CidrIp: '0.0.0.0/0' }]
+          },
+        ]
+      }).promise();
+  }
+
+  @Step({
     name: 'Establishing KeyVault server...'
   })
   async createInstance() {
