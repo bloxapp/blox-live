@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import config from '~app/backend/common/config';
 import Table from '~app/common/components/Table';
 import { Checkbox } from '~app/common/components';
+import { openExternalLink } from '~app/components/common/service';
 import * as actionsFromWizard from '~app/components/Wizard/actions';
 import { handlePageClick } from '~app/common/components/Table/service';
 import BloxApi from '~app/backend/common/communication-manager/blox-api';
@@ -72,8 +73,10 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
     handlePageClick(validators, offset, setPagedValidators, setPaginationInfo, PAGE_SIZE);
   };
 
-  const onLinkClick = (event) => {
+  const onLinkClick = (event: any, url: string) => {
+    event.preventDefault();
     event.stopPropagation();
+    return openExternalLink(url);
   };
 
   useEffect(() => {
@@ -158,14 +161,14 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
       >
         I agree to Blox&apos;s&nbsp;
         <Link
-          onClick={onLinkClick}
+          onClick={(event) => onLinkClick(event, 'privacy-policy')}
           href={privacyPolicyLink}
         >
           Privacy Policy
         </Link>
         &nbsp;and&nbsp;
         <Link
-          onClick={onLinkClick}
+          onClick={(event) => onLinkClick(event, 'terms-of-use')}
           href={serviceAgreementLink}
         >
           License and Service Agreement
