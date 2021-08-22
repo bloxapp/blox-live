@@ -38,7 +38,7 @@ export const extractKeyStores = async (decryptedKeyStores: any[], keyStoresFiles
     } catch (err) {
       console.error(err);
       // @ts-ignore
-      throw Error(`Invalid keystore file password for ${files[i].fileName}`);
+      throw Error(`Invalid keystore file password (${files[i].fileName}) - only files with the same password are supported. You can always upload the rest later on.`);
     }
   }
   return keyStores;
