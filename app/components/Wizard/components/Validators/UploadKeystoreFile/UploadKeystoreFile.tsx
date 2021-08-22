@@ -194,6 +194,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
   };
 
   const renderPasswordInput = () => {
+    if(keyStores.length === 0 ) return ''
     const onBlur = (e: any) => {
       setPasswordError((e.target.value && e.target.value?.length < 8) ? 'Password is too short' : '');
       setPassword(e.target.value);
@@ -222,6 +223,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
   };
 
   const renderFilesHeadings = () => {
+    if(keyStores.length === 0 ) return ''
     return (
       <>
         <br />
