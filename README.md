@@ -162,7 +162,8 @@ See our [docs and guides here](https://www.bloxstaking.com/blox-blog/)
 
 ## Maintainers
 
-- [David Marciano](https://github.com/david-blox)
+- [Dmitri Meshin](https://github.com/dmitri-blox)
+- [Guy Muroch](https://github.com/guym-blox)
 - [Oleg Shmuelov](https://github.com/olegshmuelov)
 - [Vadim Chumak](https://github.com/vadiminc)
 - [Niv Muroch](https://github.com/nivBlox)
