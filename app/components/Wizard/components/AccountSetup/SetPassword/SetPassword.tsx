@@ -73,7 +73,7 @@ const SetPassword = (props: SetPasswordProps) => {
     <Wrapper>
       <Title>Account Password</Title>
       <Paragraph>
-        Set a password to secure your account.
+        Set a strong password to secure your account.
       </Paragraph>
 
       <PasswordInputsWrapper>
