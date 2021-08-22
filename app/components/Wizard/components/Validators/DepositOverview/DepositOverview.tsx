@@ -69,7 +69,9 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
   const { loadDataAfterNewAccount } = useDashboardData();
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
   const { goToPage, ROUTES } = useRouting();
+  const [depositIds, setDepositIds] = useState('');
   const [moveToDepositPage, setMoveToDepositPage] = useState(true);
+  const [dontRunProcessAgain, setDontRunProcessAgain] = useState(false);
 
   useEffect(() => {
     deepLink(async (obj) => {
@@ -90,12 +92,15 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
   }, []);
 
   useEffect(() => {
-    if (!isLoading && isDone && !error) {
+    if (!isLoading && isDone && !error && processData) {
+      const ids = processData.map(user => user.id).join(',');
+      setDepositIds(ids);
       clearProcessState();
-      const depositIds = processData.map(user => user.id).join(',');
-      if (moveToDepositPage) moveToWebDeposit(depositIds);
+      setMoveToDepositPage(true);
+      setDontRunProcessAgain(true);
+      if (moveToDepositPage) moveToWebDeposit(ids);
     }
-  }, [isLoading, isDone, error]);
+  }, [isLoading, isDone, error, processData]);
 
   const moveToWebDeposit = async (ids: string) => {
     await openExternalLink('', `${config.env.WEB_APP_URL}/upload_deposit_file?id_token=${idToken}&account_id=${ids}&network_id=${NETWORKS[network].chainId}`);
@@ -103,20 +108,20 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
 
   const onNextButtonClick = () => {
     const onSuccess = () => {
-      if (error) {
-        clearProcessState();
-      }
-      if (!isLoading) {
+      if ((!isLoading || error) && !dontRunProcessAgain) {
         startProcess('createAccount',
           `Create Validator${decryptedKeyStores.length > 0 ? 's' : ''}...`,
           {
             inputData: decryptedKeyStores.map(account => account.privateKey).join(',')
           });
+      } else if (depositIds) {
+        moveToWebDeposit(depositIds);
       }
+      setMoveToDepositPage(true);
     };
     checkIfPasswordIsNeeded(onSuccess);
   };
-  // const { } = wizardActions;
+
   return (
     <Wrapper>
       <BackButton onClick={() => {
@@ -140,7 +145,7 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
       </SmallText>
 
       <ButtonsWrapper>
-        <Button disabled={isLoading} onClick={() => { setMoveToDepositPage(true); onNextButtonClick(); }}>
+        <Button disabled={isLoading} onClick={() => { onNextButtonClick(); }}>
           Continue to Web Deposit
         </Button>
         {processMessage && <ProcessLoader text={processMessage} precentage={loaderPercentage} />}

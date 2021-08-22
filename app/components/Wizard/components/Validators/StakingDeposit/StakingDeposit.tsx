@@ -11,7 +11,9 @@ import * as wizardActions from '~app/components/Wizard/actions';
 import { openExternalLink } from '~app/components/common/service';
 import { getData } from '~app/components/ProcessRunner/selectors';
 import { deepLink, cleanDeepLink } from '~app/components/App/service';
+import useDashboardData from '~app/components/Dashboard/useDashboardData';
 import { Title, BigButton } from '~app/components/Wizard/components/common';
+import { selectedKeystoreMode, selectedSeedMode } from '~app/common/service';
 import { NETWORKS } from '~app/components/Wizard/components/Validators/constants';
 import { getIdToken } from '~app/components/Login/components/CallbackPage/selectors';
 import { MainNetText, TestNetText } from '~app/components/Wizard/components/Validators/StakingDeposit/components';
@@ -69,13 +71,14 @@ const StakingDeposit = (props: Props) => {
     setPage, depositData, accountsFromApi, actions, callSetAddAnotherAccount, accountDataFromProcess,
     isDepositNeeded, publicKey, callSetDepositNeeded, callClearAccountsData, accountIndex, network, idToken
   } = props;
-  const { updateAccountStatus, loadDepositData, setFinishedWizard, clearWizardData,
+  const { loadDepositData, setFinishedWizard, clearWizardData,
     clearDecryptKeyStores, clearDecryptProgress } = actions;
   const [showMoveToBrowserModal, setShowMoveToBrowserModal] = React.useState(false);
   const { goToPage, ROUTES } = useRouting();
+  const { loadDataAfterNewAccount } = useDashboardData();
 
   useEffect(() => {
-    if (isDepositNeeded && publicKey) {
+    if (isDepositNeeded && publicKey && selectedSeedMode()) {
       loadDepositData(publicKey, accountIndex, network);
     }
   }, [isDepositNeeded, publicKey]);
@@ -83,14 +86,16 @@ const StakingDeposit = (props: Props) => {
   useEffect(() => {
     callSetAddAnotherAccount(false);
     deepLink((obj) => {
-      if ('tx_hash' in obj && 'account_id' in obj) {
-        setPage(config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS);
-        updateAccountStatus(obj.account_id, obj.tx_hash, true);
+      if ('account_id' in obj) {
+        clearDecryptKeyStores();
         callSetDepositNeeded({
           isNeeded: false,
           publicKey: '',
           accountIndex: -1,
           network: ''
+        });
+        loadDataAfterNewAccount().then(() => {
+          setPage(config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS);
         });
       }
     }, (e) => notification.error({ message: e }));
@@ -130,8 +135,14 @@ const StakingDeposit = (props: Props) => {
     }
 
     if (currentAccount) {
-      const { txData } = depositData;
-      await openExternalLink('', `${config.env.WEB_APP_URL}/staking-deposit?account_id=${currentAccount.id}&network_id=${NETWORKS[network].chainId}&tx_data=${txData}&id_token=${idToken}`);
+      let stakingDepositUrl = '';
+      if (selectedSeedMode()) {
+        const { txData } = depositData;
+        stakingDepositUrl = `${config.env.WEB_APP_URL}/staking-deposit?account_id=${currentAccount.id}&network_id=${NETWORKS[network].chainId}&tx_data=${txData}&id_token=${idToken}`;
+      } else if (selectedKeystoreMode()) {
+        stakingDepositUrl = `${config.env.WEB_APP_URL}/upload_deposit_file?id_token=${idToken}&account_id=${currentAccount.id}&network_id=${NETWORKS[network].chainId}`;
+      }
+      await openExternalLink('', stakingDepositUrl);
     } else {
       notification.error({ message: 'Account not found' });
     }

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import config from '~app/backend/common/config';
-import { loadDepositData } from '~app/components/Wizard/actions';
 import { Checkbox, ProcessLoader } from '~app/common/components';
 import { setAddAnotherAccount } from '~app/components/Accounts/actions';
 import useDashboardData from '~app/components/Dashboard/useDashboardData';
@@ -145,7 +144,6 @@ type SlashingWarningProps = {
   wizardActions: Record<string, any>;
   decryptedKeyStores: Array<any>,
   callSetAddAnotherAccount: (payload: boolean) => void;
-  callLoadDepositData: (publicKey: string, accountIndex: number, network: string) => void;
 };
 
 const mapStateToProps = (state: any) => ({
@@ -154,7 +152,6 @@ const mapStateToProps = (state: any) => ({
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  callLoadDepositData: (publicKey, accountIndex, network) => dispatch(loadDepositData(publicKey, accountIndex, network)),
   callSetAddAnotherAccount: (payload: boolean) => dispatch(setAddAnotherAccount(payload)),
 });
 

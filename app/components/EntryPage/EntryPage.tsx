@@ -5,6 +5,7 @@ import { bindActionCreators } from 'redux';
 import {
   Switch, Route, Redirect
 } from 'react-router-dom';
+import config from '~app/backend/common/config';
 import { Loader } from '~app/common/components';
 import Wizard from '~app/components/Wizard/Wizard';
 import wizardSaga from '~app/components/Wizard/saga';
@@ -46,7 +47,7 @@ const walletKey = 'keyvaultManagement';
 const EntryPage = (props: Props) => {
   const {
     callLoadWallet, loadWalletLatestVersion, walletStatus, walletVersion,
-    isLoadingWallet, walletError, keyvaultCurrentVersion,
+    isLoadingWallet, walletError, keyvaultCurrentVersion, isSeedless,
     keyvaultLatestVersion, isLoadingKeyvault, keyvaultError,
     dashboardActions, isFinishedWizard, wizardWallet, isOpenedWizard
   } = props;
@@ -67,6 +68,12 @@ const EntryPage = (props: Props) => {
       setModalDisplay({ show: true, type: MODAL_TYPES.FORGOT_PASSWORD });
     }
   }, []);
+
+  useEffect(() => {
+    if (isSeedless && !Connection.db().get(config.FLAGS.VALIDATORS_MODE.KEY)) {
+      Connection.db().set(config.FLAGS.VALIDATORS_MODE.KEY, config.FLAGS.VALIDATORS_MODE.KEYSTORE);
+    }
+  }, [isSeedless]);
 
   useEffect(() => {
     const didntLoadWallet = !walletStatus && !isLoadingWallet && !walletError;
@@ -152,41 +159,38 @@ const EntryPage = (props: Props) => {
 };
 
 type Props = {
-  walletStatus: string;
-  walletVersion: string;
-  isLoadingWallet: boolean;
-  walletError: string;
-  callLoadWallet: () => void;
-  loadWalletLatestVersion: () => void;
-
-  keyvaultCurrentVersion: string;
-  keyvaultLatestVersion: string;
-  isLoadingKeyvault: boolean;
-  keyvaultError: string;
-
-  bloxLiveNeedsUpdate: boolean;
-  isLoadingBloxLiveVersion: boolean;
-
-  dashboardActions: Record<string, any>;
-  isFinishedWizard: boolean;
-  isOpenedWizard: boolean;
   wizardWallet: any;
+  isSeedless: boolean;
+  walletError: string;
+  walletStatus: string;
+  keyvaultError: string;
+  walletVersion: string;
+  isOpenedWizard: boolean;
+  isLoadingWallet: boolean;
+  isFinishedWizard: boolean;
+  isLoadingKeyvault: boolean;
+  callLoadWallet: () => void;
+  bloxLiveNeedsUpdate: boolean;
+  keyvaultLatestVersion: string;
+  keyvaultCurrentVersion: string;
+  isLoadingBloxLiveVersion: boolean;
+  loadWalletLatestVersion: () => void;
+  dashboardActions: Record<string, any>;
 };
 
 const mapStateToProps = (state: State) => ({
-  walletStatus: wizardSelectors.getWalletStatus(state),
-  walletVersion: wizardSelectors.getWalletVersion(state),
-  isLoadingWallet: wizardSelectors.getIsLoading(state),
+  wizardWallet: wizardSelectors.getWallet(state),
+  keyvaultError: keyvaultSelectors.getError(state),
   walletError: wizardSelectors.getWalletError(state),
-
+  walletStatus: wizardSelectors.getWalletStatus(state),
+  isLoadingWallet: wizardSelectors.getIsLoading(state),
+  walletVersion: wizardSelectors.getWalletVersion(state),
+  isSeedless: wizardSelectors.getWalletSeedlessFlag(state),
+  isLoadingKeyvault: keyvaultSelectors.getIsLoading(state),
+  isOpenedWizard: wizardSelectors.getWizardOpenedStatus(state),
   keyvaultCurrentVersion: wizardSelectors.getWalletVersion(state),
   keyvaultLatestVersion: keyvaultSelectors.getLatestVersion(state),
-  isLoadingKeyvault: keyvaultSelectors.getIsLoading(state),
-  keyvaultError: keyvaultSelectors.getError(state),
-
   isFinishedWizard: wizardSelectors.getWizardFinishedStatus(state),
-  isOpenedWizard: wizardSelectors.getWizardOpenedStatus(state),
-  wizardWallet: wizardSelectors.getWallet(state),
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({

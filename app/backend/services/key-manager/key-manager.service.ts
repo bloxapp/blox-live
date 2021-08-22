@@ -1,11 +1,11 @@
 import { execPath } from '~app/binaries';
+import { selectedSeedMode } from '~app/common/service';
 import { Log } from '~app/backend/common/logger/logger';
 import { Catch, CatchClass } from '~app/backend/decorators';
 import { cliExecutor } from '~app/backend/common/cli-executor';
-import {selectedSeedMode} from '../../../common/service';
-import SeedLess from './Strategy/SeedLess.strategy';
-import Seed from './Strategy/Seed.strategy';
-import Strategy from './Strategy/strategy.interface';
+import Seed from '~app/backend/services/key-manager/Strategy/Seed.strategy';
+import SeedLess from '~app/backend/services/key-manager/Strategy/SeedLess.strategy';
+import Strategy from '~app/backend/services/key-manager/Strategy/strategy.interface';
 
 @CatchClass<KeyManagerService>()
 export default class KeyManagerService {
