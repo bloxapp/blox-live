@@ -1,12 +1,11 @@
 import {notification} from 'antd';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
+import React, {useEffect} from 'react';
 import { bindActionCreators } from 'redux';
-import React, {useEffect, useState} from 'react';
 import theme from '~app/theme';
 import config from '~app/backend/common/config';
 import useRouting from '~app/common/hooks/useRouting';
-import ProcessLoader from '~app/common/components/ProcessLoader';
 import { openExternalLink } from '~app/components/common/service';
 import * as actionsFromWizard from '~app/components/Wizard/actions';
 import { cleanDeepLink, deepLink } from '~app/components/App/service';
@@ -14,7 +13,6 @@ import BloxApi from '~app/backend/common/communication-manager/blox-api';
 import useDashboardData from '~app/components/Dashboard/useDashboardData';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 import { NETWORKS } from '~app/components/Wizard/components/Validators/constants';
-import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
 import { getIdToken } from '~app/components/Login/components/CallbackPage/selectors';
 import { getNetwork, getDecryptedKeyStores } from '~app/components/Wizard/selectors';
 import { Title, Paragraph, BackButton } from '~app/components/Wizard/components/common';
@@ -26,8 +24,8 @@ const Wrapper = styled.div`
 
 const Button = styled.button`
   display: block;
-  width: 250px;
   height: 35px;
+  width: 250px;
   color: white;
   border-radius: 10px;
   border: none;
@@ -44,6 +42,13 @@ const Button = styled.button`
     background-color: lightgrey;
   }
 `;
+const ButtonDepositLater = styled.p`
+  width: 250px;
+  color: #2536b8;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+`;
 
 const SmallText = styled.div`
   font-size: 12px;
@@ -55,7 +60,6 @@ const SmallText = styled.div`
 const ButtonsWrapper = styled.div`
   width:270px;
   margin-top:12px;
-  // align-items: center;
   text-align: center;
 `;
 
@@ -65,13 +69,9 @@ bloxApi.init();
 const DepositOverview = (props: ValidatorsSummaryProps) => {
   const { setPage, setStep, decryptedKeyStores, idToken, wizardActions, network } = props;
   const { clearDecryptKeyStores } = wizardActions;
-  const { isLoading, isDone, processData, error, startProcess, clearProcessState, loaderPercentage, processMessage } = useProcessRunner();
+  const { processData, clearProcessState } = useProcessRunner();
   const { loadDataAfterNewAccount } = useDashboardData();
-  const { checkIfPasswordIsNeeded } = usePasswordHandler();
   const { goToPage, ROUTES } = useRouting();
-  const [depositIds, setDepositIds] = useState('');
-  const [moveToDepositPage, setMoveToDepositPage] = useState(true);
-  const [dontRunProcessAgain, setDontRunProcessAgain] = useState(false);
 
   useEffect(() => {
     deepLink(async (obj) => {
@@ -91,35 +91,15 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
     return () => cleanDeepLink();
   }, []);
 
-  useEffect(() => {
-    if (!isLoading && isDone && !error && processData) {
-      const ids = processData.map(user => user.id).join(',');
-      setDepositIds(ids);
-      clearProcessState();
-      setMoveToDepositPage(true);
-      setDontRunProcessAgain(true);
-      if (moveToDepositPage) moveToWebDeposit(ids);
-    }
-  }, [isLoading, isDone, error, processData]);
 
-  const moveToWebDeposit = async (ids: string) => {
+  const moveToWebDeposit = async () => {
+    const ids = processData.map(user => user.id).join(',');
     await openExternalLink('', `${config.env.WEB_APP_URL}/upload_deposit_file?id_token=${idToken}&account_id=${ids}&network_id=${NETWORKS[network].chainId}`);
   };
 
-  const onNextButtonClick = () => {
-    const onSuccess = () => {
-      if ((!isLoading || error) && !dontRunProcessAgain) {
-        startProcess('createAccount',
-          `Create Validator${decryptedKeyStores.length > 0 ? 's' : ''}...`,
-          {
-            inputData: decryptedKeyStores.map(account => account.privateKey).join(',')
-          });
-      } else if (depositIds) {
-        moveToWebDeposit(depositIds);
-      }
-      setMoveToDepositPage(true);
-    };
-    checkIfPasswordIsNeeded(onSuccess);
+  const moveToDashboard = async () => {
+    await loadDataAfterNewAccount();
+    goToPage(ROUTES.DASHBOARD);
   };
 
   return (
@@ -145,10 +125,12 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
       </SmallText>
 
       <ButtonsWrapper>
-        <Button disabled={isLoading} onClick={() => { onNextButtonClick(); }}>
+        <Button onClick={() => { moveToWebDeposit(); }}>
           Continue to Web Deposit
         </Button>
-        {processMessage && <ProcessLoader text={processMessage} precentage={loaderPercentage} />}
+        <ButtonDepositLater onClick={() => { moveToDashboard(); }}>
+          I'll Deposit Later
+        </ButtonDepositLater>
       </ButtonsWrapper>
     </Wrapper>
   );

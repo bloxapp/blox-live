@@ -5,12 +5,17 @@ import React, { useEffect, useState } from 'react';
 import config from '~app/backend/common/config';
 import Table from '~app/common/components/Table';
 import { Checkbox } from '~app/common/components';
+import ProcessLoader from '~app/common/components/ProcessLoader';
 import { openExternalLink } from '~app/components/common/service';
 import * as actionsFromWizard from '~app/components/Wizard/actions';
 import { handlePageClick } from '~app/common/components/Table/service';
 import BloxApi from '~app/backend/common/communication-manager/blox-api';
+import {SmallText} from '~app/common/components/ModalTemplate/components';
+import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
+import {getIdToken} from '~app/components/Login/components/CallbackPage/selectors';
+import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
 import { getNetwork, getDecryptedKeyStores } from '~app/components/Wizard/selectors';
-import { Title, Paragraph, Link, Warning, BackButton } from '~app/components/Wizard/components/common';
+import { Title, Paragraph, Link, Warning, BackButton, ErrorMessage } from '~app/components/Wizard/components/common';
 import tableColumns from '~app/components/Wizard/components/Validators/ValidatorsSummary/components/table-columns';
 
 const Wrapper = styled.div`
@@ -33,34 +38,43 @@ const ButtonWrapper = styled.div`
 `;
 
 const Button = styled.button<{ isDisabled }>`
+  border:0;
   width: 238px;
   height: 40px;
-  font-size: 14px;
-  font-weight: 900;
   display:flex;
+  font-size: 14px;
+  margin-top: 20px;
+  font-weight: 900;
   align-items:center;
-  justify-content:center;
-  background-color: ${({theme, isDisabled}) => isDisabled ? theme.gray400 : theme.primary900};
   border-radius: 6px;
+  margin-bottom: 20px;
+  justify-content:center;
   color:${({theme}) => theme.gray50};
-  border:0;
   cursor:${({isDisabled}) => isDisabled ? 'default' : 'pointer'};
+  background-color: ${({theme, isDisabled}) => isDisabled ? theme.gray400 : theme.primary900};
+`;
+
+const ProgressWrapper = styled.div`
+  width:238px;
+  margin-top:20px;
 `;
 
 const bloxApi = new BloxApi();
-bloxApi.init();
-
 const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
+  const { checkIfPasswordIsNeeded } = usePasswordHandler();
   const { setPage, setStep, network, wizardActions, decryptedKeyStores } = props;
   const { clearDecryptKeyStores, clearDecryptProgress } = wizardActions;
+  const [validators, setValidators] = useState(decryptedKeyStores);
+  const [allDeposited, setAllDeposited] = useState(false);
   const [pagedValidators, setPagedValidators] = useState([]);
   const [paginationInfo, setPaginationInfo] = useState(null);
-  const [allDeposited, setAllDeposited] = useState(false);
+  const [moveToDepositOverview, setMoveToDepositOverview] = useState(true);
+  const [dontRunProcessAgain, setDontRunProcessAgain] = useState(false);
   const [isAgreementReadCheckbox, setAgreementReadCheckbox] = useState(false);
   const [isContinueButtonDisabled, setContinueButtonDisabled] = useState(false);
-  const [allValidatorsHaveSameStatus, setAllValidatorsHaveSameStatus] = useState(true);
   const [isValidatorsOfflineCheckbox, setValidatorsOfflineCheckbox] = useState(false);
-  const [validators, setValidators] = useState(decryptedKeyStores);
+  const [allValidatorsHaveSameStatus, setAllValidatorsHaveSameStatus] = useState(true);
+  const { isLoading, isDone, processData, error, startProcess, processMessage, clearProcessState, loaderPercentage } = useProcessRunner();
   const checkboxStyle = { marginRight: 5 };
   const checkboxLabelStyle = { fontSize: 12 };
   const privacyPolicyLink = 'https://www.bloxstaking.com/privacy-policy/';
@@ -68,6 +82,15 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
   const PAGE_SIZE = 5;
 
   const notTheSameError = 'Only batches of the same status are supported (“deposited” / “not deposited”). Please go back and adjust your validators\' uploaded keystore files (you could upload the rest later on).';
+
+  useEffect(() => {
+    if (!isLoading && isDone && !error && processData) {
+      setMoveToDepositOverview(true);
+      setDontRunProcessAgain(true);
+      clearProcessState();
+      if (moveToDepositOverview) setPage(config.WIZARD_PAGES.VALIDATOR.DEPOSIT_OVERVIEW);
+    }
+  }, [isLoading, isDone, error, processData]);
 
   const onPageClick = (offset) => {
     handlePageClick(validators, offset, setPagedValidators, setPaginationInfo, PAGE_SIZE);
@@ -112,14 +135,26 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
   const onNextButtonClick = () => {
     if (allDeposited) {
       setPage(config.WIZARD_PAGES.VALIDATOR.SLASHING_WARNING);
-    } else {
-      setPage(config.WIZARD_PAGES.VALIDATOR.DEPOSIT_OVERVIEW);
+      return;
     }
+    const onSuccess = () => {
+      if ((!isLoading || error) && !dontRunProcessAgain) {
+        startProcess('createAccount',
+          `Create Validator${decryptedKeyStores.length > 0 ? 's' : ''}...`,
+          {
+            inputData: decryptedKeyStores.map(account => account.privateKey).join(',')
+          });
+      }
+      setMoveToDepositOverview(true);
+    };
+    checkIfPasswordIsNeeded(onSuccess);
   };
 
   if (!paginationInfo) {
     onPageClick(0);
   }
+
+  const actionButtonText = allDeposited ? 'Next' : `Run Validator${validators.length > 1 ? 's' : ''} with BloxStaking`;
 
   return (
     <Wrapper>
@@ -128,6 +163,9 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
         setPage(config.WIZARD_PAGES.VALIDATOR.UPLOAD_KEYSTORE_FILE);
         clearDecryptKeyStores();
         clearDecryptProgress();
+        if (error) {
+          clearProcessState();
+        }
       }} />
       <Title>Validators Summary</Title>
       <Paragraph style={{ marginBottom: 10 }}>
@@ -188,27 +226,42 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
         <Button
           isDisabled={isContinueButtonDisabled}
           onClick={() => { !isContinueButtonDisabled && onNextButtonClick(); }}>
-          Next
+          {actionButtonText}
         </Button>
+        {isLoading && (
+          <ProgressWrapper>
+            <ProcessLoader text={processMessage} precentage={loaderPercentage} />
+            <SmallText withWarning />
+          </ProgressWrapper>
+        )}
+        {error && (
+          <ErrorMessage>
+            {error}, please try again.
+          </ErrorMessage>
+        )}
       </ButtonWrapper>
     </Wrapper>
   );
 };
 
+bloxApi.init();
+
 type ValidatorsSummaryProps = {
+  idToken: any;
   page: number;
-  setPage: (page: number) => void;
   step: number;
+  network: string;
+  decryptedKeyStores: Array<any>,
+  setPage: (page: number) => void;
   setStep: (page: number) => void;
   setPageData: (data: any) => void;
-  network: string;
   wizardActions: Record<string, any>;
-  decryptedKeyStores: Array<any>,
 };
 
 const mapStateToProps = (state: any) => ({
   network: getNetwork(state),
   decryptedKeyStores: getDecryptedKeyStores(state),
+  idToken: getIdToken(state),
 });
 
 const mapDispatchToProps = (dispatch) => ({

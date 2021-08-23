@@ -101,16 +101,16 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
       return keyStore;
     });
 
-    if(newKeyStores.length === 0){
-      displayKeyStoreError({status: false, message: ''});
-    }
-    if(isAllFilesJson){
+    if (newKeyStores.length === 0) {
       displayKeyStoreError({status: false, message: ''});
     }
 
     const updateStateTimeOut = setTimeout(() => {
       if (!isAllFilesJson) {
-        displayKeyStoreError({status: true, message: <div>Invalid file format <strong>{corruptFileName}</strong> - only .json files are supported.</div>});
+        displayKeyStoreError({
+          status: true,
+          message: <div>Invalid file format <strong>{corruptFileName}</strong> - only .json files are supported.</div>
+        });
       }
       setAllFilesJson(isAllFilesJson);
       uploadKeyStores(newKeyStores);
@@ -120,8 +120,6 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
       clearTimeout(updateStateTimeOut);
     };
   }, [JSON.stringify(keyStores), decryptedFilesCount, goToNextPage, decryptedKeyStores]);
-
-
 
   // Password Error
   useEffect(() => {
@@ -148,13 +146,19 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
     if (isDecryptingKeyStores) {
       return;
     }
-    let newFileList = [...files, ...keyStores];
-    if (newFileList.length > 100) {
-      displayKeyStoreError({status: true, message: 'You can’t run more than 100 validators per account.'});
-      return;
-    }
     displayKeyStoreError({status: false, message: ''});
+    let newFileList = [...keyStores, ...files];
+
     newFileList = newFileList.filter((v, i, a) => a.findIndex(t => (t.name === v.name)) === i);
+
+    if (newFileList.length > 100) {
+      newFileList.splice(100, newFileList.length);
+      displayKeyStoreError({status: true, message: 'You can’t run more than 100 validators per account.'});
+      setTimeout(() => {
+        displayKeyStoreError({status: false, message: ''});
+      }, 5000);
+    }
+
     newFileList.map((file: any) => {
       // eslint-disable-next-line no-param-reassign
       file.status = DECODE_STATUS.IN_PROGRESS;
@@ -194,7 +198,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
   };
 
   const renderPasswordInput = () => {
-    if(keyStores.length === 0 ) return ''
+    if (keyStores.length === 0) return '';
     const onBlur = (e: any) => {
       setPasswordError((e.target.value && e.target.value?.length < 8) ? 'Password is too short' : '');
       setPassword(e.target.value);
@@ -223,7 +227,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
   };
 
   const renderFilesHeadings = () => {
-    if(keyStores.length === 0 ) return ''
+    if (keyStores.length === 0) return '';
     return (
       <>
         <br />
