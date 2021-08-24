@@ -87,7 +87,6 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
     if (!isLoading && isDone && !error && processData) {
       setMoveToDepositOverview(true);
       setDontRunProcessAgain(true);
-      clearProcessState();
       if (moveToDepositOverview) setPage(config.WIZARD_PAGES.VALIDATOR.DEPOSIT_OVERVIEW);
     }
   }, [isLoading, isDone, error, processData]);
@@ -159,12 +158,14 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
   return (
     <Wrapper>
       <BackButton onClick={() => {
-        setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
-        setPage(config.WIZARD_PAGES.VALIDATOR.UPLOAD_KEYSTORE_FILE);
-        clearDecryptKeyStores();
-        clearDecryptProgress();
-        if (error) {
-          clearProcessState();
+        if(!isLoading){
+          setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
+          setPage(config.WIZARD_PAGES.VALIDATOR.UPLOAD_KEYSTORE_FILE);
+          clearDecryptKeyStores();
+          clearDecryptProgress();
+          if (error) {
+            clearProcessState();
+          }
         }
       }} />
       <Title>Validators Summary</Title>

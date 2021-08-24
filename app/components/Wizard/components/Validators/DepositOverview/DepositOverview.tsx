@@ -77,10 +77,7 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
     deepLink(async (obj) => {
       if ('account_id' in obj) {
         const depositedValidators = obj.account_id;
-        await loadDataAfterNewAccount();
-        clearDecryptKeyStores();
-        clearProcessState();
-
+        await clearState();
         if (depositedValidators) {
           setPage(config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS);
         } else {
@@ -91,15 +88,20 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
     return () => cleanDeepLink();
   }, []);
 
-
   const moveToWebDeposit = async () => {
     const ids = processData.map(user => user.id).join(',');
     await openExternalLink('', `${config.env.WEB_APP_URL}/upload_deposit_file?id_token=${idToken}&account_id=${ids}&network_id=${NETWORKS[network].chainId}`);
   };
 
   const moveToDashboard = async () => {
-    await loadDataAfterNewAccount();
+    await clearState();
     goToPage(ROUTES.DASHBOARD);
+  };
+
+  const clearState = async () => {
+    await loadDataAfterNewAccount();
+    clearDecryptKeyStores();
+    clearProcessState();
   };
 
   return (
@@ -107,6 +109,7 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
       <BackButton onClick={() => {
         setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
         setPage(config.WIZARD_PAGES.VALIDATOR.VALIDATOR_SUMMARY);
+        clearProcessState();
       }} />
       <Title>{NETWORKS[network].name} Staking Deposit</Title>
       <Paragraph style={{ marginBottom: 5 }}>
