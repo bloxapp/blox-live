@@ -26,9 +26,8 @@ const Message = styled.span<{ error?: string }>`
   color: ${({theme, error}) => error ? theme.destructive600 : theme.primary900};
 `;
 
-const Step1Modal = (props: Props) => {
-  const { onClick, areAwsKeyvsValid, isValidLoading, isValidError, keyvaultActions, type,
-    isSeedless, accounts, decryptedKeyStores } = props;
+const Step2Modal = (props: Props) => {
+  const { onClick, areAwsKeyvsValid, isValidLoading, isValidError, keyvaultActions, type, isSeedless, accounts, decryptedKeyStores } = props;
   const { validateAwsKeys, clearAwsKeysState } = keyvaultActions;
 
   React.useEffect(() => {
@@ -52,7 +51,7 @@ const Step1Modal = (props: Props) => {
 
   const getInputData = () => {
     if (!isSeedless) {
-      return null;
+      return Connection.db('').get('seed');
     }
     const inputData = {};
     for (let accountIndex = 0; accountIndex < accounts.length; accountIndex += 1) {
@@ -73,7 +72,7 @@ const Step1Modal = (props: Props) => {
 
   const { accessKeyId, setAccessKeyId, secretAccessKey, setSecretAccessKey,
           onStartProcessClick, isPasswordInputDisabled, isButtonDisabled
-        } = useCreateServer({ onStart, inputData: { privateKeys: getInputData() } });
+        } = useCreateServer({ onStart, inputData: getInputData() });
 
   const onButtonClick = () => validateAwsKeys({ accessKeyId, secretAccessKey });
 
@@ -151,4 +150,4 @@ type Props = {
   keyvaultActions: Record<string, any>;
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Step1Modal);
+export default connect(mapStateToProps, mapDispatchToProps)(Step2Modal);

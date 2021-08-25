@@ -26,14 +26,12 @@ export default class RecoveryProcess extends ProcessClass {
     this.walletService = new WalletService();
 
     const uuid = uuidv4();
-    const privateKeys = inputData?.privateKeys || null;
-
     Connection.db().set('uuid', uuid);
     Connection.db().set('credentials', { accessKeyId, secretAccessKey });
     this.userService.update({ uuid });
 
     this.actions = [
-      { instance: this.accountService, method: 'recoverAccounts', params: { privateKeys }},
+      { instance: this.accountService, method: 'recoverAccounts', params: { inputData }},
       { instance: this.awsService, method: 'setAWSCredentials' },
       { instance: this.awsService, method: 'validateAWSPermissions' },
       { instance: this.awsService, method: 'createEc2KeyPair' },
@@ -46,7 +44,7 @@ export default class RecoveryProcess extends ProcessClass {
       { instance: this.keyVaultService, method: 'getKeyVaultRootToken' },
       { instance: this.keyVaultService, method: 'getKeyVaultStatus' },
       { instance: this.keyVaultService, method: 'updateVaultMountsStorage' },
-      { instance: this.walletService, method: 'syncVaultWithBlox', params: { isNew, processName: 'recovery', isSeedless: !!privateKeys } },
+      { instance: this.walletService, method: 'syncVaultWithBlox', params: { isNew, processName: 'recovery', isSeedless: Array.isArray(inputData) } },
       { instance: this.awsService, method: 'truncateOldKvResources' },
       { instance: this.awsService, method: 'optimizeInstanceSecurity' },
       {

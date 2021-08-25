@@ -10,7 +10,7 @@ export const getProcessNameForUpdate = (keyVaultCurrentVersion: string, keyVault
     latest: new RegExp(versionRegexp).exec(keyVaultLatestVersion)?.groups ?? null
   };
   if (!parsedVersions.current?.major || !parsedVersions.latest?.major) {
-    return PROCESSES.UPGRADE;
+    return PROCESSES.REINSTALL;
   }
   if (parseInt(parsedVersions.latest.major, 10) > parseInt(parsedVersions.current.major, 10)) {
     return PROCESSES.REINSTALL;

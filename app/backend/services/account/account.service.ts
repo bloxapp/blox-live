@@ -224,7 +224,6 @@ export default class AccountService {
     displayMessage: 'CLI Create Account failed'
   })
   async createAccount({ indexToRestore, inputData }: { indexToRestore?: number, inputData?: string }): Promise<void> {
-    const seedless = selectedKeystoreMode();
     const network = Connection.db(this.storePrefix).get('network');
     const index: number = indexToRestore ?? await this.getNextIndex(network);
 
@@ -279,33 +278,15 @@ export default class AccountService {
       // @ts-ignore
       accountsHash[key] = {...accountsHash[key], ...value};
     }
-    let highestSource = '';
-    let highestTarget = '';
-    let highestProposal = '';
+
     const accountsArray = Object.values(accountsHash);
-    if (!seedless) {
-      for (let i = index; i >= 0; i -= 1) {
-        // @ts-ignore
-        highestSource += `${accountsArray[i].highest_source_epoch}${i === 0 ? '' : ','}`;
-        // @ts-ignore
-        highestTarget += `${accountsArray[i].highest_target_epoch}${i === 0 ? '' : ','}`;
-        // @ts-ignore
-        highestProposal += `${accountsArray[i].highest_proposal_slot}${i === 0 ? '' : ','}`;
-      }
-    } else {
-      // eslint-disable-next-line guard-for-in,no-restricted-syntax
-      for (const i in accountsArray) {
-        // @ts-ignore
-        highestSource += `${accountsArray[i].highest_source_epoch}${parseInt(i, 10) === accountsArray.length - 1 ? '' : ','}`;
-        // @ts-ignore
-        highestTarget += `${accountsArray[i].highest_target_epoch}${parseInt(i, 10) === accountsArray.length - 1 ? '' : ','}`;
-        // @ts-ignore
-        highestProposal += `${accountsArray[i].highest_proposal_slot}${parseInt(i, 10) === accountsArray.length - 1 ? '' : ','}`;
-      }
-    }
+
+    const highestSource = accountsArray.map(({ highest_source_epoch }) => highest_source_epoch);
+    const highestTarget = accountsArray.map(({ highest_target_epoch }) => highest_target_epoch);
+    const highestProposal = accountsArray.map(({ highest_proposal_slot }) => highest_proposal_slot);
 
     // // // 6. create accounts
-    const storage = await this.keyManagerService.createAccount(inputData, index, network, highestSource, highestTarget, highestProposal);
+    const storage = await this.keyManagerService.createAccount(inputData, index, network, highestSource.join(','), highestTarget.join(','), highestProposal.join(','));
     Connection.db(this.storePrefix).set(`keyVaultStorage.${network}`, storage);
   }
 
@@ -431,7 +412,7 @@ export default class AccountService {
   @Catch({
     showErrorMessage: true
   })
-  async recoverAccounts({ privateKeys }: { privateKeys?: any }): Promise<void> {
+  async recoverAccounts({ inputData }: { inputData?: any }): Promise<void> {
     const accounts = await this.get();
     const uniqueNetworks = [...new Set(accounts.map(acc => acc.network))];
     // eslint-disable-next-line no-restricted-syntax
@@ -444,7 +425,8 @@ export default class AccountService {
         .sort((a, b) => a.name.split('-')[1] - b.name.split('-')[1]);
 
         const lastIndex = networkAccounts[networkAccounts.length - 1].name.split('-')[1];
-        const networkPrivateKeys = privateKeys ? privateKeys[String(network)] : '';
+        // IN SEEDLESS NETWORK PRIVATE KEY CONTAINS PRIVATE KEYS ONLY FOR SPECIFIC NETWORK OTHERWISE IT CONTAINS THE SEED STRING
+        const networkPrivateKeys = typeof (inputData) === 'object' ? inputData[String(network)] : inputData;
         // eslint-disable-next-line no-await-in-loop
         await this.createAccount({ indexToRestore: +lastIndex, inputData: networkPrivateKeys });
     }
@@ -459,11 +441,11 @@ export default class AccountService {
     if (accounts.length === 0) {
       throw new Error('Validators not found');
     }
-    const accountToCompareWith = accounts[0];
+    const accountToCompareWith = accounts[accounts.length - 1];
     const index = accountToCompareWith.name.split('-')[1];
-    const account = await this.keyManagerService.getAccount(seed, index, config.env.PRATER_NETWORK);
+    const account = await this.keyManagerService.getAccount(seed, index, accountToCompareWith.network);
 
-    if (account.validationPubKey !== accountToCompareWith.publicKey.replace(/^(0x)/, '')) {
+    if (account[0].validationPubKey !== accountToCompareWith.publicKey.replace(/^(0x)/, '')) {
       throw new Error('Passphrase not linked to your account.');
     }
     Connection.db(this.storePrefix).clear();
