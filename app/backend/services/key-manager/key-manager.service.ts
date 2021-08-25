@@ -96,7 +96,8 @@ export default class KeyManagerService {
       const { stdout } = await this.executor(`${this.executablePath} mnemonic generate`);
       this.logger.trace(stdout);
       return stdout.replace('\n', '');
-    } catch (e) {
+    } catch (error) {
+      console.error('KeyManagerService::mnemonicGenerate error', { command: `${this.executablePath} mnemonic generate`, error });
       throw new Error('Generate mnemonic failed.');
     }
   }

@@ -98,7 +98,10 @@
       "category": "Finance",
       "mimeTypes": [
         "x-scheme-handler/blox-live"
-      ]
+      ],
+      "desktop": {
+        "MimeType": "x-scheme-handler/blox-live;"
+      }
     },
     "directories": {
       "buildResources": "resources",
