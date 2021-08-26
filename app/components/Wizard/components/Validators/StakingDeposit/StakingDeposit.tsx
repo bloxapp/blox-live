@@ -88,6 +88,7 @@ const StakingDeposit = (props: Props) => {
     deepLink((obj) => {
       if ('account_id' in obj) {
         clearDecryptKeyStores();
+        clearDecryptProgress();
         callSetDepositNeeded({
           isNeeded: false,
           publicKey: '',

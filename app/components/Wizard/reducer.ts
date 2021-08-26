@@ -122,18 +122,19 @@ const wizardReducer = (state = initialState, action: Action) => produce(state, (
       draft.decryptedKeyStores = [...draft.decryptedKeyStores, ...action.payload];
       break;
     case actionTypes.CLEAR_DECRYPT_PROGRESS:
-      draft.isDecryptingKeyStores = false;
+      draft.keyStores = [];
+      draft.filesDecrypted = 0;
       draft.keyStoreErrorMessage = '';
       draft.shouldDisplayError = false;
-      draft.filesDecrypted = 0;
-      draft.keyStores = [];
-      break;
-    case actionTypes.CLEAR_DECRYPT_KEY_STORES:
       draft.isDecryptingKeyStores = false;
-      draft.keyStores = initialState.keyStores;
       draft.decryptedKeyStores = initialState.decryptedKeyStores;
       draft.shouldDisplayError = initialState.shouldDisplayError;
       draft.keyStoreErrorMessage = initialState.keyStoreErrorMessage;
+      break;
+    case actionTypes.CLEAR_DECRYPT_KEY_STORES:
+      draft.filesDecrypted = 0;
+      draft.isDecryptingKeyStores = false;
+      draft.decryptedKeyStores = initialState.decryptedKeyStores;
       break;
     case actionTypes.DECRYPT_KEY_STORES_FAILURE:
       draft.isDecryptingKeyStores = false;

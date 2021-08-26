@@ -17,6 +17,7 @@ import { getIdToken } from '~app/components/Login/components/CallbackPage/select
 import { getNetwork, getDecryptedKeyStores } from '~app/components/Wizard/selectors';
 import { Title, Paragraph, BackButton } from '~app/components/Wizard/components/common';
 import { MainNetKeyStoreText } from '~app/components/Wizard/components/Validators/StakingDeposit/components';
+import {clearDecryptProgress} from "~app/components/Wizard/actions";
 
 const Wrapper = styled.div`
   width:650px;
@@ -101,6 +102,7 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
   const clearState = async () => {
     await loadDataAfterNewAccount();
     clearDecryptKeyStores();
+    clearDecryptProgress();
     clearProcessState();
   };
 

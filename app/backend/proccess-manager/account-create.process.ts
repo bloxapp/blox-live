@@ -1,4 +1,5 @@
 import analytics from '~app/backend/analytics';
+import { getSelectedValidatorMode } from '~app/common/service';
 import Connection from '~app/backend/common/store-manager/connection';
 import ProcessClass from '~app/backend/proccess-manager/process.class';
 import WalletService from '~app/backend/services/wallet/wallet.service';
@@ -50,8 +51,13 @@ export default class AccountCreateProcess extends ProcessClass {
       // },
       {
         hook: async () => {
+          const appMode = getSelectedValidatorMode();
           await analytics.track('validator-created', {
             network
+          });
+          // @ts-ignore
+          await analytics.track('validator-key', {
+            appMode
           });
         }
       }

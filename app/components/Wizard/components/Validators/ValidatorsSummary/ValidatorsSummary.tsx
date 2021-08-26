@@ -74,12 +74,13 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
   const [isContinueButtonDisabled, setContinueButtonDisabled] = useState(false);
   const [isValidatorsOfflineCheckbox, setValidatorsOfflineCheckbox] = useState(false);
   const [allValidatorsHaveSameStatus, setAllValidatorsHaveSameStatus] = useState(true);
+  const [displayDepositedConfirmation, setDisplayDepositedConfirmation] = useState(false);
   const { isLoading, isDone, processData, error, startProcess, processMessage, clearProcessState, loaderPercentage } = useProcessRunner();
   const checkboxStyle = { marginRight: 5 };
   const checkboxLabelStyle = { fontSize: 12 };
   const privacyPolicyLink = 'https://www.bloxstaking.com/privacy-policy/';
   const serviceAgreementLink = 'https://www.bloxstaking.com/license-agreement/';
-  const PAGE_SIZE = 5;
+  const PAGE_SIZE = 10;
 
   const notTheSameError = 'Only batches of the same status are supported (“deposited” / “not deposited”). Please go back and adjust your validators\' uploaded keystore files (you could upload the rest later on).';
 
@@ -118,7 +119,8 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
 
     setAllValidatorsHaveSameStatus(!(notDepositedCount > 0 && depositedCount > 0));
     setAllDeposited(depositedCount > 0);
-    setContinueButtonDisabled(!(isValidatorsOfflineCheckbox && isAgreementReadCheckbox && allValidatorsHaveSameStatus));
+    setDisplayDepositedConfirmation(allValidatorsHaveSameStatus && !allDeposited);
+    setContinueButtonDisabled(!(isValidatorsOfflineCheckbox && (isAgreementReadCheckbox || displayDepositedConfirmation) && allValidatorsHaveSameStatus));
 
     if (publicKeys.length > 0) { bloxApi.request('GET', `/ethereum2/validators-deposits/?network=${network}&publicKeys=${publicKeys.join(',')}`).then((deposits: any) => {
       const newValidatorsStatuses = validators.map((validator) => {
@@ -129,7 +131,8 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
       setValidators(newValidatorsStatuses);
     }); }
     onPageClick(0);
-  }, [validators, isAgreementReadCheckbox, isValidatorsOfflineCheckbox, allValidatorsHaveSameStatus]);
+  }, [validators, isAgreementReadCheckbox, isValidatorsOfflineCheckbox, allValidatorsHaveSameStatus, allDeposited]);
+
 
   const onNextButtonClick = () => {
     if (allDeposited) {
@@ -158,14 +161,14 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
   return (
     <Wrapper>
       <BackButton onClick={() => {
-        if(!isLoading){
+        if(!isLoading) {
+          clearDecryptKeyStores();
           setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
           setPage(config.WIZARD_PAGES.VALIDATOR.UPLOAD_KEYSTORE_FILE);
-          clearDecryptKeyStores();
+        }
+        if (error || isDone) {
+          clearProcessState();
           clearDecryptProgress();
-          if (error) {
-            clearProcessState();
-          }
         }
       }} />
       <Title>Validators Summary</Title>
@@ -214,14 +217,16 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
         </Link>
       </Checkbox>
 
-      <Checkbox
+      {displayDepositedConfirmation && <Checkbox
         checked={isValidatorsOfflineCheckbox}
-        onClick={() => { setValidatorsOfflineCheckbox(!isValidatorsOfflineCheckbox); }}
+        onClick={() => {
+          setValidatorsOfflineCheckbox(!isValidatorsOfflineCheckbox);
+        }}
         checkboxStyle={checkboxStyle}
         labelStyle={checkboxLabelStyle}
       >
         I confirm that I haven&apos;t deposited any of my validators above.
-      </Checkbox>
+      </Checkbox>}
 
       <ButtonWrapper>
         <Button
