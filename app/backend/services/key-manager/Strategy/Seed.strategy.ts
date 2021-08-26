@@ -24,7 +24,7 @@ export default class Seed implements Strategy {
       --seed=${inputData} \
       --index=${index} \
       --network=${network} \
-      ${object && '--response-type=object'} \
+      ${object ? '--response-type=object' : ''} \
       --accumulate=${accumulate} \
       --highest-source=${highestSource} \
       --highest-target=${highestTarget} \
