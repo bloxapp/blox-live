@@ -130,3 +130,7 @@ app.on('activate', () => {
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) createWindow(app.getPath('downloads'));
 });
+
+if (process.env.NODE_ENV === 'development') {
+  console.debug(process.env);
+}
