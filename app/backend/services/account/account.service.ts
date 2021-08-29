@@ -123,7 +123,9 @@ export default class AccountService {
     // Set imported flag for imported accounts
     accountsList.data = accountsList.data.map((acc) => {
       acc.imported = imported;
-      acc.withdrawalPubKey = acc.validationPubKey;
+      if (selectedKeystoreMode()) {
+        acc.withdrawalPubKey = acc.validationPubKey;
+      }
       return acc;
     });
 
@@ -233,6 +235,7 @@ export default class AccountService {
         index,
         network,
     );
+
     // For accumulated accounts - they are already an array
     // For seedless accounts - they are also an array
     if (!Array.isArray(accounts)) {

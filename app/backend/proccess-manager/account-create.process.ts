@@ -44,11 +44,11 @@ export default class AccountCreateProcess extends ProcessClass {
           inputData
         }
       },
-      // {
-      //   instance: this.walletService,
-      //   method: 'syncVaultWithBlox',
-      //   params: {isNew: false, processName: 'account-create'}
-      // },
+      {
+        instance: this.walletService,
+        method: 'syncVaultWithBlox',
+        params: {isNew: false, processName: 'account-create'}
+      },
       {
         hook: async () => {
           const appMode = getSelectedValidatorMode();

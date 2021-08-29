@@ -24,7 +24,7 @@ const Content = styled.div<ContentProps>`
   color: ${({ theme }) => theme.gray800};
   text-align: center;
   position: relative;
-  min-height: 600px;
+  //min-height: 600px;
 `;
 
 const CloseButton = styled.div`
