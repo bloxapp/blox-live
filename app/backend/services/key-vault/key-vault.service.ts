@@ -282,7 +282,7 @@ export default class KeyVaultService {
     name: 'Import key-vault data...',
   })
   async importKeyVaultData(): Promise<any> {
-    const supportedNetworks = [config.env.TESTNET_NETWORK(), config.env.MAINNET_NETWORK];
+    const supportedNetworks = [config.TESTNET_NETWORK, config.env.MAINNET_NETWORK];
     // eslint-disable-next-line no-restricted-syntax
     for (const network of supportedNetworks) {
       Connection.db(this.storePrefix).set('network', network);
