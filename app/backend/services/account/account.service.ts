@@ -139,7 +139,7 @@ export default class AccountService {
   @Catch({
     displayMessage: 'Create Blox Accounts failed'
   })
-  async createBloxAccounts({indexToRestore, inputData}: { indexToRestore?: number, inputData?: string }): Promise<any> {
+  async createBloxAccounts({indexToRestore, inputData, deposited}: { indexToRestore?: number, inputData?: string, deposited?: boolean }): Promise<any> {
     const network = Connection.db(this.storePrefix).get('network');
     const lastNetworkIndex = +Connection.db(this.storePrefix).get(`index.${network}`);
     const index: number = indexToRestore ?? (lastNetworkIndex + 1);
@@ -198,7 +198,7 @@ export default class AccountService {
         const account = await this.createBloxAccountsInBatch({
           network,
           accounts: batchedAccounts,
-          imported: accumulate,
+          imported: accumulate || !!deposited,
         });
         isError = account.error && account.error instanceof Error;
         if (!isError) {

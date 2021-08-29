@@ -9,6 +9,7 @@ type Credentials = {
 export type ProcessParams = {
   network?: string,
   inputData?: string,
+  deposited?: boolean,
   indexToRestore?: number
   credentials?: Credentials | null,
 };

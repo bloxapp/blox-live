@@ -76,7 +76,8 @@ const SlashingWarning = (props: SlashingWarningProps) => {
         startProcess('createAccount',
           `Create Validator${decryptedKeyStores.length > 0 ? 's' : ''}...`,
           {
-            inputData: decryptedKeyStores.map(acc => acc.privateKey).join(',')
+            inputData: decryptedKeyStores.map(acc => acc.privateKey).join(','),
+            deposited: true
           });
       }
     };

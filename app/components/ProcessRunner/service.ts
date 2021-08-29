@@ -28,7 +28,7 @@ export const processInstantiator = (processName: string, payload: Record<string,
     return new UpgradeProcess();
   }
   if (processName === PROCESSES.CREATE_ACCOUNT && payload.network) {
-    return new AccountCreateProcess(payload.network, payload.indexToRestore, payload.inputData);
+    return new AccountCreateProcess(payload.network, payload.indexToRestore, payload.inputData, payload.deposited);
   }
   return null;
 };
