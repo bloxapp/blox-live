@@ -1,13 +1,14 @@
-import {notification} from 'antd';
+import { notification } from 'antd';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import { bindActionCreators } from 'redux';
 import theme from '~app/theme';
 import config from '~app/backend/common/config';
 import useRouting from '~app/common/hooks/useRouting';
 import { openExternalLink } from '~app/components/common/service';
 import * as actionsFromWizard from '~app/components/Wizard/actions';
+import { clearDecryptProgress } from '~app/components/Wizard/actions';
 import { cleanDeepLink, deepLink } from '~app/components/App/service';
 import BloxApi from '~app/backend/common/communication-manager/blox-api';
 import useDashboardData from '~app/components/Dashboard/useDashboardData';
@@ -17,9 +18,7 @@ import { getIdToken } from '~app/components/Login/components/CallbackPage/select
 import { getNetwork, getDecryptedKeyStores } from '~app/components/Wizard/selectors';
 import { Title, Paragraph, BackButton } from '~app/components/Wizard/components/common';
 import { MainNetKeyStoreText } from '~app/components/Wizard/components/Validators/StakingDeposit/components';
-import {clearDecryptProgress} from "~app/components/Wizard/actions";
-import MoveToBrowserModal from "../StakingDeposit/components/MoveToBrowserModal";
-import {selectedKeystoreMode, selectedSeedMode} from "../../../../../common/service";
+import MoveToBrowserModal from '~app/components/Wizard/components/Validators/StakingDeposit/components/MoveToBrowserModal';
 
 const Wrapper = styled.div`
   width:650px;
@@ -146,7 +145,7 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
           Continue to Web Deposit
         </Button>
         <ButtonDepositLater onClick={() => { moveToDashboard(); }}>
-          I'll Deposit Later
+          I&apos;ll Deposit Later
         </ButtonDepositLater>
       </ButtonsWrapper>
 
