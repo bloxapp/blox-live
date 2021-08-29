@@ -120,7 +120,7 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
     setAllValidatorsHaveSameStatus(!(notDepositedCount > 0 && depositedCount > 0));
     setAllDeposited(depositedCount > 0);
     setDisplayDepositedConfirmation(allValidatorsHaveSameStatus && !allDeposited);
-    setContinueButtonDisabled(!(isValidatorsOfflineCheckbox && (isAgreementReadCheckbox || displayDepositedConfirmation) && allValidatorsHaveSameStatus));
+    setContinueButtonDisabled(!((isValidatorsOfflineCheckbox || !displayDepositedConfirmation) && isAgreementReadCheckbox && allValidatorsHaveSameStatus));
 
     if (publicKeys.length > 0) { bloxApi.request('GET', `/ethereum2/validators-deposits/?network=${network}&publicKeys=${publicKeys.join(',')}`).then((deposits: any) => {
       const newValidatorsStatuses = validators.map((validator) => {
@@ -131,8 +131,7 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
       setValidators(newValidatorsStatuses);
     }); }
     onPageClick(0);
-  }, [validators, isAgreementReadCheckbox, isValidatorsOfflineCheckbox, allValidatorsHaveSameStatus, allDeposited]);
-
+  }, [validators, isAgreementReadCheckbox, isValidatorsOfflineCheckbox, allValidatorsHaveSameStatus, displayDepositedConfirmation]);
 
   const onNextButtonClick = () => {
     if (allDeposited) {

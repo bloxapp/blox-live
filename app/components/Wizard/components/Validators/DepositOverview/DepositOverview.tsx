@@ -18,6 +18,8 @@ import { getNetwork, getDecryptedKeyStores } from '~app/components/Wizard/select
 import { Title, Paragraph, BackButton } from '~app/components/Wizard/components/common';
 import { MainNetKeyStoreText } from '~app/components/Wizard/components/Validators/StakingDeposit/components';
 import {clearDecryptProgress} from "~app/components/Wizard/actions";
+import MoveToBrowserModal from "../StakingDeposit/components/MoveToBrowserModal";
+import {selectedKeystoreMode, selectedSeedMode} from "../../../../../common/service";
 
 const Wrapper = styled.div`
   width:650px;
@@ -73,6 +75,7 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
   const { processData, clearProcessState } = useProcessRunner();
   const { loadDataAfterNewAccount } = useDashboardData();
   const { goToPage, ROUTES } = useRouting();
+  const [showMoveToBrowserModal, setShowMoveToBrowserModal] = React.useState(false);
 
   useEffect(() => {
     deepLink(async (obj) => {
@@ -89,8 +92,13 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
     return () => cleanDeepLink();
   }, []);
 
-  const moveToWebDeposit = async () => {
+  const moveToWebDeposit = async (moveToBrowser) => {
+    if (!moveToBrowser) {
+      await moveToDashboard();
+      return;
+    }
     const ids = processData.map(user => user.id).join(',');
+    setShowMoveToBrowserModal(true);
     await openExternalLink('', `${config.env.WEB_APP_URL}/upload_deposit_file?id_token=${idToken}&account_id=${ids}&network_id=${NETWORKS[network].chainId}`);
   };
 
@@ -104,6 +112,10 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
     clearDecryptKeyStores();
     clearDecryptProgress();
     clearProcessState();
+  };
+
+  const onMadeDepositButtonClick = async () => {
+    setShowMoveToBrowserModal(true);
   };
 
   return (
@@ -130,13 +142,23 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
       </SmallText>
 
       <ButtonsWrapper>
-        <Button onClick={() => { moveToWebDeposit(); }}>
+        <Button onClick={() => { onMadeDepositButtonClick(); }}>
           Continue to Web Deposit
         </Button>
         <ButtonDepositLater onClick={() => { moveToDashboard(); }}>
           I'll Deposit Later
         </ButtonDepositLater>
       </ButtonsWrapper>
+
+      {showMoveToBrowserModal && (
+        <MoveToBrowserModal
+          onClose={(moveToBrowser) => {
+            setShowMoveToBrowserModal(false);
+            if (!moveToBrowser) moveToDashboard();
+          }}
+          onMoveToBrowser={moveToWebDeposit}
+        />
+      )}
     </Wrapper>
   );
 };
