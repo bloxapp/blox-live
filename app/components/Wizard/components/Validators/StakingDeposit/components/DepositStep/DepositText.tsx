@@ -28,13 +28,13 @@ const CustomIcon = styled.i<{ fontSize: string, isDisabled: boolean }>`
 `;
 
 const DepositText = (props: Props) => {
-  const {publicKey, token, onCopy, amountOfValidators} = props;
+  const {publicKey, token, onCopy, amountOfValidators, network} = props;
 
   const truncatePubKey = truncateText(publicKey, 6, 6);
   return (
     <TextInfo>
       {amountOfValidators ? (
-        <TextInfo>Deposit to the Mainnet network to activate your validators. <br /></TextInfo>
+        <TextInfo>Deposit to the {network || 'Mainnet'} network to activate your validators. <br /></TextInfo>
       ) : (
         <>
           <TextInfo>Deposit to the {token} network to activate your validator ({truncatePubKey}).</TextInfo>
@@ -65,6 +65,7 @@ type Props = {
   token: string;
   onCopy?: () => void;
   amountOfValidators ? : boolean
+  network?: string
 };
 
 export default DepositText;

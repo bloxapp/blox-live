@@ -133,7 +133,7 @@ const DepositStepData = (props: Props) => {
         <StepNumber>{step}</StepNumber>
         <LeftWrapper>
           <BigTitle>{amount} <MediumTitle>{token}</MediumTitle></BigTitle>
-          {amountOfValidators && <SmallTitle>x{amountOfValidators} Validators</SmallTitle>}
+          {amountOfValidators > 1 && <SmallTitle>x{amountOfValidators} Validators</SmallTitle>}
           <HintTitle style={{textDecorationLine: 'line-through', textDecorationStyle: 'solid'}}>{hint ? '0.5 ETH' : ''}</HintTitle>
         </LeftWrapper>
         <InfoWrapper>

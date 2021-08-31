@@ -42,10 +42,10 @@ const CongratulationPage = (props: Props) => {
 
         {!isImportValidators && (
           <>
-            <Title color="accent2400" style={{ marginTop: 30 }}>Validator created successfully!</Title>
+            <Title color="accent2400" style={{ marginTop: 30 }}>Validator{importedValidatorsCount > 1 ? 's' : ''} created successfully!</Title>
             <Paragraph>
-              Approving your validator can sometime take between 4 to 24 hours. We will <br />
-              notify you via email once your validator is approved and is actively staking on <br />
+              Getting your validator{importedValidatorsCount > 1 ? 's' : ''} approved takes between 4 to 24 hours. We will <br />
+              notify you via email once your validator{importedValidatorsCount > 1 ? 's' : ''} {importedValidatorsCount > 1 ? 'are' : 'is'} approved and actively staking on <br />
               the ETH 2 network. <br /> <br />
 
               Meanwhile, let&apos;s visit the dashboard.

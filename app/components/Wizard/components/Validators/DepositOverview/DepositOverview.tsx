@@ -8,18 +8,17 @@ import config from '~app/backend/common/config';
 import useRouting from '~app/common/hooks/useRouting';
 import { openExternalLink } from '~app/components/common/service';
 import * as actionsFromWizard from '~app/components/Wizard/actions';
+import {clearDecryptProgress} from '~app/components/Wizard/actions';
 import { cleanDeepLink, deepLink } from '~app/components/App/service';
 import BloxApi from '~app/backend/common/communication-manager/blox-api';
 import useDashboardData from '~app/components/Dashboard/useDashboardData';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
+import MoveToBrowserModal from '../StakingDeposit/components/MoveToBrowserModal';
 import { NETWORKS } from '~app/components/Wizard/components/Validators/constants';
 import { getIdToken } from '~app/components/Login/components/CallbackPage/selectors';
 import { getNetwork, getDecryptedKeyStores } from '~app/components/Wizard/selectors';
 import { Title, Paragraph, BackButton } from '~app/components/Wizard/components/common';
 import { MainNetKeyStoreText } from '~app/components/Wizard/components/Validators/StakingDeposit/components';
-import {clearDecryptProgress} from "~app/components/Wizard/actions";
-import MoveToBrowserModal from "../StakingDeposit/components/MoveToBrowserModal";
-import {selectedKeystoreMode, selectedSeedMode} from "../../../../../common/service";
 
 const Wrapper = styled.div`
   width:650px;
@@ -70,7 +69,7 @@ const bloxApi = new BloxApi();
 bloxApi.init();
 
 const DepositOverview = (props: ValidatorsSummaryProps) => {
-  const { setPage, setStep, decryptedKeyStores, idToken, wizardActions, network } = props;
+  const { setPage, setStep, decryptedKeyStores, idToken, wizardActions, network, setPageData, pageData } = props;
   const { clearDecryptKeyStores } = wizardActions;
   const { processData, clearProcessState } = useProcessRunner();
   const { loadDataAfterNewAccount } = useDashboardData();
@@ -83,6 +82,10 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
         const depositedValidators = obj.account_id;
         await clearState();
         if (depositedValidators) {
+          setPageData({
+            isImportValidators: false,
+            importedValidatorsCount: depositedValidators.split(',').length
+          });
           setPage(config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS);
         } else {
           goToPage(ROUTES.DASHBOARD);
@@ -129,7 +132,7 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
       <Paragraph style={{ marginBottom: 5 }}>
         To start staking, first, you&apos;ll need to make a deposit:
       </Paragraph>
-      <MainNetKeyStoreText amountOfValidators={decryptedKeyStores.length} publicKey={''} onCopy={() => {}} />
+      <MainNetKeyStoreText network={network} amountOfValidators={decryptedKeyStores.length} publicKey={''} onCopy={() => {}} />
       {decryptedKeyStores.length > 1 && (
         <Paragraph style={{fontWeight: 'bold', color: '#2536b8', marginTop: 10 }}>
           Total: {decryptedKeyStores.length * 32} ETH + gas fees
@@ -164,12 +167,14 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
 };
 
 type ValidatorsSummaryProps = {
+  idToken: any;
+  pageData: any;
   network: string;
-  wizardActions: Record<string, any>;
+  decryptedKeyStores: any;
   setPage: (page: number) => void;
   setStep: (page: number) => void;
-  decryptedKeyStores: any;
-  idToken: any;
+  setPageData: (data: any) => void;
+  wizardActions: Record<string, any>;
 };
 
 const mapStateToProps = (state: any) => ({

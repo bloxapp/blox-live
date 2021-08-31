@@ -68,6 +68,7 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
   const [allDeposited, setAllDeposited] = useState(false);
   const [pagedValidators, setPagedValidators] = useState([]);
   const [paginationInfo, setPaginationInfo] = useState(null);
+  const [loadingStatuses, setLoadingStatuses] = useState(true);
   const [moveToDepositOverview, setMoveToDepositOverview] = useState(true);
   const [dontRunProcessAgain, setDontRunProcessAgain] = useState(false);
   const [isAgreementReadCheckbox, setAgreementReadCheckbox] = useState(false);
@@ -129,9 +130,10 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
         return newValidator;
       });
       setValidators(newValidatorsStatuses);
+      setLoadingStatuses(false);
     }); }
     onPageClick(0);
-  }, [validators, isAgreementReadCheckbox, isValidatorsOfflineCheckbox, allValidatorsHaveSameStatus, displayDepositedConfirmation]);
+  }, [validators, allDeposited, isAgreementReadCheckbox, isValidatorsOfflineCheckbox, allValidatorsHaveSameStatus, displayDepositedConfirmation]);
 
   const onNextButtonClick = () => {
     if (allDeposited) {
@@ -194,57 +196,65 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
       </TableWrapper>
       {!allValidatorsHaveSameStatus && <Warning style={{maxWidth: '100%', marginTop: '20px'}} text={notTheSameError} />}
 
-      <Checkbox
-        checked={isAgreementReadCheckbox}
-        onClick={() => { setAgreementReadCheckbox(!isAgreementReadCheckbox); }}
-        checkboxStyle={checkboxStyle}
-        labelStyle={checkboxLabelStyle}
-      >
-        I agree to Blox&apos;s&nbsp;
-        <Link
-          onClick={(event) => onLinkClick(event, 'privacy-policy')}
-          href={privacyPolicyLink}
+      {(!loadingStatuses && allValidatorsHaveSameStatus) &&
+      <>
+        <Checkbox
+          checked={isAgreementReadCheckbox}
+          onClick={() => {
+            setAgreementReadCheckbox(!isAgreementReadCheckbox);
+          }}
+          checkboxStyle={checkboxStyle}
+          labelStyle={checkboxLabelStyle}
         >
-          Privacy Policy
-        </Link>
-        &nbsp;and&nbsp;
-        <Link
-          onClick={(event) => onLinkClick(event, 'terms-of-use')}
-          href={serviceAgreementLink}
+          I agree to Blox&apos;s&nbsp;
+          <Link
+            onClick={(event) => onLinkClick(event, 'privacy-policy')}
+            href={privacyPolicyLink}
+          >
+            Privacy Policy
+          </Link>
+          &nbsp;and&nbsp;
+          <Link
+            onClick={(event) => onLinkClick(event, 'terms-of-use')}
+            href={serviceAgreementLink}
+          >
+            License and Service Agreement
+          </Link>
+        </Checkbox>
+
+        {displayDepositedConfirmation && <Checkbox
+          checked={isValidatorsOfflineCheckbox}
+          onClick={() => {
+            setValidatorsOfflineCheckbox(!isValidatorsOfflineCheckbox);
+          }}
+          checkboxStyle={checkboxStyle}
+          labelStyle={checkboxLabelStyle}
         >
-          License and Service Agreement
-        </Link>
-      </Checkbox>
+          I confirm that I haven&apos;t deposited any of my validators above.
+        </Checkbox>}
 
-      {displayDepositedConfirmation && <Checkbox
-        checked={isValidatorsOfflineCheckbox}
-        onClick={() => {
-          setValidatorsOfflineCheckbox(!isValidatorsOfflineCheckbox);
-        }}
-        checkboxStyle={checkboxStyle}
-        labelStyle={checkboxLabelStyle}
-      >
-        I confirm that I haven&apos;t deposited any of my validators above.
-      </Checkbox>}
-
-      <ButtonWrapper>
-        <Button
-          isDisabled={isContinueButtonDisabled}
-          onClick={() => { !isContinueButtonDisabled && onNextButtonClick(); }}>
-          {actionButtonText}
-        </Button>
-        {isLoading && (
-          <ProgressWrapper>
-            <ProcessLoader text={processMessage} precentage={loaderPercentage} />
-            <SmallText withWarning />
-          </ProgressWrapper>
-        )}
-        {error && (
-          <ErrorMessage>
-            {error}, please try again.
-          </ErrorMessage>
-        )}
-      </ButtonWrapper>
+        <ButtonWrapper>
+          <Button
+            isDisabled={isContinueButtonDisabled}
+            onClick={() => {
+              !isContinueButtonDisabled && onNextButtonClick();
+            }}>
+            {actionButtonText}
+          </Button>
+          {isLoading && (
+            <ProgressWrapper>
+              <ProcessLoader text={processMessage} precentage={loaderPercentage}/>
+              <SmallText withWarning/>
+            </ProgressWrapper>
+          )}
+          {error && (
+            <ErrorMessage>
+              {error}, please try again.
+            </ErrorMessage>
+          )}
+        </ButtonWrapper>
+      </>
+      }
     </Wrapper>
   );
 };
