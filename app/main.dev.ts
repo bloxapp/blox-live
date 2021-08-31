@@ -56,10 +56,9 @@ const createWindow = async (downloadsDir) => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    titleBarStyle: 'hiddenInset',
-    vibrancy: 'sidebar',
     width,
     height,
+    titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true,
