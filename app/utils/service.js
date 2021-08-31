@@ -1,5 +1,5 @@
-import moment from 'moment';
 import os from 'os';
+import moment from 'moment';
 import macOsRelease from 'macos-release';
 import windowsRelease from 'windows-release';
 
@@ -13,8 +13,7 @@ export const isActive = (to, pathname) => {
     );
     return toSubDirName === pathnameSubDirName;
   }
-  const isExact = to === pathname;
-  return isExact;
+  return to === pathname;
 };
 
 export const isEmptyObject = (obj) => Object.entries(obj).length === 0 && obj.constructor === Object;

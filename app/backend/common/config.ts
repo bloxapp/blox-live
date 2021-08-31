@@ -31,13 +31,6 @@ export default class Config {
       HTTP_RETRIES: 3,
       HTTP_RETRY_DELAY: 1000,
       PRATER_NETWORK: 'prater',
-      TESTNET_NETWORK: () => {
-        const keyVaultVersion = Connection.db().get('keyVaultVersion');
-        if (isVersionHigherOrEqual(keyVaultVersion, 'v1.2.0')) {
-          return 'prater';
-        }
-        return 'pyrmont';
-      },
       MAINNET_NETWORK: 'mainnet',
       SSL_SUPPORTED_TAG: 'v0.1.25',
       HIGHEST_ATTESTATION_SUPPORTED_TAG: 'v0.3.2',
@@ -156,5 +149,13 @@ export default class Config {
 
   static get FLAGS(): any {
     return this.env.FLAGS;
+  }
+
+  static get TESTNET_NETWORK(): string {
+    const keyVaultVersion = Connection.db().get('keyVaultVersion');
+    if (isVersionHigherOrEqual(keyVaultVersion, 'v1.2.0')) {
+      return 'prater';
+    }
+    return 'pyrmont';
   }
 }

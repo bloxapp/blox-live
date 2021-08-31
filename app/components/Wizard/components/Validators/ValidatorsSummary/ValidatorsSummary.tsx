@@ -15,8 +15,8 @@ import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 import {getIdToken} from '~app/components/Login/components/CallbackPage/selectors';
 import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
 import { getNetwork, getDecryptedKeyStores } from '~app/components/Wizard/selectors';
-import { Title, Paragraph, Link, Warning, BackButton, ErrorMessage } from '~app/components/Wizard/components/common';
 import tableColumns from '~app/components/Wizard/components/Validators/ValidatorsSummary/components/table-columns';
+import { Title, Paragraph, Link, Warning, BackButton, ErrorMessage } from '~app/components/Wizard/components/common';
 
 const Wrapper = styled.div`
   width:650px;
@@ -162,7 +162,7 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
   return (
     <Wrapper>
       <BackButton onClick={() => {
-        if(!isLoading) {
+        if (!isLoading) {
           clearDecryptKeyStores();
           setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
           setPage(config.WIZARD_PAGES.VALIDATOR.UPLOAD_KEYSTORE_FILE);
@@ -222,7 +222,8 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
           </Link>
         </Checkbox>
 
-        {displayDepositedConfirmation && <Checkbox
+      {displayDepositedConfirmation && (
+        <Checkbox
           checked={isValidatorsOfflineCheckbox}
           onClick={() => {
             setValidatorsOfflineCheckbox(!isValidatorsOfflineCheckbox);
@@ -231,7 +232,8 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
           labelStyle={checkboxLabelStyle}
         >
           I confirm that I haven&apos;t deposited any of my validators above.
-        </Checkbox>}
+        </Checkbox>
+      )}
 
         <ButtonWrapper>
           <Button
