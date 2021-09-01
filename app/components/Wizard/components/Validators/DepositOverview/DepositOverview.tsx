@@ -69,7 +69,7 @@ const bloxApi = new BloxApi();
 bloxApi.init();
 
 const DepositOverview = (props: ValidatorsSummaryProps) => {
-  const { setPage, setStep, decryptedKeyStores, idToken, wizardActions, network } = props;
+  const { setPage, setStep, decryptedKeyStores, idToken, wizardActions, network, setPageData, pageData } = props;
   const { clearDecryptKeyStores } = wizardActions;
   const { processData, clearProcessState } = useProcessRunner();
   const { loadDataAfterNewAccount } = useDashboardData();
@@ -82,6 +82,10 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
         const depositedValidators = obj.account_id;
         await clearState();
         if (depositedValidators) {
+          setPageData({
+            isImportValidators: false,
+            importedValidatorsCount: depositedValidators.split(',').length
+          });
           setPage(config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS);
         } else {
           goToPage(ROUTES.DASHBOARD);
@@ -128,7 +132,7 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
       <Paragraph style={{ marginBottom: 5 }}>
         To start staking, first, you&apos;ll need to make a deposit:
       </Paragraph>
-      <MainNetKeyStoreText amountOfValidators={decryptedKeyStores.length} publicKey={''} onCopy={() => {}} />
+      <MainNetKeyStoreText network={network} amountOfValidators={decryptedKeyStores.length} publicKey={''} onCopy={() => {}} />
       {decryptedKeyStores.length > 1 && (
         <Paragraph style={{fontWeight: 'bold', color: '#2536b8', marginTop: 10 }}>
           Total: {decryptedKeyStores.length * 32} ETH + gas fees
@@ -163,12 +167,14 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
 };
 
 type ValidatorsSummaryProps = {
+  idToken: any;
+  pageData: any;
   network: string;
-  wizardActions: Record<string, any>;
+  decryptedKeyStores: any;
   setPage: (page: number) => void;
   setStep: (page: number) => void;
-  decryptedKeyStores: any;
-  idToken: any;
+  setPageData: (data: any) => void;
+  wizardActions: Record<string, any>;
 };
 
 const mapStateToProps = (state: any) => ({

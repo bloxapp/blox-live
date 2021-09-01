@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import EthereumKeyStore from 'eth2-keystore-js';
-
 /**
  * Extract not extracted keystores using password
  * @param decryptedKeyStores
@@ -8,7 +7,7 @@ import EthereumKeyStore from 'eth2-keystore-js';
  * @param password
  * @param callBack
  */
-export const extractKeyStores = async (decryptedKeyStores: any[], keyStoresFiles: File[], password: string, callBack: any) => {
+export const extractKeyStores = async (decryptedKeyStores: any[], keyStoresFiles: File[], password: string, callBack: any, hashExistingPublicKeys: string[]) => {
   const files = await readAllFiles(keyStoresFiles);
   const keyStores = [];
   // eslint-disable-next-line guard-for-in,no-restricted-syntax
@@ -24,6 +23,10 @@ export const extractKeyStores = async (decryptedKeyStores: any[], keyStoresFiles
           break;
         }
       }
+
+      if (hashExistingPublicKeys[`0x${keyStorePublicKey}`]) {
+        throw Error(`Keystore: ${files[i].fileName} (${`0x${keyStorePublicKey.substr(0, 4)}...${keyStorePublicKey.substr(keyStorePublicKey.length - 4, 4)}`}) already exists in your account.`);
+      }
       if (!keyStoreAlreadyDecrypted) {
         keyStores.push({
           // @ts-ignore
@@ -36,6 +39,9 @@ export const extractKeyStores = async (decryptedKeyStores: any[], keyStoresFiles
       }
       callBack(parseInt(i, 10) + 1);
     } catch (err) {
+      if (err) {
+        throw (err);
+      }
       console.error(err);
       // @ts-ignore
       throw Error(`Invalid keystore file password (${files[i].fileName}) - only files with the same password are supported. You can always upload the rest later on.`);

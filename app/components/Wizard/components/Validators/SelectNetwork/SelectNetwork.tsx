@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import config from '~app/backend/common/config';
 import { selectedKeystoreMode } from '~app/common/service';
 import { setNetworkType } from '~app/components/Wizard/actions';
+import { getAccounts } from '~app/components/Accounts/selectors';
 import { NETWORKS } from '~app/components/Wizard/components/Validators/constants';
 import { Title, SubTitle, Paragraph } from '~app/components/Wizard/components/common';
 import { getUserData } from '~app/components/Login/components/CallbackPage/selectors';
@@ -31,10 +32,10 @@ const onClick = ({ setPage, setNetwork }: ValidatorsProps, network) => {
 };
 
 const Validators = (props: ValidatorsProps) => {
-  const { setPage, setStep } = props;
+  const { setPage, setStep, accounts } = props;
   return (
     <Wrapper>
-      {selectedKeystoreMode() ? (
+      {accounts.length === 0 ? (
         <BackButton onClick={() => {
           setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
           setPage(config.WIZARD_PAGES.WALLET.SEED_OR_KEYSTORE);
@@ -72,10 +73,12 @@ type ValidatorsProps = {
   setStep: (page: number) => void;
   setNetwork: (network: string) => void;
   profile: Record<string, any>;
+  accounts: Array<any>;
 };
 
 const mapStateToProps = (state) => ({
   profile: getUserData(state),
+  accounts: getAccounts(state),
 });
 
 const mapDispatchToProps = (dispatch) => ({

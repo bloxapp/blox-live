@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import config from '~app/backend/common/config';
 import { PasswordInput } from '~app/common/components';
 import DropZone from '~app/common/components/DropZone';
+import { getAccounts } from '~app/components/Accounts/selectors';
 import * as actionsFromWizard from '~app/components/Wizard/actions';
 import BackButton from '~app/components/Wizard/components/common/BackButton';
 import { NETWORKS } from '~app/components/Wizard/components/Validators/constants';
@@ -75,7 +76,8 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
     errorMessage,
     decryptedFilesCount,
     isDecryptingKeyStores,
-    decryptedKeyStores
+    decryptedKeyStores,
+    accounts
   } = props;
   const {decryptKeyStores, uploadKeyStores, displayKeyStoreError, incrementFilesDecryptedCounter} = wizardActions;
   const [password, setPassword] = useState('');
@@ -102,6 +104,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
     });
 
     if (newKeyStores.length === 0) {
+      setPassword('');
       displayKeyStoreError({status: false, message: ''});
     }
 
@@ -176,7 +179,9 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
   };
 
   const decryptFiles = async () => {
-    decryptKeyStores({keyStores, password, incrementFilesDecryptedCounter});
+    const hashExistingPublicKeys = {};
+    accounts.forEach(({publicKey}) => hashExistingPublicKeys[publicKey] = true );
+    decryptKeyStores({keyStores, password, incrementFilesDecryptedCounter, hashExistingPublicKeys});
     setGoToNextPage(true);
   };
 
@@ -276,22 +281,24 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
 
 type UploadKeystoreFileProps = {
   network: string;
-  keyStores: Array<any>,
   page: number;
-  setPage: (page: number) => void;
   step: number;
+  accounts: Array<any>;
+  errorMessage: string;
+  keyStores: Array<any>;
+  decryptedFilesCount: number;
+  shouldDisplayError: boolean;
+  isDecryptingKeyStores: boolean;
+  decryptedKeyStores: Array<any>;
+  setPage: (page: number) => void;
   setStep: (page: number) => void;
   setPageData: (data: any) => void;
   wizardActions: Record<string, any>;
-  errorMessage: string,
-  shouldDisplayError: boolean,
-  decryptedFilesCount: number,
-  isDecryptingKeyStores: boolean,
-  decryptedKeyStores: Array<any>;
 };
 
 const mapStateToProps = (state: any) => ({
   network: getNetwork(state),
+  accounts: getAccounts(state),
   keyStores: getKeyStores(state),
   errorMessage: getDecryptedKeyStoresError(state),
   shouldDisplayError: getShouldDisplayError(state),
