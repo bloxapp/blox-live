@@ -94,10 +94,10 @@ function* onDecryptFailure(error, silent?: boolean) {
 
 function* startDecryptKeyStores(action) {
   const {payload} = action;
-  const {keyStores, password, incrementFilesDecryptedCounter, hashExistingPublicKeys} = payload;
+  const {keyStores, password, incrementFilesDecryptedCounter, hashExistingPublicKeys, isCreation} = payload;
   try {
     const decryptedKeyStores = yield select(getDecryptedKeyStores);
-    const keyStoresData = yield call(extractKeyStores, decryptedKeyStores, keyStores, password, incrementFilesDecryptedCounter, hashExistingPublicKeys);
+    const keyStoresData = yield call(extractKeyStores, decryptedKeyStores, keyStores, password, incrementFilesDecryptedCounter, hashExistingPublicKeys, isCreation);
     yield call(onDecryptSuccess, keyStoresData);
     incrementFilesDecryptedCounter(0);
   } catch (error) {

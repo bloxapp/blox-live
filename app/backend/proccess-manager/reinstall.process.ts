@@ -111,6 +111,7 @@ export default class ReinstallProcess extends ProcessClass {
             }
           },
           { instance: this.awsService, method: 'truncateOldKvResources' },
+          { instance: this.awsService, method: 'optimizeInstanceSecurity' },
           {
             instance: Connection,
             method: 'remove',

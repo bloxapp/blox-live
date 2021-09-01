@@ -39,7 +39,7 @@ export const extractKeyStores = async (decryptedKeyStores: any[], keyStoresFiles
       }
       callBack(parseInt(i, 10) + 1);
     } catch (err) {
-      if (err) {
+      if (err && err.message !== 'Invalid keystore file password.') {
         throw (err);
       }
       console.error(err);

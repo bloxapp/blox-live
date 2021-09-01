@@ -105,7 +105,7 @@ export default class WalletService {
     });
     this.logger.debug(command);
     const { stdout, stderr } = await ssh.execCommand(command, {});
-    if (stderr || +stdout !== 200) throw Error(`${stdout || stderr}. Sync kv with blox failed`);
+    if (stderr || +stdout !== 200) throw Error(`${stdout || ''}. ${stderr || ''}. Sync kv with blox failed`);
     Connection.db(this.storePrefix).delete('vaultSignerToken');
   }
 }

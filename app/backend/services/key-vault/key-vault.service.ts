@@ -78,14 +78,22 @@ export default class KeyVaultService {
       path: `ethereum/${config.env.MAINNET_NETWORK}/version`,
       isNetworkRequired: false
     });
-    const praterVersion = await this.keyVaultApi.requestThruSsh({
+
+    let testNetwork = 'pyrmont';
+    const keyVaultVersion = await this.versionService.getLatestKeyVaultVersion();
+    // TODO: move gap version to constant in config.ts
+    if (isVersionHigherOrEqual(keyVaultVersion, 'v1.2.0')) {
+      testNetwork = 'prater';
+    }
+
+    const testnetVersion = await this.keyVaultApi.requestThruSsh({
       method: METHOD.GET,
-      path: `ethereum/${config.env.PRATER_NETWORK}/version`,
+      path: `ethereum/${testNetwork}/version`,
       isNetworkRequired: false
     });
     const result = {
       mainnetVersion,
-      praterVersion
+      testnetVersion
     };
     this.logger.trace('KV server healthcheck', result);
     return result;
