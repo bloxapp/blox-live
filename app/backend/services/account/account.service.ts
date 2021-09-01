@@ -300,7 +300,7 @@ export default class AccountService {
     displayMessage: 'CLI Create Account failed'
   })
   async restoreAccounts(): Promise<void> {
-    const supportedNetworks = [config.env.PRATER_NETWORK, config.env.MAINNET_NETWORK];
+    const supportedNetworks = [config.TESTNET_NETWORK, config.env.MAINNET_NETWORK];
 
     const indices = Connection.db(this.storePrefix).get('index');
     if (indices) {
@@ -397,7 +397,7 @@ export default class AccountService {
     displayMessage: 'Failed to delete all accounts'
   })
   async deleteAllAccounts(): Promise<void> {
-    const supportedNetworks = [config.env.PRATER_NETWORK, config.env.MAINNET_NETWORK];
+    const supportedNetworks = [config.TESTNET_NETWORK, config.env.MAINNET_NETWORK];
     // eslint-disable-next-line no-restricted-syntax
     for (const network of supportedNetworks) {
       Connection.db(this.storePrefix).set('network', network);

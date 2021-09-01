@@ -79,8 +79,8 @@ const getProvider = (accountNetwork) => {
     case config.env.MAINNET_NETWORK:
       networkType = config.env.MAINNET_NETWORK;
       break;
-    case config.env.PRATER_NETWORK:
-      networkType = config.env.PRATER_NETWORK;
+    case config.TESTNET_NETWORK:
+      networkType = config.TESTNET_NETWORK;
       break;
   }
   return `https://${networkType}.infura.io/v3/${config.env.INFURA_API_KEY}`;

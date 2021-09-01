@@ -1,7 +1,7 @@
-import { CatchClass } from '../../decorators';
-import BloxApi from '../../common/communication-manager/blox-api';
-import { METHOD } from '../../common/communication-manager/constants';
-import Connection from '../../common/store-manager/connection';
+import { CatchClass } from '~app/backend/decorators';
+import Connection from '~app/backend/common/store-manager/connection';
+import BloxApi from '~app/backend/common/communication-manager/blox-api';
+import { METHOD } from '~app/backend/common/communication-manager/constants';
 
 @CatchClass<VersionService>()
 export default class VersionService {

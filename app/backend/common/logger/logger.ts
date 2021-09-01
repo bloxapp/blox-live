@@ -35,22 +35,27 @@ export class Log {
   }
 
   error(...args: any[]): void {
+    // @ts-ignore
     this.logger.error(...args);
   }
 
   debug(...args: any[]): void {
+    // @ts-ignore
     this.logger.debug(...args);
   }
 
   trace(...args: any[]): void {
+    // @ts-ignore
     this.logger.trace(...args);
   }
 
   info(...args: any[]): void {
+    // @ts-ignore
     this.logger.info(...args);
   }
 
   warn(...args: any[]): void {
+    // @ts-ignore
     this.logger.warn(...args);
   }
 

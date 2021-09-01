@@ -60,6 +60,7 @@ export default class RecoveryProcess extends ProcessClass {
         actions: [
           { instance: this.awsService, method: 'setAWSCredentials' },
           { instance: this.awsService, method: 'truncateServer' },
+          { instance: this.awsService, method: 'optimizeInstanceSecurity' },
           {
             instance: Connection,
             method: 'clear',
