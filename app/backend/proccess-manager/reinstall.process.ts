@@ -20,7 +20,7 @@ export default class ReinstallProcess extends ProcessClass {
   public readonly actions: Array<any>;
   public readonly fallbackActions: Array<any>;
 
-  constructor() {
+  constructor({ inputData = null }) {
     super('Reinstallation');
     const baseStore = new BaseStore();
     Connection.setup({
@@ -67,9 +67,9 @@ export default class ReinstallProcess extends ProcessClass {
       { instance: this.keyVaultServiceTmp, method: 'runDockerContainer' },
       { instance: this.keyVaultServiceTmp, method: 'getKeyVaultRootToken' },
       { instance: this.keyVaultServiceTmp, method: 'getKeyVaultStatus' },
-      { instance: this.accountServiceTmp, method: 'restoreAccounts' },
+      { instance: this.accountServiceTmp, method: 'restoreAccounts', params: { inputData } },
       { instance: this.keyVaultServiceTmp, method: 'updateVaultMountsStorage' },
-      { instance: this.walletServiceTmp, method: 'syncVaultWithBlox', params: { isNew: false, processName: 'reinstall' } },
+      { instance: this.walletServiceTmp, method: 'syncVaultWithBlox', params: { isNew: false, processName: 'reinstall', isSeedless: Array.isArray(inputData)} },
       { instance: this.awsServiceTmp, method: 'truncateOldKvResources' },
       { instance: this.awsServiceTmp, method: 'optimizeInstanceSecurity' },
       {

@@ -299,7 +299,7 @@ export default class AccountService {
   @Catch({
     displayMessage: 'CLI Create Account failed'
   })
-  async restoreAccounts(): Promise<void> {
+  async restoreAccounts({ inputData }: { inputData?: string }): Promise<void> {
     const supportedNetworks = [config.TESTNET_NETWORK, config.env.MAINNET_NETWORK];
 
     const indices = Connection.db(this.storePrefix).get('index');
@@ -311,7 +311,7 @@ export default class AccountService {
           if (index > -1) {
             Connection.db(this.storePrefix).set('network', network);
             // eslint-disable-next-line no-await-in-loop
-            await this.createAccount({indexToRestore: index});
+            await this.createAccount({ indexToRestore: index, inputData });
           }
         }
       }
@@ -377,6 +377,7 @@ export default class AccountService {
     name: 'Delete Last Indexed Account'
   })
   async deleteLastIndexedAccount(): Promise<void> {
+    // TODO: what is going to happen here on seedless mode?
     const network = Connection.db(this.storePrefix).get('network');
     if (!network) {
       throw new Error('Configuration settings network not found');

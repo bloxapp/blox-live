@@ -22,7 +22,8 @@ export const processInstantiator = (processName: string, payload: Record<string,
     return new RebootProcess();
   }
   if (processName === PROCESSES.REINSTALL) {
-    return new ReinstallProcess();
+    const { inputData } = payload;
+    return new ReinstallProcess({ inputData });
   }
   if (processName === PROCESSES.UPGRADE) {
     return new UpgradeProcess();
