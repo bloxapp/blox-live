@@ -5,6 +5,7 @@ import { Log } from '~app/backend/common/logger/logger';
 import { getProcessNameForUpdate } from '~app/utils/process';
 import * as wizardSelectors from '~app/components/Wizard/selectors';
 import { PROCESSES } from '~app/components/ProcessRunner/constants';
+import Connection from '~app/backend/common/store-manager/connection';
 import { ProcessLoader, ModalTemplate } from '~app/common/components';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 import {
@@ -75,7 +76,8 @@ const ReinstallingModal = (props: Props) => {
         // Default previous flow for reinstall
         if (noProcess && !reinstallStarted) {
           logger.debug('Starting default reinstall process as initial process..');
-          startProcess(currentProcessName, processDefaultMessage);
+          // TODO: apply scenario in seedless mode (keystores re-upload)
+          startProcess(currentProcessName, processDefaultMessage, { inputData: Connection.db().get('seed') });
           return;
         }
         if (isDone) {
