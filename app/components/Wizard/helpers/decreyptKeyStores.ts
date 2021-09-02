@@ -7,7 +7,7 @@ import EthereumKeyStore from 'eth2-keystore-js';
  * @param password
  * @param callBack
  */
-export const extractKeyStores = async (decryptedKeyStores: any[], keyStoresFiles: File[], password: string, callBack: any, hashExistingPublicKeys: string[]) => {
+export const extractKeyStores = async (decryptedKeyStores: any[], keyStoresFiles: File[], password: string, callBack: any, hashExistingPublicKeys: string[], isCreation?: boolean) => {
   const files = await readAllFiles(keyStoresFiles);
   const keyStores = [];
   // eslint-disable-next-line guard-for-in,no-restricted-syntax
@@ -24,7 +24,7 @@ export const extractKeyStores = async (decryptedKeyStores: any[], keyStoresFiles
         }
       }
 
-      if (hashExistingPublicKeys[`0x${keyStorePublicKey}`]) {
+      if (isCreation && hashExistingPublicKeys[`0x${keyStorePublicKey}`]) {
         throw Error(`Keystore: ${files[i].fileName} (${`0x${keyStorePublicKey.substr(0, 4)}...${keyStorePublicKey.substr(keyStorePublicKey.length - 4, 4)}`}) already exists in your account.`);
       }
       if (!keyStoreAlreadyDecrypted) {

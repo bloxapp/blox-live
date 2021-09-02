@@ -10,7 +10,6 @@ import {
 
 const SelectedFilesTableContainer = styled.table`
   width: 100%;
-  max-height: 200px;
   overflow-y: scroll;
   display: block;
   border: 1px solid rgba(195, 200, 207, 1);
@@ -19,6 +18,18 @@ const SelectedFilesTableContainer = styled.table`
     margin-top: 15px;
     border-bottom: 0;
   }
+`;
+
+const TableIndex = styled.td`
+  text-align: center;
+  padding: 10px !important;
+  border-right: 1px solid rgba(195,200,207, 0.6);;
+  -webkit-background-clip: padding-box; /* for Safari */
+  background-clip: padding-box;
+`;
+
+const RowRemove = styled.td`
+  text-align: right;
 `;
 
 const FileTail = styled.tr`
@@ -100,17 +111,20 @@ export const SelectedFilesTable = (props: SelectedFilesTableProps) => {
         {keyStores ? keyStores.map((file: any, fileIndex: number) => {
           return (
             <FileTail key={fileIndex}>
+              <TableIndex key="file-index">
+                {fileIndex + 1}
+              </TableIndex>
               <td key="file-progress">
                 <FileDecode status={file?.status} />
               </td>
               <td key="file-name">
                 {file.name}
               </td>
-              <td key="file-delete">
+              <RowRemove key="file-delete">
                 <RemoveFileButton onClick={() => {
                   onRemoveFileClick({ file, fileIndex });
                 }} />
-              </td>
+              </RowRemove>
             </FileTail>
           );
         }) : ''}

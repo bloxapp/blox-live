@@ -150,23 +150,20 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
       return;
     }
     displayKeyStoreError({status: false, message: ''});
+    files.map((file: any) => {
+      // eslint-disable-next-line no-param-reassign
+      file.status = DECODE_STATUS.IN_PROGRESS;
+      return file;
+    });
     let newFileList = [...keyStores, ...files];
 
     newFileList = newFileList.filter((v, i, a) => a.findIndex(t => (t.name === v.name)) === i);
 
     if (newFileList.length > 100) {
-      newFileList.splice(100, newFileList.length);
       displayKeyStoreError({status: true, message: 'You can’t run more than 100 validators per account.'});
-      setTimeout(() => {
-        displayKeyStoreError({status: false, message: ''});
-      }, 5000);
+      return;
     }
 
-    newFileList.map((file: any) => {
-      // eslint-disable-next-line no-param-reassign
-      file.status = DECODE_STATUS.IN_PROGRESS;
-      return file;
-    });
     uploadKeyStores(newFileList);
   };
 
@@ -263,6 +260,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
       <DropZone
         onFiles={onFilesSelected}
         disabled={isDecryptingKeyStores}
+        containerStyle={{maxHeight: '200px'}}
       />
 
       {renderCommonError()}

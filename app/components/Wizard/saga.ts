@@ -5,6 +5,7 @@ import WalletService from '~app/backend/services/wallet/wallet.service';
 import { getDecryptedKeyStores } from '~app/components/Wizard/selectors';
 import AccountService from '~app/backend/services/account/account.service';
 import { extractKeyStores } from '~app/components/Wizard/helpers/decreyptKeyStores';
+import { decryptKeyStoresSuccess, decryptKeyStoresFailure } from '~app/components/Wizard/actions';
 import {
   LOAD_WALLET,
   LOAD_DEPOSIT_DATA,

@@ -17,7 +17,7 @@ export default class SeedLess implements Strategy {
       --private-key=${inputData} \
       --index-from=${index} \
       --network=${network} \
-      ${object && '--response-type=object'} \
+      ${object ? '--response-type=object' : ''} \
       --highest-source=${highestSource} \
       --highest-target=${highestTarget} \
       --highest-proposal=${highestProposal}`;

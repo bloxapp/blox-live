@@ -254,6 +254,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
       <SelectedFilesTable
         onRemoveFile={removeFile}
         keyStores={keyStores ?? []}
+        style={{maxHeight: '200px'}}
         isDecryptingKeyStores={isDecryptingKeyStores}
       />
 
