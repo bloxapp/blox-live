@@ -184,6 +184,9 @@ export default class KeyVaultService {
       `docker pull  ${dockerHubImage} && docker run -d --restart unless-stopped --cap-add=IPC_LOCK --name=key_vault ` +
       '-v $(pwd)/data:/data ' +
       '-v $(pwd)/policies:/policies ' +
+      '--log-driver json-file ' +
+      '--log-opt max-size=10m ' +
+      '--log-opt max-file=3 ' +
       '-p 8200:8200 ' +
       `-e VAULT_EXTERNAL_ADDRESS='${Connection.db(this.storePrefix).get('publicIp')}' ` +
       '-e UNSEAL=true ' +
@@ -218,7 +221,11 @@ export default class KeyVaultService {
     const dockerHubImage = `bloxstaking/key-vault${envKey === 'production' ? '' : '-rc'}:${keyVaultVersion}`;
     this.logger.info(`Going to run docker based on ${dockerHubImage} keyvault image`);
     const dockerCMD =
-      `docker pull ${dockerHubImage} && docker run -d --name=upgrade_key_vault ${dockerHubImage} && ` +
+      `docker pull ${dockerHubImage} &&` +
+      `docker run -d --name=upgrade_key_vault ${dockerHubImage} ` +
+      '--log-driver json-file ' +
+      '--log-opt max-size=10m ' +
+      '--log-opt max-file=3 && ' +
       'docker cp upgrade_key_vault:/vault/plugins/ethsign ./ &&' +
       'docker cp ethsign key_vault:/vault/plugins/';
     const vaultCMD =
