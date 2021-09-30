@@ -293,31 +293,6 @@ export default class AccountService {
     Connection.db(this.storePrefix).set(`keyVaultStorage.${network}`, storage);
   }
 
-  @Step({
-    name: 'Restore Accounts'
-  })
-  @Catch({
-    displayMessage: 'CLI Create Account failed'
-  })
-  async restoreAccounts({ inputData }: { inputData?: string }): Promise<void> {
-    const supportedNetworks = [config.TESTNET_NETWORK, config.env.MAINNET_NETWORK];
-
-    const indices = Connection.db(this.storePrefix).get('index');
-    if (indices) {
-      // eslint-disable-next-line no-restricted-syntax
-      for (const [network, lastIndex] of Object.entries(indices)) {
-        if (supportedNetworks.indexOf(network) > -1) {
-          const index = +lastIndex;
-          if (index > -1) {
-            Connection.db(this.storePrefix).set('network', network);
-            // eslint-disable-next-line no-await-in-loop
-            await this.createAccount({ indexToRestore: index, inputData });
-          }
-        }
-      }
-    }
-  }
-
   async getNextIndex(network: string): Promise<number> {
     let index = 0;
     this.logger.debug('try getIndex...');
@@ -433,6 +408,34 @@ export default class AccountService {
         const networkPrivateKeys = typeof (inputData) === 'object' ? inputData[String(network)] : inputData;
         // eslint-disable-next-line no-await-in-loop
         await this.createAccount({ indexToRestore: +lastIndex, inputData: networkPrivateKeys });
+    }
+  }
+
+  /*
+    @deprecated
+  */
+  @Step({
+    name: 'Restore Accounts'
+  })
+  @Catch({
+    displayMessage: 'CLI Create Account failed'
+  })
+  async restoreAccounts({ inputData }: { inputData?: string }): Promise<void> {
+    const supportedNetworks = [config.TESTNET_NETWORK, config.env.MAINNET_NETWORK];
+
+    const indices = Connection.db(this.storePrefix).get('index');
+    if (indices) {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const [network, lastIndex] of Object.entries(indices)) {
+        if (supportedNetworks.indexOf(network) > -1) {
+          const index = +lastIndex;
+          if (index > -1) {
+            Connection.db(this.storePrefix).set('network', network);
+            // eslint-disable-next-line no-await-in-loop
+            await this.createAccount({ indexToRestore: index, inputData });
+          }
+        }
+      }
     }
   }
 
