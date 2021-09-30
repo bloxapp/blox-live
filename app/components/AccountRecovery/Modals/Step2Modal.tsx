@@ -6,6 +6,7 @@ import useCreateServer from '~app/common/hooks/useCreateServer';
 import { getAccounts } from '~app/components/Accounts/selectors';
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
 import Connection from '~app/backend/common/store-manager/connection';
+import { getInputData } from '~app/utils/getInputDataForProccess';
 import * as actionsFromKeyvault from '~app/components/KeyVaultManagement/actions';
 import * as keyvaultSelectors from '~app/components/KeyVaultManagement/selectors';
 import { Title, Description } from '~app/common/components/ModalTemplate/components';
@@ -49,30 +50,9 @@ const Step2Modal = (props: Props) => {
   const onStart = () => onClick();
   // In Seedless mode provide extracted keystore data to the process
 
-  const getInputData = () => {
-    if (!isSeedless) {
-      return Connection.db('').get('seed');
-    }
-    const inputData = {};
-    for (let accountIndex = 0; accountIndex < accounts.length; accountIndex += 1) {
-      const accountPublicKey = accounts[accountIndex].publicKey.substr(2);
-      const accountNetwork = accounts[accountIndex].network;
-      inputData[accountNetwork] = inputData[accountNetwork] || '';
-      for (let keystoreIndex = 0; keystoreIndex < decryptedKeyStores.length; keystoreIndex += 1) {
-        const keyStore = decryptedKeyStores[keystoreIndex];
-        if (accountPublicKey === keyStore.publicKey && inputData[accountNetwork].indexOf(keyStore.privateKey) === -1) {
-          console.debug('Should add keyStore.privateKey', keyStore.privateKey, 'to the network', accountNetwork);
-          inputData[accountNetwork] = `${inputData[accountNetwork]},${keyStore.privateKey}`;
-        }
-      }
-      inputData[accountNetwork] = inputData[accountNetwork].replace(/^[,]+/, '').replace(/[,]+$/, '');
-    }
-    return inputData;
-  };
-
   const { accessKeyId, setAccessKeyId, secretAccessKey, setSecretAccessKey,
           onStartProcessClick, isPasswordInputDisabled, isButtonDisabled
-        } = useCreateServer({ onStart, inputData: getInputData() });
+        } = useCreateServer({ onStart, inputData: getInputData({isSeedless, accounts, decryptedKeyStores}) });
 
   const onButtonClick = () => validateAwsKeys({ accessKeyId, secretAccessKey });
 

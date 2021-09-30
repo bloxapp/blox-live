@@ -6,9 +6,20 @@ import {
   ThankYouModal
 } from '~app/components/KeyVaultModals';
 import activeImage from '../Wizard/assets/img-key-vault.svg';
+import * as SeedlessModals from '~app/components/AccountRecovery/SeedlessModals';
+import {selectedKeystoreMode} from '~app/common/service';
+import * as wizardSelectors from '../Wizard/selectors';
+import * as keyVaultSelectors from '../KeyVaultManagement/selectors';
+import {connect} from 'react-redux';
+import {getProcessNameForUpdate} from '../../utils/process';
+const { SeedlessKeystoreStepModal, SeedlessSummaryStepModal } = SeedlessModals;
 
-const KeyVaultUpdate = ({onSuccess, onClose}: Props) => {
-  const [step, setStep] = useState(1);
+const KeyVaultUpdate = ({onSuccess, onClose, keyVaultCurrentVersion, keyVaultLatestVersion}: Props) => {
+  const isFullReinstall = () => {
+    return getProcessNameForUpdate(keyVaultCurrentVersion, keyVaultLatestVersion) === 'reinstall';
+  };
+
+  const [step, setStep] = useState(isFullReinstall() && selectedKeystoreMode() ? -1 : 1);
   const move1StepForward = () => setStep(step + 1);
   const move2StepsForward = () => setStep(step + 2);
   const defaultDialog = (
@@ -19,7 +30,12 @@ const KeyVaultUpdate = ({onSuccess, onClose}: Props) => {
       image={activeImage}
     />
   );
+
   switch (step) {
+    case -1:
+      return <SeedlessKeystoreStepModal onClose={onClose} onClick={() => { setStep(-2); }} />;
+    case -2:
+      return <SeedlessSummaryStepModal onClick={() => { setStep(1); }} goBack={() => { setStep(-1); }} />;
     case 1:
       return defaultDialog;
     case 2:
@@ -36,6 +52,15 @@ const KeyVaultUpdate = ({onSuccess, onClose}: Props) => {
 type Props = {
   onSuccess: () => void;
   onClose: () => void;
+  keyVaultCurrentVersion: string;
+  keyVaultLatestVersion: string;
 };
 
-export default KeyVaultUpdate;
+const mapStateToProps = (state: State) => ({
+  keyVaultCurrentVersion: wizardSelectors.getWalletVersion(state),
+  keyVaultLatestVersion: keyVaultSelectors.getLatestVersion(state),
+});
+
+type State = Record<string, any>;
+
+export default connect(mapStateToProps, null)(KeyVaultUpdate);

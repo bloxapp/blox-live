@@ -123,15 +123,26 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
     setDisplayDepositedConfirmation(allValidatorsHaveSameStatus && !allDeposited);
     setContinueButtonDisabled(!((isValidatorsOfflineCheckbox || !displayDepositedConfirmation) && isAgreementReadCheckbox && allValidatorsHaveSameStatus));
 
-    if (publicKeys.length > 0) { bloxApi.request('GET', `/ethereum2/validators-deposits/?network=${network}&publicKeys=${publicKeys.join(',')}`).then((deposits: any) => {
-      const newValidatorsStatuses = validators.map((validator) => {
-        const newValidator = { ...validator};
-        newValidator.deposited = !!deposits[validator.publicKey];
-        return newValidator;
+    if (publicKeys.length > 0) {
+      bloxApi.request('GET', `/ethereum2/validators-deposits/?network=${network}&publicKeys=${publicKeys.join(',')}`).then((deposits: any) => {
+        const newValidatorsStatuses = validators.map((validator) => {
+          const newValidator = {...validator};
+          newValidator.deposited = !!deposits[validator.publicKey];
+          return newValidator;
+        });
+        setValidators(newValidatorsStatuses);
+        setLoadingStatuses(false);
+      }).catch(() => {
+        // In case we fail to fetch statues from Bloxcha we mark everything as deposited
+        const newValidatorsStatuses = validators.map((validator) => {
+          const newValidator = {...validator};
+          newValidator.deposited = true;
+          return newValidator;
+        });
+        setValidators(newValidatorsStatuses);
+        setLoadingStatuses(false);
       });
-      setValidators(newValidatorsStatuses);
-      setLoadingStatuses(false);
-    }); }
+    }
     onPageClick(0);
   }, [validators, allDeposited, isAgreementReadCheckbox, isValidatorsOfflineCheckbox, allValidatorsHaveSameStatus, displayDepositedConfirmation]);
 
@@ -196,7 +207,7 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
       </TableWrapper>
       {!allValidatorsHaveSameStatus && <Warning style={{maxWidth: '100%', marginTop: '20px'}} text={notTheSameError} />}
 
-      {(!loadingStatuses && allValidatorsHaveSameStatus) &&
+      {(!loadingStatuses && allValidatorsHaveSameStatus) && (
       <>
         <Checkbox
           checked={isAgreementReadCheckbox}
@@ -222,7 +233,7 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
           </Link>
         </Checkbox>
 
-      {displayDepositedConfirmation && (
+        {displayDepositedConfirmation && (
         <Checkbox
           checked={isValidatorsOfflineCheckbox}
           onClick={() => {
@@ -245,8 +256,8 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
           </Button>
           {isLoading && (
             <ProgressWrapper>
-              <ProcessLoader text={processMessage} precentage={loaderPercentage}/>
-              <SmallText withWarning/>
+              <ProcessLoader text={processMessage} precentage={loaderPercentage} />
+              <SmallText withWarning />
             </ProgressWrapper>
           )}
           {error && (
@@ -256,7 +267,7 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
           )}
         </ButtonWrapper>
       </>
-      }
+    )}
     </Wrapper>
   );
 };
