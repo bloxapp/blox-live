@@ -177,7 +177,10 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
 
   const decryptFiles = async () => {
     const hashExistingPublicKeys = {};
-    accounts.forEach(({publicKey}) => hashExistingPublicKeys[publicKey] = true);
+    accounts.forEach(({publicKey}) => {
+      hashExistingPublicKeys[publicKey] = true;
+      return true;
+    });
     const isCreation = true;
     decryptKeyStores({keyStores, password, incrementFilesDecryptedCounter, hashExistingPublicKeys, isCreation});
     setGoToNextPage(true);

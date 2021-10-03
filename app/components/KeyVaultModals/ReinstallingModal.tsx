@@ -15,8 +15,8 @@ import {
   Wrapper
 } from '~app/common/components/ModalTemplate/components';
 import { getAccounts } from '~app/components/Accounts/selectors';
-import {getDecryptedKeyStores, getWalletSeedlessFlag} from '~app/components/Wizard/selectors';
 import * as keyVaultSelectors from '~app/components/KeyVaultManagement/selectors';
+import { getDecryptedKeyStores, getWalletSeedlessFlag } from '~app/components/Wizard/selectors';
 
 const logger = new Log('ReinstallingModal');
 

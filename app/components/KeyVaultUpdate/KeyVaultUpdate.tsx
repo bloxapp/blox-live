@@ -1,17 +1,14 @@
 import React, { useState } from 'react';
-import {
-  SuccessModal,
-  ReinstallingModal,
-  FailureModal,
-  ThankYouModal
-} from '~app/components/KeyVaultModals';
-import activeImage from '../Wizard/assets/img-key-vault.svg';
+import { connect } from 'react-redux';
+import { selectedKeystoreMode } from '~app/common/service';
+import { getProcessNameForUpdate } from '~app/utils/process';
+import * as wizardSelectors from '~app/components/Wizard/selectors';
 import * as SeedlessModals from '~app/components/AccountRecovery/SeedlessModals';
-import {selectedKeystoreMode} from '~app/common/service';
-import * as wizardSelectors from '../Wizard/selectors';
-import * as keyVaultSelectors from '../KeyVaultManagement/selectors';
-import {connect} from 'react-redux';
-import {getProcessNameForUpdate} from '../../utils/process';
+import * as keyVaultSelectors from '~app/components/KeyVaultManagement/selectors';
+import { SuccessModal, ReinstallingModal, FailureModal, ThankYouModal } from '~app/components/KeyVaultModals';
+// @ts-ignore
+import activeImage from '../Wizard/assets/img-key-vault.svg';
+
 const { SeedlessKeystoreStepModal, SeedlessSummaryStepModal } = SeedlessModals;
 
 const KeyVaultUpdate = ({onSuccess, onClose, keyVaultCurrentVersion, keyVaultLatestVersion}: Props) => {
