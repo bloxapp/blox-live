@@ -103,6 +103,7 @@ const SlashingWarning = (props: SlashingWarningProps) => {
   return (
     <Wrapper>
       <BackButton onClick={() => {
+        if ((isDone && account) || isLoading) return;
         setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
         setPage(config.WIZARD_PAGES.VALIDATOR.VALIDATOR_SUMMARY);
       }} />

@@ -16,7 +16,7 @@ import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 import { NETWORKS } from '~app/components/Wizard/components/Validators/constants';
 import { getIdToken } from '~app/components/Login/components/CallbackPage/selectors';
 import { getNetwork, getDecryptedKeyStores } from '~app/components/Wizard/selectors';
-import { Title, Paragraph, BackButton } from '~app/components/Wizard/components/common';
+import { Title, Paragraph } from '~app/components/Wizard/components/common';
 import { MainNetKeyStoreText } from '~app/components/Wizard/components/Validators/StakingDeposit/components';
 import MoveToBrowserModal from '~app/components/Wizard/components/Validators/StakingDeposit/components/MoveToBrowserModal';
 
@@ -69,7 +69,7 @@ const bloxApi = new BloxApi();
 bloxApi.init();
 
 const DepositOverview = (props: ValidatorsSummaryProps) => {
-  const { setPage, setStep, decryptedKeyStores, idToken, wizardActions, network, setPageData } = props;
+  const { setPage, decryptedKeyStores, idToken, wizardActions, network, setPageData } = props;
   const { clearDecryptKeyStores } = wizardActions;
   const { processData, clearProcessState } = useProcessRunner();
   const { loadDataAfterNewAccount } = useDashboardData();
@@ -123,11 +123,6 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
 
   return (
     <Wrapper>
-      <BackButton onClick={() => {
-        setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
-        setPage(config.WIZARD_PAGES.VALIDATOR.VALIDATOR_SUMMARY);
-        clearProcessState();
-      }} />
       <Title>{NETWORKS[network].name} Staking Deposit</Title>
       <Paragraph style={{ marginBottom: 5 }}>
         To start staking, first, you&apos;ll need to make a deposit:
@@ -172,7 +167,6 @@ type ValidatorsSummaryProps = {
   network: string;
   decryptedKeyStores: any;
   setPage: (page: number) => void;
-  setStep: (page: number) => void;
   setPageData: (data: any) => void;
   wizardActions: Record<string, any>;
 };
