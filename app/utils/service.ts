@@ -22,7 +22,7 @@ export const precentageCalculator = (current, overall) => {
   if (current === 0 || overall === 0) {
     return 0;
   }
-  return Number(((current / overall) * 100).toFixed(0), 2);
+  return Number(((current / overall) * 100).toFixed(0));
 };
 
 export const lastDateFormat = (utcDate) => {
@@ -84,4 +84,18 @@ export const isVersionHigherOrEqual = (current, defaultValue) => {
     .replace(pattern, '');
 
   return +current >= +defaultValue;
+};
+
+export const isVersionHigher = (current, compareWith) => {
+  const pattern = /(?<=\..*)\./g;
+  // eslint-disable-next-line no-param-reassign
+  current = current
+    .replace('v', '')
+    .replace(pattern, '');
+  // eslint-disable-next-line no-param-reassign
+  compareWith = compareWith
+    .replace('v', '')
+    .replace(pattern, '');
+
+  return +current > +compareWith;
 };

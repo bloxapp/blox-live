@@ -1,13 +1,13 @@
 import Web3 from 'web3';
-import {hexDecode} from '~app/utils/service';
 import config from '~app/backend/common/config';
-import {Catch, Step} from '~app/backend/decorators';
-import {Log} from '~app/backend/common/logger/logger';
-import {selectedKeystoreMode} from '~app/common/service';
+import { Catch, Step } from '~app/backend/decorators';
+import { Log } from '~app/backend/common/logger/logger';
+import { selectedKeystoreMode } from '~app/common/service';
+import { isVersionHigher, hexDecode } from '~app/utils/service';
 import Connection from '~app/backend/common/store-manager/connection';
 import WalletService from '~app/backend/services/wallet/wallet.service';
 import BloxApi from '~app/backend/common/communication-manager/blox-api';
-import {METHOD} from '~app/backend/common/communication-manager/constants';
+import { METHOD } from '~app/backend/common/communication-manager/constants';
 import KeyVaultService from '~app/backend/services/key-vault/key-vault.service';
 import BeaconchaApi from '~app/backend/common/communication-manager/beaconcha-api';
 import KeyManagerService from '~app/backend/services/key-manager/key-manager.service';
@@ -411,9 +411,6 @@ export default class AccountService {
     }
   }
 
-  /*
-    @deprecated
-  */
   @Step({
     name: 'Restore Accounts'
   })
@@ -421,7 +418,12 @@ export default class AccountService {
     displayMessage: 'CLI Create Account failed'
   })
   async restoreAccounts({ inputData }: { inputData?: string }): Promise<void> {
-    const supportedNetworks = [config.TESTNET_NETWORK, config.env.MAINNET_NETWORK];
+    const keyVaultVersion = Connection.db().get('keyVaultVersion');
+    const supportedNetworks = [config.env.MAINNET_NETWORK];
+
+    if (isVersionHigher(keyVaultVersion, 'v1.1.1')) {
+      supportedNetworks.push(config.env.PRATER_NETWORK);
+    }
 
     const indices = Connection.db(this.storePrefix).get('index');
     if (indices) {
