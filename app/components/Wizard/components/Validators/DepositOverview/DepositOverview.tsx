@@ -69,7 +69,7 @@ const bloxApi = new BloxApi();
 bloxApi.init();
 
 const DepositOverview = (props: ValidatorsSummaryProps) => {
-  const { setPage, setStep, decryptedKeyStores, idToken, wizardActions, network, setPageData, pageData } = props;
+  const { setPage, setStep, decryptedKeyStores, idToken, wizardActions, network, setPageData } = props;
   const { clearDecryptKeyStores } = wizardActions;
   const { processData, clearProcessState } = useProcessRunner();
   const { loadDataAfterNewAccount } = useDashboardData();

@@ -64,7 +64,6 @@ const AppRouter = ({ isLoggedIn }: AppRouterProps) => {
 
 const AppWrapper = styled.div`
   margin: 0 auto;
-  border-radius: 20px;
   height: 100%;
   overflow: hidden;
   overflow-y: scroll;
