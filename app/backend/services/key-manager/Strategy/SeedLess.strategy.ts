@@ -13,9 +13,9 @@ export default class SeedLess implements Strategy {
     const {highestSource, highestTarget, highestProposal} = this.getHighestValues({index, inputData});
 
     return `${this.executablePath} \
-      wallet account create-seedless \
+      wallet account create \
       --private-key=${inputData} \
-      --index-from=${index} \
+      --index=${index} \
       --network=${network} \
       ${object ? '--response-type=object' : ''} \
       --highest-source=${highestSource} \
