@@ -89,15 +89,20 @@ const StakingDeposit = (props: Props) => {
       if ('account_id' in obj) {
         clearDecryptKeyStores();
         clearDecryptProgress();
-        callSetDepositNeeded({
-          isNeeded: false,
-          publicKey: '',
-          accountIndex: -1,
-          network: ''
-        });
-        loadDataAfterNewAccount().then(() => {
-          setPage(config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS);
-        });
+        const depositedValidator = obj.account_id;
+        if (depositedValidator) {
+          callSetDepositNeeded({
+            isNeeded: false,
+            publicKey: '',
+            accountIndex: -1,
+            network: ''
+          });
+          loadDataAfterNewAccount().then(() => {
+            setPage(config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS);
+          });
+        } else {
+          goToPage(ROUTES.DASHBOARD);
+        }
       }
     }, (e) => notification.error({ message: e }));
     return () => cleanDeepLink();

@@ -42,7 +42,7 @@ const SeedlessSummaryStepModal = (props: SeedlessSummaryStepModalProps) => {
     wizardActions,
     decryptedKeyStores
   } = props;
-  const { uploadKeyStores, clearDecryptProgress } = wizardActions;
+  const { clearDecryptProgress } = wizardActions;
   const warningStyle = { maxWidth: '100%', marginTop: 20, width: '100%' };
   const commonWarningStyle = { ...warningStyle, marginTop: 20, marginBottom: 20 };
   const [allKeystoresUploaded, setAllKeystoresUploaded] = useState(true);
@@ -75,7 +75,6 @@ const SeedlessSummaryStepModal = (props: SeedlessSummaryStepModalProps) => {
   };
 
   const onUploadClick = () => {
-    uploadKeyStores([]);
     clearDecryptProgress();
     goBack && goBack();
   };
@@ -108,7 +107,7 @@ const SeedlessSummaryStepModal = (props: SeedlessSummaryStepModalProps) => {
 
   return (
     <ModalTemplate
-      width="900px"
+      width="1000px"
       image={recoveryImage}
       justifyContent={'initial'}
       padding={'30px 32px 30px 64px'}

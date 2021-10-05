@@ -8,6 +8,7 @@ import { Checkbox } from '~app/common/components';
 import ProcessLoader from '~app/common/components/ProcessLoader';
 import { openExternalLink } from '~app/components/common/service';
 import * as actionsFromWizard from '~app/components/Wizard/actions';
+import * as actionsFromAccount from '~app/components/Accounts/actions';
 import { handlePageClick } from '~app/common/components/Table/service';
 import BloxApi from '~app/backend/common/communication-manager/blox-api';
 import {SmallText} from '~app/common/components/ModalTemplate/components';
@@ -62,8 +63,9 @@ const ProgressWrapper = styled.div`
 const bloxApi = new BloxApi();
 const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
-  const { setPage, setStep, network, wizardActions, decryptedKeyStores } = props;
+  const { setPage, setStep, network, wizardActions, decryptedKeyStores, accountActions } = props;
   const { clearDecryptKeyStores, clearDecryptProgress } = wizardActions;
+  const { setSeedlessDepositNeeded } = accountActions;
   const [validators, setValidators] = useState(decryptedKeyStores);
   const [allDeposited, setAllDeposited] = useState(false);
   const [pagedValidators, setPagedValidators] = useState([]);
@@ -123,20 +125,17 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
     setDisplayDepositedConfirmation(allValidatorsHaveSameStatus && !allDeposited);
     setContinueButtonDisabled(!((isValidatorsOfflineCheckbox || !displayDepositedConfirmation) && isAgreementReadCheckbox && allValidatorsHaveSameStatus));
 
+    if (depositedCount > 0) {
+      setSeedlessDepositNeeded(true);
+    } else {
+      setSeedlessDepositNeeded(false);
+    }
+
     if (publicKeys.length > 0) {
-      bloxApi.request('GET', `/ethereum2/validators-deposits/?network=${network}&publicKeys=${publicKeys.join(',')}`).then((deposits: any) => {
+      bloxApi.request('GET', `/ethereum2/validators-deposits/?network=${network}&publicKeys=${publicKeys.join(',')}`).then((response: any) => {
         const newValidatorsStatuses = validators.map((validator) => {
           const newValidator = {...validator};
-          newValidator.deposited = !!deposits[validator.publicKey];
-          return newValidator;
-        });
-        setValidators(newValidatorsStatuses);
-        setLoadingStatuses(false);
-      }).catch(() => {
-        // In case we fail to fetch statues from Bloxcha we mark everything as deposited
-        const newValidatorsStatuses = validators.map((validator) => {
-          const newValidator = {...validator};
-          newValidator.deposited = true;
+          newValidator.deposited = response.error ? true : !!response[validator.publicKey];
           return newValidator;
         });
         setValidators(newValidatorsStatuses);
@@ -180,6 +179,7 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
         }
         if (error || isDone) {
           clearProcessState();
+          clearDecryptKeyStores();
           clearDecryptProgress();
         }
       }} />
@@ -284,6 +284,7 @@ type ValidatorsSummaryProps = {
   setStep: (page: number) => void;
   setPageData: (data: any) => void;
   wizardActions: Record<string, any>;
+  accountActions: Record<string, any>;
 };
 
 const mapStateToProps = (state: any) => ({
@@ -294,6 +295,7 @@ const mapStateToProps = (state: any) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   wizardActions: bindActionCreators(actionsFromWizard, dispatch),
+  accountActions: bindActionCreators(actionsFromAccount, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ValidatorsSummary);

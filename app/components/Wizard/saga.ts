@@ -5,7 +5,6 @@ import WalletService from '~app/backend/services/wallet/wallet.service';
 import { getDecryptedKeyStores } from '~app/components/Wizard/selectors';
 import AccountService from '~app/backend/services/account/account.service';
 import { extractKeyStores } from '~app/components/Wizard/helpers/decreyptKeyStores';
-import { decryptKeyStoresSuccess, decryptKeyStoresFailure } from '~app/components/Wizard/actions';
 import {
   LOAD_WALLET,
   LOAD_DEPOSIT_DATA,
@@ -95,13 +94,24 @@ function* onDecryptFailure(error, silent?: boolean) {
 
 function* startDecryptKeyStores(action) {
   const {payload} = action;
-  const {keyStores, password, incrementFilesDecryptedCounter, hashExistingPublicKeys, isCreation} = payload;
+  const {keyStores, keystoreDecrypted, password, incrementFilesDecryptedCounter, hashExistingPublicKeys, actionFlow} = payload;
   try {
+    console.log(keystoreDecrypted);
     const decryptedKeyStores = yield select(getDecryptedKeyStores);
-    const keyStoresData = yield call(extractKeyStores, decryptedKeyStores, keyStores, password, incrementFilesDecryptedCounter, hashExistingPublicKeys, isCreation);
+    console.log(decryptedKeyStores);
+    const keyStoresData = yield call(extractKeyStores, {
+      decryptedKeyStores,
+      keyStoresFiles: keyStores,
+      password,
+      callBack: incrementFilesDecryptedCounter,
+      hashExistingPublicKeys,
+      actionFlow
+    });
+    console.log(keystoreDecrypted);
     yield call(onDecryptSuccess, keyStoresData);
     incrementFilesDecryptedCounter(0);
   } catch (error) {
+    console.log(error);
     yield call(onDecryptFailure, error);
   }
 }

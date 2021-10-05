@@ -7,6 +7,7 @@ const initialState = {
   error: null,
   data: null,
   addAnotherAccount: false,
+  seedlessDepositNeeded: null,
   depositNeededData: {
     isNeeded: false,
     publicKey: '',
@@ -37,6 +38,10 @@ const accountsReducer = (state = initialState, action: Action) => produce(state,
         break;
       case actionTypes.ADD_ANOTHER_ACCOUNT:
         draft.addAnotherAccount = action.payload;
+        break;
+      case actionTypes.SET_SEEDLESS_DEPOSIT_NEEDED:
+        console.log('asdkjasndkjhasjkdhasjkdhasjkhdasjkhdahjka');
+        draft.seedlessDepositNeeded = action.payload;
         break;
       case actionTypes.CLEAR_DATA:
       case LOGOUT:

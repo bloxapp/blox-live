@@ -7,7 +7,7 @@ import config from '~app/backend/common/config';
 import useRouting from '~app/common/hooks/useRouting';
 import * as actionsFromWizard from '~app/components/Wizard/actions';
 import * as actionsFromAccounts from '~app/components/Accounts/actions';
-import { getAddAnotherAccount } from '~app/components/Accounts/selectors';
+import {getAddAnotherAccount, getSeedlessDepositNeededStatus} from '~app/components/Accounts/selectors';
 import useDashboardData from '~app/components/Dashboard/useDashboardData';
 import { getWizardFinishedStatus } from '~app/components/Wizard/selectors';
 import { contentAnimation } from '~app/components/Wizard/components/common';
@@ -129,6 +129,7 @@ const Template = (props: Props) => {
 const mapStateToProps = (state) => ({
   isFinishedWizard: getWizardFinishedStatus(state),
   addAnotherAccount: getAddAnotherAccount(state),
+  seedLessNeedDeposit: getSeedlessDepositNeededStatus(state),
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -149,6 +150,7 @@ type Props = {
   accountsActions: Record<string, any>;
   isFinishedWizard: boolean;
   addAnotherAccount: boolean;
+  seedLessNeedDeposit: boolean;
   accounts: any;
 };
 

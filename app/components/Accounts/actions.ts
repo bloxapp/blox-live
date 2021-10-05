@@ -13,13 +13,18 @@ export const loadAccountsFailure = (error: Record<string, any>) => ({
   payload: !_.isEmpty(error) ? { ...error } : null
 });
 
-export const setDepositNeeded = (payload: DepositNeededPayload) => ({
+export const setDepositNeeded = (payload: boolean) => ({
   type: actionTypes.SET_DEPOSIT_NEEDED, payload
 });
 
 export const setAddAnotherAccount = (addAnotherAccount: boolean) => ({
   type: actionTypes.ADD_ANOTHER_ACCOUNT,
   payload: addAnotherAccount
+});
+
+export const setSeedlessDepositNeeded = (needDeposit: boolean | null) => ({
+  type: actionTypes.SET_SEEDLESS_DEPOSIT_NEEDED,
+  payload: needDeposit
 });
 
 export const clearAccountsData = () => ({ type: actionTypes.CLEAR_DATA });

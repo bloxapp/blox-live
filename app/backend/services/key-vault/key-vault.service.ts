@@ -278,6 +278,7 @@ export default class KeyVaultService {
   })
   async updateVaultMountsStorage(): Promise<any> {
     const keyVaultStorage = Connection.db(this.storePrefix).get('keyVaultStorage');
+    console.log('<<<<<<<<<<<<<<<<<<<here>>>>>>>>>>>>>>>>>>>');
 
     if (keyVaultStorage) {
       // eslint-disable-next-line no-restricted-syntax

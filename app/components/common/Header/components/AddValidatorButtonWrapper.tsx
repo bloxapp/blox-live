@@ -20,7 +20,7 @@ const AddValidatorButtonWrapper = (props: AddValidatorButtonWrapperProps) => {
   const { dashboardActions, accountsActions, wizardActions, walletStatus,
     keyvaultCurrentVersion, keyvaultLatestVersion, children, style } = props;
   const { setModalDisplay, clearModalDisplayData } = dashboardActions;
-  const { setAddAnotherAccount } = accountsActions;
+  const { setAddAnotherAccount, setSeedlessDepositNeeded } = accountsActions;
   const { setFinishedWizard, setOpenedWizard, clearDecryptKeyStores, clearDecryptProgress } = wizardActions;
   const walletNeedsUpdate = keyvaultCurrentVersion !== keyvaultLatestVersion;
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
@@ -33,6 +33,7 @@ const AddValidatorButtonWrapper = (props: AddValidatorButtonWrapperProps) => {
   const createValidatorWizardActivator = () => {
     clearDecryptKeyStores();
     clearDecryptProgress();
+    setSeedlessDepositNeeded(null);
     setAddAnotherAccount(true);
     setFinishedWizard(false);
     setOpenedWizard(true);

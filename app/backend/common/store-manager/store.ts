@@ -62,12 +62,18 @@ export default class Store {
   get(key: string): any {
     const value = (this.storage && this.storage.get(key)) || this.baseStore.get(key);
     if (value && this.isEncryptedKey(key)) {
+      console.log('<<<<<<<<<<<<<<<<<<<<<<<is encrypted>>>>>>>>>>>>>>>>>>>>>>>');
       if (!this.cryptoKey) {
         throw new Error('Crypto key is null');
       }
       try {
+        console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<try>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+        console.log(key);
+        console.log(this.cryptoKey);
+        console.log(this.decrypt(this.cryptoKey, value));
         return this.decrypt(this.cryptoKey, value);
       } catch (e) {
+        console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<fail!!!!!!!!!!!!!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
         this.set(key, value);
       }
     }
@@ -197,7 +203,6 @@ export default class Store {
         await this.setCryptoKey('temp');
       }
       this.encryptedKeys.forEach((encryptedKey) => {
-        // TODO handle encrypted objects
         if (this.exists(encryptedKey)) {
           oldDecryptedKeys[encryptedKey] = this.get(encryptedKey);
         }

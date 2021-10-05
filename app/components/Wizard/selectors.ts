@@ -36,4 +36,4 @@ export const getShouldDisplayError = (state) => state.wizard && state.wizard.sho
 
 export const getIsDecryptingKeyStores = (state) => state.wizard && state.wizard.isDecryptingKeyStores;
 
-export const getDecryptedKeyStoresError = (state) => state.wizard && state.wizard.keyStoreErrorMessage;
+export const getDecryptedKeyStoresError = (state) => state.wizard && state.wizard.keyStoreErrorObject;

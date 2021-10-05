@@ -73,7 +73,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
     wizardActions,
     keyStores,
     shouldDisplayError,
-    errorMessage,
+    errorObject,
     decryptedFilesCount,
     isDecryptingKeyStores,
     decryptedKeyStores,
@@ -95,7 +95,14 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
     newKeyStores.map((keyStore: any) => {
       const isJson = keyStore.type === 'application/json';
       // eslint-disable-next-line no-param-reassign
-      keyStore.status = isJson ? 1 : 2;
+      if (keyStore.name === errorObject?.file || !isJson) {
+        // eslint-disable-next-line no-param-reassign
+        keyStore.status = 2;
+      } else {
+        // eslint-disable-next-line no-param-reassign
+        keyStore.status = 1;
+      }
+
       if (!isJson) {
         if (!corruptFileName) corruptFileName = keyStore.name;
         isAllFilesJson = false;
@@ -122,7 +129,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
     return () => {
       clearTimeout(updateStateTimeOut);
     };
-  }, [JSON.stringify(keyStores), decryptedFilesCount, goToNextPage, decryptedKeyStores]);
+  }, [JSON.stringify(keyStores), JSON.stringify(errorObject), decryptedFilesCount, goToNextPage, decryptedKeyStores]);
 
   // Password Error
   useEffect(() => {
@@ -160,7 +167,12 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
     newFileList = newFileList.filter((v, i, a) => a.findIndex(t => (t.name === v.name)) === i);
 
     if (newFileList.length > 100) {
-      displayKeyStoreError({status: true, message: 'You can’t run more than 100 validators per account.'});
+      displayKeyStoreError({status: true, message: 'You can’t upload more than 100 validators at once.'});
+      return;
+    }
+
+    if (accounts.length + newFileList.length > 500) {
+      displayKeyStoreError({status: true, message: 'You can’t run more than 500 validators per account (you already have %{accounts.length} of validators). To add more please contact our support.'});
       return;
     }
 
@@ -181,13 +193,16 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
       hashExistingPublicKeys[publicKey] = true;
       return true;
     });
-    const isCreation = true;
-    decryptKeyStores({keyStores, password, incrementFilesDecryptedCounter, hashExistingPublicKeys, isCreation});
+
+    const actionFlow = 'create';
+
+    decryptKeyStores({keyStores, password, incrementFilesDecryptedCounter, hashExistingPublicKeys, actionFlow});
     setGoToNextPage(true);
   };
 
   const clearKeyStores = () => {
     if (isDecryptingKeyStores) return;
+    setPassword('');
     uploadKeyStores([]);
   };
 
@@ -196,7 +211,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
       const warningStyle = {maxWidth: '100%', marginTop: '20px'};
       return (
         <Warning
-          text={errorMessage}
+          text={errorObject?.message}
           style={warningStyle}
         />
       );
@@ -287,7 +302,7 @@ type UploadKeystoreFileProps = {
   page: number;
   step: number;
   accounts: Array<any>;
-  errorMessage: string;
+  errorObject: any;
   keyStores: Array<any>;
   decryptedFilesCount: number;
   shouldDisplayError: boolean;
@@ -303,7 +318,7 @@ const mapStateToProps = (state: any) => ({
   network: getNetwork(state),
   accounts: getAccounts(state),
   keyStores: getKeyStores(state),
-  errorMessage: getDecryptedKeyStoresError(state),
+  errorObject: getDecryptedKeyStoresError(state),
   shouldDisplayError: getShouldDisplayError(state),
   decryptedFilesCount: getDecryptedFilesCount(state),
   decryptedKeyStores: getDecryptedKeyStores(state),

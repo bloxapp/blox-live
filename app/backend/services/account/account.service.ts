@@ -392,6 +392,9 @@ export default class AccountService {
     showErrorMessage: true
   })
   async recoverAccounts({ inputData }: { inputData?: any }): Promise<void> {
+    console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<recoverAccounts>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+    console.log(inputData);
+    console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<recoverAccounts>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     const accounts = await this.get();
     const uniqueNetworks = [...new Set(accounts.map(acc => acc.network))];
     // eslint-disable-next-line no-restricted-syntax

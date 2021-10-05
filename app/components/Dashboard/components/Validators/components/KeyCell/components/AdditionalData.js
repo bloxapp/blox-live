@@ -4,20 +4,21 @@ import PropTypes from 'prop-types';
 import useRouting from '~app/common/hooks/useRouting';
 import { setWizardPageData } from '~app/components/Wizard/actions';
 import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
-import { setAddAnotherAccount, setDepositNeeded } from '~app/components/Accounts/actions';
+import { setAddAnotherAccount, setDepositNeeded, setSeedlessDepositNeeded } from '~app/components/Accounts/actions';
 import Date from '~app/components/Dashboard/components/Validators/components/KeyCell/components/Date';
 import BlueButton from '~app/components/Dashboard/components/Validators/components/KeyCell/components/BlueButton';
 import WarningText from '~app/components/Dashboard/components/Validators/components/KeyCell/components/WarningText';
 
 const AdditionalData = (props) => {
   const { publicKey, status, createdAt, accountIndex, callSetWizardPageData,
-    callSetDepositNeeded, network, callSetAddAnotherAccount } = props;
+    callSetDepositNeeded, callSetSeedlessDepositNeeded, network, callSetAddAnotherAccount } = props;
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
   const { goToPage, ROUTES } = useRouting();
 
   const onFinishSetupClick = async () => {
     const onPasswordSuccess = async () => {
       await callSetAddAnotherAccount(false);
+      await callSetSeedlessDepositNeeded(null);
       await callSetWizardPageData({
         finishValidatorSetup: true
       });
@@ -65,6 +66,7 @@ AdditionalData.propTypes = {
   status: PropTypes.string,
   createdAt: PropTypes.string,
   callSetDepositNeeded: PropTypes.func,
+  callSetSeedlessDepositNeeded: PropTypes.func,
   callSetAddAnotherAccount: PropTypes.func,
   callSetWizardPageData: PropTypes.func,
 };
@@ -72,6 +74,7 @@ AdditionalData.propTypes = {
 const mapDispatchToProps = (dispatch) => ({
   callSetDepositNeeded: (payload) => dispatch(setDepositNeeded(payload)),
   callSetAddAnotherAccount: (payload) => dispatch(setAddAnotherAccount(payload)),
+  callSetSeedlessDepositNeeded: (payload) => dispatch(setSeedlessDepositNeeded(payload)),
   callSetWizardPageData: (payload) => dispatch(setWizardPageData(payload)),
 });
 

@@ -7,8 +7,18 @@ import EthereumKeyStore from 'eth2-keystore-js';
  * @param password
  * @param callBack
  */
-export const extractKeyStores = async (decryptedKeyStores: any[], keyStoresFiles: File[], password: string, callBack: any, hashExistingPublicKeys: string[], isCreation?: boolean) => {
-  const files = await readAllFiles(keyStoresFiles);
+
+type Props = {
+  decryptedKeyStores: any[],
+  keyStoresFiles: File[],
+  password: string,
+  callBack: any,
+  hashExistingPublicKeys: string[],
+  actionFlow?: string
+};
+export const extractKeyStores = async (props: Props) => {
+  const {decryptedKeyStores, keyStoresFiles, hashExistingPublicKeys, password, callBack, actionFlow} = props;
+  const files: any = await readAllFiles(keyStoresFiles);
   const keyStores = [];
   // eslint-disable-next-line guard-for-in,no-restricted-syntax
   for (const i in files) {
@@ -24,9 +34,14 @@ export const extractKeyStores = async (decryptedKeyStores: any[], keyStoresFiles
         }
       }
 
-      if (isCreation && hashExistingPublicKeys[`0x${keyStorePublicKey}`]) {
+      if (actionFlow === 'create' && hashExistingPublicKeys[`0x${keyStorePublicKey}`]) {
         throw Error(`Keystore: ${files[i].fileName} (${`0x${keyStorePublicKey.substr(0, 4)}...${keyStorePublicKey.substr(keyStorePublicKey.length - 4, 4)}`}) already exists in your account.`);
       }
+
+      if (actionFlow === 'recovery' && !hashExistingPublicKeys[`0x${keyStorePublicKey}`]) {
+        throw Error(`0x${keyStorePublicKey.substr(0, 4)}...${keyStorePublicKey.substr(keyStorePublicKey.length - 4, 4)} is not one of your validators. Please add it after recovering your account`);
+      }
+
       if (!keyStoreAlreadyDecrypted) {
         keyStores.push({
           // @ts-ignore
@@ -39,12 +54,18 @@ export const extractKeyStores = async (decryptedKeyStores: any[], keyStoresFiles
       }
       callBack(parseInt(i, 10) + 1);
     } catch (err) {
-      if (err && err.message !== 'Invalid keystore file password.') {
-        throw (err);
-      }
       console.error(err);
+      if (err.message === 'Invalid file type.') {
+        // eslint-disable-next-line @typescript-eslint/no-throw-literal
+        throw { message: `Invalid file ${files[i]?.fileName}`, file: files[i]?.fileName };
+      }
+      if (err && err.message !== 'Invalid keystore file password.') {
+        // eslint-disable-next-line @typescript-eslint/no-throw-literal
+        throw { message: err.message, file: files[i]?.fileName };
+      }
       // @ts-ignore
-      throw Error(`Invalid keystore file password (${files[i].fileName}) - only files with the same password are supported. You can always upload the rest later on.`);
+      // eslint-disable-next-line @typescript-eslint/no-throw-literal
+      throw ({ message: `Invalid keystore file password (${files[i].fileName}) - only files with the same password are supported. You can always upload the rest later on.`, file: files[i].fileName });
     }
   }
   return keyStores;

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
+import { MODAL_TYPES } from '~app/components/Dashboard/constants';
 import useCreatePassword from '~app/common/hooks/useCreatePassword';
 import Connection from '~app/backend/common/store-manager/connection';
 import { ModalTemplate, Button, PasswordInput } from '~app/common/components';
@@ -14,7 +15,7 @@ const ButtonWrapper = styled.div`
 `;
 
 const SeedlessPasswordStepModal = (props: SeedlessPasswordStepModalProps) => {
-  const { onClick } = props;
+  const { onClick, type } = props;
   const { password, setPassword, confirmPassword, setConfirmPassword, showPasswordError,
     showConfirmPasswordError, onPasswordBlur, onConfirmPasswordBlur } = useCreatePassword();
   const [savingPassword, setSavingPassword] = useState(false);
@@ -54,7 +55,12 @@ const SeedlessPasswordStepModal = (props: SeedlessPasswordStepModalProps) => {
       return;
     }
     setSavingPassword(true);
-    await Connection.db().setNewPassword(password);
+    if (type === MODAL_TYPES.FORGOT_PASSWORD) {
+      Connection.db().clear();
+      await Connection.db().setNewPassword(password, false);
+    } else {
+      await Connection.db().setNewPassword(password);
+    }
     onClick && onClick();
   };
 
@@ -67,7 +73,7 @@ const SeedlessPasswordStepModal = (props: SeedlessPasswordStepModalProps) => {
   return (
     <ModalTemplate
       image={image}
-      width="900px"
+      width="950px"
       height="560px"
       justifyContent={'initial'}
       padding={'30px 32px 30px 64px'}

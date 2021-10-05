@@ -33,7 +33,7 @@ const debugPageAndStep = (_page: number, _step: number) => {
 };
 
 const Navigation = (props: Props) => {
-  const { page, step, pageData, addAdditionalAccount, accounts } = props;
+  const { page, step, pageData, addAdditionalAccount, accounts, seedLessNeedDeposit } = props;
   const [shouldSetupPassword, setShouldSetupPassword] = useState(false);
 
   useEffect(() => {
@@ -49,6 +49,7 @@ const Navigation = (props: Props) => {
     addAdditionalAccount,
     accounts,
     shouldSetupPassword,
+    seedLessNeedDeposit
   };
 
   return (
@@ -107,6 +108,7 @@ type Props = {
   step: number;
   setStep: (page: number) => void;
   addAdditionalAccount: boolean;
+  seedLessNeedDeposit: boolean;
   accounts: any;
 };
 

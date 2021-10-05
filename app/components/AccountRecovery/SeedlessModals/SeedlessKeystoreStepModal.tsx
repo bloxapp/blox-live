@@ -17,6 +17,7 @@ import {
 
 // @ts-ignore
 import recoveryImage from 'assets/images/img-recovery.svg';
+import {getAccounts} from '../../Accounts/selectors';
 
 const UploadedFilesHeader = styled.div`
   font-size: 14px;
@@ -71,10 +72,11 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
     wizardActions,
     keyStores,
     shouldDisplayError,
-    errorMessage,
+    errorObject,
     decryptedFilesCount,
     isDecryptingKeyStores,
-    decryptedKeyStores
+    decryptedKeyStores,
+    accounts
   } = props;
   const { decryptKeyStores, uploadKeyStores, displayKeyStoreError, incrementFilesDecryptedCounter } = wizardActions;
   const [password, setPassword] = useState('');
@@ -90,17 +92,37 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
     }
     const newKeyStores = [...keyStores];
     let isAllFilesJson = true;
+    let corruptFileName;
     newKeyStores.map((keyStore: any) => {
       const isJson = keyStore.type === 'application/json';
       // eslint-disable-next-line no-param-reassign
-      keyStore.status = isJson ? 1 : 2;
+      if (keyStore.name === errorObject?.file || !isJson) {
+        // eslint-disable-next-line no-param-reassign
+        keyStore.status = 2;
+      } else {
+        // eslint-disable-next-line no-param-reassign
+        keyStore.status = 1;
+      }
+
       if (!isJson) {
+        if (!corruptFileName) corruptFileName = keyStore.name;
         isAllFilesJson = false;
       }
       return keyStore;
     });
 
+    if (newKeyStores.length === 0) {
+      setPassword('');
+      displayKeyStoreError({status: false, message: ''});
+    }
+
     const updateStateTimeOut = setTimeout(() => {
+      if (!isAllFilesJson) {
+        displayKeyStoreError({
+          status: true,
+          message: <div>Invalid file format <strong>{corruptFileName}</strong> - only .json files are supported.</div>
+        });
+      }
       setAllFilesJson(isAllFilesJson);
       uploadKeyStores(newKeyStores);
     }, 1000);
@@ -108,16 +130,11 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
     return () => {
       clearTimeout(updateStateTimeOut);
     };
-  }, [keyStores.length, decryptedFilesCount, goToNextPage, decryptedKeyStores]);
+  }, [JSON.stringify(errorObject), JSON.stringify(keyStores), decryptedFilesCount, goToNextPage, decryptedKeyStores]);
 
   useEffect(() => {
-    const removeErrorMessage = setTimeout(() => {
-      displayKeyStoreError({ status: false, message: '' });
-    }, 3000);
-    return () => {
-      clearTimeout(removeErrorMessage);
-    };
-  }, [shouldDisplayError]);
+    setPasswordError((password && password?.length < 8) ? 'Password is too short' : '');
+  }, [password]);
 
   useEffect(() => {
     if (!isDecryptingKeyStores && decryptedFilesCount > 0 && decryptedFilesCount === keyStores.length) {
@@ -131,7 +148,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
     }
     let newFileList = [...files, ...keyStores];
     if (newFileList.length > 100) {
-      displayKeyStoreError({ status: true, message: 'You can’t run more than 100 validators per account.' });
+      displayKeyStoreError({ status: true, message: 'You can’t upload more than 100 validators at once.' });
       return;
     }
 
@@ -154,13 +171,22 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
   };
 
   const decryptFiles = async () => {
-    decryptKeyStores({ keyStores, password, incrementFilesDecryptedCounter });
+    const hashExistingPublicKeys = {};
+    accounts.forEach(({publicKey}) => {
+      hashExistingPublicKeys[publicKey] = true;
+      return true;
+    });
+
+    const actionFlow = 'recovery';
+
+    const keystoreDecrypted = decryptedKeyStores;
+    decryptKeyStores({keyStores, password, keystoreDecrypted, incrementFilesDecryptedCounter, hashExistingPublicKeys, actionFlow});
+    setGoToNextPage(true);
   };
 
   const clearKeyStores = () => {
-    if (isDecryptingKeyStores) {
-      return;
-    }
+    if (isDecryptingKeyStores) return;
+    setPassword('');
     uploadKeyStores([]);
   };
 
@@ -168,7 +194,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
     if (shouldDisplayError) {
       return (
         <Warning
-          text={errorMessage}
+          text={errorObject?.message}
           style={warningStyle}
         />
       );
@@ -177,9 +203,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
   };
 
   const renderPasswordInput = () => {
-    if (!keyStores.length) {
-      return '';
-    }
+    if (keyStores.length === 0) return '';
     const onBlur = (e: any) => {
       setPasswordError((e.target.value && e.target.value?.length < 8) ? 'Password is too short' : '');
       setPassword(e.target.value);
@@ -211,9 +235,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
   };
 
   const renderFilesHeadings = () => {
-    if (!keyStores.length) {
-      return '';
-    }
+    if (keyStores.length === 0) return '';
     return (
       <UploadedFilesHeaderWrapper>
         <UploadedFilesHeader>Uploaded Files</UploadedFilesHeader>
@@ -224,7 +246,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
 
   return (
     <ModalTemplate
-      width="900px"
+      width="950px"
       image={recoveryImage}
       justifyContent={'initial'}
       padding={'30px 32px 30px 64px'}
@@ -245,7 +267,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
       <DropZone
         onFiles={onFilesSelected}
         disabled={isDecryptingKeyStores}
-        containerStyle={{ width: '100%', maxHeight: 100 }}
+        containerStyle={{ width: '100%', maxHeight: '100px' }}
       />
 
       {renderCommonError()}
@@ -266,19 +288,21 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
 
 type UploadKeystoreFileProps = {
   onClick: () => void;
-  onClose: () => void | null;
+  accounts: Array<any>;
+  errorObject: any,
   keyStores: Array<any>,
-  wizardActions: Record<string, any>;
-  errorMessage: string,
+  onClose: () => void | null;
   shouldDisplayError: boolean,
   decryptedFilesCount: number,
-  isDecryptingKeyStores: boolean,
   decryptedKeyStores: Array<any>;
+  isDecryptingKeyStores: boolean,
+  wizardActions: Record<string, any>;
 };
 
 const mapStateToProps = (state: any) => ({
+  accounts: getAccounts(state),
   keyStores: getKeyStores(state),
-  errorMessage: getDecryptedKeyStoresError(state),
+  errorObject: getDecryptedKeyStoresError(state),
   shouldDisplayError: getShouldDisplayError(state),
   decryptedFilesCount: getDecryptedFilesCount(state),
   decryptedKeyStores: getDecryptedKeyStores(state),

@@ -1,5 +1,5 @@
 import config from '~app/backend/common/config';
-import { selectedKeystoreMode, selectedSeedMode } from '~app/common/service';
+import { selectedKeystoreMode } from '~app/common/service';
 
 /**
  * Should indicate import validator page in navigation?
@@ -284,10 +284,10 @@ const navigationRules = [
           return props.page > config.WIZARD_PAGES.VALIDATOR.SLASHING_WARNING;
         },
         show: (props: Record<string, any>): boolean => {
-          if (selectedKeystoreMode()) {
+          if (props.seedLessNeedDeposit) {
             return true;
           }
-          return showCreateValidatorPage(props);
+            return false;
         }
       },
       {
@@ -297,10 +297,10 @@ const navigationRules = [
           return props.page > config.WIZARD_PAGES.VALIDATOR.DEPOSIT_OVERVIEW;
         },
         show: (props: Record<string, any>): boolean => {
-          if (selectedKeystoreMode()) {
+          if (props.seedLessNeedDeposit !== null && !props.seedLessNeedDeposit) {
             return true;
           }
-          return showCreateValidatorPage(props);
+            return false;
         }
       },
     ]

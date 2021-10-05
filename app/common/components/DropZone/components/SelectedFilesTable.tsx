@@ -11,6 +11,11 @@ import {
 const SelectedFilesTableContainer = styled.table`
   width: 100%;
   overflow-y: scroll;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
   display: block;
   border: 1px solid rgba(195, 200, 207, 1);
 
@@ -18,6 +23,14 @@ const SelectedFilesTableContainer = styled.table`
     margin-top: 15px;
     border-bottom: 0;
   }
+`;
+const SelectedFilesTableContainerWrapper = styled.table`
+  overflow-y: scroll;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 `;
 
 const TableIndex = styled.td`
@@ -176,7 +189,10 @@ export const RecoverFilesTable = (props: RecoverFilesTableProps) => {
   }
 
   const padValidatorNumber = (index: number) => {
-    return String(index).padStart(index < 10 ? 2 : 3, '0');
+    if (index < 10) {
+      return String(index).padStart(index < 10 ? 2 : 3, '0');
+    }
+    return index;
   };
 
   const renderAccountStatus = (account: any) => {
@@ -196,7 +212,7 @@ export const RecoverFilesTable = (props: RecoverFilesTableProps) => {
   };
 
   return (
-    <div style={style ?? {}}>
+    <SelectedFilesTableContainerWrapper style={style ?? {}}>
       <SelectedFilesTableContainer>
         <tbody style={{ width: '100%', display: 'inline-table' }}>
           <FileTail key="selected-files-header" className="validators-list">
@@ -233,6 +249,6 @@ export const RecoverFilesTable = (props: RecoverFilesTableProps) => {
         }) : ''}
         </tbody>
       </SelectedFilesTableContainer>
-    </div>
+    </SelectedFilesTableContainerWrapper>
   );
 };
