@@ -55,12 +55,9 @@ const SeedlessPasswordStepModal = (props: SeedlessPasswordStepModalProps) => {
       return;
     }
     setSavingPassword(true);
-    if (type === MODAL_TYPES.FORGOT_PASSWORD) {
-      Connection.db().clear();
-      await Connection.db().setNewPassword(password, false);
-    } else {
-      await Connection.db().setNewPassword(password);
-    }
+    if (type === MODAL_TYPES.FORGOT_PASSWORD) Connection.db().clear();
+    Connection.db('').set('VALIDATORS_MODE', 'keystore');
+    await Connection.db().setNewPassword(password, type !== MODAL_TYPES.FORGOT_PASSWORD);
     onClick && onClick();
   };
 
