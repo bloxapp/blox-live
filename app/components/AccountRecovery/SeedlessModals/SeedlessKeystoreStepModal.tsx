@@ -157,6 +157,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
   };
 
   const removeFile = (fileData: RemoveFileDataType): void => {
+    setGoToNextPage(false);
     displayKeyStoreError({status: false, message: ''});
     const { file, fileIndex } = fileData;
     console.debug('Removing file:', file);
