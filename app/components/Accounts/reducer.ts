@@ -40,7 +40,6 @@ const accountsReducer = (state = initialState, action: Action) => produce(state,
         draft.addAnotherAccount = action.payload;
         break;
       case actionTypes.SET_SEEDLESS_DEPOSIT_NEEDED:
-        console.log('asdkjasndkjhasjkdhasjkdhasjkhdasjkhdahjka');
         draft.seedlessDepositNeeded = action.payload;
         break;
       case actionTypes.CLEAR_DATA:

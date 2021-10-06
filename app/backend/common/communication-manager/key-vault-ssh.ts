@@ -23,12 +23,6 @@ export default class KeyVaultSsh {
     const { customPort } = payload;
     sshClient.dispose();
     const keyPair: any = Connection.db(this.storePrefix).get('keyPair');
-    console.log('<<<<<<<<<<<<<<<<<<<<here>>>>>>>>>>>>>>>>>>>>');
-    console.log(keyPair);
-    console.log(this.storePrefix);
-    console.log(Connection.db(this.storePrefix).get('keyPair'));
-    console.log(keyPair.privateKey);
-    console.log('<<<<<<<<<<<<<<<<<<<<here>>>>>>>>>>>>>>>>>>>>');
     const port = customPort || Connection.db(this.storePrefix).get('port') || config.env.port;
     const params = {
       host: Connection.db(this.storePrefix).get('publicIp'),

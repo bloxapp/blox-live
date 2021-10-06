@@ -87,7 +87,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
   const commonWarningStyle = { ...warningStyle, marginTop: -10, marginBottom: 20 };
 
   useEffect(() => {
-    if (decryptedKeyStores.length > 0 && goToNextPage) {
+    if (keyStores.length > 0 && decryptedKeyStores.length > 0 && goToNextPage && !isDecryptingKeyStores && !shouldDisplayError) {
       return onClick && onClick();
     }
     const newKeyStores = [...keyStores];
@@ -113,7 +113,6 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
 
     if (newKeyStores.length === 0) {
       setPassword('');
-      displayKeyStoreError({status: false, message: ''});
     }
 
     const updateStateTimeOut = setTimeout(() => {
@@ -130,22 +129,17 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
     return () => {
       clearTimeout(updateStateTimeOut);
     };
-  }, [JSON.stringify(errorObject), JSON.stringify(keyStores), decryptedFilesCount, goToNextPage, decryptedKeyStores]);
+  }, [JSON.stringify(errorObject), JSON.stringify(keyStores), decryptedFilesCount, goToNextPage, decryptedKeyStores, isDecryptingKeyStores, shouldDisplayError]);
 
   useEffect(() => {
     setPasswordError((password && password?.length < 8) ? 'Password is too short' : '');
   }, [password]);
 
-  useEffect(() => {
-    if (!isDecryptingKeyStores && decryptedFilesCount > 0 && decryptedFilesCount === keyStores.length) {
-      setGoToNextPage(true);
-    }
-  }, [isDecryptingKeyStores, decryptedFilesCount]);
-
   const onFilesSelected = (files: File[]) => {
     if (isDecryptingKeyStores) {
       return;
     }
+    setGoToNextPage(false);
     let newFileList = [...files, ...keyStores];
     if (newFileList.length > 100) {
       displayKeyStoreError({ status: true, message: 'You can’t upload more than 100 validators at once.' });
@@ -163,6 +157,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
   };
 
   const removeFile = (fileData: RemoveFileDataType): void => {
+    displayKeyStoreError({status: false, message: ''});
     const { file, fileIndex } = fileData;
     console.debug('Removing file:', file);
     const newKeysStores = [...keyStores];
@@ -179,18 +174,20 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
 
     const actionFlow = 'recovery';
 
-    const keystoreDecrypted = decryptedKeyStores;
-    decryptKeyStores({keyStores, password, keystoreDecrypted, incrementFilesDecryptedCounter, hashExistingPublicKeys, actionFlow});
+    decryptKeyStores({keyStores, password, incrementFilesDecryptedCounter, hashExistingPublicKeys, actionFlow});
     setGoToNextPage(true);
   };
 
   const clearKeyStores = () => {
     if (isDecryptingKeyStores) return;
     setPassword('');
+    displayKeyStoreError({status: false, message: ''});
     uploadKeyStores([]);
   };
 
   const renderCommonError = () => {
+    console.log('asdasdsdad');
+    console.log(errorObject);
     if (shouldDisplayError) {
       return (
         <Warning

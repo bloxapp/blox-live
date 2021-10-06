@@ -112,7 +112,6 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
 
     if (newKeyStores.length === 0) {
       setPassword('');
-      displayKeyStoreError({status: false, message: ''});
     }
 
     const updateStateTimeOut = setTimeout(() => {
@@ -181,6 +180,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
 
   const removeFile = (fileData: RemoveFileDataType): void => {
     const { file, fileIndex } = fileData;
+    displayKeyStoreError({status: false, message: ''});
     console.debug('Removing file:', file);
     const newKeysStores = [...keyStores];
     newKeysStores.splice(fileIndex, 1);
@@ -202,6 +202,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
 
   const clearKeyStores = () => {
     if (isDecryptingKeyStores) return;
+    displayKeyStoreError({status: false, message: ''});
     setPassword('');
     uploadKeyStores([]);
   };

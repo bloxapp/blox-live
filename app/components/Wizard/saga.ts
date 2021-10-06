@@ -94,11 +94,9 @@ function* onDecryptFailure(error, silent?: boolean) {
 
 function* startDecryptKeyStores(action) {
   const {payload} = action;
-  const {keyStores, keystoreDecrypted, password, incrementFilesDecryptedCounter, hashExistingPublicKeys, actionFlow} = payload;
+  const {keyStores, password, incrementFilesDecryptedCounter, hashExistingPublicKeys, actionFlow} = payload;
   try {
-    console.log(keystoreDecrypted);
     const decryptedKeyStores = yield select(getDecryptedKeyStores);
-    console.log(decryptedKeyStores);
     const keyStoresData = yield call(extractKeyStores, {
       decryptedKeyStores,
       keyStoresFiles: keyStores,
@@ -107,7 +105,7 @@ function* startDecryptKeyStores(action) {
       hashExistingPublicKeys,
       actionFlow
     });
-    console.log(keystoreDecrypted);
+
     yield call(onDecryptSuccess, keyStoresData);
     incrementFilesDecryptedCounter(0);
   } catch (error) {

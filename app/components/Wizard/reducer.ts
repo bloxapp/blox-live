@@ -110,7 +110,7 @@ const wizardReducer = (state = initialState, action: Action) => produce(state, (
       break;
     case actionTypes.DISPLAY_KEY_STORE_ERROR:
       draft.shouldDisplayError = action.payload.status;
-      draft.keyStoreErrorObject = action.payload.message;
+      draft.keyStoreErrorObject = action.payload;
       break;
     case actionTypes.DECRYPT_KEY_STORES:
       draft.isDecryptingKeyStores = true;
@@ -140,7 +140,7 @@ const wizardReducer = (state = initialState, action: Action) => produce(state, (
       draft.shouldDisplayError = true;
       draft.isDecryptingKeyStores = false;
       draft.keyStoreErrorObject = action.payload;
-      draft.decryptedKeyStores = initialState.decryptedKeyStores;
+      // draft.decryptedKeyStores = initialState.decryptedKeyStores;
       break;
   }
 });

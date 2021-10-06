@@ -392,9 +392,6 @@ export default class AccountService {
     showErrorMessage: true
   })
   async recoverAccounts({ inputData }: { inputData?: any }): Promise<void> {
-    console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<recoverAccounts>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-    console.log(inputData);
-    console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<recoverAccounts>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     const accounts = await this.get();
     const uniqueNetworks = [...new Set(accounts.map(acc => acc.network))];
     // eslint-disable-next-line no-restricted-syntax
@@ -420,7 +417,7 @@ export default class AccountService {
   @Catch({
     displayMessage: 'CLI Create Account failed'
   })
-  async restoreAccounts({ inputData }: { inputData?: string }): Promise<void> {
+  async restoreAccounts({ inputData }: { inputData?: any }): Promise<void> {
     const keyVaultVersion = Connection.db().get('keyVaultVersion');
     const supportedNetworks = [config.env.MAINNET_NETWORK];
 
@@ -436,6 +433,8 @@ export default class AccountService {
           const index = +lastIndex;
           if (index > -1) {
             Connection.db(this.storePrefix).set('network', network);
+            // eslint-disable-next-line no-param-reassign
+            inputData = typeof (inputData) === 'object' ? inputData[String(network)] : inputData;
             // eslint-disable-next-line no-await-in-loop
             await this.createAccount({ indexToRestore: index, inputData });
           }
