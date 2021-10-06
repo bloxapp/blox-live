@@ -39,23 +39,23 @@ const AccountRecovery = (props: AccountRecoveryProps) => {
         );
       case 1:
         return (
-          <SeedlessPasswordStepModal
-            type={type}
-            onClick={move1StepForward}
-          />
-        );
-      case 2:
-        return (
           <SeedlessKeystoreStepModal
             onClose={onCloseClick}
             onClick={move1StepForward}
           />
         );
-      case 3:
+      case 2:
         return (
           <SeedlessSummaryStepModal
             onClick={move1StepForward}
             goBack={move1StepBackward}
+          />
+        );
+      case 3:
+        return (
+          <SeedlessPasswordStepModal
+            type={type}
+            onClick={move1StepForward}
           />
         );
       case 4:

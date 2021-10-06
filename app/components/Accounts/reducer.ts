@@ -49,6 +49,7 @@ const accountsReducer = (state = initialState, action: Action) => produce(state,
         draft.data = initialState.data;
         draft.addAnotherAccount = initialState.addAnotherAccount;
         draft.depositNeededData = initialState.depositNeededData;
+        draft.seedlessDepositNeeded = initialState.seedlessDepositNeeded;
         break;
     }
   });
