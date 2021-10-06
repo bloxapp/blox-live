@@ -186,8 +186,6 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
   };
 
   const renderCommonError = () => {
-    console.log('asdasdsdad');
-    console.log(errorObject);
     if (shouldDisplayError) {
       return (
         <Warning

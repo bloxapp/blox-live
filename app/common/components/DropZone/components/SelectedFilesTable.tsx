@@ -24,6 +24,7 @@ const SelectedFilesTableContainer = styled.table`
     border-bottom: 0;
   }
 `;
+
 const SelectedFilesTableContainerWrapper = styled.table`
   overflow-y: scroll;
   &::-webkit-scrollbar {
@@ -214,7 +215,7 @@ export const RecoverFilesTable = (props: RecoverFilesTableProps) => {
   return (
     <SelectedFilesTableContainerWrapper style={style ?? {}}>
       <SelectedFilesTableContainer>
-        <tbody style={{ width: '100%', display: 'inline-table' }}>
+        <tbody style={{ width: '100%', display: 'inline-table'}}>
           <FileTail key="selected-files-header" className="validators-list">
             <td key="file-progress">
               #
@@ -229,7 +230,7 @@ export const RecoverFilesTable = (props: RecoverFilesTableProps) => {
         </tbody>
       </SelectedFilesTableContainer>
       <SelectedFilesTableContainer>
-        <tbody style={{ width: '100%', display: 'inline-table' }}>
+        <tbody style={{ width: '100%', display: 'inline-table', height: '200px' }}>
           {sortedAccounts?.length ? sortedAccounts.map((account: any, accountIndex: number) => {
           return (
             <FileTail key={accountIndex} className="validators-list">
