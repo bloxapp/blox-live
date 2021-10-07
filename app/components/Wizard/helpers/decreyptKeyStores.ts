@@ -14,10 +14,11 @@ type Props = {
   password: string,
   callBack: any,
   hashExistingPublicKeys: string[],
+  network: string,
   actionFlow?: string
 };
 export const extractKeyStores = async (props: Props) => {
-  const {decryptedKeyStores, keyStoresFiles, hashExistingPublicKeys, password, callBack, actionFlow} = props;
+  const {decryptedKeyStores, keyStoresFiles, hashExistingPublicKeys, password, callBack, actionFlow, network} = props;
   const files: any = await readAllFiles(keyStoresFiles);
   const keyStores = [];
   // eslint-disable-next-line guard-for-in,no-restricted-syntax
@@ -34,7 +35,7 @@ export const extractKeyStores = async (props: Props) => {
         }
       }
 
-      if (actionFlow === 'create' && hashExistingPublicKeys[`0x${keyStorePublicKey}`]) {
+      if (actionFlow === 'create' && hashExistingPublicKeys[`0x${keyStorePublicKey}.${network}`]) {
         throw Error(`Keystore: ${files[i].fileName} (${`0x${keyStorePublicKey.substr(0, 4)}...${keyStorePublicKey.substr(keyStorePublicKey.length - 4, 4)}`}) already exists in your account.`);
       }
 

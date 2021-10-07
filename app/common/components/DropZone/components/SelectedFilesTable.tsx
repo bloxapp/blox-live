@@ -73,6 +73,13 @@ const FileTail = styled.tr`
 
   &.validators-list {
     & > td {
+      &.file-network {
+        text-align: right;
+        padding-right: 30px;
+      }
+      &.file-network-text {
+        text-transform: capitalize;
+      }
       &:first-child {
         min-width: 40px;
         max-width: 40px;
@@ -223,6 +230,9 @@ export const RecoverFilesTable = (props: RecoverFilesTableProps) => {
             <td key="file-name">
               Validator
             </td>
+            <td className="file-network" key="file-network">
+              Network
+            </td>
             <td key="file-delete">
               Keystore
             </td>
@@ -239,8 +249,11 @@ export const RecoverFilesTable = (props: RecoverFilesTableProps) => {
               </td>
               <td key="file-name">
                 <Typography noWrap style={{ width: '100%' }}>
-                  {longStringShorten(account.publicKey, 18)}
+                  {longStringShorten(account.publicKey, 16)}
                 </Typography>
+              </td>
+              <td className="file-network-text" key="file-network">
+                {account.network}
               </td>
               <td key="file-delete">
                 {renderAccountStatus(account)}

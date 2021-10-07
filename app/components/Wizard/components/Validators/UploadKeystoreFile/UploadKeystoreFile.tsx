@@ -9,6 +9,7 @@ import DropZone from '~app/common/components/DropZone';
 import { getAccounts } from '~app/components/Accounts/selectors';
 import * as actionsFromWizard from '~app/components/Wizard/actions';
 import BackButton from '~app/components/Wizard/components/common/BackButton';
+import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 import { NETWORKS } from '~app/components/Wizard/components/Validators/constants';
 import { Title, Paragraph, Warning } from '~app/components/Wizard/components/common';
 import { DECODE_STATUS, FileDecodeProgress } from '~app/common/components/DropZone/components/FileDecode';
@@ -79,11 +80,12 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
     decryptedKeyStores,
     accounts
   } = props;
-  const {decryptKeyStores, uploadKeyStores, displayKeyStoreError, incrementFilesDecryptedCounter} = wizardActions;
+  const {decryptKeyStores, uploadKeyStores, displayKeyStoreError, incrementFilesDecryptedCounter, clearDecryptKeyStores, clearDecryptProgress} = wizardActions;
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [allFilesJson, setAllFilesJson] = useState(true);
   const [goToNextPage, setGoToNextPage] = useState(false);
+  const { clearProcessState } = useProcessRunner();
 
   useEffect(() => {
     if (decryptedKeyStores.length > 0 && goToNextPage) {
@@ -189,14 +191,15 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
 
   const decryptFiles = async () => {
     const hashExistingPublicKeys = {};
-    accounts.forEach(({publicKey}) => {
-      hashExistingPublicKeys[publicKey] = true;
+    accounts.forEach((account) => {
+      console.log(account.network);
+      hashExistingPublicKeys[`${account.publicKey}.${account.network}`] = true;
       return true;
     });
 
     const actionFlow = 'create';
 
-    decryptKeyStores({keyStores, password, incrementFilesDecryptedCounter, hashExistingPublicKeys, actionFlow});
+    decryptKeyStores({keyStores, password, incrementFilesDecryptedCounter, hashExistingPublicKeys, actionFlow, network});
     setGoToNextPage(true);
   };
 
@@ -265,8 +268,13 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
   return (
     <Wrapper>
       <BackButton onClick={() => {
-        setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
-        setPage(config.WIZARD_PAGES.VALIDATOR.SELECT_NETWORK);
+        if (!isDecryptingKeyStores) {
+          clearProcessState();
+          clearDecryptKeyStores();
+          clearDecryptProgress();
+          setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
+          setPage(config.WIZARD_PAGES.VALIDATOR.SELECT_NETWORK);
+        }
       }} />
       <Title>Upload Keystore File</Title>
       <Paragraph style={{marginBottom: 10}}>
