@@ -171,7 +171,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
     }
 
     if (accounts.length + newFileList.length > 500) {
-      displayKeyStoreError({status: true, message: 'You can’t run more than 500 validators per account (you already have %{accounts.length} of validators). To add more please contact our support.'});
+      displayKeyStoreError({status: true, message: `You can’t run more than 500 validators per account (you already have ${accounts.length} of validators). To add more please contact our support.`});
       return;
     }
 

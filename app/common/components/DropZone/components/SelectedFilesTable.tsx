@@ -229,8 +229,8 @@ export const RecoverFilesTable = (props: RecoverFilesTableProps) => {
           </FileTail>
         </tbody>
       </SelectedFilesTableContainer>
-      <SelectedFilesTableContainer>
-        <tbody style={{ width: '100%', display: 'inline-table', maxHeight: '200px' }}>
+      <SelectedFilesTableContainer style={{maxHeight: '200px'}}>
+        <tbody style={{ width: '100%', display: 'inline-table'}}>
           {sortedAccounts?.length ? sortedAccounts.map((account: any, accountIndex: number) => {
           return (
             <FileTail key={accountIndex} className="validators-list">

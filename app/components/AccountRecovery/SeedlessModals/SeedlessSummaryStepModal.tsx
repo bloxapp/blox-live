@@ -123,7 +123,7 @@ const SeedlessSummaryStepModal = (props: SeedlessSummaryStepModalProps) => {
       <RecoverFilesTable
         accounts={accounts}
         onUploadClick={onUploadClick}
-        style={{ marginTop: -10, width: '100%' }}
+        style={{ marginTop: -10, width: '100%'}}
         decryptedKeyStores={decryptedKeyStores ?? []}
       />
 
