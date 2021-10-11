@@ -252,6 +252,7 @@
     "eslint-plugin-react": "^7.20.0",
     "eslint-plugin-react-hooks": "^4.0.4",
     "eslint-plugin-testcafe": "^0.2.1",
+    "eth2-keystore-js": "^1.0.5",
     "file-loader": "^6.0.0",
     "husky": "^4.2.5",
     "jest": "^26.0.1",
@@ -278,8 +279,7 @@
     "webpack-bundle-analyzer": "^3.8.0",
     "webpack-cli": "^3.3.10",
     "webpack-dev-server": "^3.11.0",
-    "webpack-merge": "^4.2.2",
-    "eth2-keystore-js": "^1.0.5"
+    "webpack-merge": "^4.2.2"
   },
   "dependencies": {
     "@hot-loader/react-dom": "^16.13.0",
@@ -295,6 +295,7 @@
     "axios": "^0.21.1",
     "axios-retry": "3.1.8",
     "bl": "^4.0.3",
+    "bls-eth-wasm": "^1.0.3",
     "connected-react-router": "^6.6.1",
     "dotenv": "8.2.0",
     "electron-debug": "^3.1.0",

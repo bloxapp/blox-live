@@ -3934,6 +3934,11 @@ blob@0.0.5:
   resolved "https://registry.yarnpkg.com/blob/-/blob-0.0.5.tgz#d680eeef25f8cd91ad533f5b01eed48e64caf683"
   integrity sha512-gaqbzQPqOoamawKg0LGVd7SzLgXS+JH61oWprSLH+P+abTczqJbhTR8CmJ2u9/bUYNmHTGJx/UEmn6doAvvuig==
 
+bls-eth-wasm@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/bls-eth-wasm/-/bls-eth-wasm-1.0.3.tgz#8c9bc0a0b3d54fc2ec688b4d176ce38af4704bf0"
+  integrity sha512-4/CiQt1u6QwnLNdHbkSm1CRixiV1ApO8HgwUIxTMe/Oj96oapDMvdS6YpxtbWm5cU9BHNlucBiUYv3LCsXCfyw==
+
 bluebird-lst@^1.0.9:
   version "1.0.9"
   resolved "https://registry.yarnpkg.com/bluebird-lst/-/bluebird-lst-1.0.9.tgz#a64a0e4365658b9ab5fe875eb9dfb694189bb41c"

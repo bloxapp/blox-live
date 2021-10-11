@@ -1,5 +1,7 @@
 import * as fs from 'fs';
 import EthereumKeyStore from 'eth2-keystore-js';
+import * as Bls from 'bls-eth-wasm/browser';
+
 /**
  * Extract not extracted keystores using password
  * @param decryptedKeyStores
@@ -17,16 +19,21 @@ type Props = {
   network: string,
   actionFlow?: string
 };
+
 export const extractKeyStores = async (props: Props) => {
   const {decryptedKeyStores, keyStoresFiles, hashExistingPublicKeys, password, callBack, actionFlow, network} = props;
   const files: any = await readAllFiles(keyStoresFiles);
+  await Bls.init(Bls.BLS12_381);
   const keyStores = [];
   // eslint-disable-next-line guard-for-in,no-restricted-syntax
   for (const i in files) {
     try {
       // @ts-ignore
       const keyStore = new EthereumKeyStore(files[i].fileTextPlain);
-      const keyStorePublicKey = keyStore.getPublicKey();
+      // eslint-disable-next-line no-await-in-loop
+      const keyStorePrivateKey = await keyStore.getPrivateKey(password);
+      const keyStorePublicKey = Bls.deserializeHexStrToSecretKey(keyStorePrivateKey).getPublicKey().serializeToHexStr();
+
       let keyStoreAlreadyDecrypted = false;
       for (let keyStoreIndex = 0; keyStoreIndex < decryptedKeyStores.length; keyStoreIndex += 1) {
         if (decryptedKeyStores[keyStoreIndex].publicKey === keyStorePublicKey) {
@@ -48,7 +55,7 @@ export const extractKeyStores = async (props: Props) => {
           // @ts-ignore
           fileName: files[i].fileName,
           // eslint-disable-next-line no-await-in-loop
-          privateKey: await keyStore.getPrivateKey(password),
+          privateKey: keyStorePrivateKey,
           publicKey: keyStorePublicKey,
           deposited: null
         });
