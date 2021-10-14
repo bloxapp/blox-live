@@ -2,7 +2,7 @@ import { PROCESSES } from '~app/components/ProcessRunner/constants';
 import Connection from '../backend/common/store-manager/connection';
 
 export const getProcessNameForUpdate = (keyVaultCurrentVersion: string, keyVaultLatestVersion: string): string => {
-  if (Connection.db().exists('upgradeRatherReinstall')) {
+  if (Connection.db().exists('reinstallRatherUpgrade')) {
     return PROCESSES.REINSTALL;
   }
   if (keyVaultCurrentVersion === keyVaultLatestVersion) {

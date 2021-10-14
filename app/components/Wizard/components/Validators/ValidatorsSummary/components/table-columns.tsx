@@ -31,8 +31,9 @@ const FlexWrapper = styled.div`
   justify-content: space-around;
 `;
 
-const openBeaconChain = (publicKey) => {
-    shell.openExternal(`http://prater.beaconcha.in/validator/${publicKey}`);
+const openBeaconChain = (network: string, publicKey: string): void => {
+  const pointer = network === 'prater' ? 'prater.' : '';
+  shell.openExternal(`https://${pointer}beaconcha.in/validator/${publicKey}`);
 };
 
 export default [
@@ -68,7 +69,7 @@ export default [
             return (
               <>
                 {row.deposited === null ? 'Checking..' : ''}
-                {row.deposited === true ? <FlexWrapper><BeaconChainText>Deposited</BeaconChainText><BeaconChain onClick={() => { openBeaconChain(row.publicKey); }} /></FlexWrapper> : ''}
+                {row.deposited === true ? <FlexWrapper><BeaconChainText>Deposited</BeaconChainText><BeaconChain onClick={() => { openBeaconChain(row.network, row.publicKey); }} /></FlexWrapper> : ''}
                 {row.deposited === false ? 'Not Deposited' : ''}
               </>
             );

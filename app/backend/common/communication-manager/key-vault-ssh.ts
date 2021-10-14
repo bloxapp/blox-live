@@ -30,7 +30,7 @@ export default class KeyVaultSsh {
       username: 'ec2-user',
       privateKey: keyPair.privateKey
     };
-    this.logger.debug('Try to ssh connect', params);
+
     try {
       await sshClient.connect(params);
     } catch (e) {
@@ -46,7 +46,6 @@ export default class KeyVaultSsh {
       });
       console.log('======>', sshClient, sshClient.isConnected());
     }
-    this.logger.trace('> keyPair', keyPair);
     this.logger.trace('> publicIp', Connection.db(this.storePrefix).get('publicIp'));
     this.logger.trace('> port', port);
     return sshClient;

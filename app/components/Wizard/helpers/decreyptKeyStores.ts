@@ -57,7 +57,8 @@ export const extractKeyStores = async (props: Props) => {
           // eslint-disable-next-line no-await-in-loop
           privateKey: keyStorePrivateKey,
           publicKey: keyStorePublicKey,
-          deposited: null
+          deposited: null,
+          network
         });
       }
       callBack(parseInt(i, 10) + 1);
