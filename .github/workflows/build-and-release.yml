@@ -41,7 +41,7 @@ jobs:
         run: (Get-ChildItem -File release-win | where {$_.extension -in ".exe"}).FullName >> release-win/files-to-sign.txt
 
       - name: Print the input name to STDOUT
-        if: ${{ startsWith(matrix.os, 'windows')
+        if: ${{ startsWith(matrix.os, 'windows')}}
         run: echo (Get-ChildItem -File release-win | where {$_.extension -in ".exe"}).FullName
 
       - name: AzureSignTool
