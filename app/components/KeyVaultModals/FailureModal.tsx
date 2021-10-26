@@ -36,12 +36,14 @@ const FailureModal = ({ title, subtitle, onClick, onClose, customImage }) => {
       </Wrapper>
       <Description>{description}</Description>
       <Wrapper>
-        <Button
-          isDisabled={showLoaderText}
-          onClick={onSendReportClick}
-        >
-          Send Report
-        </Button>
+        {onClick && (
+          <Button
+            isDisabled={showLoaderText}
+            onClick={onSendReportClick}
+          >
+            Send Report
+          </Button>
+        )}
         <LoaderText>
           {showLoaderText ? 'Sending error report...' : ''} &nbsp;
         </LoaderText>
@@ -61,7 +63,7 @@ FailureModal.propTypes = {
 FailureModal.defaultProps = {
   title: '',
   subtitle: '',
-  onClick: () => {},
+  onClick: null,
   onClose: null,
   customImage: null
 };
