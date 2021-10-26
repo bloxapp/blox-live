@@ -17,17 +17,15 @@ const Wrapper = styled.div`
 `;
 
 const BoxWithTooltip = (props) => {
-  const { isActive, walletNeedsUpdate, width, color, bigText, medText, tinyText, image, actions } = props;
+  const { isActive, walletNeedsUpdate, bloxLiveNeedsUpdate, width, color, bigText, medText, tinyText, image, actions } = props;
   const { setModalDisplay } = actions;
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
 
-  const showReactivationModal = () => {
-    const onSuccess = () => setModalDisplay({ show: true, type: MODAL_TYPES.REACTIVATION });
-    checkIfPasswordIsNeeded(onSuccess);
-  };
-
-  const showUpdateModal = () => {
-    const onSuccess = () => setModalDisplay({ show: true, type: MODAL_TYPES.UPDATE });
+  const showModal = (type) => {
+    let onSuccess = () => setModalDisplay({ show: true, type });
+    if (bloxLiveNeedsUpdate) {
+      onSuccess = () => setModalDisplay({ show: true, type: MODAL_TYPES.ERROR });
+    }
     checkIfPasswordIsNeeded(onSuccess);
   };
 
@@ -37,10 +35,10 @@ const BoxWithTooltip = (props) => {
         medText={medText} tinyText={tinyText} image={image}
       />
       {!isActive && (
-        <ReactivatePopper onClick={showReactivationModal} />
+        <ReactivatePopper onClick={() => { showModal(MODAL_TYPES.REACTIVATION); }} />
       )}
       {walletNeedsUpdate && isActive && (
-        <UpdatePopper onClick={showUpdateModal} />
+        <UpdatePopper onClick={() => { showModal(MODAL_TYPES.UPDATE); }} />
       )}
     </Wrapper>
   );
@@ -53,6 +51,7 @@ const mapDispatchToProps = (dispatch) => ({
 BoxWithTooltip.propTypes = {
   isActive: PropTypes.bool,
   walletNeedsUpdate: PropTypes.bool,
+  bloxLiveNeedsUpdate: PropTypes.bool,
   width: PropTypes.string,
   color: PropTypes.string,
   bigText: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),

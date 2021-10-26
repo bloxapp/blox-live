@@ -20,6 +20,7 @@ import {
   PasswordModal,
   FailureModal,
   ThankYouModal,
+  WalletMustUpgradeModal,
   ConfirmationModal } from '~app/components/KeyVaultModals';
 // @ts-ignore
 import imageImportFailed from '../../../Wizard/assets/img-import-failed.svg';
@@ -84,6 +85,12 @@ const ModalsManager = (props: Props) => {
         return (
           <KeyVaultUpdate
             onSuccess={() => onKeyVaultProcessSuccess()}
+            onClose={() => onClose()}
+          />
+        );
+      case MODAL_TYPES.ERROR:
+        return (
+          <WalletMustUpgradeModal
             onClose={() => onClose()}
           />
         );
