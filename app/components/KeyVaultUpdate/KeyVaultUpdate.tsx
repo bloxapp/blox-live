@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
-import { connect } from 'react-redux';
-import { selectedKeystoreMode } from '~app/common/service';
+import React, {useState} from 'react';
+import {connect} from 'react-redux';
+import {selectedKeystoreMode} from '~app/common/service';
+
 import { getProcessNameForUpdate } from '~app/utils/process';
 import * as wizardSelectors from '~app/components/Wizard/selectors';
+import Connection from '~app/backend/common/store-manager/connection';
 import * as SeedlessModals from '~app/components/AccountRecovery/SeedlessModals';
+
 import * as keyVaultSelectors from '~app/components/KeyVaultManagement/selectors';
 import { SuccessModal, ReinstallingModal, FailureModal, ThankYouModal } from '~app/components/KeyVaultModals';
 // @ts-ignore
@@ -19,6 +22,9 @@ const KeyVaultUpdate = ({onSuccess, onClose, keyVaultCurrentVersion, keyVaultLat
   const [step, setStep] = useState(isFullReinstall() && selectedKeystoreMode() ? -1 : 1);
   const move1StepForward = () => setStep(step + 1);
   const move2StepsForward = () => setStep(step + 2);
+
+  const seedExist = !selectedKeystoreMode() && Connection.db().exists('seed');
+
   const defaultDialog = (
     <ReinstallingModal
       title={'Updating KeyVault'}
@@ -27,6 +33,17 @@ const KeyVaultUpdate = ({onSuccess, onClose, keyVaultCurrentVersion, keyVaultLat
       image={activeImage}
     />
   );
+  const noSeedFound = (
+    <FailureModal
+      title={'Missing Seed'}
+      subtitle={'We are unable to update your key vault because we can’t locate your seed.'}
+      onClose={onClose}
+    />
+  );
+
+  if (!seedExist) {
+    return noSeedFound;
+  }
 
   switch (step) {
     case -1:
