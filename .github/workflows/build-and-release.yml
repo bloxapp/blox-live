@@ -32,7 +32,7 @@ jobs:
 
       - name: Get files to sign
         if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
-        run: Get-ChildItem -Recurse -Filter '*.exe' -Depth 3).FullName >> files-to-sign.txt
+        run: (Get-ChildItem -Recurse -Filter '*.exe' -Depth 3).FullName >> files-to-sign.txt
 
       - name: AzureSignTool
         if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
@@ -50,7 +50,7 @@ jobs:
 
       - name: Get files to sign
         if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
-        run: Get-ChildItem -File release-win -Recurse -Filter '*.exe' -Depth 3).FullName >> release-win/files-to-sign.txt
+        run: (Get-ChildItem -File release-win -Recurse -Filter '*.exe' -Depth 3).FullName >> release-win/files-to-sign.txt
 
       - name: AzureSignTool
         if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
