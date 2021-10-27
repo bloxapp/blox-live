@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { connect } from 'react-redux';
-import { selectedSeedMode, selectedKeystoreMode } from '~app/common/service';
+import React, {useState} from 'react';
+import {connect} from 'react-redux';
+import {selectedKeystoreMode} from '~app/common/service';
 
 import { getProcessNameForUpdate } from '~app/utils/process';
 import * as wizardSelectors from '~app/components/Wizard/selectors';
@@ -23,7 +23,7 @@ const KeyVaultUpdate = ({onSuccess, onClose, keyVaultCurrentVersion, keyVaultLat
   const move1StepForward = () => setStep(step + 1);
   const move2StepsForward = () => setStep(step + 2);
 
-  const seedExist = selectedSeedMode() && Connection.db().exists('seed');
+  const seedExist = !selectedKeystoreMode() && Connection.db().exists('seed');
 
   const defaultDialog = (
     <ReinstallingModal
