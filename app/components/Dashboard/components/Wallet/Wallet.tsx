@@ -28,7 +28,7 @@ const Wallet = (props) => {
         </TopPart>
       )}
       <StatusBar isActive={isActive} />
-      <Boxes isActive={isActive} summary={summary} walletVersion={version} {...rest} />
+      <Boxes bloxLiveNeedsUpdate={isNeedUpdate} isActive={isActive} summary={summary} walletVersion={version} {...rest} />
     </Wrapper>
   );
 };

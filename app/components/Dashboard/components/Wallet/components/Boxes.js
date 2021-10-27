@@ -13,7 +13,7 @@ const Wrapper = styled.div`
 `;
 
 const Boxes = (props) => {
-  const { isActive, summary, walletVersion } = props;
+  const { isActive, summary, walletVersion, bloxLiveNeedsUpdate } = props;
   const boxes = getBoxes(isActive, summary);
   return (
     <Wrapper>
@@ -21,7 +21,7 @@ const Boxes = (props) => {
         const { name, width, color, bigText, medText, tinyText } = box;
         if (index === boxes.length - 1) {
           const textWithVersion = `${tinyText} Version ${walletVersion}`;
-          return (<BoxWithPopper {...box} key={index} tinyText={textWithVersion} {...props} />);
+          return (<BoxWithPopper {...box} key={index} tinyText={textWithVersion} bloxLiveNeedsUpdate={bloxLiveNeedsUpdate} {...props} />);
         }
         return (
           <Box key={`box${index}`} name={name} width={width} color={color}
@@ -36,7 +36,8 @@ const Boxes = (props) => {
 Boxes.propTypes = {
   isActive: PropTypes.bool,
   summary: PropTypes.object,
-  walletVersion: PropTypes.string
+  walletVersion: PropTypes.string,
+  bloxLiveNeedsUpdate: PropTypes.bool
 };
 
 export default Boxes;
