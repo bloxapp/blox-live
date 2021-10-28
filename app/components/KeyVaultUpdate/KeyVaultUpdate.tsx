@@ -23,7 +23,7 @@ const KeyVaultUpdate = ({onSuccess, onClose, keyVaultCurrentVersion, keyVaultLat
   const move1StepForward = () => setStep(step + 1);
   const move2StepsForward = () => setStep(step + 2);
 
-  const seedExist = !selectedKeystoreMode() && Connection.db().exists('seed');
+  const seedExist = Connection.db().exists('seed');
 
   const defaultDialog = (
     <ReinstallingModal
@@ -41,7 +41,7 @@ const KeyVaultUpdate = ({onSuccess, onClose, keyVaultCurrentVersion, keyVaultLat
     />
   );
 
-  if (!seedExist) {
+  if (!seedExist && !selectedKeystoreMode()) {
     return noSeedFound;
   }
 

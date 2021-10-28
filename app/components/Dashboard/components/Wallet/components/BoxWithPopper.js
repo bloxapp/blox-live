@@ -4,12 +4,14 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
+import { MODAL_TYPES } from '~app/components/Dashboard/constants';
+import Connection from '~app/backend/common/store-manager/connection';
+import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
+
 import Box from './Box';
-import ReactivatePopper from './ReactivatePopper';
 import UpdatePopper from './UpdatePopper';
+import ReactivatePopper from './ReactivatePopper';
 import * as dashboardActions from '../../../actions';
-import { MODAL_TYPES } from '../../../constants';
-import usePasswordHandler from '../../../../PasswordHandler/usePasswordHandler';
 
 const Wrapper = styled.div`
   position:relative;
@@ -23,7 +25,7 @@ const BoxWithTooltip = (props) => {
 
   const showModal = (type) => {
     let onSuccess = () => setModalDisplay({ show: true, type });
-    if (bloxLiveNeedsUpdate) {
+    if (bloxLiveNeedsUpdate && !Connection.db('').get('ignoreNewBloxLiveVersion')) {
       onSuccess = () => setModalDisplay({ show: true, type: MODAL_TYPES.ERROR });
     }
     checkIfPasswordIsNeeded(onSuccess);
