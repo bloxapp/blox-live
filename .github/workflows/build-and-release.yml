@@ -28,6 +28,7 @@ jobs:
         if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
         run: |
           cd resources/mac/bin
+          Remove-Item 'keyvault-cli.exe'
           curl.exe -LO https://github.com/bloxapp/eth2-key-manager/releases/latest/download/keyvault-cli
 
       - name: Setup dotnet env for sigining
@@ -80,6 +81,7 @@ jobs:
         if: ${{ startsWith(matrix.os, 'macos') && startsWith(github.ref, 'refs/tags/v') }}
         run: |
           cd resources/mac/bin
+          rm keyvault-cli
           curl -LO https://github.com/bloxapp/eth2-key-manager/releases/latest/download/mac-keyvault-cli
           mv mac-keyvault-cli keyvault-cli
           chmod +x keyvault-cli
@@ -117,6 +119,7 @@ jobs:
         if: ${{ startsWith(matrix.os, 'ubuntu') && startsWith(github.ref, 'refs/tags/v') }}
         run: |
           cd resources/mac/bin
+          rm keyvault-cli
           curl -LO https://github.com/bloxapp/eth2-key-manager/releases/latest/download/linux-keyvault-cli
           mv linux-keyvault-cli keyvault-cli
           chmod +x keyvault-cli
