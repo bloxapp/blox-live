@@ -118,7 +118,7 @@ jobs:
         run: |
           cd resources/mac/bin
           curl -LO https://github.com/bloxapp/eth2-key-manager/releases/latest/download/linux-keyvault-cli
-          mv mac-keyvault-cli keyvault-cli
+          mv linux-keyvault-cli keyvault-cli
           chmod +x keyvault-cli
 
       - name: Prepare for ubuntu signing
