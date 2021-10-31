@@ -25,6 +25,7 @@ jobs:
 
       # START windows steps
       - name: Clone keyvault-cli for windows
+        if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
         run: |
           cd resources/mac/bin
           curl.exe -LO https://github.com/bloxapp/eth2-key-manager/releases/latest/download/keyvault-cli
@@ -76,6 +77,7 @@ jobs:
 
       # START macOs steps
       - name: Clone keyvault-cli for Mac
+        if: ${{ startsWith(matrix.os, 'macos') && startsWith(github.ref, 'refs/tags/v') }}
         run: |
           cd resources/mac/bin
           curl -LO https://github.com/bloxapp/eth2-key-manager/releases/latest/download/mac-keyvault-cli
@@ -112,6 +114,7 @@ jobs:
 
       # START ubuntu steps
       - name: Clone keyvault-cli for Ubuntu
+        if: ${{ startsWith(matrix.os, 'ubuntu') && startsWith(github.ref, 'refs/tags/v') }}
         run: |
           cd resources/mac/bin
           curl -LO https://github.com/bloxapp/eth2-key-manager/releases/latest/download/linux-keyvault-cli
