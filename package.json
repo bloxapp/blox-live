@@ -22,6 +22,7 @@
     "package-mac": "yarn build && electron-builder build --mac",
     "package-linux": "yarn build && electron-builder build --linux",
     "package-win": "yarn build && electron-builder build --win --x64 --publish never",
+    "package-win-prepackaged": "electron-builder --win --prepackaged=release-win/win-unpacked --x64 --publish never",
     "postinstall": "link-module-alias && node -r @babel/register internals/scripts/CheckNativeDep.js && electron-builder install-app-deps && yarn build-dll && opencollective-postinstall",
     "preinstall": "node ./internals/scripts/CheckYarn.js",
     "prestart": "yarn build",
