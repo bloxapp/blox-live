@@ -324,7 +324,7 @@
     "lodash": "^4.17.19",
     "log4js": "^6.3.0",
     "lottie-web-react": "^1.0.3",
-    "macos-release": "^2.4.1",
+    "macos-release": "^2.5.0",
     "moment": "^2.27.0",
     "node-ssh": "10.0.2",
     "prop-types": "^15.7.2",
