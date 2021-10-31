@@ -1,7 +1,7 @@
 {
   "name": "blox-live",
   "productName": "blox-live-desktop-app",
-  "version": "1.6.1-dev.22",
+  "version": "1.6.1-dev.23",
   "description": "Blox Staking desktop app for managing staking accounts",
   "main": "./main.prod.js",
   "author": {
