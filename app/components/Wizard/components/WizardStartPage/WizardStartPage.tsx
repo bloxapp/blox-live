@@ -13,6 +13,7 @@ import useVersions from '~app/components/Versions/useVersions';
 import * as userSelectors from '~app/components/User/selectors';
 import * as wizardActions from '~app/components/Wizard/actions';
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
+import { openExternalLink } from '~app/components/common/service';
 import * as wizardSelectors from '~app/components/Wizard/selectors';
 import Connection from '~app/backend/common/store-manager/connection';
 import * as accountSelectors from '~app/components/Accounts/selectors';
@@ -117,7 +118,7 @@ const WizardStartPage = (props: Props) => {
           setModalDisplay({
             show: true,
             type: MODAL_TYPES.MUST_UPDATE_APP,
-            text: 'You must update Blox app to the latest version before recovering your account.',
+            text: <div>You must update Blox app to the <a onClick={() => openExternalLink('download')}>latest version</a> before recovering your account.</div>,
             displayCloseButton: false
           });
           return;
@@ -129,7 +130,7 @@ const WizardStartPage = (props: Props) => {
           setModalDisplay({
             show: true,
             type: MODAL_TYPES.MUST_UPDATE_APP,
-            text: 'You must update Blox app to the latest version before recovering your account.',
+            text: <div>You must update Blox app to the <a onClick={() => openExternalLink('download')}>latest version</a> before recovering your account.</div>,
             displayCloseButton: false
           });
           return;

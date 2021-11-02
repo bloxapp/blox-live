@@ -7,6 +7,7 @@ import { useInjectSaga } from '~app/utils/injectSaga';
 import saga from '~app/components/PasswordHandler/saga';
 import useVersions from '~app/components/Versions/useVersions';
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
+import { openExternalLink } from '~app/components/common/service';
 import Connection from '~app/backend/common/store-manager/connection';
 import * as selectors from '~app/components/PasswordHandler/selectors';
 import * as actionsFromDashboard from '~app/components/Dashboard/actions';
@@ -75,7 +76,7 @@ const PasswordModal = (props) => {
       return setModalDisplay({
         show: true,
         type: MODAL_TYPES.MUST_UPDATE_APP,
-        text: 'You must update Blox app to the latest version before recovering your account.',
+        text: <div>You must update Blox app to the <a onClick={() => openExternalLink('download')}>latest version</a> before recovering your account.</div>,
         displayCloseButton: true,
       });
     }

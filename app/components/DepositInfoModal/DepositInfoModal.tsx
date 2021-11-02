@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { notification } from 'antd';
 
 import { CustomModal, Tooltip, InfoWithTooltip } from 'common/components';
-import { openExternalLink } from '../common/service';
+import { openExternalLink } from '~app/components/common/service';
 
 import { CopyToClipboardIcon, Link } from '../Wizard/components/common';
 import { generateDepositDataInfo } from '../Wizard/components/Validators/service';

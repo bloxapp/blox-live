@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux';
 import useRouting from '~app/common/hooks/useRouting';
 import useVersions from '~app/components/Versions/useVersions';
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
+import { openExternalLink } from '~app/components/common/service';
 import * as actionsFromWizard from '~app/components/Wizard/actions';
 import Connection from '~app/backend/common/store-manager/connection';
 import * as actionsFromAccounts from '~app/components/Accounts/actions';
@@ -82,7 +83,7 @@ const AddValidatorButtonWrapper = (props: AddValidatorButtonWrapperProps) => {
         confirmButtonText,
         cancelButtonText: 'Later',
         onConfirmButtonClick: () => {
-          if (bloxLiveNeedsUpdate) {
+          if (bloxLiveNeedsUpdate && !Connection.db('').get('ignoreNewBloxLiveVersion')) {
             return mustUpgradeBloxLive();
           }
           setModalDisplay({show: true, type: MODAL_TYPES.UPDATE});
@@ -112,7 +113,7 @@ const AddValidatorButtonWrapper = (props: AddValidatorButtonWrapperProps) => {
     setModalDisplay({
       show: true,
       type: MODAL_TYPES.MUST_UPDATE_APP,
-      text: 'You must update Blox app to the latest version before updating your KeyVault.',
+      text: <div>You must update Blox app to the <a onClick={() => openExternalLink('download')}>latest version</a> before updating your KeyVault.</div>,
       displayCloseButton: true
     });
   };

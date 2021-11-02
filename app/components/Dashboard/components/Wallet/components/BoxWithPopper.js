@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
+import { openExternalLink } from '~app/components/common/service';
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
 import Connection from '~app/backend/common/store-manager/connection';
 import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
@@ -29,7 +30,7 @@ const BoxWithTooltip = (props) => {
       onSuccess = () => setModalDisplay({
         show: true,
         type: MODAL_TYPES.MUST_UPDATE_APP,
-        text: 'You must update Blox app to the latest version before updating your KeyVault.',
+        text: <div>You must update Blox app to the <a onClick={() => openExternalLink('download')}>latest version</a> before updating your KeyVault.</div>,
         displayCloseButton: true,
       });
     }
