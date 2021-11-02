@@ -27,7 +27,7 @@ import imageImportFailed from '../../../Wizard/assets/img-import-failed.svg';
 
 const ModalsManager = (props: Props) => {
   const { dashboardActions, wizardActions, accountsActions, userActions,
-    showModal, modalType, onSuccess, activeValidators, modalData } = props;
+    showModal, modalType, onSuccess, activeValidators, modalData, modalText, displayCloseButton } = props;
   const { clearModalDisplayData, setModalDisplay } = dashboardActions;
   const { loadWallet, setFinishedWizard, clearDecryptKeyStores, clearDecryptProgress } = wizardActions;
   const { loadAccounts } = accountsActions;
@@ -88,10 +88,11 @@ const ModalsManager = (props: Props) => {
             onClose={() => onClose()}
           />
         );
-      case MODAL_TYPES.ERROR:
+      case MODAL_TYPES.MUST_UPDATE_APP:
         return (
           <WalletMustUpgradeModal
-            onClose={() => onClose()}
+            onClose={displayCloseButton ? onClose : null}
+            text={modalText}
           />
         );
       case MODAL_TYPES.DEPOSIT_INFO:
@@ -160,6 +161,7 @@ const mapStateToProps = (state) => ({
   showModal: selectors.getModalDisplayStatus(state),
   modalType: selectors.getModalType(state),
   modalText: selectors.getModalText(state),
+  displayCloseButton: selectors.getModalDisplayCloseButton(state),
   onSuccess: selectors.getModalOnSuccess(state),
   activeValidators: getActiveValidators(state),
   modalData: selectors.getModalData(state),
@@ -179,6 +181,7 @@ type Props = {
   userActions: Record<string, any>;
   showModal: boolean;
   modalType: string;
+  displayCloseButton: boolean;
   modalText: string;
   onSuccess: () => void;
   activeValidators: [{ publicKey: string }],

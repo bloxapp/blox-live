@@ -11,6 +11,7 @@ const initialState = {
     show: false,
     text: '',
     onSuccess: null,
+    displayCloseButton: true,
 
     // Attributes for confirmation dialog
     confirmation: {
@@ -31,6 +32,7 @@ const dashboardReducer = (state = initialState, action: Action) => produce(state
         type: action.payload.type,
         show: action.payload.show,
         text: action.payload.text,
+        displayCloseButton: action.payload.displayCloseButton,
         confirmation: action.payload.confirmation ?? initialState.dialog.confirmation,
         onSuccess: action.payload.confirmation?.onConfirmButtonClick
           || action.payload.onSuccess

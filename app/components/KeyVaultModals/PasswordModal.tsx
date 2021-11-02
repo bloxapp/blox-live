@@ -5,7 +5,9 @@ import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
 import { useInjectSaga } from '~app/utils/injectSaga';
 import saga from '~app/components/PasswordHandler/saga';
+import useVersions from '~app/components/Versions/useVersions';
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
+import Connection from '~app/backend/common/store-manager/connection';
 import * as selectors from '~app/components/PasswordHandler/selectors';
 import * as actionsFromDashboard from '~app/components/Dashboard/actions';
 import { PasswordInput, Button, ModalTemplate } from '~app/common/components';
@@ -32,6 +34,7 @@ const PasswordModal = (props) => {
   const [showTooShortPasswordError, setTooShortPasswordErrorDisplay] = useState(false);
   const [showWrongPasswordError, setWrongPasswordErrorDisplay] = useState(false);
   const isButtonDisabled = !password || password.length < 8 || showTooShortPasswordError;
+  const { bloxLiveNeedsUpdate } = useVersions();
 
   useInjectSaga({ key, saga, mode: '' });
 
@@ -68,6 +71,13 @@ const PasswordModal = (props) => {
 
   const onForgotPasswordClick = () => {
     clearModalDisplayData();
+    if (bloxLiveNeedsUpdate && !Connection.db('').get('ignoreNewBloxLiveVersion')) {
+      return setModalDisplay({
+        show: true,
+        type: MODAL_TYPES.MUST_UPDATE_APP,
+        text: 'You must update Blox app to the latest version before recovering your account.'
+      });
+    }
     setModalDisplay({show: true, type: MODAL_TYPES.FORGOT_PASSWORD, text: ''});
   };
 

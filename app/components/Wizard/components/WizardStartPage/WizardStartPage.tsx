@@ -9,6 +9,7 @@ import { useInjectSaga } from '~app/utils/injectSaga';
 import { Log } from '~app/backend/common/logger/logger';
 import { InfoWithTooltip } from '~app/common/components';
 import { getSelectedValidatorMode, selectedKeystoreMode, selectedSeedMode } from '~app/common/service';
+import useVersions from '~app/components/Versions/useVersions';
 import * as userSelectors from '~app/components/User/selectors';
 import * as wizardActions from '~app/components/Wizard/actions';
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
@@ -79,7 +80,8 @@ const WizardStartPage = (props: Props) => {
   const { loadDataAfterNewAccount } = useDashboardData();
   const { goToPage, ROUTES } = useRouting();
   const [showStep2, setStep2Status] = useState(false);
-  const [ keyStoreMode, setKeyStoreMode ] = useState(Connection.db().get('VALIDATORS_MODE') === 'keystore');
+  const [keyStoreMode, setKeyStoreMode] = useState(Connection.db().get('VALIDATORS_MODE') === 'keystore');
+  const { bloxLiveNeedsUpdate } = useVersions();
 
   const goToDashboard = () => {
     // Reload accounts and event logs before reaching dash
@@ -95,7 +97,7 @@ const WizardStartPage = (props: Props) => {
 
     const hasWallet = wallet && (wallet.status === 'active' || wallet.status === 'offline');
     const hasSeed = Connection.db().exists('seed');
-    setKeyStoreMode(Connection.db().get('VALIDATORS_MODE') === 'keystore')
+    setKeyStoreMode(Connection.db().get('VALIDATORS_MODE') === 'keystore');
     const finishedRecoveryOrInstallProcess = Connection.db().get('uuid');
     const isInRecoveryProcess = Connection.db().get('inRecoveryProcess');
     const isPrimaryDevice = !!finishedRecoveryOrInstallProcess && (finishedRecoveryOrInstallProcess === userInfo.uuid);
@@ -111,9 +113,27 @@ const WizardStartPage = (props: Props) => {
       if (!finishedRecoveryOrInstallProcess && !userInfo.uuid && accounts?.length > 0) {
         setModalDisplay({ show: true, type: MODAL_TYPES.DEVICE_SWITCH });
         logger.debug('️️🔶 Redirect to device switch!');
+        if (bloxLiveNeedsUpdate && !Connection.db('').get('ignoreNewBloxLiveVersion')) {
+          setModalDisplay({
+            show: true,
+            type: MODAL_TYPES.MUST_UPDATE_APP,
+            text: 'You must update Blox app to the latest version before recovering your account.',
+            displayCloseButton: false
+          });
+          return;
+        }
         return;
       }
       if (userInfo.uuid && ((!isPrimaryDevice && accounts?.length > 0) || isInRecoveryProcess)) {
+        if (bloxLiveNeedsUpdate && !Connection.db('').get('ignoreNewBloxLiveVersion')) {
+          setModalDisplay({
+            show: true,
+            type: MODAL_TYPES.MUST_UPDATE_APP,
+            text: 'You must update Blox app to the latest version before recovering your account.',
+            displayCloseButton: false
+          });
+          return;
+        }
         setModalDisplay({ show: true, type: MODAL_TYPES.DEVICE_SWITCH });
         logger.debug('️️🔶 Redirect to device switch!');
         return;
@@ -237,7 +257,7 @@ const WizardStartPage = (props: Props) => {
   };
 
   const redirectToCreateAccount = () => {
-    if (!accounts?.length && !keyStoreMode ) {
+    if (!accounts?.length && !keyStoreMode) {
       setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
       setPage(config.WIZARD_PAGES.WALLET.IMPORT_OR_GENERATE_SEED);
       logger.debug('️️🔶 Redirect to Import or Generate seed because no accounts!');
