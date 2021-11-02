@@ -75,7 +75,8 @@ const PasswordModal = (props) => {
       return setModalDisplay({
         show: true,
         type: MODAL_TYPES.MUST_UPDATE_APP,
-        text: 'You must update Blox app to the latest version before recovering your account.'
+        text: 'You must update Blox app to the latest version before recovering your account.',
+        displayCloseButton: true,
       });
     }
     setModalDisplay({show: true, type: MODAL_TYPES.FORGOT_PASSWORD, text: ''});

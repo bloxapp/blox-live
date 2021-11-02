@@ -29,7 +29,8 @@ const BoxWithTooltip = (props) => {
       onSuccess = () => setModalDisplay({
         show: true,
         type: MODAL_TYPES.MUST_UPDATE_APP,
-        text: 'You must update Blox app to the latest version before updating your KeyVault.'
+        text: 'You must update Blox app to the latest version before updating your KeyVault.',
+        displayCloseButton: true,
       });
     }
     checkIfPasswordIsNeeded(onSuccess);

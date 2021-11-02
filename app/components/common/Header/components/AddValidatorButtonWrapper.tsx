@@ -2,6 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import useRouting from '~app/common/hooks/useRouting';
+import useVersions from '~app/components/Versions/useVersions';
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
 import * as actionsFromWizard from '~app/components/Wizard/actions';
 import Connection from '~app/backend/common/store-manager/connection';
@@ -26,6 +27,7 @@ const AddValidatorButtonWrapper = (props: AddValidatorButtonWrapperProps) => {
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
   const { goToPage, ROUTES } = useRouting();
   const { clearProcessState, isLoading, isDone, error } = useProcessRunner();
+  const { bloxLiveNeedsUpdate } = useVersions();
 
   /**
    * Open create/import validator wizard
@@ -80,6 +82,9 @@ const AddValidatorButtonWrapper = (props: AddValidatorButtonWrapperProps) => {
         confirmButtonText,
         cancelButtonText: 'Later',
         onConfirmButtonClick: () => {
+          if (bloxLiveNeedsUpdate) {
+            return mustUpgradeBloxLive();
+          }
           setModalDisplay({show: true, type: MODAL_TYPES.UPDATE});
         },
         onCancelButtonClick: () => clearModalDisplayData()
@@ -101,6 +106,15 @@ const AddValidatorButtonWrapper = (props: AddValidatorButtonWrapperProps) => {
     return isTemporaryCryptoKeyValid
       ? callback()
       : checkIfPasswordIsNeeded(callback);
+  };
+
+  const mustUpgradeBloxLive = () => {
+    setModalDisplay({
+      show: true,
+      type: MODAL_TYPES.MUST_UPDATE_APP,
+      text: 'You must update Blox app to the latest version before updating your KeyVault.',
+      displayCloseButton: true
+    });
   };
 
   /**

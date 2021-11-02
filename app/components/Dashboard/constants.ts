@@ -14,7 +14,7 @@ export const STATUSES: Record<string, any> = {
 
 export const MODAL_TYPES: Record<string, any> = {
   PASSWORD: 'password',
-  ERROR: 'error',
+  MUST_UPDATE_APP: 'must_update_app',
   REACTIVATION: 'reactivation',
   UPDATE: 'update',
   REACTIVATE_KEYVAULT_REQUEST: 'keyvault/reactivate/request',
