@@ -2896,10 +2896,10 @@ autoprefixer@^9.8.0:
     postcss "^7.0.32"
     postcss-value-parser "^4.1.0"
 
-aws-sdk@^2.715.0:
-  version "2.722.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.722.0.tgz#41d2be501961b91ee0362be6dc77af68fd4438cb"
-  integrity sha512-zPKAHAQHhLYeMsLIaV1KG0lE3RGO60td4KnC/boIRM3IlHrm7aGryuToAQ+LegZ7rH7Et92moe36F1qgelC5fg==
+aws-sdk@^2.814.0:
+  version "2.814.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.814.0.tgz#7a1c36006e0b5826f14bd2511b1d229ef6814bb0"
+  integrity sha512-empd1m/J/MAkL6d9OeRpmg9thobULu0wk4v8W3JToaxGi2TD7PIdvE6yliZKyOVAdJINhBWEBhxR4OUIHhcGbQ==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
