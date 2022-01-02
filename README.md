@@ -46,7 +46,7 @@ Download the app from https://www.bloxstaking.com/download
 ### Compatibility
 - macOS
 - Windows
-- Ubuntu (coming soon)
+- Ubuntu
 
 ## Development
 
