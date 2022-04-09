@@ -309,7 +309,7 @@
     "log4js": "^6.3.0",
     "lottie-web-react": "^1.0.3",
     "macos-release": "^2.4.1",
-    "moment": "^2.27.0",
+    "moment": "^2.29.2",
     "node-ssh": "10.0.2",
     "prop-types": "^15.7.2",
     "query-string": "^6.13.7",
