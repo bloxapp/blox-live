@@ -21,8 +21,12 @@ const CreateValidator = (props: Props) => {
 
   useEffect(() => {
     if (isDone && account && !error) {
+      console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<1>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
       const accountIndex = +account.name.replace('account-', '');
       callLoadDepositData(account.publicKey, accountIndex, account.network);
+    }else {
+      console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<1>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+      console.log(error);
     }
   }, [isLoading, account, error]);
 
@@ -73,31 +77,31 @@ const mapStateToProps = (state: State) => ({
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  callLoadDepositData: (publicKey, accountIndex, network) => dispatch(loadDepositData(publicKey, accountIndex, network)),
-  callSetDepositNeeded: (payload: DepositNeededPayload) => dispatch(setDepositNeeded(payload)),
   callSetAddAnotherAccount: (payload: boolean) => dispatch(setAddAnotherAccount(payload)),
+  callSetDepositNeeded: (payload: DepositNeededPayload) => dispatch(setDepositNeeded(payload)),
+  callLoadDepositData: (publicKey, accountIndex, network) => dispatch(loadDepositData(publicKey, accountIndex, network)),
 });
 
 type Props = {
   page: number;
-  network: string;
-  setPage: (page: number) => void;
-  setPageData: (data: any) => void;
   step: number;
-  setStep: (page: number) => void;
-  processData?: Record<string, any> | null;
-  callLoadDepositData: (publicKey: string, accountIndex: number, network: string) => void;
-  callSetDepositNeeded: (payload: DepositNeededPayload) => void;
-  callSetAddAnotherAccount: (payload: boolean) => void;
-  selectedNetwork: string;
+  network: string;
   depositData: any;
+  selectedNetwork: string;
+  setPage: (page: number) => void;
+  setStep: (page: number) => void;
+  setPageData: (data: any) => void;
+  processData?: Record<string, any> | null;
+  callSetAddAnotherAccount: (payload: boolean) => void;
+  callSetDepositNeeded: (payload: DepositNeededPayload) => void;
+  callLoadDepositData: (publicKey: string, accountIndex: number, network: string) => void;
 };
 
 type DepositNeededPayload = {
+  network: string;
   isNeeded: boolean;
   publicKey: string;
   accountIndex: number;
-  network: string;
 };
 
 type State = Record<string, any>;

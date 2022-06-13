@@ -102,15 +102,15 @@ const Validators = ({ accounts, isTestNetShow, showNetworkSwitcher }) => {
     <Wrapper>
       <Title>Validators</Title>
       <Table
-        columns={tableColumns}
-        data={pagedAccounts}
         withHeader
         isPagination
-        selectedSorting={selectedSort}
         sortType={sortType}
+        data={pagedAccounts}
+        columns={tableColumns}
         onSortClick={onSortClick}
-        paginationInfo={paginationInfo}
         onPageClick={onPageClick}
+        selectedSorting={selectedSort}
+        paginationInfo={paginationInfo}
       />
     </Wrapper>
   );

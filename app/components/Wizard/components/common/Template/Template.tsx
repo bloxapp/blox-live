@@ -36,10 +36,10 @@ const ComponentWrapper = styled.div`
 `;
 
 const BackgroundImage = styled.img`
+  right: 0;
   width: 300px;
   height: 300px;
   position: absolute;
-  right: 0;
 `;
 
 const CloseButton = styled.div`
@@ -139,19 +139,19 @@ const mapDispatchToProps = (dispatch) => ({
 
 type Props = {
   component: JSX.Element;
+  page: number;
+  step: number;
+  pageData: any;
+  accounts: any;
   bgImage: string;
   backButton?: boolean;
-  page: number;
-  pageData: any;
-  setPage: (page: number) => void;
-  step: number;
-  setStep: (page: number) => void;
-  wizardActions: Record<string, any>;
-  accountsActions: Record<string, any>;
   isFinishedWizard: boolean;
   addAnotherAccount: boolean;
   seedLessNeedDeposit: boolean;
-  accounts: any;
+  setPage: (page: number) => void;
+  setStep: (page: number) => void;
+  wizardActions: Record<string, any>;
+  accountsActions: Record<string, any>;
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Template);

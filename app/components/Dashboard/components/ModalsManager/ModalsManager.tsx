@@ -21,6 +21,7 @@ import {
   FailureModal,
   ThankYouModal,
   WalletMustUpgradeModal,
+  MergeIsComingModal,
   ConfirmationModal } from '~app/components/KeyVaultModals';
 // @ts-ignore
 import imageImportFailed from '../../../Wizard/assets/img-import-failed.svg';
@@ -97,6 +98,10 @@ const ModalsManager = (props: Props) => {
         );
       case MODAL_TYPES.DEPOSIT_INFO:
         return <DepositInfoModal onClose={() => onClose()} />;
+
+      case MODAL_TYPES.MERGE_COMING:
+        return <MergeIsComingModal />;
+
       case MODAL_TYPES.ACTIVE_VALIDATOR:
         return activeValidators.length > 0 && (
           <ActiveValidatorModal
@@ -158,20 +163,20 @@ const ModalsManager = (props: Props) => {
 };
 
 const mapStateToProps = (state) => ({
-  showModal: selectors.getModalDisplayStatus(state),
   modalType: selectors.getModalType(state),
   modalText: selectors.getModalText(state),
-  displayCloseButton: selectors.getModalDisplayCloseButton(state),
-  onSuccess: selectors.getModalOnSuccess(state),
-  activeValidators: getActiveValidators(state),
   modalData: selectors.getModalData(state),
+  activeValidators: getActiveValidators(state),
+  onSuccess: selectors.getModalOnSuccess(state),
+  showModal: selectors.getModalDisplayStatus(state),
+  displayCloseButton: selectors.getModalDisplayCloseButton(state),
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  dashboardActions: bindActionCreators(actionsFromDashboard, dispatch),
+  userActions: bindActionCreators(actionsFromUser, dispatch),
   wizardActions: bindActionCreators(actionsFromWizard, dispatch),
   accountsActions: bindActionCreators(actionsFromAccounts, dispatch),
-  userActions: bindActionCreators(actionsFromUser, dispatch),
+  dashboardActions: bindActionCreators(actionsFromDashboard, dispatch),
 });
 
 type Props = {

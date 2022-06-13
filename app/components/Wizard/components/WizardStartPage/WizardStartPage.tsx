@@ -298,12 +298,12 @@ const WizardStartPage = (props: Props) => {
 };
 
 const mapStateToProps = (state: State) => ({
-  isLoading: wizardSelectors.getIsLoading(state),
+  userInfo: userSelectors.getInfo(state),
   wallet: wizardSelectors.getWallet(state),
   accounts: accountSelectors.getAccounts(state),
+  isLoading: wizardSelectors.getIsLoading(state),
   isDepositNeeded: accountSelectors.getDepositNeededStatus(state),
   addAnotherAccount: accountSelectors.getAddAnotherAccount(state),
-  userInfo: userSelectors.getInfo(state),
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({

@@ -5,18 +5,22 @@ import Sorting from './Sorting';
 
 const Wrapper = styled.div`
   width: 100%;
-  height: ${({height}) => height || '50px'};
-  padding: 0 20px;
   display: flex;
-  border-bottom: solid 1px ${({theme}) => theme.gray300};
   font-size: 12px;
+  padding: 0 16px;
+  height: ${({height}) => height || '50px'};
+  border-bottom: solid 1px ${({theme}) => theme.gray300};
 `;
 
 const Cell = styled.div`
-  width: ${({width}) => width};
   height: 100%;
   display: flex;
   align-items: center;
+  width: ${({width}) => width};
+  border-left:  solid 1px ${({theme}) => theme.gray300};
+  &:first-child {
+    border-left: 0;
+  }
   justify-content:${({justifyContent}) => justifyContent || 'flex-start'};
 `;
 
@@ -32,16 +36,16 @@ const Header = ({columns, selectedSorting, sortType, onSortClick, height}) => {
         if (withSorting) {
           return (
             <Cell
-              width={width}
               key={index}
+              width={width}
               justifyContent={justifyContent}
             >
               {title}
               <Sorting
                 sortKey={key}
-                selectedSorting={selectedSorting}
                 sortType={sortType}
                 onSortClick={onSortClick}
+                selectedSorting={selectedSorting}
                 compareFunction={compareFunction}
               />
             </Cell>
@@ -50,8 +54,8 @@ const Header = ({columns, selectedSorting, sortType, onSortClick, height}) => {
 
         return (
           <Cell
-            width={width}
             key={index}
+            width={width}
             justifyContent={justifyContent}
           >
             {title}

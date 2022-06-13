@@ -57,16 +57,16 @@ const mapDispatchToProps = (dispatch) => ({
 });
 
 BoxWithTooltip.propTypes = {
-  isActive: PropTypes.bool,
-  walletNeedsUpdate: PropTypes.bool,
-  bloxLiveNeedsUpdate: PropTypes.bool,
   width: PropTypes.string,
   color: PropTypes.string,
-  bigText: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  medText: PropTypes.string,
-  tinyText: PropTypes.string,
   image: PropTypes.string,
+  isActive: PropTypes.bool,
+  medText: PropTypes.string,
   actions: PropTypes.object,
+  tinyText: PropTypes.string,
+  walletNeedsUpdate: PropTypes.bool,
+  bloxLiveNeedsUpdate: PropTypes.bool,
+  bigText: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 
 export default connect(null, mapDispatchToProps)(BoxWithTooltip);

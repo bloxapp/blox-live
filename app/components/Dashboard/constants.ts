@@ -13,17 +13,18 @@ export const STATUSES: Record<string, any> = {
 };
 
 export const MODAL_TYPES: Record<string, any> = {
-  PASSWORD: 'password',
-  MUST_UPDATE_APP: 'must_update_app',
-  REACTIVATION: 'reactivation',
   UPDATE: 'update',
-  REACTIVATE_KEYVAULT_REQUEST: 'keyvault/reactivate/request',
-  UPDATE_KEYVAULT_REQUEST: 'keyvault/update/request',
+  PASSWORD: 'password',
   DEPOSIT_INFO: 'depositInfo',
-  ACTIVE_VALIDATOR: 'activeValidator',
+  REACTIVATION: 'reactivation',
+  MERGE_COMING: 'mergeIsComing',
   DEVICE_SWITCH: 'deviceSwitch',
-  FORGOT_PASSWORD: 'forgotPassword',
-  VALIDATORS_IMPORT_FAILED: 'validators/import/failed',
-  VALIDATORS_IMPORT_FAILED_THANKS: 'validators/import/failed/thanks',
   COMPLIANCE_MODAL: 'compliance',
+  FORGOT_PASSWORD: 'forgotPassword',
+  MUST_UPDATE_APP: 'must_update_app',
+  ACTIVE_VALIDATOR: 'activeValidator',
+  UPDATE_KEYVAULT_REQUEST: 'keyvault/update/request',
+  VALIDATORS_IMPORT_FAILED: 'validators/import/failed',
+  REACTIVATE_KEYVAULT_REQUEST: 'keyvault/reactivate/request',
+  VALIDATORS_IMPORT_FAILED_THANKS: 'validators/import/failed/thanks',
 };

@@ -63,12 +63,12 @@ const EventLogs = ({ events, isTestNetShow, showNetworkSwitcher }) => {
      {(pagedEvents && pagedEvents.length > 0) ?
         (
           <Table
-            columns={tableColumns}
-            data={pagedEvents}
-            withHeader={false}
             isPagination
-            paginationInfo={paginationInfo}
+            withHeader={false}
+            data={pagedEvents}
+            columns={tableColumns}
             onPageClick={onPageClick}
+            paginationInfo={paginationInfo}
           />
         ) :
      ('There are no events to show at the moment')}

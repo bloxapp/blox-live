@@ -70,8 +70,8 @@ type Page = number;
 
 type ImportPassphraseProps = {
   page: Page;
-  setPage: (page: Page) => void;
   isLoading: boolean;
+  setPage: (page: Page) => void;
   keyVaultActions: Record<string, any>;
 };
 

@@ -265,6 +265,16 @@ const navigationRules = [
         }
       },
       {
+        name: 'Proposal Rewards Address',
+        page: config.WIZARD_PAGES.VALIDATOR.REWARD_ADDRESS,
+        done: (props: Record<string, any>): boolean => {
+          return props.page > config.WIZARD_PAGES.VALIDATOR.SLASHING_WARNING;
+        },
+        show: (props: Record<string, any>): boolean => {
+          return showCreateValidatorPage(props);
+        }
+      },
+      {
         name: 'Validator Summary',
         page: config.WIZARD_PAGES.VALIDATOR.VALIDATOR_SUMMARY,
         done: (props: Record<string, any>): boolean => {

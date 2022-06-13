@@ -305,6 +305,12 @@ export default class AccountService {
     return index;
   }
 
+  // async updateRewardAddresses(addresses: any): Promise<boolean> {
+  //   const accounts = await this.keyVaultService.listAccounts();
+  //   console.log(accounts);
+  //   return true;
+  // }
+
   async getDepositData(pubKey: string, index: number, network: string): Promise<any> {
     if (!network) { // TODO: validate networks
       throw new Error('netwrok is missing');

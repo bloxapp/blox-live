@@ -33,6 +33,7 @@ export default class Config {
       PRATER_NETWORK: 'prater',
       MAINNET_NETWORK: 'mainnet',
       SSL_SUPPORTED_TAG: 'v0.1.25',
+      MERGE_SUPPORTED_TAG: 'v1.4.4',
       HIGHEST_ATTESTATION_SUPPORTED_TAG: 'v0.3.2',
       DEFAULT_SSH_PORT: 22,
       TARGET_SSH_PORT: 2200,
@@ -71,9 +72,10 @@ export default class Config {
           UPLOAD_KEYSTORE_FILE: 6.5, // Keystore mode
           CREATE_VALIDATOR: 7,
           VALIDATOR_SUMMARY: 7.1, // Keystore mode
-          SLASHING_WARNING: 7.2, // Keystore mode - shown only for "deposited" validators
-          DEPOSIT_OVERVIEW: 7.3, // Keystore mode - shown only for "not deposited" validators
-          UPLOAD_DEPOSIT_FILE: 7.4, // Keystore mode - shown only for "not deposited" validators
+          REWARD_ADDRESS: 7.2, // Keystore mode
+          SLASHING_WARNING: 7.3, // Keystore mode - shown only for "deposited" validators
+          DEPOSIT_OVERVIEW: 7.4, // Keystore mode - shown only for "not deposited" validators
+          UPLOAD_DEPOSIT_FILE: 7.5, // Keystore mode - shown only for "not deposited" validators
           STAKING_DEPOSIT: 8,
           CONGRATULATIONS: 9
         }

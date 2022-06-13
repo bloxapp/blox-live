@@ -98,10 +98,10 @@ const GenerateKeys = (props: Props) => {
 };
 
 type Props = {
-  isLoading: boolean;
-  onClick: () => void;
   error: string;
   network: string,
+  isLoading: boolean;
+  onClick: () => void;
   wallet: Record<string, any>
 };
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import RewardAddress from './components/RewardAddress';
 import { KeyCell, Status, Change, Apr, Balance } from './components';
 import { compareFunction } from '~app/common/components/Table/service';
 
@@ -15,16 +16,23 @@ export default [
   {
     key: 'key',
     title: 'Public Key',
-    width: '40%',
+    width: '35%',
     justifyContent: 'flex-start',
     compareFunction: (a, b, dir) => compareFunction('publicKey', a, b, dir, 'string'),
     valueRender: (value) => <KeyCell value={value} />,
+  }, {
+    width: '21%',
+    key: 'feeRecipient',
+    justifyContent: 'center',
+    title: 'Proposal Rewards Address',
+    compareFunction: (a, b, dir) => compareFunction('feeRecipient', a, b, dir, 'string'),
+    valueRender: (value, _totalCount, item) => <RewardAddress address={item.feeRecipient} />,
   },
   {
     key: 'currentBalance',
     title: 'Balance',
-    width: '15%',
-    justifyContent: 'flex-end',
+    width: '10%',
+    justifyContent: 'center',
     compareFunction: (a, b, dir) => compareFunction('currentBalance', a, b, dir, 'number'),
     valueRender: (balance) => {
       return <Balance balance={formattedBalance(balance)} />;
@@ -33,8 +41,8 @@ export default [
   {
     key: 'change',
     title: 'Change',
-    width: '15%',
-    justifyContent: 'flex-end',
+    width: '10%',
+    justifyContent: 'center',
     compareFunction: (a, b, dir) => compareFunction('change', a, b, dir, 'number'),
     valueRender: (value, _totalCount, item) => {
       return <Change change={item.status === 'pending' ? null : formattedBalance(value)} />;
@@ -43,8 +51,8 @@ export default [
   {
     key: 'apr',
     title: 'Est. APR(%)',
-    width: '18%',
-    justifyContent: 'flex-end',
+    width: '12%',
+    justifyContent: 'center',
     compareFunction: (a, b, dir) => compareFunction('apr', a, b, dir, 'number'),
     valueRender: (change) => <Apr change={change} />,
   },
@@ -52,7 +60,7 @@ export default [
     key: 'status',
     title: 'Status',
     width: '12%',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
     compareFunction: (a, b, dir) => compareFunction('status', a, b, dir, 'string'),
     valueRender: (value) => <Status status={value} />,
   }

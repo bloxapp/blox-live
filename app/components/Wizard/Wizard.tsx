@@ -19,17 +19,26 @@ const Wrapper = styled.div`
 `;
 
 const Wizard = (props: Props) => {
-  const { isFinishedWizard, addAnotherAccount, pageData, setPageData, page, setPage,
-    step, setStep, accounts } = props;
+  const {
+    page,
+    step,
+    setPage,
+    setStep,
+    pageData,
+    accounts,
+    setPageData,
+    isFinishedWizard,
+    addAnotherAccount
+  } = props;
 
   const withMenu = !isFinishedWizard && addAnotherAccount && step === config.WIZARD_STEPS.VALIDATOR_SETUP;
 
   const contentManagerProps = {
-    accounts,
     page,
-    setPage,
     step,
+    accounts,
     setStep,
+    setPage,
     pageData,
     setPageData: (data: any) => {
       setPageData({
@@ -66,15 +75,15 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 });
 
 type Props = {
-  isFinishedWizard: boolean;
-  addAnotherAccount: boolean;
-  pageData: any;
-  setPageData: (data: any) => void;
-  setPage: (page: number) => void;
-  setStep: (page: number) => void;
   page: number;
   step: number;
+  pageData: any;
   accounts: any;
+  isFinishedWizard: boolean;
+  addAnotherAccount: boolean;
+  setPage: (page: number) => void;
+  setStep: (page: number) => void;
+  setPageData: (data: any) => void;
 };
 
 type Dispatch = (arg0: { type: string }) => any;

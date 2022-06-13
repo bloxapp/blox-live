@@ -15,6 +15,11 @@ import {
 } from '~app/components/Dashboard/service';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 import { clearWizardPage, clearWizardPageData, clearWizardStep } from '~app/components/Wizard/actions';
+import {MODAL_TYPES} from './constants';
+import {bindActionCreators} from 'redux';
+import * as actionsFromDashboard from './actions';
+import Connection from '../../backend/common/store-manager/connection';
+import {isVersionHigherOrEqual} from '../../utils/service';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -26,17 +31,34 @@ const Wrapper = styled.div`
 `;
 
 const Dashboard = (props) => {
-  const { walletStatus, accounts, eventLogs, callClearWizardPageData,
-    callClearWizardStep, callClearWizardPage, walletVersion, walletNeedsUpdate,
-    bloxLiveNeedsUpdate, isTestNetShow } = props;
+  const {
+    accounts,
+    eventLogs,
+    walletStatus,
+    walletVersion,
+    isTestNetShow,
+    dashboardActions,
+    walletNeedsUpdate,
+    callClearWizardStep,
+    bloxLiveNeedsUpdate,
+    callClearWizardPage,
+    callClearWizardPageData
+  } = props;
+
+  const {setModalDisplay} = dashboardActions;
+
+  const { clearProcessState, isLoading, isDone } = useProcessRunner();
   const showNetworkSwitcher = accountsHaveMoreThanOneNetwork(accounts);
   const [filteredAccounts, setFilteredAccounts] = React.useState(null);
   const [accountsSummary, setAccountsSummary] = React.useState(null);
   const [normalizedAccounts, setNormalizedAccounts] = React.useState(null);
   const [normalizedEventLogs, setNormalizedEventLogs] = React.useState(null);
-  const { clearProcessState, isLoading, isDone } = useProcessRunner();
 
   React.useEffect(() => {
+    const keyVaultVersion = Connection.db().get('keyVaultVersion');
+    if (isVersionHigherOrEqual(keyVaultVersion, 'v1.4.4')) {
+      setModalDisplay({ show: true, type: MODAL_TYPES.MERGE_COMING });
+    }
     if (!isLoading && isDone) {
       clearProcessState();
     }
@@ -113,16 +135,16 @@ const Dashboard = (props) => {
 };
 
 Dashboard.propTypes = {
-  walletNeedsUpdate: PropTypes.bool,
-  walletStatus: PropTypes.string,
-  walletVersion: PropTypes.string,
   accounts: PropTypes.array,
   eventLogs: PropTypes.array,
-  bloxLiveNeedsUpdate: PropTypes.bool,
   isTestNetShow: PropTypes.bool,
-  callClearWizardPageData: PropTypes.func,
+  walletStatus: PropTypes.string,
+  walletVersion: PropTypes.string,
+  walletNeedsUpdate: PropTypes.bool,
   callClearWizardPage: PropTypes.func,
   callClearWizardStep: PropTypes.func,
+  bloxLiveNeedsUpdate: PropTypes.bool,
+  callClearWizardPageData: PropTypes.func,
 };
 
 const mapStateToProps = (state) => ({
@@ -130,9 +152,10 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  callClearWizardPageData: () => dispatch(clearWizardPageData()),
   callClearWizardPage: () => dispatch(clearWizardPage()),
-  callClearWizardStep: () => dispatch(clearWizardStep())
+  callClearWizardStep: () => dispatch(clearWizardStep()),
+  callClearWizardPageData: () => dispatch(clearWizardPageData()),
+  dashboardActions: bindActionCreators(actionsFromDashboard, dispatch)
 });
 
 type Dispatch = (arg0: { type: string }) => any;

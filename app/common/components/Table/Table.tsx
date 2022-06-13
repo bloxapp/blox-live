@@ -5,12 +5,12 @@ import { Header, Body, Footer } from './components';
 const Wrapper = styled.div`
   width: 100%;
   display: flex;
+  font-weight: 500;
+  border-radius: 8px;
   flex-direction: column;
   background-color: #ffffff;
-  border: solid 1px ${({theme}) => theme.gray300};
-  border-radius: 8px;
-  font-weight: 500;
   color: ${({theme}) => theme.gray800};
+  border: solid 1px ${({theme}) => theme.gray300};
 `;
 
 const Table = (props: Props) => {
@@ -23,24 +23,24 @@ const Table = (props: Props) => {
     <Wrapper>
       {withHeader && (
         <Header
-          height={headerHeight}
           columns={columns}
-          selectedSorting={selectedSorting}
           sortType={sortType}
+          height={headerHeight}
           onSortClick={onSortClick}
+          selectedSorting={selectedSorting}
         />
       )}
       <Body
-        rowMinHeight={rowMinHeight}
-        columns={columns}
         data={data}
+        columns={columns}
+        rowMinHeight={rowMinHeight}
         totalCount={totalCount || null}
       />
       <Footer
         height={footerHeight}
+        onPageClick={onPageClick}
         isPagination={isPagination}
         paginationInfo={paginationInfo}
-        onPageClick={onPageClick}
         navButtonWidth={navButtonWidth}
       />
     </Wrapper>

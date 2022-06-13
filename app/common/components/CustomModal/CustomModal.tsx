@@ -15,6 +15,12 @@ const Wrapper = styled.div`
   z-index:50;
 `;
 
+const CloseButton = styled.div`
+  position: absolute;
+  top: -32px;
+  right: -32px;
+`;
+
 const Content = styled.div<ContentProps>`
   width: ${({width}) => Number.isInteger(width) ? `${width}px` : width};
   height: ${({height}) => Number.isInteger(height) ? `${height}px` : height};
@@ -27,14 +33,9 @@ const Content = styled.div<ContentProps>`
   //min-height: 600px;
 `;
 
-const CloseButton = styled.div`
-  position: absolute;
-  top: -32px;
-  right: -32px;
-`;
-
 const CustomModal = (props: Props) => {
   const { children, width, height, onClose } = props;
+
   return (
     <Wrapper>
       <Content width={width} height={height}>

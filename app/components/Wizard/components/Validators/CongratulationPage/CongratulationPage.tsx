@@ -79,10 +79,10 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 
 type Props = {
   page: number;
+  pageData: any;
   setPage: (page: number) => void;
   wizardActions: Record<string, any>;
   accountsActions: Record<string, any>;
-  pageData: any;
 };
 
 type Dispatch = (arg0: { type: string }) => any;

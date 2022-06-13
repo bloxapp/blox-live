@@ -190,10 +190,7 @@ const App = (props: AppProps) => {
     if (!didInitApp) {
       init();
     }
-    deepLink(
-      newAccessToken,
-      loginFailure
-    );
+    deepLink(newAccessToken, loginFailure);
     onLoginButtonClickedSubscribe();
     accessTokenRefreshedSubscribe();
     invalidTokenSubscribe();

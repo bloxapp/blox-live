@@ -11,19 +11,29 @@ const Wrapper = styled.div`
 
 const Row = styled.div`
   width: 100%;
-  min-height: ${({ minHeight }) => minHeight || '70px'};
-  padding: 0 20px;
   display: grid;
-  grid-template-columns: ${({ gridTemplateColumns }) => gridTemplateColumns};
+  padding: 0 16px;
   align-items: center;
+  min-height: ${({ minHeight }) => minHeight || '70px'};
   border-bottom: 1px solid ${({ theme }) => theme.gray300};
+  grid-template-columns: ${({ gridTemplateColumns }) => gridTemplateColumns};
   &:last-child {
     border-bottom: 0;
   }
 `;
 
 const Cell = styled.div`
+  height: 100%;
   display: flex;
+  align-items: center;
+  padding-right: 8px;
+  border-left:  solid 1px ${({theme}) => theme.gray300};
+  &:first-child {
+    border-left: 0;
+  }
+  &:last-child {
+    padding-right: 0;
+  }
   justify-content:${({justifyContent}) => justifyContent || 'flex-start'};
 `;
 
@@ -48,8 +58,8 @@ const Body = ({ data, columns, totalCount, rowMinHeight }) => (
         return (
           <Row
             key={dataIndex}
-            gridTemplateColumns={gridTemplateColumns}
             minHeight={rowMinHeight}
+            gridTemplateColumns={gridTemplateColumns}
           >
             {columns.map((column, index) => (
               <Cell key={index} justifyContent={column.justifyContent}>

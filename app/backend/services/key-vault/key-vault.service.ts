@@ -64,6 +64,53 @@ export default class KeyVaultService {
     }
   }
 
+  async getListAccountsRewardKeys() {
+    this.logger.info('try to get keyVault server accounts reward key...');
+    try {
+      const response = await this.keyVaultApi.requestThruSsh({
+        method: METHOD.GET,
+        path: 'config'
+      });
+      return response?.data;
+    } catch (e) {
+      this.logger.error(e);
+      const { errors } = JSON.parse(e.message);
+      if (Array.isArray(errors)) {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const err of errors) {
+          if (err.includes('wallet not found')) {
+            return [];
+          }
+        }
+      }
+      throw e;
+    }
+  }
+
+  async setListAccountsRewardKeys(payload: object) {
+    this.logger.info('try to get keyVault server accounts reward key...');
+    try {
+      const response = await this.keyVaultApi.requestThruSsh({
+        data: payload,
+        path: 'config',
+        method: METHOD.POST
+      });
+      return response?.data;
+    } catch (e) {
+      this.logger.error(e);
+      const { errors } = JSON.parse(e.message);
+      if (Array.isArray(errors)) {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const err of errors) {
+          if (err.includes('wallet not found')) {
+            return [];
+          }
+        }
+      }
+      throw e;
+    }
+  }
+
   async healthCheck() {
     return await this.keyVaultApi.requestThruSsh({
       method: METHOD.GET,

@@ -74,6 +74,10 @@ const switcher = (props: Props) => {
       component = <ValidatorPages.ValidatorsSummary {...props} />;
       break;
 
+    case config.WIZARD_PAGES.VALIDATOR.REWARD_ADDRESS:
+      component = <ValidatorPages.RewardAddress {...props} />;
+      break;
+
     case config.WIZARD_PAGES.VALIDATOR.SLASHING_WARNING:
       component = <ValidatorPages.SlashingWarning {...props} />;
       break;
@@ -112,8 +116,8 @@ const switcher = (props: Props) => {
     return (
       <Template
         key={page}
-        bgImage={bgImage}
         {...props}
+        bgImage={bgImage}
         component={component}
       />
     );

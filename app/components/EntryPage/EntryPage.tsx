@@ -24,6 +24,7 @@ import Connection from '~app/backend/common/store-manager/connection';
 import Content from '~app/components/EntryPage/routes/wrappers/Content';
 import * as actionsFromDashboard from '~app/components/Dashboard/actions';
 import SettingsRoute from '~app/components/EntryPage/routes/SettingsRoute';
+import RewardAddresses from '~app/components/RewardAddresses/RewardAddresses';
 import * as keyvaultSelectors from '~app/components/KeyVaultManagement/selectors';
 import { keyvaultLoadLatestVersion } from '~app/components/KeyVaultManagement/actions';
 
@@ -34,11 +35,19 @@ const DashboardWrapper = styled.div`
   background-color: #f7fcff;
 `;
 
+const RewardAddressWrapper = styled.div`
+  width: 100%;
+  display: grid;
+  min-height: 100%;
+  padding-top: 70px;
+  background-color: #f7fcff;
+`;
+
 const WizardWrapper = styled.div`
   width: 100%;
+  display: grid;
   min-height: 100%;
   background-color: #f7fcff;
-  display: grid;
 `;
 
 const wizardKey = 'wizard';
@@ -119,10 +128,10 @@ const EntryPage = (props: Props) => {
         exact
         path={ROUTES.LOGGED_IN}
         render={() => {
-          if (showWizard) {
-            return <Redirect to={ROUTES.WIZARD} />;
-          }
-          return <Redirect to={ROUTES.DASHBOARD} />;
+            if (showWizard) {
+              return <Redirect to={ROUTES.WIZARD} />;
+            }
+            return <Redirect to={ROUTES.DASHBOARD} />;
         }}
       />
       <Route
@@ -144,6 +153,19 @@ const EntryPage = (props: Props) => {
           <WizardWrapper>
             <Wizard {...otherProps} />
           </WizardWrapper>
+        )}
+      />
+      <Route
+        path={ROUTES.REWARD_ADDRESSES}
+        render={() => (
+          <>
+            <Header withMenu />
+            <Content>
+              <RewardAddressWrapper>
+                <RewardAddresses {...otherProps} />
+              </RewardAddressWrapper>
+            </Content>
+          </>
         )}
       />
       <Route

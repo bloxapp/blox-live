@@ -11,12 +11,12 @@ import fileUploadIcon from '../../../assets/images/file-upload.svg';
  */
 
 const DropZoneHeader = styled.div`
-  font-weight: 500;
-  font-style: normal;
-  font-size: 16px;
-  color: #2536B8;
-  text-align: center;
   margin: auto;
+  color: #2536B8;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  font-style: normal;
 `;
 
 const DropZoneSubHeader = styled.div`
