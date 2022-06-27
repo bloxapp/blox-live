@@ -22,10 +22,10 @@ export default [
     valueRender: (value) => <KeyCell value={value} />,
   }, {
     width: '21%',
+    writable: true,
     key: 'feeRecipient',
     justifyContent: 'center',
     title: 'Proposal Rewards Address',
-    compareFunction: (a, b, dir) => compareFunction('feeRecipient', a, b, dir, 'string'),
     valueRender: (value, _totalCount, item) => <RewardAddress address={item.feeRecipient} />,
   },
   {

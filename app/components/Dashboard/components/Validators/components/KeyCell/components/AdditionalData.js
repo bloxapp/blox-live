@@ -12,8 +12,8 @@ import WarningText from '~app/components/Dashboard/components/Validators/compone
 const AdditionalData = (props) => {
   const { publicKey, status, createdAt, accountIndex, callSetWizardPageData,
     callSetDepositNeeded, callSetSeedlessDepositNeeded, network, callSetAddAnotherAccount } = props;
-  const { checkIfPasswordIsNeeded } = usePasswordHandler();
   const { goToPage, ROUTES } = useRouting();
+  const { checkIfPasswordIsNeeded } = usePasswordHandler();
 
   const onFinishSetupClick = async () => {
     const onPasswordSuccess = async () => {

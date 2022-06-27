@@ -99,15 +99,15 @@ const EntryPage = (props: Props) => {
   const walletNeedsUpdate = keyvaultCurrentVersion !== keyvaultLatestVersion;
 
   const otherProps = {
-    walletNeedsUpdate,
+    accounts,
+    eventLogs,
     walletStatus,
     isLoadingWallet,
-    accounts,
     isLoadingAccounts,
-    eventLogs,
+    walletNeedsUpdate,
     isLoadingEventLogs,
-    isLoadingBloxLiveVersion,
     bloxLiveNeedsUpdate,
+    isLoadingBloxLiveVersion,
     walletVersion: String(walletVersion).replace('v', '')
   };
 

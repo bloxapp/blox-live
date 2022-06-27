@@ -61,17 +61,17 @@ const Wizard = (props: Props) => {
 };
 
 const mapStateToProps = (state) => ({
-  isFinishedWizard: getWizardFinishedStatus(state),
-  addAnotherAccount: getAddAnotherAccount(state),
-  pageData: getPageData(state),
   page: getPage(state),
-  step: getStep(state)
+  step: getStep(state),
+  pageData: getPageData(state),
+  addAnotherAccount: getAddAnotherAccount(state),
+  isFinishedWizard: getWizardFinishedStatus(state)
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setPageData: (data: any) => dispatch(setWizardPageData(data)),
   setPage: (page: any) => dispatch(setWizardPage(page)),
-  setStep: (page: any) => dispatch(setWizardStep(page))
+  setStep: (page: any) => dispatch(setWizardStep(page)),
+  setPageData: (data: any) => dispatch(setWizardPageData(data))
 });
 
 type Props = {

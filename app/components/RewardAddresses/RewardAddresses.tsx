@@ -1,18 +1,25 @@
 import {connect} from 'react-redux';
 import React, {useEffect, useMemo, useState} from 'react';
 import styled from 'styled-components';
-import {Button, Checkbox} from '~app/common/components';
+import Spinner from '~app/common/components/Spinner';
 import useRouting from '~app/common/hooks/useRouting';
+import { Checkbox} from '~app/common/components';
+import { selectedSeedMode } from '~app/common/service';
 import useAccounts from '~app/components/Accounts/useAccounts';
 import { handlePageClick } from '~app/common/components/Table/service';
 import {getAddAnotherAccount} from '~app/components/Accounts/selectors';
-
-import {BackButton, Link, Title} from '~app/components/Wizard/components/common';
-import {setWizardPage, setWizardStep} from '~app/components/Wizard/actions';
+import { setWizardPage, setWizardStep} from '~app/components/Wizard/actions';
+import {BackButton, Link, Title, BigButton} from '~app/components/Wizard/components/common';
 import {getPage, getPageData, getStep, getWizardFinishedStatus} from '~app/components/Wizard/selectors';
 import {Table} from '../../common/components';
 import tableColumns from './tableColumns';
 import KeyVaultService from '../../backend/services/key-vault/key-vault.service';
+import useDashboardData from '../Dashboard/useDashboardData';
+import useProcessRunner from '../ProcessRunner/useProcessRunner';
+import config from '../../backend/common/config';
+import {bindActionCreators} from 'redux';
+import * as actionsFromWizard from '../Wizard/actions';
+import {setAddAnotherAccount} from '../Accounts/actions';
 
 const Wrapper = styled.div`
   height: 100%;
@@ -45,85 +52,123 @@ const TinyText = styled.span`
   color: ${({theme}) => theme.gray600};
 `;
 
-const SubmitButton = styled(Button)`
-  width: 238px;
-  height: 40px;
-  padding: 6px 24px 8px;
+const LoaderWrapper = styled.div`
+  display:flex;
+  max-width:500px;
+  margin-top: 8px;
+`;
+
+const LoaderText = styled.span`
+  margin-left: 11px;
+  font-size: 12px;
+  color: ${({ theme }) => theme.primary900};
 `;
 
 const RewardAddresses = (props: Props) => {
-  props;
+  const { setPage } = props;
   const {accounts} = useAccounts();
   const {goToPage, ROUTES} = useRouting();
   const [checked, setChecked] = useState();
+  const { loadDataAfterNewAccount } = useDashboardData();
+  const { isDone, processData } = useProcessRunner();
+  const [isLoading, setIsLoading] = useState(false);
+  const [validators, setValidators] = useState({});
   const [validatorsPage, setPagedValidators] = useState([]);
   const [paginationInfo, setPaginationInfo] = useState({});
   const [addressesVerified, setAddressesVerified] = useState({});
-  const [validatorsRewardAddresses, setValidatorRewardAddresses] = useState({});
+  const buttonEnable =
+    checked &&
+    !isLoading &&
+    Object.values(addressesVerified).filter(item => item).length === Object.keys(validators).length;
 
   useEffect(() => {
-    onPageClick(0);
+    const keyVaultService = new KeyVaultService();
+    keyVaultService.getListAccountsRewardKeys().then(response => {
+      const newObject = (isDone ? processData : accounts).reduce((prev, curr) => {
+        const rewardAddress = response.fee_recipients[curr.publicKey] ?? '';
+        // eslint-disable-next-line no-param-reassign
+        prev[curr.publicKey] = {rewardAddress, addressStatus: undefined};
+        return prev;
+      }, {});
+
+      setValidators(newObject);
+      onPageClick(0, newObject);
+    });
   }, []);
 
-  const buttonEnable = checked && Object.values(addressesVerified).filter(item => item).length === accounts.length;
+  useEffect(() => {
+    verifyAddresses();
+  }, [validators]);
 
-  const verifyAddress = (inputValue: string, validatorAddress: string) => {
-    const clonedObj = {...addressesVerified};
-    clonedObj[validatorAddress] = inputValue.length === 42 && inputValue.startsWith('0x');
-    if (inputValue.length === 0) delete clonedObj[validatorAddress];
-    setAddressesVerified(clonedObj);
+  const isAddressVerify = (address: string): boolean => {
+    return address.length === 42 && address.startsWith('0x');
   };
 
-  const verifyAddresses = (forceAddress: string, validatorAddresses: string[]) => {
-    const clonedObj = {...addressesVerified};
-    validatorAddresses.forEach((validatorAddress: string) => {
-      clonedObj[validatorAddress] = forceAddress.length === 42 && forceAddress.startsWith('0x');
-      if (forceAddress.length === 0) delete clonedObj[validatorAddress];
+  const verifyAddresses = () => {
+    const clonedObj = {};
+    Object.keys(validators).forEach((publicKey: string) => {
+      clonedObj[publicKey] = validators[publicKey];
+      const validatorRewardAddress = clonedObj[publicKey]?.rewardAddress;
+
+      if (validatorRewardAddress?.length !== 0) {
+        clonedObj[publicKey].addressStatus = isAddressVerify(validatorRewardAddress);
+      }
     });
     setAddressesVerified(clonedObj);
   };
 
   const submitRewardAddresses = async () => {
     if (buttonEnable) {
+      setIsLoading(true);
       const keyVaultService = new KeyVaultService();
       const response = await keyVaultService.getListAccountsRewardKeys();
+      const newAddress = Object.keys(validators).reduce((prev: any, curr: string) => {
+        prev[curr] = validators[curr].rewardAddress;
+        return prev;
+      }, {});
       response.fee_recipients = {
         ...response.fee_recipients,
-        ...validatorsRewardAddresses
+        ...newAddress
       };
       await keyVaultService.setListAccountsRewardKeys(response);
+      const redirect = selectedSeedMode() ? config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS : config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT;
+      await setPage(redirect);
+      setIsLoading(false);
     }
   };
 
   const onChangeAddress = (inputValue: string, publicKey) => {
-    const clonedObj = {...validatorsRewardAddresses};
-    clonedObj[publicKey] = inputValue;
-    setValidatorRewardAddresses(clonedObj);
+    const clonedObj = {...validators};
+    clonedObj[publicKey] = {...clonedObj[publicKey], rewardAddress: inputValue};
+    setValidators(clonedObj);
   };
 
   const applyToAll = (address: string) => {
-    const addresses = accounts.map(account => account.publicKey);
+    const addresses = Object.keys(validators);
     const rewardAddresses = addresses.reduce((prev: any, curr: any) => {
       // eslint-disable-next-line no-param-reassign
-      prev[curr] = address;
+      prev[curr] = {...validators[address], rewardAddress: address};
       return prev;
     }, {});
-    setValidatorRewardAddresses(rewardAddresses);
-    verifyAddresses(address, addresses);
+
+    setValidators(rewardAddresses);
   };
 
-  const onPageClick = (offset) => {
-    handlePageClick(accounts, offset, setPagedValidators, setPaginationInfo, 5);
+  const onPageClick = (offset, forceData?: object) => {
+    handlePageClick(Object.keys(forceData ?? validators), offset, setPagedValidators, setPaginationInfo, 5);
   };
 
   const memoizedColumns = useMemo(
-    () => tableColumns({applyToAll, onChangeAddress, verifyAddress, validatorsRewardAddresses, addressesVerified}),
-    [validatorsRewardAddresses, addressesVerified]
+    () => tableColumns({applyToAll, onChangeAddress, validators}),
+    [validators]
   );
 
   return (
     <Wrapper>
       <BackButton onClick={() => {
+        loadDataAfterNewAccount().then(() => {
+          goToPage(ROUTES.DASHBOARD);
+        });
         goToPage(ROUTES.DASHBOARD);
       }} />
       <Title>Proposal Rewards Address</Title>
@@ -151,12 +196,18 @@ const RewardAddresses = (props: Props) => {
         labelStyle={{marginBottom: 24, marginTop: 9}}>
         I confirm that I have access to the addresses above.
       </Checkbox>
-      <SubmitButton
+      <BigButton
         isDisabled={!buttonEnable}
         onClick={submitRewardAddresses}
       >
         Next
-      </SubmitButton>
+      </BigButton>
+      {isLoading && (
+        <LoaderWrapper>
+          <Spinner width="17px" />
+          <LoaderText>Declaring new addresses..</LoaderText>
+        </LoaderWrapper>
+      )}
     </Wrapper>
   );
 };
@@ -166,12 +217,11 @@ const mapStateToProps = (state) => ({
   step: getStep(state),
   pageData: getPageData(state),
   addAnotherAccount: getAddAnotherAccount(state),
-  isFinishedWizard: getWizardFinishedStatus(state)
+  isFinishedWizard: getWizardFinishedStatus(state),
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   setPage: (page: any) => dispatch(setWizardPage(page)),
-  setStep: (page: any) => dispatch(setWizardStep(page)),
 });
 
 type Props = {
@@ -179,11 +229,13 @@ type Props = {
   step: number;
   accounts: any;
   pageData: any;
+  flowPage: boolean;
   isFinishedWizard: boolean;
   addAnotherAccount: boolean;
   setPage: (page: number) => void;
   setStep: (page: number) => void;
   setPageData: (data: any) => void;
+  wizardActions: Record<string, any>;
 };
 
 type Dispatch = (arg0: { type: string }) => any;

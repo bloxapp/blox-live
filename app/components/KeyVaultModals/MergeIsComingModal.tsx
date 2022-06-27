@@ -15,6 +15,8 @@ import Warning from '../Wizard/components/common/Warning';
 import {MODAL_TYPES} from '../Dashboard/constants';
 import useRouting from '../../common/hooks/useRouting';
 import * as keyVaultSelectors from '../KeyVaultManagement/selectors';
+import Connection from '../../backend/common/store-manager/connection';
+import usePasswordHandler from '../PasswordHandler/usePasswordHandler';
 
 const Image = styled.img`
   margin-left: 4px;
@@ -27,8 +29,31 @@ const LinkTo = styled(Link)`
 `;
 
 const MergeIsComing = (props) => {
+  const { walletStatus, keyvaultCurrentVersion, keyvaultLatestVersion} = props;
   const { goToPage, ROUTES } = useRouting();
   const {setModalDisplay} = props.dashboardActions;
+  const { checkIfPasswordIsNeeded } = usePasswordHandler();
+  const walletNeedsUpdate = keyvaultCurrentVersion !== keyvaultLatestVersion;
+
+  /**
+   * Show dialog using callback and require password if needed
+   */
+  const showPasswordProtectedDialog = async (callback) => {
+    const cryptoKey = 'temp';
+    const isTemporaryCryptoKeyValid = await Connection.db().isCryptoKeyValid(cryptoKey);
+    if (isTemporaryCryptoKeyValid) {
+      // If temp crypto key is valid - we should set it anyway
+      await Connection.db().setCryptoKey(cryptoKey);
+    }
+
+    return isTemporaryCryptoKeyValid
+      ? callback()
+      : checkIfPasswordIsNeeded(callback);
+  };
+
+  const passwordProtectedWrapper = () => {
+    return showPasswordProtectedDialog(onButtonClick);
+  };
 
   const onButtonClick = () => {
     setModalDisplay({ show: false, type: MODAL_TYPES.MERGE_COMING });
@@ -46,7 +71,7 @@ const MergeIsComing = (props) => {
       </Description>
       <Description>In order to reap these rewards you must provide a proposal rewards address for your validators and update your KeyVault.</Description>
       <Warning style={{marginBottom: 44}} text={'Not providing an address could incur potential financial loss in the form of these rewards.'} />
-      <Button isDisabled={false} onClick={onButtonClick}>Add Addresses</Button>
+      <Button isDisabled={false} onClick={passwordProtectedWrapper}>Add Addresses</Button>
     </ModalTemplate>
   );
 };

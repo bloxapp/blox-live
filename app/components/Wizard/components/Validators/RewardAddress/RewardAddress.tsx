@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components/dist/styled-components.esm';
+import RewardAddresses from '~app/components/RewardAddresses';
 // import config from '~app/backend/common/config';
 // import { Title } from '~app/components/Wizard/components/common';
 // import BackButton from '~app/components/Wizard/components/common/BackButton';
@@ -51,7 +52,7 @@ const RewardAddress = (props: Props) => {
 
   return (
     <RewardAddressWrapper>
-      ASDASD
+      <RewardAddresses flowPage {...props} />
       {/* { !finishedImport && ( */}
       {/*  <> */}
       {/*    {!isLoading && <BackButton onClick={onBackButtonClick} />} */}
@@ -76,7 +77,6 @@ const RewardAddress = (props: Props) => {
 type Props = {
   page: number;
   setPage: (page: number) => void;
-  setPageData: (data: any) => void;
 };
 
 export default connect(null, null)(RewardAddress);

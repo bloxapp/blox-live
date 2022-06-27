@@ -3,7 +3,8 @@ import styled from 'styled-components';
 // import { KeyCell, Status } from '~app/components/Dashboard/components/Validators/components';
 // import { compareFunction } from '~app/common/components/Table/service';
 import {truncateText} from '../common/service';
-import x from 'assets/images/red_x.svg';
+import x from '~app/assets/images/red_x.svg';
+import checkmark from '~app/assets/images/v_mark.svg';
 
 const RewardAddressInput = styled.input`
   width: 304px;
@@ -80,19 +81,17 @@ const PublicKeyWrapper = styled.span`
 `;
 
 const CheckMark = styled.div`
-  width: 10px;
-  height: 10px;
-  background-color: blue;
+  width: 13.2px;
+  height: 10.1px;
+  background-size: cover;
+  justify-content: center;
+  background-image: url(${checkmark});
+  color: ${({ theme }) => theme.gray50};
 `;
 
 const X = styled.div`
   width: 16px;
   height: 16px;
-  font-size: 54px;
-  font-weight: 500;
-  line-height: 76px;
-  text-align: center;
-  align-items: center;
   background-size: cover;
   justify-content: center;
   background-image: url(${x});
@@ -100,11 +99,9 @@ const X = styled.div`
 `;
 
 type columnsDataProps = {
-  addressesVerified: object,
-  validatorsRewardAddresses: object,
+  validators: object,
   applyToAll: (address: string) => void,
   onChangeAddress: (inputValue: string, publicKey: string) => void,
-  verifyAddress: (inputValue: string, validatorAddress: string) => void,
 };
 //
 // const addressStatus = (status: any) => {
@@ -120,7 +117,7 @@ const addressStatus = (status: any) => {
 };
 
 const columnsData = (props: columnsDataProps) => {
-  const {applyToAll, verifyAddress, validatorsRewardAddresses, onChangeAddress, addressesVerified} = props;
+  const {applyToAll, validators, onChangeAddress} = props;
 
   return [
     {
@@ -141,9 +138,9 @@ const columnsData = (props: columnsDataProps) => {
       key: 'publicKey',
       title: <HeaderCell>Validator</HeaderCell>,
       // compareFunction: (a, b, dir) => compareFunction('publicKey', a, b, dir, 'string'),
-      valueRender: (publicKey) => {
+      valueRender: (a, b, c, d) => {
         return (
-          <PublicKeyWrapper>{truncateText(publicKey, 6, 4)}</PublicKeyWrapper>
+          <PublicKeyWrapper>{truncateText(c, 6, 4)}</PublicKeyWrapper>
         );
       }
     },
@@ -152,19 +149,16 @@ const columnsData = (props: columnsDataProps) => {
       key: 'rewardAddress',
       title: <HeaderCell>Proposal Rewards Address</HeaderCell>,
       // compareFunction: (a, b, dir) => compareFunction('status', a, b, dir, 'string'),
-      valueRender: (a, b, validator, d) => (
+      valueRender: (a, b, publicKey, d) => (
         <RewardAddressWrapper>
           <RewardAddressInput
             type={'text'}
-            value={validatorsRewardAddresses[validator?.publicKey]}
-            onChange={(e: any) => onChangeAddress(e.target.value.trim(), validator?.publicKey)}
-            onBlur={(e) => {
-              verifyAddress(e.target.value.trim(), validator?.publicKey);
-            }}
+            value={validators[publicKey]?.rewardAddress ?? ''}
+            onChange={(e: any) => onChangeAddress(e.target.value.trim(), publicKey)}
           />
-          {addressStatus(addressesVerified[validator?.publicKey])}
-          {validatorsRewardAddresses[validator?.publicKey] && (
-            <ApplyToAll onClick={() => applyToAll(validatorsRewardAddresses[validator?.publicKey])}>
+          {addressStatus(validators[publicKey]?.addressStatus)}
+          {validators[publicKey]?.rewardAddress && (
+            <ApplyToAll onClick={() => applyToAll(validators[publicKey]?.rewardAddress)}>
               Apply to all
             </ApplyToAll>
           )}

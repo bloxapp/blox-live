@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import {Button} from '~app/common/components';
+import useRouting from '../../../../../common/hooks/useRouting';
+import {longStringShorten} from "../../../../../common/components/DropZone/components/SelectedFilesTable";
 
 const Wrapper = styled.div`
   display: flex;
@@ -23,8 +25,11 @@ const AddAddressButton = styled(Button)`
 `;
 
 const RewardAddress = ({address}) => {
+  const {goToPage, ROUTES} = useRouting();
+  const publicKey = address && `0x${longStringShorten(address?.replace('0x', ''), 4)}`;
+
   return (
-    <Wrapper>{address ?? <AddAddressButton>Add Address</AddAddressButton>}</Wrapper>
+    <Wrapper>{publicKey ?? <AddAddressButton onClick={() => { goToPage(ROUTES.REWARD_ADDRESSES); }}>Add Address</AddAddressButton>}</Wrapper>
   );
 };
 

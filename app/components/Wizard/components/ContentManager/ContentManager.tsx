@@ -134,14 +134,14 @@ const mapStateToProps = (state: any) => ({
 
 type Props = {
   page: number;
-  pageData: any;
-  setPage: (page: number) => void;
-  setPageData: (data: any) => void;
-  clearPageData: () => void;
   step: number;
-  setStep: (page: number) => void;
-  network: string;
+  pageData: any;
   accounts: any;
+  network: string;
+  clearPageData: () => void;
+  setPage: (page: number) => void;
+  setStep: (page: number) => void;
+  setPageData: (data: any) => void;
 };
 
 export default connect(mapStateToProps)(ContentManager);

@@ -18,8 +18,9 @@ const showCreateValidatorPage = (props: Record<string, any>): boolean => {
   return [
     config.WIZARD_PAGES.WALLET.ENTER_MNEMONIC,
     config.WIZARD_PAGES.VALIDATOR.SELECT_NETWORK,
-    config.WIZARD_PAGES.VALIDATOR.CREATE_VALIDATOR,
     config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT,
+    config.WIZARD_PAGES.VALIDATOR.CREATE_VALIDATOR,
+    config.WIZARD_PAGES.VALIDATOR.REWARD_ADDRESS,
   ].indexOf(props.page) !== -1;
 };
 
@@ -34,7 +35,7 @@ const navigationRules = [
       if (props.accounts?.length === 1) {
         return [
           config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS,
-          config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT
+          config.WIZARD_PAGES.VALIDATOR.REWARD_ADDRESS
         ].indexOf(props.page) !== -1;
       }
       return !props.accounts?.length;
@@ -126,7 +127,7 @@ const navigationRules = [
         },
         show: (props: Record<string, any>): boolean => {
           if (props.accounts?.length === 1) {
-            return props.page === config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT;
+            return props.page === config.WIZARD_PAGES.VALIDATOR.REWARD_ADDRESS || props.page === config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT;
           }
           if (props.addAdditionalAccount) {
             return false;
@@ -134,7 +135,7 @@ const navigationRules = [
           if (props.pageData?.finishValidatorSetup) {
             return false;
           }
-          if (props.page === config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT) {
+          if (props.page === config.WIZARD_PAGES.VALIDATOR.REWARD_ADDRESS || props.page === config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT) {
             return false;
           }
           if (props.step === config.WIZARD_STEPS.VALIDATOR_SETUP) {
@@ -154,7 +155,7 @@ const navigationRules = [
             return false;
           }
           if (props.accounts?.length === 1) {
-            return props.page === config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT;
+            return props.page === config.WIZARD_PAGES.VALIDATOR.REWARD_ADDRESS || props.page === config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT;
           }
           if (props.addAdditionalAccount) {
             return false;
@@ -162,7 +163,7 @@ const navigationRules = [
           if (props.pageData?.finishValidatorSetup) {
             return false;
           }
-          if (props.page === config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT) {
+          if (props.page === config.WIZARD_PAGES.VALIDATOR.REWARD_ADDRESS || props.page === config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT) {
             return false;
           }
           if (props.page === config.WIZARD_PAGES.WALLET.IMPORT_OR_GENERATE_SEED) {
@@ -220,6 +221,19 @@ const navigationRules = [
         }
       },
       {
+        name: 'Proposal Rewards Address',
+        page: config.WIZARD_PAGES.VALIDATOR.REWARD_ADDRESS,
+        done: (props: Record<string, any>): boolean => {
+          return props.page > config.WIZARD_PAGES.VALIDATOR.SLASHING_WARNING;
+        },
+        show: (props: Record<string, any>): boolean => {
+          if (selectedKeystoreMode()) {
+            return true;
+          }
+          return showCreateValidatorPage(props);
+        }
+      },
+      {
         name: 'Staking Deposit',
         page: config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT,
         done: (props: Record<string, any>): boolean => {
@@ -258,20 +272,8 @@ const navigationRules = [
           return props.page > config.WIZARD_PAGES.VALIDATOR.UPLOAD_KEYSTORE_FILE;
         },
         show: (props: Record<string, any>): boolean => {
-          if (selectedKeystoreMode()) {
-            return true;
-          }
-          return showCreateValidatorPage(props);
-        }
-      },
-      {
-        name: 'Proposal Rewards Address',
-        page: config.WIZARD_PAGES.VALIDATOR.REWARD_ADDRESS,
-        done: (props: Record<string, any>): boolean => {
-          return props.page > config.WIZARD_PAGES.VALIDATOR.SLASHING_WARNING;
-        },
-        show: (props: Record<string, any>): boolean => {
-          return showCreateValidatorPage(props);
+          return selectedKeystoreMode();
+          // return showCreateValidatorPage(props);
         }
       },
       {
@@ -281,6 +283,7 @@ const navigationRules = [
           return props.page > config.WIZARD_PAGES.VALIDATOR.VALIDATOR_SUMMARY;
         },
         show: (props: Record<string, any>): boolean => {
+          return selectedKeystoreMode();
           if (selectedKeystoreMode()) {
             return true;
           }

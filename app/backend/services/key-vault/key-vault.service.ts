@@ -69,7 +69,8 @@ export default class KeyVaultService {
     try {
       const response = await this.keyVaultApi.requestThruSsh({
         method: METHOD.GET,
-        path: 'config'
+        path: 'config',
+        isNetworkRequired: true
       });
       return response?.data;
     } catch (e) {

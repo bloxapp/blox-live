@@ -56,7 +56,9 @@ const Dashboard = (props) => {
 
   React.useEffect(() => {
     const keyVaultVersion = Connection.db().get('keyVaultVersion');
-    if (isVersionHigherOrEqual(keyVaultVersion, 'v1.4.4')) {
+    const validatorWithOutRewardAddress = accounts.find((validator) => !validator.feeRecipient);
+    if (validatorWithOutRewardAddress && isVersionHigherOrEqual(keyVaultVersion, 'v1.4.4')) {
+      console.log(accounts);
       setModalDisplay({ show: true, type: MODAL_TYPES.MERGE_COMING });
     }
     if (!isLoading && isDone) {

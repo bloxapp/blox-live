@@ -72,7 +72,7 @@ export default class Config {
           UPLOAD_KEYSTORE_FILE: 6.5, // Keystore mode
           CREATE_VALIDATOR: 7,
           VALIDATOR_SUMMARY: 7.1, // Keystore mode
-          REWARD_ADDRESS: 7.2, // Keystore mode
+          REWARD_ADDRESS: 7.2,
           SLASHING_WARNING: 7.3, // Keystore mode - shown only for "deposited" validators
           DEPOSIT_OVERVIEW: 7.4, // Keystore mode - shown only for "not deposited" validators
           UPLOAD_DEPOSIT_FILE: 7.5, // Keystore mode - shown only for "not deposited" validators

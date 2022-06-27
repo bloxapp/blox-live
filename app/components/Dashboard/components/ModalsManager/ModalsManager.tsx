@@ -33,8 +33,8 @@ const ModalsManager = (props: Props) => {
   const { loadWallet, setFinishedWizard, clearDecryptKeyStores, clearDecryptProgress } = wizardActions;
   const { loadAccounts } = accountsActions;
   const { loadUserInfo } = userActions;
-  const { loadDashboardData } = useDashboardData();
   const { goToPage, ROUTES } = useRouting();
+  const { loadDashboardData } = useDashboardData();
 
   const onPasswordSuccess = () => {
     clearModalDisplayData();

@@ -21,12 +21,8 @@ const CreateValidator = (props: Props) => {
 
   useEffect(() => {
     if (isDone && account && !error) {
-      console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<1>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
       const accountIndex = +account.name.replace('account-', '');
       callLoadDepositData(account.publicKey, accountIndex, account.network);
-    }else {
-      console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<1>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-      console.log(error);
     }
   }, [isLoading, account, error]);
 
@@ -56,7 +52,7 @@ const CreateValidator = (props: Props) => {
         accountIndex,
         network
       });
-      await setPage(config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT);
+      await setPage(config.WIZARD_PAGES.VALIDATOR.REWARD_ADDRESS);
     });
   };
 
