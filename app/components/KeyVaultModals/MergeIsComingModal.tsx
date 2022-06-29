@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
 import imageSrc from '../../assets/images/info.svg';
 import Tooltip from '~app/common/components/Tooltip';
-import image from '../Wizard/assets/img-password.svg';
+import image from '~app/assets/images/pop_up_image.svg';
 import { Link } from '../Wizard/components/common';
 import * as selectors from '~app/components/PasswordHandler/selectors';
 import * as actionsFromDashboard from '~app/components/Dashboard/actions';
@@ -28,12 +28,11 @@ const LinkTo = styled(Link)`
   color: ${({ theme }) => theme.white};
 `;
 
-const MergeIsComing = (props) => {
-  const { walletStatus, keyvaultCurrentVersion, keyvaultLatestVersion} = props;
+const MergeIsComing = (props: Props) => {
+  const {dashboardActions} = props;
   const { goToPage, ROUTES } = useRouting();
-  const {setModalDisplay} = props.dashboardActions;
+  const { setModalDisplay } = dashboardActions;
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
-  const walletNeedsUpdate = keyvaultCurrentVersion !== keyvaultLatestVersion;
 
   /**
    * Show dialog using callback and require password if needed
@@ -74,6 +73,10 @@ const MergeIsComing = (props) => {
       <Button isDisabled={false} onClick={passwordProtectedWrapper}>Add Addresses</Button>
     </ModalTemplate>
   );
+};
+
+type Props = {
+  dashboardActions: any,
 };
 
 const mapStateToProps = (state) => ({

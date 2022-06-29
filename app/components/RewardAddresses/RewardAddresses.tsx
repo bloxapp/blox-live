@@ -7,8 +7,8 @@ import { Checkbox} from '~app/common/components';
 import { selectedSeedMode } from '~app/common/service';
 import useAccounts from '~app/components/Accounts/useAccounts';
 import { handlePageClick } from '~app/common/components/Table/service';
-import {getAddAnotherAccount} from '~app/components/Accounts/selectors';
-import { setWizardPage, setWizardStep} from '~app/components/Wizard/actions';
+import {getAddAnotherAccount, getSeedlessDepositNeededStatus} from '~app/components/Accounts/selectors';
+import { setWizardPage} from '~app/components/Wizard/actions';
 import {BackButton, Link, Title, BigButton} from '~app/components/Wizard/components/common';
 import {getPage, getPageData, getStep, getWizardFinishedStatus} from '~app/components/Wizard/selectors';
 import {Table} from '../../common/components';
@@ -17,9 +17,7 @@ import KeyVaultService from '../../backend/services/key-vault/key-vault.service'
 import useDashboardData from '../Dashboard/useDashboardData';
 import useProcessRunner from '../ProcessRunner/useProcessRunner';
 import config from '../../backend/common/config';
-import {bindActionCreators} from 'redux';
-import * as actionsFromWizard from '../Wizard/actions';
-import {setAddAnotherAccount} from '../Accounts/actions';
+import Connection from '../../backend/common/store-manager/connection';
 
 const Wrapper = styled.div`
   height: 100%;
@@ -43,6 +41,14 @@ const Text = styled.span`
   color: ${({theme}) => theme.gray600};
 `;
 
+const ErrorMessage = styled.span`
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.67;
+  color: ${({theme}) => theme.destructive600};
+  bottom:${({title}) => title ? '-27px' : '10px'};
+`;
+
 const TinyText = styled.span`
   display: block;
   font-size: 11px;
@@ -58,6 +64,19 @@ const LoaderWrapper = styled.div`
   margin-top: 8px;
 `;
 
+const ValidatorsLoaderWrapper = styled.div`
+  display:flex;
+  padding: 20px;
+  align-self: center;
+`;
+
+const ValidatorsLoaderText = styled.span`
+  font-size: 14px;
+  font-weight: 500;
+  margin-right: 12px;
+  color: ${({theme}) => theme.gray800};
+`;
+
 const LoaderText = styled.span`
   margin-left: 11px;
   font-size: 12px;
@@ -69,12 +88,13 @@ const RewardAddresses = (props: Props) => {
   const {accounts} = useAccounts();
   const {goToPage, ROUTES} = useRouting();
   const [checked, setChecked] = useState();
-  const { loadDataAfterNewAccount } = useDashboardData();
+  const [error, showError] = useState('');
   const { isDone, processData } = useProcessRunner();
-  const [isLoading, setIsLoading] = useState(false);
   const [validators, setValidators] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
   const [validatorsPage, setPagedValidators] = useState([]);
   const [paginationInfo, setPaginationInfo] = useState({});
+  const { loadDataAfterNewAccount } = useDashboardData();
   const [addressesVerified, setAddressesVerified] = useState({});
   const buttonEnable =
     checked &&
@@ -83,16 +103,17 @@ const RewardAddresses = (props: Props) => {
 
   useEffect(() => {
     const keyVaultService = new KeyVaultService();
-    keyVaultService.getListAccountsRewardKeys().then(response => {
-      const newObject = (isDone ? processData : accounts).reduce((prev, curr) => {
-        const rewardAddress = response.fee_recipients[curr.publicKey] ?? '';
-        // eslint-disable-next-line no-param-reassign
-        prev[curr.publicKey] = {rewardAddress, addressStatus: undefined};
-        return prev;
-      }, {});
+      keyVaultService.getListAccountsRewardKeys().then(response => {
+        const validatorsAccounts = (isDone ? processData : accounts).filter(item => item.network === Connection.db().get('network'));
+        const newObject = validatorsAccounts.reduce((prev, curr, index) => {
+          const rewardAddress = response.fee_recipients[curr.publicKey] ?? '';
+          // eslint-disable-next-line no-param-reassign
+          prev[curr.publicKey] = {...curr, rewardAddress, addressStatus: undefined, index};
+          return prev;
+        }, {});
 
-      setValidators(newObject);
-      onPageClick(0, newObject);
+        setValidators(newObject);
+        onPageClick(0, newObject);
     });
   }, []);
 
@@ -109,10 +130,8 @@ const RewardAddresses = (props: Props) => {
     Object.keys(validators).forEach((publicKey: string) => {
       clonedObj[publicKey] = validators[publicKey];
       const validatorRewardAddress = clonedObj[publicKey]?.rewardAddress;
-
-      if (validatorRewardAddress?.length !== 0) {
-        clonedObj[publicKey].addressStatus = isAddressVerify(validatorRewardAddress);
-      }
+      if (validatorRewardAddress?.length === 0) clonedObj[publicKey].addressStatus = undefined;
+      else clonedObj[publicKey].addressStatus = isAddressVerify(validatorRewardAddress);
     });
     setAddressesVerified(clonedObj);
   };
@@ -120,9 +139,21 @@ const RewardAddresses = (props: Props) => {
   const submitRewardAddresses = async () => {
     if (buttonEnable) {
       setIsLoading(true);
+      const problematicValidator = Object.keys(validators).find(address => !validators[address].addressStatus);
+      if (problematicValidator) {
+        setIsLoading(false);
+        if (validators[problematicValidator]?.rewardAddress?.length === 0) {
+          showError(`Validator ${Number(validators[problematicValidator].name?.replace('account-', '')) + 1} in the list has not been provided with an address`);
+        } else {
+          showError(`Validator ${Number(validators[problematicValidator].name?.replace('account-', '')) + 1} in the list has an invalid address`);
+        }
+        return;
+      }
+      showError('');
       const keyVaultService = new KeyVaultService();
       const response = await keyVaultService.getListAccountsRewardKeys();
       const newAddress = Object.keys(validators).reduce((prev: any, curr: string) => {
+        // eslint-disable-next-line no-param-reassign
         prev[curr] = validators[curr].rewardAddress;
         return prev;
       }, {});
@@ -130,9 +161,15 @@ const RewardAddresses = (props: Props) => {
         ...response.fee_recipients,
         ...newAddress
       };
+      const goToDeposit = props.pageData.newValidatorDeposited === false || !!props.seedLessNeedDeposit;
+      const depositRedirect = selectedSeedMode() ? config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT : config.WIZARD_PAGES.VALIDATOR.DEPOSIT_OVERVIEW;
+      const redirectTo = goToDeposit ? depositRedirect : config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS;
       await keyVaultService.setListAccountsRewardKeys(response);
-      const redirect = selectedSeedMode() ? config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS : config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT;
-      await setPage(redirect);
+      if (props.flowPage) await setPage(redirectTo);
+      else {
+        await loadDataAfterNewAccount();
+        goToPage(ROUTES.DASHBOARD);
+      }
       setIsLoading(false);
     }
   };
@@ -146,11 +183,12 @@ const RewardAddresses = (props: Props) => {
   const applyToAll = (address: string) => {
     const addresses = Object.keys(validators);
     const rewardAddresses = addresses.reduce((prev: any, curr: any) => {
+      const validator = validators[curr];
+      validator.rewardAddress = address;
       // eslint-disable-next-line no-param-reassign
-      prev[curr] = {...validators[address], rewardAddress: address};
+      prev[curr] = validator;
       return prev;
     }, {});
-
     setValidators(rewardAddresses);
   };
 
@@ -165,15 +203,18 @@ const RewardAddresses = (props: Props) => {
 
   return (
     <Wrapper>
-      <BackButton onClick={() => {
-        loadDataAfterNewAccount().then(() => {
+      {!props.flowPage && (
+        <BackButton onClick={() => {
+          loadDataAfterNewAccount().then(() => {
+            goToPage(ROUTES.DASHBOARD);
+          });
           goToPage(ROUTES.DASHBOARD);
-        });
-        goToPage(ROUTES.DASHBOARD);
-      }} />
+        }} />
+      )}
       <Title>Proposal Rewards Address</Title>
       <Text style={{marginBottom: 8}}>
         Please enter an Ethereum address in order to receive block proposal rewards for each of <br /> your
+        {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
         validators. <Link style={{fontSize: 14, textDecoration: 'underline'}}>What are proposal rewards?</Link>
       </Text>
       <TinyText>
@@ -190,6 +231,12 @@ const RewardAddresses = (props: Props) => {
           columns={memoizedColumns}
           onPageClick={onPageClick}
           paginationInfo={paginationInfo}
+          customLoader={(
+            <ValidatorsLoaderWrapper>
+              <ValidatorsLoaderText>fetching validators</ValidatorsLoaderText>
+              <Spinner height="17px" width="17px" />
+            </ValidatorsLoaderWrapper>
+          )}
         />
       </TableWrapper>
       <Checkbox checked={checked} onClick={setChecked} checkboxStyle={{marginBottom: 24, marginTop: 9, marginRight: 8}}
@@ -202,6 +249,7 @@ const RewardAddresses = (props: Props) => {
       >
         Next
       </BigButton>
+      {error && <ErrorMessage>{error}</ErrorMessage>}
       {isLoading && (
         <LoaderWrapper>
           <Spinner width="17px" />
@@ -218,6 +266,7 @@ const mapStateToProps = (state) => ({
   pageData: getPageData(state),
   addAnotherAccount: getAddAnotherAccount(state),
   isFinishedWizard: getWizardFinishedStatus(state),
+  seedLessNeedDeposit: getSeedlessDepositNeededStatus(state),
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
@@ -232,6 +281,7 @@ type Props = {
   flowPage: boolean;
   isFinishedWizard: boolean;
   addAnotherAccount: boolean;
+  seedLessNeedDeposit: boolean;
   setPage: (page: number) => void;
   setStep: (page: number) => void;
   setPageData: (data: any) => void;

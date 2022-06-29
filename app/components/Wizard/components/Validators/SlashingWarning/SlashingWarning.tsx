@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
+import {bindActionCreators} from 'redux';
 import config from '~app/backend/common/config';
+import * as actionsFromWizard from '~app/components/Wizard/actions';
+import {clearDecryptProgress} from '~app/components/Wizard/actions';
+import { setAddAnotherAccount } from '~app/components/Accounts/actions';
+import useDashboardData from '~app/components/Dashboard/useDashboardData';
 import { Checkbox, ProcessLoader } from '~app/common/components';
 import { SmallText } from '~app/common/components/ModalTemplate/components';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
@@ -41,12 +46,14 @@ const Button = styled.button<{ isDisabled }>`
 const SlashingWarning = (props: SlashingWarningProps) => {
   const { isLoading, isDone, processData, error, startProcess, clearProcessState, loaderPercentage, processMessage } = useProcessRunner();
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
-  const { setPage, setStep, decryptedKeyStores } = props;
   const [isChecked, setIsChecked] = useState(false);
   const [isContinueButtonDisabled, setContinueButtonDisabled] = useState(true);
   const account = processData && processData.length ? processData[0] : processData;
   const checkboxStyle = { marginRight: 5 };
   const checkboxLabelStyle = { fontSize: 12 };
+  const { loadDataAfterNewAccount } = useDashboardData();
+  const { setPage, setStep, wizardActions, decryptedKeyStores, callSetAddAnotherAccount, setPageData } = props;
+  const { clearDecryptKeyStores } = wizardActions;
 
   useEffect(() => {
     setContinueButtonDisabled(!isChecked);
@@ -59,12 +66,22 @@ const SlashingWarning = (props: SlashingWarningProps) => {
   }, [isLoading, account, error]);
 
   const onValidatorCreation = async () => {
-    console.log('<<<<<<<<<<<<<<<<<<<<<here>>>>>>>>>>>>>>>>>>>>>');
-    console.log('<<<<<<<<<<<<<<<<<<<<<here>>>>>>>>>>>>>>>>>>>>>');
-    console.log('<<<<<<<<<<<<<<<<<<<<<here>>>>>>>>>>>>>>>>>>>>>');
-    console.log('<<<<<<<<<<<<<<<<<<<<<here>>>>>>>>>>>>>>>>>>>>>');
-    console.log('<<<<<<<<<<<<<<<<<<<<<here>>>>>>>>>>>>>>>>>>>>>');
-    console.log('<<<<<<<<<<<<<<<<<<<<<here>>>>>>>>>>>>>>>>>>>>>');
+    await loadDataAfterNewAccount();
+    await callSetAddAnotherAccount(false);
+    setPageData({
+      isImportValidators: true,
+      importedValidatorsCount: decryptedKeyStores.length
+    });
+    setPage(config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS);
+    clearState();
+  };
+
+  const clearState = async () => {
+    await loadDataAfterNewAccount();
+    clearDecryptKeyStores();
+    clearDecryptProgress();
+    clearProcessState();
+
     setPage(config.WIZARD_PAGES.VALIDATOR.REWARD_ADDRESS);
   };
 
@@ -145,6 +162,8 @@ type SlashingWarningProps = {
   setPage: (page: number) => void;
   setStep: (page: number) => void;
   setPageData: (data: any) => void;
+  wizardActions: Record<string, any>;
+  callSetAddAnotherAccount: (payload: boolean) => void;
 };
 
 const mapStateToProps = (state: any) => ({
@@ -153,6 +172,8 @@ const mapStateToProps = (state: any) => ({
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
+  callSetAddAnotherAccount: (payload: boolean) => dispatch(setAddAnotherAccount(payload)),
+  wizardActions: bindActionCreators(actionsFromWizard, dispatch),
 });
 
 type Dispatch = (arg0: { type: string }) => any;

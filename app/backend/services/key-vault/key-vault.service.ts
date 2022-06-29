@@ -68,8 +68,8 @@ export default class KeyVaultService {
     this.logger.info('try to get keyVault server accounts reward key...');
     try {
       const response = await this.keyVaultApi.requestThruSsh({
-        method: METHOD.GET,
         path: 'config',
+        method: METHOD.GET,
         isNetworkRequired: true
       });
       return response?.data;

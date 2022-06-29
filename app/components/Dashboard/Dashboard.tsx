@@ -20,6 +20,7 @@ import {bindActionCreators} from 'redux';
 import * as actionsFromDashboard from './actions';
 import Connection from '../../backend/common/store-manager/connection';
 import {isVersionHigherOrEqual} from '../../utils/service';
+import useNetworkSwitcher from './components/NetworkSwitcher/useNetworkSwitcher';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -37,6 +38,7 @@ const Dashboard = (props) => {
     walletStatus,
     walletVersion,
     isTestNetShow,
+    isMergePopUpSeen,
     dashboardActions,
     walletNeedsUpdate,
     callClearWizardStep,
@@ -45,8 +47,8 @@ const Dashboard = (props) => {
     callClearWizardPageData
   } = props;
 
-  const {setModalDisplay} = dashboardActions;
-
+  const {setModalDisplay, setModalMergeAsSeen} = dashboardActions;
+  const { setTestNetShowFlag } = useNetworkSwitcher();
   const { clearProcessState, isLoading, isDone } = useProcessRunner();
   const showNetworkSwitcher = accountsHaveMoreThanOneNetwork(accounts);
   const [filteredAccounts, setFilteredAccounts] = React.useState(null);
@@ -56,10 +58,11 @@ const Dashboard = (props) => {
 
   React.useEffect(() => {
     const keyVaultVersion = Connection.db().get('keyVaultVersion');
-    const validatorWithOutRewardAddress = accounts.find((validator) => !validator.feeRecipient);
-    if (validatorWithOutRewardAddress && isVersionHigherOrEqual(keyVaultVersion, 'v1.4.4')) {
-      console.log(accounts);
+    const validatorWithOutRewardAddress = accounts.find((validator) => !validator.feeRecipient && validator.network === config.env.MAINNET_NETWORK);
+    if (!isMergePopUpSeen && validatorWithOutRewardAddress && isVersionHigherOrEqual(keyVaultVersion, 'v1.4.4')) {
+      setTestNetShowFlag(false);
       setModalDisplay({ show: true, type: MODAL_TYPES.MERGE_COMING });
+      setModalMergeAsSeen();
     }
     if (!isLoading && isDone) {
       clearProcessState();
@@ -142,6 +145,8 @@ Dashboard.propTypes = {
   isTestNetShow: PropTypes.bool,
   walletStatus: PropTypes.string,
   walletVersion: PropTypes.string,
+  isMergePopUpSeen: PropTypes.bool,
+  dashboardActions: PropTypes.any,
   walletNeedsUpdate: PropTypes.bool,
   callClearWizardPage: PropTypes.func,
   callClearWizardStep: PropTypes.func,
@@ -150,7 +155,8 @@ Dashboard.propTypes = {
 };
 
 const mapStateToProps = (state) => ({
-  isTestNetShow: dashboardSelectors.getTestNetShowFlag(state)
+  isTestNetShow: dashboardSelectors.getTestNetShowFlag(state),
+  isMergePopUpSeen: dashboardSelectors.getMergePopUpSeen(state)
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({

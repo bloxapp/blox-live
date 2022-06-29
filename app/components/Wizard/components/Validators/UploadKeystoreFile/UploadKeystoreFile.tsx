@@ -190,12 +190,11 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
   };
 
   const decryptFiles = async () => {
-    const hashExistingPublicKeys = {};
-    accounts.forEach((account) => {
-      console.log(account.network);
-      hashExistingPublicKeys[`${account.publicKey}.${account.network}`] = true;
-      return true;
-    });
+    const hashExistingPublicKeys = accounts.reduce((prev, account) => {
+      // eslint-disable-next-line no-param-reassign
+      prev[`${account.publicKey}.${account.network}`] = true;
+      return prev;
+    }, {});
 
     const actionFlow = 'create';
 

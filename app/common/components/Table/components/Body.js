@@ -45,9 +45,9 @@ const NoDataRow = styled.div`
   justify-content: center;
 `;
 
-const Body = ({ data, columns, totalCount, rowMinHeight }) => (
+const Body = ({ data, columns, totalCount, rowMinHeight, customLoader }) => (
   <Wrapper>
-    {(!data || data.length === 0) && <NoDataRow>No Data</NoDataRow>}
+    {(!data || data.length === 0) && (customLoader ?? <NoDataRow>No Data</NoDataRow>)}
 
     {data &&
       data.length > 0 &&
@@ -76,6 +76,7 @@ Body.propTypes = {
   data: PropTypes.array,
   columns: PropTypes.array,
   totalCount: PropTypes.number,
+  customLoader: PropTypes?.any,
   rowMinHeight: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
 };
 
@@ -83,7 +84,8 @@ Body.defaultProps = {
   data: [],
   columns: [],
   totalCount: 0,
-  rowMinHeight: undefined
+  rowMinHeight: undefined,
+  customLoader: undefined
 };
 
 export default Body;

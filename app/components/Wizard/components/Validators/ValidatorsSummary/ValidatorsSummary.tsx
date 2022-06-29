@@ -71,7 +71,7 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
   const [pagedValidators, setPagedValidators] = useState([]);
   const [paginationInfo, setPaginationInfo] = useState(null);
   const [loadingStatuses, setLoadingStatuses] = useState(true);
-  const [moveToDepositOverview, setMoveToDepositOverview] = useState(true);
+  const [moveToRewardAddress, setMoveToRewardAddress] = useState(true);
   const [dontRunProcessAgain, setDontRunProcessAgain] = useState(false);
   const [isAgreementReadCheckbox, setAgreementReadCheckbox] = useState(false);
   const [isContinueButtonDisabled, setContinueButtonDisabled] = useState(false);
@@ -89,9 +89,9 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
 
   useEffect(() => {
     if (!isLoading && isDone && !error && processData) {
-      setMoveToDepositOverview(true);
+      setMoveToRewardAddress(true);
       setDontRunProcessAgain(true);
-      if (moveToDepositOverview) setPage(config.WIZARD_PAGES.VALIDATOR.DEPOSIT_OVERVIEW);
+      if (moveToRewardAddress) setPage(config.WIZARD_PAGES.VALIDATOR.REWARD_ADDRESS);
     }
   }, [isLoading, isDone, error, processData]);
 
@@ -124,8 +124,7 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
     setAllDeposited(depositedCount > 0);
     setDisplayDepositedConfirmation(allValidatorsHaveSameStatus && !allDeposited);
     setContinueButtonDisabled(!((isValidatorsOfflineCheckbox || !displayDepositedConfirmation) && isAgreementReadCheckbox && allValidatorsHaveSameStatus));
-
-    if (depositedCount > 0) {
+    if (notDepositedCount > 0) {
       setSeedlessDepositNeeded(true);
     } else {
       setSeedlessDepositNeeded(false);
@@ -158,7 +157,7 @@ const ValidatorsSummary = (props: ValidatorsSummaryProps) => {
             inputData: decryptedKeyStores.map(account => account.privateKey).join(',')
           });
       }
-      setMoveToDepositOverview(true);
+      setMoveToRewardAddress(true);
     };
     checkIfPasswordIsNeeded(onSuccess);
   };

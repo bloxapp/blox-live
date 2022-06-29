@@ -110,8 +110,8 @@ type columnsDataProps = {
 //   return '2'ף
 // };
 
-const addressStatus = (status: any) => {
-  if (status === undefined) return null;
+const addressStatus = (status: any, rewardAddress) => {
+  if (status === undefined || rewardAddress?.length === 0) return null;
   if (!status) return <X />;
   return <CheckMark />;
 };
@@ -123,40 +123,37 @@ const columnsData = (props: columnsDataProps) => {
     {
       key: '',
       title: '#',
-      width: '5%',
-      // compareFunction: (a, b, dir) => compareFunction('publicKey', a, b, dir, 'string'),
-      valueRender: (publicKey, a, b, c) => {
-        return (
-          <div>
-            {c > 10 ? c + 1 : `0${c + 1}`}
-          </div>
-        );
-      }
+      width: '6%',
+      valueRender: (_a, _b, publicKey) => {
+        const indexStr = validators[publicKey]?.index;
+        const padValue = validators && Object.keys(validators).length < 100 ? 2 : 3;
+        return String(parseInt(indexStr, 10) + 1).padStart(padValue, '0');
+      },
     },
     {
       width: '23%',
       key: 'publicKey',
       title: <HeaderCell>Validator</HeaderCell>,
       // compareFunction: (a, b, dir) => compareFunction('publicKey', a, b, dir, 'string'),
-      valueRender: (a, b, c, d) => {
+      valueRender: (_a, _b, c) => {
         return (
           <PublicKeyWrapper>{truncateText(c, 6, 4)}</PublicKeyWrapper>
         );
       }
     },
     {
-      width: '72%',
+      width: '71%',
       key: 'rewardAddress',
       title: <HeaderCell>Proposal Rewards Address</HeaderCell>,
       // compareFunction: (a, b, dir) => compareFunction('status', a, b, dir, 'string'),
-      valueRender: (a, b, publicKey, d) => (
+      valueRender: (a, b, publicKey) => (
         <RewardAddressWrapper>
           <RewardAddressInput
             type={'text'}
             value={validators[publicKey]?.rewardAddress ?? ''}
             onChange={(e: any) => onChangeAddress(e.target.value.trim(), publicKey)}
           />
-          {addressStatus(validators[publicKey]?.addressStatus)}
+          {addressStatus(validators[publicKey]?.addressStatus, validators[publicKey]?.rewardAddress)}
           {validators[publicKey]?.rewardAddress && (
             <ApplyToAll onClick={() => applyToAll(validators[publicKey]?.rewardAddress)}>
               Apply to all

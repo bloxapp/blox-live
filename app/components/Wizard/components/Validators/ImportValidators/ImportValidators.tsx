@@ -44,7 +44,7 @@ const ImportValidators = (props: Props) => {
         isImportValidators: true,
         importedValidatorsCount: validators.length
       });
-      setPage(config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS);
+      setPage(config.WIZARD_PAGES.WALLET.IMPORT_VALIDATORS_REWARD_ADDRESS);
     }
   }, [finishedImport]);
 

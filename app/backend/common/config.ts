@@ -62,7 +62,8 @@ export default class Config {
           IMPORT_OR_GENERATE_SEED: 4,
           ENTER_MNEMONIC: 5,
           IMPORT_MNEMONIC: 10,
-          IMPORT_VALIDATORS: 11
+          IMPORT_VALIDATORS: 11,
+          IMPORT_VALIDATORS_REWARD_ADDRESS: 12,
         },
         ACCOUNT: {
           SET_PASSWORD: 20, // Keystore mode
@@ -72,10 +73,10 @@ export default class Config {
           UPLOAD_KEYSTORE_FILE: 6.5, // Keystore mode
           CREATE_VALIDATOR: 7,
           VALIDATOR_SUMMARY: 7.1, // Keystore mode
-          REWARD_ADDRESS: 7.2,
-          SLASHING_WARNING: 7.3, // Keystore mode - shown only for "deposited" validators
-          DEPOSIT_OVERVIEW: 7.4, // Keystore mode - shown only for "not deposited" validators
-          UPLOAD_DEPOSIT_FILE: 7.5, // Keystore mode - shown only for "not deposited" validators
+          SLASHING_WARNING: 7.2, // Keystore mode - shown only for "deposited" validators
+          REWARD_ADDRESS: 7.3,
+          DEPOSIT_OVERVIEW: 7.5, // Keystore mode - shown only for "not deposited" validators
+          UPLOAD_DEPOSIT_FILE: 7.6, // Keystore mode - shown only for "not deposited" validators
           STAKING_DEPOSIT: 8,
           CONGRATULATIONS: 9
         }

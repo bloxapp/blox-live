@@ -44,6 +44,7 @@ const CreateValidator = (props: Props) => {
     const { publicKey, network } = account;
     const accountIndex = +account.name.replace('account-', '');
     // Load fresh accounts before WizardStartPage logic will start working
+    await setPage(config.WIZARD_PAGES.VALIDATOR.REWARD_ADDRESS);
     await loadDataAfterNewAccount().then(async () => {
       await callSetAddAnotherAccount(false);
       await callSetDepositNeeded({
@@ -52,7 +53,6 @@ const CreateValidator = (props: Props) => {
         accountIndex,
         network
       });
-      await setPage(config.WIZARD_PAGES.VALIDATOR.REWARD_ADDRESS);
     });
   };
 

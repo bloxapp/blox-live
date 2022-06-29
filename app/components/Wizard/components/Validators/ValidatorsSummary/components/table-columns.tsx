@@ -37,16 +37,16 @@ const openBeaconChain = (network: string, publicKey: string): void => {
 };
 
 export default [
-    {
-        key: 'publicKey',
-        title: '#',
-        width: '10%',
-        justifyContent: 'flex-start',
-        compareFunction: (a, b, dir) => compareFunction('publicKey', a, b, dir, 'string'),
-        valueRender: (_publicKey, _totalCount, _row, rowIndex) => {
-            return String(rowIndex + 1).padStart(2, '0');
-        },
+  {
+    title: '#',
+    width: '10%',
+    key: 'publicKey',
+    justifyContent: 'flex-start',
+    compareFunction: (a, b, dir) => compareFunction('publicKey', a, b, dir, 'string'),
+    valueRender: (_publicKey, _totalCount, _row, rowIndex) => {
+      return String(rowIndex + 1).padStart(2, '0');
     },
+  },
     {
         key: 'publicKey',
         title: 'Validator',

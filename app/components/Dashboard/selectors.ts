@@ -4,6 +4,8 @@ export const getModalType = (state) => state.dashboard.dialog.type;
 
 export const getModalText = (state) => state.dashboard.dialog.text;
 
+export const getMergePopUpSeen = (state) => state.dashboard.mergePopUpSeen;
+
 export const getModalDisplayCloseButton = (state) => state.dashboard.dialog.displayCloseButton;
 
 export const getModalOnSuccess = (state) => state.dashboard.dialog.onSuccess;

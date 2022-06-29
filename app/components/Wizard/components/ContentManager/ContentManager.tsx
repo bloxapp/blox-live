@@ -78,6 +78,10 @@ const switcher = (props: Props) => {
       component = <ValidatorPages.RewardAddress {...props} />;
       break;
 
+    case config.WIZARD_PAGES.WALLET.IMPORT_VALIDATORS_REWARD_ADDRESS:
+      component = <ValidatorPages.RewardAddress {...props} />;
+      break;
+
     case config.WIZARD_PAGES.VALIDATOR.SLASHING_WARNING:
       component = <ValidatorPages.SlashingWarning {...props} />;
       break;

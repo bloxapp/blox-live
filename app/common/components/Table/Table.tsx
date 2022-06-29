@@ -16,7 +16,7 @@ const Wrapper = styled.div`
 const Table = (props: Props) => {
   const {
     data, columns, withHeader, isPagination, selectedSorting,
-    sortType, onSortClick, paginationInfo, onPageClick, totalCount,
+    sortType, onSortClick, customLoader, paginationInfo, onPageClick, totalCount,
     navButtonWidth, rowMinHeight, headerHeight, footerHeight } = props;
 
   return (
@@ -33,6 +33,7 @@ const Table = (props: Props) => {
       <Body
         data={data}
         columns={columns}
+        customLoader={customLoader}
         rowMinHeight={rowMinHeight}
         totalCount={totalCount || null}
       />
@@ -49,19 +50,20 @@ const Table = (props: Props) => {
 
 type Props = {
   data: any[];
+  columns: any[];
+  sortType?: string;
+  withHeader: boolean;
   totalCount?: number;
+  customLoader?: any;
+  isPagination: boolean;
+  navButtonWidth?: string;
+  selectedSorting?: string;
+  onPageClick: (offset) => void;
   rowMinHeight?: number | string;
   headerHeight?: number | string;
   footerHeight?: number | string;
-  columns: any[];
-  withHeader: boolean;
-  isPagination: boolean;
-  selectedSorting?: string;
-  sortType?: string;
-  onSortClick?: (sortKey: any, direction: any, compareFunction: any) => void;
   paginationInfo: Record<string, any>;
-  onPageClick: (offset) => void;
-  navButtonWidth?: string;
+  onSortClick?: (sortKey: any, direction: any, compareFunction: any) => void;
 };
 
 export default Table;

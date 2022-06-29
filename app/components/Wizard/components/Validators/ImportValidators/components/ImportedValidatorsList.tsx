@@ -136,18 +136,18 @@ const ImportedValidatorsList = ({ show, validators, onDone, dashboardActions }: 
       <Paragraph>List of Validator(s) to be imported:</Paragraph>
       <TableWrapper>
         <Table
-          data={pagedValidators}
-          columns={tableColumns}
           withHeader
-          onPageClick={onPageClick}
           isPagination
-          paginationInfo={paginationInfo}
-          totalCount={validators.length}
           sortType="disabled"
-          navButtonWidth="15%"
           rowMinHeight="40px"
           headerHeight="40px"
           footerHeight="40px"
+          navButtonWidth="15%"
+          data={pagedValidators}
+          columns={tableColumns}
+          onPageClick={onPageClick}
+          totalCount={validators.length}
+          paginationInfo={paginationInfo}
         />
       </TableWrapper>
 
