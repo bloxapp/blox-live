@@ -114,7 +114,7 @@ const RewardAddresses = (props: Props) => {
 
         setValidators(newObject);
         onPageClick(0, newObject);
-    });
+    }).catch((e) => { console.log(e.message); });
   }, []);
 
   useEffect(() => {
@@ -143,9 +143,9 @@ const RewardAddresses = (props: Props) => {
       if (problematicValidator) {
         setIsLoading(false);
         if (validators[problematicValidator]?.rewardAddress?.length === 0) {
-          showError(`Validator ${Number(validators[problematicValidator].name?.replace('account-', '')) + 1} in the list has not been provided with an address`);
+          showError(`Validator ${validators[problematicValidator]?.index + 1} in the list has not been provided with an address`);
         } else {
-          showError(`Validator ${Number(validators[problematicValidator].name?.replace('account-', '')) + 1} in the list has an invalid address`);
+          showError(`Validator ${validators[problematicValidator]?.index + 1} in the list has an invalid address`);
         }
         return;
       }

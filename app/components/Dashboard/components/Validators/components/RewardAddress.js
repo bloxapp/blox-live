@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import {Button} from '~app/common/components';
 import useRouting from '../../../../../common/hooks/useRouting';
-import {longStringShorten} from "../../../../../common/components/DropZone/components/SelectedFilesTable";
+import {longStringShorten} from '../../../../../common/components/DropZone/components/SelectedFilesTable';
+import Connection from '../../../../../backend/common/store-manager/connection';
+import usePasswordHandler from '../../../../PasswordHandler/usePasswordHandler';
 
 const Wrapper = styled.div`
   display: flex;
@@ -26,10 +28,29 @@ const AddAddressButton = styled(Button)`
 
 const RewardAddress = ({address}) => {
   const {goToPage, ROUTES} = useRouting();
+  const { checkIfPasswordIsNeeded } = usePasswordHandler();
   const publicKey = address && `0x${longStringShorten(address?.replace('0x', ''), 4)}`;
 
+  const showPasswordProtectedDialog = async (callback) => {
+    const cryptoKey = 'temp';
+    const isTemporaryCryptoKeyValid = await Connection.db().isCryptoKeyValid(cryptoKey);
+    if (isTemporaryCryptoKeyValid) {
+      // If temp crypto key is valid - we should set it anyway
+      await Connection.db().setCryptoKey(cryptoKey);
+    }
+
+    return isTemporaryCryptoKeyValid
+      ? callback()
+      : checkIfPasswordIsNeeded(callback);
+  };
+
   return (
-    <Wrapper>{publicKey ?? <AddAddressButton onClick={() => { goToPage(ROUTES.REWARD_ADDRESSES); }}>Add Address</AddAddressButton>}</Wrapper>
+    <Wrapper>{publicKey ?? (
+    <AddAddressButton onClick={() => { showPasswordProtectedDialog(() => { goToPage(ROUTES.REWARD_ADDRESSES); }); }}
+    >
+      Add Address</AddAddressButton>
+)}
+    </Wrapper>
   );
 };
 

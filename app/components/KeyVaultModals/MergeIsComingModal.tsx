@@ -64,7 +64,7 @@ const MergeIsComing = (props: Props) => {
       <Title>The Merge is here!</Title>
       <Description>With the transition to Proof of Stake, validators can now earn block proposal rewards.</Description>
       <Description>These rewards will be distributed to a new Ethereum address of your choice.
-        <Tooltip title={<LinkTo>What are proposal rewards?</LinkTo>} placement={'bottom'}>
+        <Tooltip interactive title={<LinkTo href={'https://bloxstaking.com/blog/product-updates/merge-is-here/'}>What are proposal rewards?</LinkTo>} placement={'bottom'}>
           <Image src={imageSrc} />
         </Tooltip>
       </Description>
