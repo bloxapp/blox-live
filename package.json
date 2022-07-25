@@ -245,7 +245,7 @@
     "electron-builder": "^22.7.0",
     "electron-builder-notarize": "1.2.0",
     "electron-devtools-installer": "^3.0.0",
-    "electron-rebuild": "^2.0.0",
+    "electron-rebuild": "^1.11.0",
     "electron-redux-devtools": "^0.3.4",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
