@@ -19,7 +19,7 @@ const RewardAddressInput = styled.input`
 `;
 
 const ApplyToAll = styled.div`
-  right: 0;
+  right: -8px;
   width: 80px;
   height: 28px;
   display: none;
@@ -123,7 +123,7 @@ const columnsData = (props: columnsDataProps) => {
     {
       key: '',
       title: '#',
-      width: '6%',
+      width: '7%',
       valueRender: (_a, _b, publicKey) => {
         const indexStr = validators[publicKey]?.index;
         const padValue = validators && Object.keys(validators).length < 100 ? 2 : 3;
@@ -142,7 +142,7 @@ const columnsData = (props: columnsDataProps) => {
       }
     },
     {
-      width: '71%',
+      width: '70%',
       key: 'rewardAddress',
       title: <HeaderCell>Proposal Rewards Address</HeaderCell>,
       // compareFunction: (a, b, dir) => compareFunction('status', a, b, dir, 'string'),
