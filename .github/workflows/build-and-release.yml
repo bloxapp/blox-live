@@ -33,7 +33,7 @@ jobs:
 
       - name: install windows build tools
         if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
-        run: yarn add --global windows-build-tools
+        run: yarn add windows-build-tools
 
 
       - name: Build Electron app for windows
