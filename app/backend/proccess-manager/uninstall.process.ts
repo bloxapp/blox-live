@@ -13,8 +13,8 @@ export default class UninstallProcess extends ProcessClass {
     this.awsService = new AwsService();
     this.walletService = new WalletService();
     this.actions = [
-      { instance: this.walletService, method: 'removeBloxWallet' },
-      { instance: this.awsService, method: 'uninstallItems' },
+      {instance: this.walletService, method: 'removeBloxWallet'},
+      {instance: this.awsService, method: 'uninstallItems'},
       {
         instance: Connection,
         method: 'remove',
@@ -22,6 +22,6 @@ export default class UninstallProcess extends ProcessClass {
           prefix: ''
         }
       }
-];
+    ];
   }
 }
