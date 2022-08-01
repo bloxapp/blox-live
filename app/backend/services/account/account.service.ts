@@ -439,10 +439,9 @@ export default class AccountService {
           const index = +lastIndex;
           if (index > -1) {
             Connection.db(this.storePrefix).set('network', network);
-            // eslint-disable-next-line no-param-reassign
-            inputData = typeof (inputData) === 'object' ? inputData[String(network)] : inputData;
+            const conditionalData = typeof (inputData) === 'object' ? inputData[String(network)] : inputData;
             // eslint-disable-next-line no-await-in-loop
-            await this.createAccount({ indexToRestore: index, inputData });
+            await this.createAccount({ indexToRestore: index, inputData: conditionalData });
           }
         }
       }

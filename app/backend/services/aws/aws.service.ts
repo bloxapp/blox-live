@@ -289,13 +289,7 @@ export default class AwsService {
     await this.ec2.releaseAddress({ AllocationId: Connection.db(this.storePrefix).get('addressId') }).promise();
     const keyPair = Connection.db(this.storePrefix).get('keyPair');
     await this.ec2.deleteKeyPair({ KeyPairId: keyPair.pairId }).promise();
-    try {
-      await this.ec2.deleteSecurityGroup({ GroupId: Connection.db(this.storePrefix).get('securityGroupId'), DryRun: false }).promise();
-    } catch (e) {
-      console.log('<<<<<<<<<<<<<<<<<<<<<here>>>>>>>>>>>>>>>>>>>>>');
-      console.log(e.message);
-      console.log('<<<<<<<<<<<<<<<<<<<<<here>>>>>>>>>>>>>>>>>>>>>');
-    }
+    await this.ec2.deleteSecurityGroup({ GroupId: Connection.db(this.storePrefix).get('securityGroupId'), DryRun: false }).promise();
     Connection.db(this.storePrefix).clear();
     /*
     if (Store.isExist(tempStorePrefix)) {
