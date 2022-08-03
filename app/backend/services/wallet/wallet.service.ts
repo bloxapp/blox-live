@@ -36,8 +36,8 @@ export default class WalletService {
     return await this.bloxApi.request(METHOD.POST, 'wallets/sync', payload);
   }
 
-  async reSync(payload: any) {
-    return await this.bloxApi.request(METHOD.PATCH, 'wallets/sync', payload);
+  async forceSyncAccounts(payload: any) {
+    return await this.bloxApi.request(METHOD.PATCH, 'wallets/refresh', payload);
   }
 
   async delete() {

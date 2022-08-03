@@ -151,14 +151,14 @@ const ConfirmationModal = (props: ConfirmationModalProps) => {
 type ConfirmationModalProps = {
   text: string,
   onSuccess: () => {},
+  dashboardActions: any
   confirmation: {
     title: string,
-    confirmButtonText: string,
     cancelButtonText: string,
-    onConfirmButtonClick: () => {},
     onCancelButtonClick: any,
+    confirmButtonText: string,
+    onConfirmButtonClick: () => {},
   },
-  dashboardActions: any
 };
 
 const mapDispatchToProps = (dispatch) => ({

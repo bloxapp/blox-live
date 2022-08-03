@@ -417,6 +417,19 @@ export default class AccountService {
     }
   }
 
+  // @Step({
+  //   name: 'Recover Key Vault Config'
+  // })
+  // @Catch({
+  //   showErrorMessage: true
+  // })
+  // async recoverKeyVaultConfig(): Promise<void> {
+  //   const firstNetworkConfig = await this.keyVaultService.getListAccountsRewardKeys();
+  //   const oppositeNetwork = Connection.db(this.storePrefix).get('network') === config.env.MAINNET_NETWORK ? config.env.PRATER_NETWORK : config.env.MAINNET_NETWORK;
+  //   Connection.db(this.storePrefix).set('network', oppositeNetwork);
+  //   const secondNetworkConfig = await this.keyVaultService.getListAccountsRewardKeys();
+  // }
+
   @Step({
     name: 'Restore Accounts'
   })

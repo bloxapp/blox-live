@@ -1,3 +1,4 @@
+import Web3 from 'web3';
 import {connect} from 'react-redux';
 import React, {useEffect, useMemo, useState} from 'react';
 import styled from 'styled-components';
@@ -18,6 +19,9 @@ import useDashboardData from '../Dashboard/useDashboardData';
 import useProcessRunner from '../ProcessRunner/useProcessRunner';
 import config from '../../backend/common/config';
 import Connection from '../../backend/common/store-manager/connection';
+import {MODAL_TYPES} from '../Dashboard/constants';
+import {bindActionCreators} from 'redux';
+import * as actionsFromDashboard from '../Dashboard/actions';
 
 const Wrapper = styled.div`
   height: 100%;
@@ -84,7 +88,7 @@ const LoaderText = styled.span`
 `;
 
 const RewardAddresses = (props: Props) => {
-  const { setPage } = props;
+  const { setPage, dashboardActions, walletNeedsUpdate } = props;
   const {accounts} = useAccounts();
   const {goToPage, ROUTES} = useRouting();
   const [checked, setChecked] = useState();
@@ -92,6 +96,7 @@ const RewardAddresses = (props: Props) => {
   const { isDone, processData } = useProcessRunner();
   const [validators, setValidators] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const { setModalDisplay, clearModalDisplayData } = dashboardActions;
   const [validatorsPage, setPagedValidators] = useState([]);
   const [paginationInfo, setPaginationInfo] = useState({});
   const { loadDataAfterNewAccount } = useDashboardData();
@@ -105,16 +110,21 @@ const RewardAddresses = (props: Props) => {
     const keyVaultService = new KeyVaultService();
       keyVaultService.getListAccountsRewardKeys().then(response => {
         const validatorsAccounts = (isDone ? processData : accounts).filter(item => item.network === Connection.db().get('network'));
+        console.log(Connection.db().get('network'));
         const newObject = validatorsAccounts.reduce((prev, curr, index) => {
-          const rewardAddress = response.fee_recipients[curr.publicKey] ?? '';
+          const rewardAddress = (response?.fee_recipients && response.fee_recipients[curr?.publicKey]) ?? '';
           // eslint-disable-next-line no-param-reassign
-          prev[curr.publicKey] = {...curr, rewardAddress, addressStatus: undefined, index};
+          prev[curr?.publicKey] = {...curr, rewardAddress, addressStatus: undefined, index};
           return prev;
         }, {});
 
         setValidators(newObject);
         onPageClick(0, newObject);
-    }).catch((e) => { console.log(e.message); });
+    }).catch((e) => {
+      console.log('<<<<<<<<<<<<<<<<<<<<<<<<<error>>>>>>>>>>>>>>>>>>>>>>>>>');
+      console.log(e.message);
+      console.log('<<<<<<<<<<<<<<<<<<<<<<<<<error>>>>>>>>>>>>>>>>>>>>>>>>>');
+    });
   }, []);
 
   useEffect(() => {
@@ -122,7 +132,10 @@ const RewardAddresses = (props: Props) => {
   }, [validators]);
 
   const isAddressVerify = (address: string): boolean => {
-    return address.length === 42 && address.startsWith('0x');
+    const web3 = new Web3(
+      'https://goerli.infura.io/v3/d03b92aa81864faeb158166231b7f895'
+    );
+    return web3.utils.checkAddressChecksum(address);
   };
 
   const verifyAddresses = () => {
@@ -161,6 +174,30 @@ const RewardAddresses = (props: Props) => {
         ...response.fee_recipients,
         ...newAddress
       };
+
+      if (walletNeedsUpdate) {
+        const oppositeNetworkAccounts = await getOppositeNetworkAccounts();
+        const title = 'Update KeyVault';
+        const confirmButtonText = title;
+        const rewardAddressesData = {first: response, second: oppositeNetworkAccounts};
+        setModalDisplay({
+          show: true,
+          type: MODAL_TYPES.UPDATE_KEYVAULT_REQUEST,
+          text: 'Please update your KeyVault before adding reward addresses',
+          confirmation: {
+            title,
+            confirmButtonText,
+            cancelButtonText: 'Later',
+            onConfirmButtonClick: () => {
+              setModalDisplay({show: true, type: MODAL_TYPES.UPDATE, rewardAddressesData});
+            },
+            onCancelButtonClick: () => clearModalDisplayData()
+          }
+        });
+        setIsLoading(false);
+        return;
+      }
+
       const goToDeposit = props.pageData.newValidatorDeposited === false || !!props.seedLessNeedDeposit;
       const depositRedirect = selectedSeedMode() ? config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT : config.WIZARD_PAGES.VALIDATOR.DEPOSIT_OVERVIEW;
       const redirectTo = goToDeposit ? depositRedirect : config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS;
@@ -178,6 +215,19 @@ const RewardAddresses = (props: Props) => {
     const clonedObj = {...validators};
     clonedObj[publicKey] = {...clonedObj[publicKey], rewardAddress: inputValue};
     setValidators(clonedObj);
+  };
+
+  const getOppositeNetworkAccounts = async () => {
+    const oppositeNetwork = getOppositeNetwork();
+    Connection.db().set('network', oppositeNetwork);
+    const keyVaultService = new KeyVaultService();
+    const response = await keyVaultService.getListAccountsRewardKeys();
+    Connection.db().set('network', getOppositeNetwork());
+    return response;
+  };
+
+  const getOppositeNetwork = () => {
+    return Connection.db().get('network') === 'mainnet' ? 'prater' : 'mainnet';
   };
 
   const applyToAll = (address: string) => {
@@ -271,6 +321,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   setPage: (page: any) => dispatch(setWizardPage(page)),
+  dashboardActions: bindActionCreators(actionsFromDashboard, dispatch)
 });
 
 type Props = {
@@ -278,8 +329,10 @@ type Props = {
   step: number;
   accounts: any;
   pageData: any;
+  dashboardActions: any,
   flowPage: boolean;
   isFinishedWizard: boolean;
+  walletNeedsUpdate: boolean,
   addAnotherAccount: boolean;
   seedLessNeedDeposit: boolean;
   setPage: (page: number) => void;

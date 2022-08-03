@@ -89,13 +89,14 @@ export default class KeyVaultService {
   }
 
   async setListAccountsRewardKeys(payload: object) {
-    this.logger.info('try to get keyVault server accounts reward key...');
+    this.logger.info('try to set keyVault server accounts reward key...');
     try {
       const response = await this.keyVaultApi.requestThruSsh({
         data: payload,
         path: 'config',
         method: METHOD.POST
       });
+
       return response?.data;
     } catch (e) {
       this.logger.error(e);
@@ -330,6 +331,26 @@ export default class KeyVaultService {
     if (keyVaultStorage) {
       // eslint-disable-next-line no-restricted-syntax
       for (const [network, storage] of Object.entries(keyVaultStorage)) {
+        if (storage) {
+          Connection.db(this.storePrefix).set('network', network);
+          // eslint-disable-next-line no-await-in-loop
+          await this.updateVaultStorage();
+        }
+      }
+      Connection.db(this.storePrefix).delete('keyVaultStorage');
+    }
+    return { isActive: true };
+  }
+
+  @Step({
+    name: 'Updating server storage...'
+  })
+  async updateVaultConfigStorage(): Promise<any> {
+    const keyVaultConfigStorage = Connection.db(this.storePrefix).get('keyVaultConfigStorage');
+
+    if (keyVaultConfigStorage) {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const [network, storage] of Object.entries(keyVaultConfigStorage)) {
         if (storage) {
           Connection.db(this.storePrefix).set('network', network);
           // eslint-disable-next-line no-await-in-loop

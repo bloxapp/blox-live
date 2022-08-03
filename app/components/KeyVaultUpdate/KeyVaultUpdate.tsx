@@ -14,7 +14,7 @@ import activeImage from '../Wizard/assets/img-key-vault.svg';
 
 const { SeedlessKeystoreStepModal, SeedlessSummaryStepModal } = SeedlessModals;
 
-const KeyVaultUpdate = ({onSuccess, onClose, keyVaultCurrentVersion, keyVaultLatestVersion}: Props) => {
+const KeyVaultUpdate = ({onSuccess, onClose, rewardAddressesData, keyVaultCurrentVersion, keyVaultLatestVersion}: Props) => {
   const isFullReinstall = () => {
     return getProcessNameForUpdate(keyVaultCurrentVersion, keyVaultLatestVersion) === 'reinstall';
   };
@@ -53,7 +53,7 @@ const KeyVaultUpdate = ({onSuccess, onClose, keyVaultCurrentVersion, keyVaultLat
     case 1:
       return defaultDialog;
     case 2:
-      return <SuccessModal title={'KeyVault Updated!'} onSuccess={onSuccess} text={'All Validators are now performing normally.'} />;
+      return <SuccessModal rewardAddressesData={rewardAddressesData} title={'KeyVault Updated!'} onSuccess={onSuccess} text={'All Validators are now performing normally.'} />;
     case 3:
       return <FailureModal title={'Troubleshooting Failed'} onClick={move1StepForward} onClose={onClose} />;
     case 4:
@@ -64,8 +64,9 @@ const KeyVaultUpdate = ({onSuccess, onClose, keyVaultCurrentVersion, keyVaultLat
 };
 
 type Props = {
-  onSuccess: () => void;
   onClose: () => void;
+  onSuccess: () => void;
+  rewardAddressesData: any;
   keyVaultCurrentVersion: string;
   keyVaultLatestVersion: string;
 };

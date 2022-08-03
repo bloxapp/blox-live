@@ -59,7 +59,7 @@ const Dashboard = (props) => {
   React.useEffect(() => {
     const keyVaultVersion = Connection.db().get('keyVaultVersion');
     const validatorWithOutRewardAddress = accounts.find((validator) => !validator.feeRecipient && validator.network === config.env.MAINNET_NETWORK);
-    if (!isMergePopUpSeen && validatorWithOutRewardAddress && isVersionHigherOrEqual(keyVaultVersion, 'v1.4.4')) {
+    if (!isMergePopUpSeen && validatorWithOutRewardAddress?.length && isVersionHigherOrEqual(keyVaultVersion, 'v1.4.4')) {
       setTestNetShowFlag(false);
       setModalDisplay({ show: true, type: MODAL_TYPES.MERGE_COMING });
       setModalMergeAsSeen();
