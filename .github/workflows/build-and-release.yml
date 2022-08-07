@@ -138,13 +138,6 @@ jobs:
           # Log in to Snap Store
           snapcraft_token: ${{ secrets.snapcraft_token }}
 
-#      - uses: trstringer/manual-approval@v1
-#        with:
-#          secret: ${{ github.TOKEN }}
-#          approvers: guym-blox
-#          minimum-approvals: 1
-#          issue-title: "Deploying v1.3.5 to prod from staging"
-
       - name: Build/release Electron app for ubuntu
         if: ${{ startsWith(matrix.os, 'ubuntu') && startsWith(github.ref, 'refs/tags/v') }}
         uses: samuelmeuli/action-electron-builder@v1

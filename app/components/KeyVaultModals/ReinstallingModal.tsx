@@ -31,7 +31,7 @@ const ReinstallingModal = (props: Props) => {
     startProcess, clearProcessState, loaderPercentage, error } = useProcessRunner();
   const {
     title, description, move1StepForward, move2StepsForward, suggestedProcess,
-    onClose, image, keyVaultCurrentVersion, keyVaultLatestVersion, accounts, decryptedKeyStores, isSeedless } = props;
+    onClose, image, keyVaultCurrentVersion, keyVaultLatestVersion, accounts, decryptedKeyStores, rewardAddressesData, isSeedless } = props;
   const [reinstallStarted, startReinstall] = useState(false);
   const [modalTitle, setModalTitle] = useState(title);
   const [modalDescription, setModalDescription] = useState(description);
@@ -78,9 +78,8 @@ const ReinstallingModal = (props: Props) => {
         // Default previous flow for reinstall
         if (noProcess && !reinstallStarted) {
           logger.debug('Starting default reinstall process as initial process..');
-          startProcess(currentProcessName, processDefaultMessage, {
-            inputData: getInputData({isSeedless, accounts, decryptedKeyStores}),
-          });
+          startProcess(currentProcessName, processDefaultMessage,
+            {inputData: getInputData({isSeedless, accounts, decryptedKeyStores}), rewardAddressesData});
           return;
         }
         if (isDone) {
@@ -119,6 +118,7 @@ type Props = {
   onClose?: () => void;
   isSeedless?: boolean;
   suggestedProcess?: string;
+  rewardAddressesData?: any;
   move1StepForward: () => void;
   keyVaultLatestVersion: string;
   move2StepsForward: () => void;

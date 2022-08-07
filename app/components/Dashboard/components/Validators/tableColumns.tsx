@@ -26,7 +26,7 @@ export default [
     key: 'feeRecipient',
     justifyContent: 'center',
     title: 'Proposal Rewards Address',
-    valueRender: (value, _totalCount, item) => <RewardAddress address={item.feeRecipient} />,
+    valueRender: (value, _totalCount, item) => <RewardAddress validator={item} />,
   },
   {
     key: 'currentBalance',

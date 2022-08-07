@@ -11,6 +11,7 @@ export type ProcessParams = {
   inputData?: string,
   deposited?: boolean,
   indexToRestore?: number
+  rewardAddressesData?: any,
   credentials?: Credentials | null,
 };
 

@@ -152,8 +152,8 @@ const ModalsManager = (props: Props) => {
         return (
           <ConfirmationModal
             text={modalData.text}
-            confirmation={modalData.confirmation}
             onSuccess={modalData.onSuccess}
+            confirmation={modalData.confirmation}
           />
         );
       default:

@@ -26,10 +26,10 @@ const AddAddressButton = styled(Button)`
   background-color:${({theme}) => theme.warning700};
 `;
 
-const RewardAddress = ({address}) => {
+const RewardAddress = ({validator}) => {
   const {goToPage, ROUTES} = useRouting();
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
-  const publicKey = address && `0x${longStringShorten(address?.replace('0x', ''), 4)}`;
+  const publicKey = validator?.feeRecipient && `0x${longStringShorten(validator?.feeRecipient.replace('0x', ''), 4)}`;
 
   const showPasswordProtectedDialog = async (callback) => {
     const cryptoKey = 'temp';
@@ -46,16 +46,24 @@ const RewardAddress = ({address}) => {
 
   return (
     <Wrapper>{publicKey ?? (
-    <AddAddressButton onClick={() => { showPasswordProtectedDialog(() => { goToPage(ROUTES.REWARD_ADDRESSES); }); }}
-    >
-      Add Address</AddAddressButton>
-)}
+      <AddAddressButton onClick={() => {
+        showPasswordProtectedDialog(() => {
+          try {
+            Connection.db().set('network', validator.network);
+          } catch (e) {
+            console.log(e.message);
+          }
+          goToPage(ROUTES.REWARD_ADDRESSES);
+        });
+      }}>
+        Add Address</AddAddressButton>
+    )}
     </Wrapper>
   );
 };
 
 RewardAddress.propTypes = {
-  address: PropTypes.string,
+  validator: PropTypes.any,
 };
 
 export default RewardAddress;

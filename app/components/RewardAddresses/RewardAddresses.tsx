@@ -22,6 +22,7 @@ import Connection from '../../backend/common/store-manager/connection';
 import {MODAL_TYPES} from '../Dashboard/constants';
 import {bindActionCreators} from 'redux';
 import * as actionsFromDashboard from '../Dashboard/actions';
+import WalletService from '../../backend/services/wallet/wallet.service';
 
 const Wrapper = styled.div`
   height: 100%;
@@ -110,7 +111,6 @@ const RewardAddresses = (props: Props) => {
     const keyVaultService = new KeyVaultService();
       keyVaultService.getListAccountsRewardKeys().then(response => {
         const validatorsAccounts = (isDone ? processData : accounts).filter(item => item.network === Connection.db().get('network'));
-        console.log(Connection.db().get('network'));
         const newObject = validatorsAccounts.reduce((prev, curr, index) => {
           const rewardAddress = (response?.fee_recipients && response.fee_recipients[curr?.publicKey]) ?? '';
           // eslint-disable-next-line no-param-reassign
@@ -132,10 +132,14 @@ const RewardAddresses = (props: Props) => {
   }, [validators]);
 
   const isAddressVerify = (address: string): boolean => {
-    const web3 = new Web3(
-      'https://goerli.infura.io/v3/d03b92aa81864faeb158166231b7f895'
-    );
-    return web3.utils.checkAddressChecksum(address);
+    try {
+      const web3 = new Web3(
+        'https://goerli.infura.io/v3/d03b92aa81864faeb158166231b7f895'
+      );
+      return web3.utils.isAddress(address);
+    } catch {
+      return false;
+    }
   };
 
   const verifyAddresses = () => {
@@ -176,10 +180,8 @@ const RewardAddresses = (props: Props) => {
       };
 
       if (walletNeedsUpdate) {
-        const oppositeNetworkAccounts = await getOppositeNetworkAccounts();
         const title = 'Update KeyVault';
         const confirmButtonText = title;
-        const rewardAddressesData = {first: response, second: oppositeNetworkAccounts};
         setModalDisplay({
           show: true,
           type: MODAL_TYPES.UPDATE_KEYVAULT_REQUEST,
@@ -189,7 +191,7 @@ const RewardAddresses = (props: Props) => {
             confirmButtonText,
             cancelButtonText: 'Later',
             onConfirmButtonClick: () => {
-              setModalDisplay({show: true, type: MODAL_TYPES.UPDATE, rewardAddressesData});
+              setModalDisplay({show: true, type: MODAL_TYPES.UPDATE, rewardAddressesData: response});
             },
             onCancelButtonClick: () => clearModalDisplayData()
           }
@@ -202,6 +204,8 @@ const RewardAddresses = (props: Props) => {
       const depositRedirect = selectedSeedMode() ? config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT : config.WIZARD_PAGES.VALIDATOR.DEPOSIT_OVERVIEW;
       const redirectTo = goToDeposit ? depositRedirect : config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS;
       await keyVaultService.setListAccountsRewardKeys(response);
+      const walletService = new WalletService();
+      await walletService.syncVaultWithBlox();
       if (props.flowPage) await setPage(redirectTo);
       else {
         await loadDataAfterNewAccount();
@@ -215,19 +219,6 @@ const RewardAddresses = (props: Props) => {
     const clonedObj = {...validators};
     clonedObj[publicKey] = {...clonedObj[publicKey], rewardAddress: inputValue};
     setValidators(clonedObj);
-  };
-
-  const getOppositeNetworkAccounts = async () => {
-    const oppositeNetwork = getOppositeNetwork();
-    Connection.db().set('network', oppositeNetwork);
-    const keyVaultService = new KeyVaultService();
-    const response = await keyVaultService.getListAccountsRewardKeys();
-    Connection.db().set('network', getOppositeNetwork());
-    return response;
-  };
-
-  const getOppositeNetwork = () => {
-    return Connection.db().get('network') === 'mainnet' ? 'prater' : 'mainnet';
   };
 
   const applyToAll = (address: string) => {

@@ -343,26 +343,6 @@ export default class KeyVaultService {
   }
 
   @Step({
-    name: 'Updating server storage...'
-  })
-  async updateVaultConfigStorage(): Promise<any> {
-    const keyVaultConfigStorage = Connection.db(this.storePrefix).get('keyVaultConfigStorage');
-
-    if (keyVaultConfigStorage) {
-      // eslint-disable-next-line no-restricted-syntax
-      for (const [network, storage] of Object.entries(keyVaultConfigStorage)) {
-        if (storage) {
-          Connection.db(this.storePrefix).set('network', network);
-          // eslint-disable-next-line no-await-in-loop
-          await this.updateVaultStorage();
-        }
-      }
-      Connection.db(this.storePrefix).delete('keyVaultStorage');
-    }
-    return { isActive: true };
-  }
-
-  @Step({
     name: 'Import key-vault data...',
   })
   async importKeyVaultData(): Promise<any> {
@@ -377,6 +357,43 @@ export default class KeyVaultService {
       // eslint-disable-next-line no-await-in-loop
       await this.importSlashingData();
     }
+  }
+
+  @Step({
+    name: 'Import key vault config data...',
+  })
+  async importKeyVaultConfigData({ rewardAddressesData }: { rewardAddressesData?: any }): Promise<any> {
+    const currentNetwork = Connection.db(this.storePrefix).get('network');
+    const supportedNetworks = [config.TESTNET_NETWORK, config.env.MAINNET_NETWORK];
+    // eslint-disable-next-line no-restricted-syntax
+    for (const network of supportedNetworks) {
+      Connection.db(this.storePrefix).set('network', network);
+      if (rewardAddressesData.network === network && rewardAddressesData) {
+        Connection.db(this.storePrefix).set(`rewardConfig.${network}`, rewardAddressesData);
+      } else {
+        // eslint-disable-next-line no-await-in-loop
+        Connection.db(this.storePrefix).set(`rewardConfig.${network}`, await this.getListAccountsRewardKeys());
+      }
+    }
+    Connection.db(this.storePrefix).set('network', currentNetwork);
+  }
+
+  @Step({
+    name: 'Update key vault config data...',
+  })
+  async updateKeyVaultConfigStorage(): Promise<any> {
+    const currentNetwork = Connection.db(this.storePrefix).get('network');
+    const supportedNetworks = [config.TESTNET_NETWORK, config.env.MAINNET_NETWORK];
+    // eslint-disable-next-line no-restricted-syntax
+    for (const network of supportedNetworks) {
+      Connection.db(this.storePrefix).set('network', network);
+      const configData = Connection.db(this.storePrefix).get(`rewardConfig.${network}`);
+      // save latest network index
+      // eslint-disable-next-line no-await-in-loop
+      await this.setListAccountsRewardKeys(configData);
+      Connection.db(this.storePrefix).delete(`rewardConfig.${network}`);
+    }
+    Connection.db(this.storePrefix).set('network', currentNetwork);
   }
 
   @Step({

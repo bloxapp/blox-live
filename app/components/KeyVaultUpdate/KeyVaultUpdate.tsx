@@ -27,10 +27,11 @@ const KeyVaultUpdate = ({onSuccess, onClose, rewardAddressesData, keyVaultCurren
 
   const defaultDialog = (
     <ReinstallingModal
+      image={activeImage}
       title={'Updating KeyVault'}
       move1StepForward={move1StepForward}
       move2StepsForward={move2StepsForward}
-      image={activeImage}
+      rewardAddressesData={rewardAddressesData}
     />
   );
   const noSeedFound = (
@@ -53,7 +54,7 @@ const KeyVaultUpdate = ({onSuccess, onClose, rewardAddressesData, keyVaultCurren
     case 1:
       return defaultDialog;
     case 2:
-      return <SuccessModal rewardAddressesData={rewardAddressesData} title={'KeyVault Updated!'} onSuccess={onSuccess} text={'All Validators are now performing normally.'} />;
+      return <SuccessModal title={'KeyVault Updated!'} onSuccess={onSuccess} text={'All Validators are now performing normally.'} />;
     case 3:
       return <FailureModal title={'Troubleshooting Failed'} onClick={move1StepForward} onClose={onClose} />;
     case 4:
@@ -66,7 +67,7 @@ const KeyVaultUpdate = ({onSuccess, onClose, rewardAddressesData, keyVaultCurren
 type Props = {
   onClose: () => void;
   onSuccess: () => void;
-  rewardAddressesData: any;
+  rewardAddressesData?: any;
   keyVaultCurrentVersion: string;
   keyVaultLatestVersion: string;
 };

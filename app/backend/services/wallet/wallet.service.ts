@@ -1,6 +1,5 @@
 import { Catch, Step } from '~app/backend/decorators';
 import { Log } from '~app/backend/common/logger/logger';
-import { selectedKeystoreMode } from '~app/common/service';
 import Connection from '~app/backend/common/store-manager/connection';
 import BloxApi from '~app/backend/common/communication-manager/blox-api';
 import { METHOD } from '~app/backend/common/communication-manager/constants';
@@ -75,33 +74,13 @@ export default class WalletService {
   @Step({
     name: 'Syncing KeyVault with Blox...'
   })
-  async syncVaultWithBlox({ isNew, processName, isSeedless }: { isNew?: boolean, processName?: string, isSeedless?: boolean }): Promise<void> {
-    const envKey = (Connection.db(this.storePrefix).get('env') || 'production');
-    const seedless = isSeedless ?? selectedKeystoreMode();
-    const payload: any = {
-      url: `https://${Connection.db(this.storePrefix).get('publicIp')}:8200`,
-      accessToken: Connection.db(this.storePrefix).get('vaultSignerToken'),
-      seedless,
-    };
-
-    // Send plugin version in all cases, but only if it's available
-    const pluginVersion: any = `${Connection.db(this.storePrefix).get('keyVaultPluginVersion')}${envKey === 'production' ? '' : '-rc'}`;
-    if (pluginVersion) {
-      payload.pluginVersion = pluginVersion;
-    }
-    // Send version in only recovery/install/reinstall cases
-    const version: any = `${Connection.db(this.storePrefix).get('keyVaultVersion')}${envKey === 'production' ? '' : '-rc'}`;
-    const shouldUpdateVersion: boolean = ['reinstall', 'install', 'recovery'].indexOf(processName) !== -1;
-    if (shouldUpdateVersion && version) {
-      payload.version = version;
-    }
-    this.logger.debugWithData('Sync KeyVault with Blox Payload:', { isNew, processName, ...payload });
+  async syncVaultWithBlox(): Promise<void> {
+    this.logger.debugWithData('Sync KeyVault with Blox Payload');
     const ssh = await this.keyVaultSsh.getConnection();
     const command = this.keyVaultSsh.buildCurlCommand({
       authToken: Connection.db(this.storePrefix).get('authToken'),
-      method: !isNew ? METHOD.PATCH : METHOD.POST,
-      data: payload,
-      route: `${this.bloxApi.baseUrl}/wallets/sync`
+      method: METHOD.POST,
+      route: `${this.bloxApi.baseUrl}/wallets/refresh?components=config`
     });
     this.logger.debug(command);
     const { stdout, stderr } = await ssh.execCommand(command, {});

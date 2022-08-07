@@ -14,7 +14,7 @@ export const processInstantiator = (processName: string, payload: Record<string,
     return new InstallProcess({accessKeyId, secretAccessKey});
   }
   if (processName === PROCESSES.RECOVERY && payload.credentials) {
-    const {credentials, inputData} = payload;
+    const {credentials, inputData, } = payload;
     const { accessKeyId, secretAccessKey} = credentials;
     return new RecoveryProcess({accessKeyId, secretAccessKey, isNew: false, inputData});
   }
@@ -22,8 +22,8 @@ export const processInstantiator = (processName: string, payload: Record<string,
     return new RebootProcess();
   }
   if (processName === PROCESSES.REINSTALL) {
-    const { inputData } = payload;
-    return new ReinstallProcess({ inputData });
+    const { inputData, rewardAddressesData } = payload;
+    return new ReinstallProcess({ inputData, rewardAddressesData });
   }
   if (processName === PROCESSES.UPGRADE) {
     return new UpgradeProcess();
