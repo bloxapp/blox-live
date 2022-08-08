@@ -205,7 +205,7 @@ const RewardAddresses = (props: Props) => {
       const redirectTo = goToDeposit ? depositRedirect : config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS;
       await keyVaultService.setListAccountsRewardKeys(response);
       const walletService = new WalletService();
-      await walletService.syncVaultWithBlox();
+      await walletService.syncVaultConfigWithBlox();
       if (props.flowPage) await setPage(redirectTo);
       else {
         await loadDataAfterNewAccount();

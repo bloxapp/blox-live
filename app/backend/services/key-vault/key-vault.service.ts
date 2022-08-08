@@ -368,7 +368,7 @@ export default class KeyVaultService {
     // eslint-disable-next-line no-restricted-syntax
     for (const network of supportedNetworks) {
       Connection.db(this.storePrefix).set('network', network);
-      if (rewardAddressesData.network === network && rewardAddressesData) {
+      if (rewardAddressesData?.network === network && rewardAddressesData) {
         Connection.db(this.storePrefix).set(`rewardConfig.${network}`, rewardAddressesData);
       } else {
         // eslint-disable-next-line no-await-in-loop

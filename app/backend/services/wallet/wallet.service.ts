@@ -5,6 +5,7 @@ import BloxApi from '~app/backend/common/communication-manager/blox-api';
 import { METHOD } from '~app/backend/common/communication-manager/constants';
 import KeyVaultSsh from '~app/backend/common/communication-manager/key-vault-ssh';
 import KeyManagerService from '~app/backend/services/key-manager/key-manager.service';
+import {selectedKeystoreMode} from '../../../common/service';
 
 // @CatchClass<WalletService>()
 export default class WalletService {
@@ -70,11 +71,47 @@ export default class WalletService {
     const { stdout, stderr } = await ssh.execCommand(command, {});
     if (stderr || +stdout !== 200) throw Error(`${stderr || stdout}. Remove blox wallet failed`);
   }
-
   @Step({
     name: 'Syncing KeyVault with Blox...'
   })
-  async syncVaultWithBlox(): Promise<void> {
+  async syncVaultWithBlox({ isNew, processName, isSeedless }: { isNew?: boolean, processName?: string, isSeedless?: boolean }): Promise<void> {
+    const envKey = (Connection.db(this.storePrefix).get('env') || 'production');
+    const seedless = isSeedless ?? selectedKeystoreMode();
+    const payload: any = {
+      url: `https://${Connection.db(this.storePrefix).get('publicIp')}:8200`,
+      accessToken: Connection.db(this.storePrefix).get('vaultSignerToken'),
+      seedless,
+    };
+
+    // Send plugin version in all cases, but only if it's available
+    const pluginVersion: any = `${Connection.db(this.storePrefix).get('keyVaultPluginVersion')}${envKey === 'production' ? '' : '-rc'}`;
+    if (pluginVersion) {
+      payload.pluginVersion = pluginVersion;
+    }
+    // Send version in only recovery/install/reinstall cases
+    const version: any = `${Connection.db(this.storePrefix).get('keyVaultVersion')}${envKey === 'production' ? '' : '-rc'}`;
+    const shouldUpdateVersion: boolean = ['reinstall', 'install', 'recovery'].indexOf(processName) !== -1;
+    if (shouldUpdateVersion && version) {
+      payload.version = version;
+    }
+    this.logger.debugWithData('Sync KeyVault with Blox Payload:', { isNew, processName, ...payload });
+    const ssh = await this.keyVaultSsh.getConnection();
+    const command = this.keyVaultSsh.buildCurlCommand({
+      authToken: Connection.db(this.storePrefix).get('authToken'),
+      method: !isNew ? METHOD.PATCH : METHOD.POST,
+      data: payload,
+      route: `${this.bloxApi.baseUrl}/wallets/sync`
+    });
+    this.logger.debug(command);
+    const { stdout, stderr } = await ssh.execCommand(command, {});
+    if (stderr || +stdout !== 200) throw Error(`${stdout || ''}. ${stderr || ''}. Sync kv with blox failed`);
+    Connection.db(this.storePrefix).delete('vaultSignerToken');
+  }
+
+  @Step({
+    name: 'Syncing KeyVault config with Blox...'
+  })
+  async syncVaultConfigWithBlox(): Promise<void> {
     this.logger.debugWithData('Sync KeyVault with Blox Payload');
     const ssh = await this.keyVaultSsh.getConnection();
     const command = this.keyVaultSsh.buildCurlCommand({
