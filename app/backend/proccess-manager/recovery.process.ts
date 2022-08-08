@@ -32,7 +32,6 @@ export default class RecoveryProcess extends ProcessClass {
 
     this.actions = [
       { instance: this.accountService, method: 'recoverAccounts', params: { inputData }},
-      // { instance: this.accountService, method: 'recoverKeyVaultConfig'},
       { instance: this.awsService, method: 'setAWSCredentials' },
       { instance: this.awsService, method: 'validateAWSPermissions' },
       { instance: this.awsService, method: 'createEc2KeyPair' },
@@ -45,7 +44,6 @@ export default class RecoveryProcess extends ProcessClass {
       { instance: this.keyVaultService, method: 'getKeyVaultRootToken' },
       { instance: this.keyVaultService, method: 'getKeyVaultStatus' },
       { instance: this.keyVaultService, method: 'updateVaultMountsStorage' },
-      // { instance: this.keyVaultService, method: 'updateVaultConfigStorage' },
       { instance: this.walletService, method: 'syncVaultWithBlox', params: { isNew, processName: 'recovery', isSeedless: typeof inputData === 'object' && inputData !== null } },
       { instance: this.awsService, method: 'truncateOldKvResources' },
       { instance: this.awsService, method: 'optimizeInstanceSecurity' },
