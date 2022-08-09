@@ -256,7 +256,7 @@ const RewardAddresses = (props: Props) => {
       <Text style={{marginBottom: 8}}>
         Please enter an Ethereum address in order to receive block proposal rewards for each of <br /> your
         {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-        validators. <Link style={{fontSize: 14, textDecoration: 'underline'}}>What are proposal rewards?</Link>
+        &nbsp;validators. <Link style={{fontSize: 14, textDecoration: 'underline'}}>What are proposal rewards?</Link>
       </Text>
       <TinyText>
         Please note that standard rewards from performing other duties will remain to be credited to your validator
