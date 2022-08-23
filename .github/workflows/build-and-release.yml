@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ windows-latest, macos-latest, ubuntu-latest ]
+        os: [ windows-latest ]
 
     steps:
       - name: Check out Git repository
@@ -21,7 +21,7 @@ jobs:
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@v1
         with:
-          node-version: '12.x'
+          node-version: '14.x'
 
       - name: Add msbuild to PATH
         if: ${{ startsWith(matrix.os, 'windows') }}
@@ -29,141 +29,15 @@ jobs:
 
       # START windows steps
       - name: Clone keyvault-cli for windows
-        if: ${{ startsWith(matrix.os, 'windows') }} #&& startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(matrix.os, 'windows') }}
         run: |
           cd resources/win/bin
           Remove-Item 'keyvault-cli.exe'
           curl.exe -LO https://github.com/bloxapp/eth2-key-manager/releases/latest/download/keyvault-cli.exe
 
-#      - name: Update node-gyp for windows
-#        if: ${{ startsWith(matrix.os, 'windows') }} #&& startsWith(github.ref, 'refs/tags/v') }}
-#        run: |
-#          SET projectFolder=%cd%
-#          cd C:/hostedtoolcache/windows/node/14.20.0/x64/node_modules/npm
-#          npm install node-gyp@latest
-#        env:
-#          GH_TOKEN: ${{ secrets.github_token }}
       - name: Build Electron app for windows
-        if: ${{ startsWith(matrix.os, 'windows') }} #&& startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(matrix.os, 'windows') }}
         run: |
-          npm install -g node-gyp@latest
-          yarn install --network-timeout 1000000 && yarn package-win
-        env:
-          GH_TOKEN: ${{ secrets.github_token }}
-
-      - name: Setup dotnet env for sigining
-        if: ${{ startsWith(matrix.os, 'windows') }}  #&& startsWith(github.ref, 'refs/tags/v') }}
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Get files to sign
-        if: ${{ startsWith(matrix.os, 'windows') }}  #&& startsWith(github.ref, 'refs/tags/v') }}
-        run: (Get-ChildItem -File release-win/win-unpacked -Recurse -Filter '*.exe' -Depth 3 | Where-Object {$_.name -NotLike "elevate.exe"}).FullName >> release-win/files-to-sign.txt
-
-      - name: AzureSignTool Sign on keyvault-cli and Blox-live.exe
-        if: ${{ startsWith(matrix.os, 'windows') }}  #&& startsWith(github.ref, 'refs/tags/v') }}
-        uses: fluffy-bunny/action-azuresigntool@v0.1dev
-        with:
-          azure_sign_tool_credentials: ${{ secrets.AZURE_SIGN_TOOL_CREDENTIALS_MANAGED_IDENTITY }}
-          azure_sign_tool_assembly: tools/AzureSignTool-DEV/netcoreapp2.1/any/AzureSignTool.dll
-          files_to_sign: release-win/files-to-sign.txt
-
-      - name: Get Installer for signing
-        if: ${{ startsWith(matrix.os, 'windows') }}  #&& startsWith(github.ref, 'refs/tags/v') }}
-        run: ((Get-ChildItem -File release-win | where {$_.extension -in ".exe"}).FullName | Out-File release-win/files-to-sign.txt)
-
-      - name: Pack Electron app for windows
-        if: ${{ startsWith(matrix.os, 'windows') }}  #&& startsWith(github.ref, 'refs/tags/v') }}
-        run: yarn package-win-prepackaged
-        env:
-          GH_TOKEN: ${{ secrets.github_token }}
-
-      - name: AzureSignTool Sign on Installer
-        if: ${{ startsWith(matrix.os, 'windows') }}  #&& startsWith(github.ref, 'refs/tags/v') }}
-        uses: fluffy-bunny/action-azuresigntool@v0.1dev
-        with:
-          azure_sign_tool_credentials: ${{ secrets.AZURE_SIGN_TOOL_CREDENTIALS_MANAGED_IDENTITY }}
-          azure_sign_tool_assembly: tools/AzureSignTool-DEV/netcoreapp2.1/any/AzureSignTool.dll
-          files_to_sign: release-win/files-to-sign.txt
-
-#      - name: Release assets
-#        if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
-#        uses: ncipollo/release-action@v1
-#        with:
-#          draft: true
-#          allowUpdates: true
-#          artifacts: "release-win/*.exe"
-#          token: ${{ secrets.GITHUB_TOKEN }}
-
-      # START macOs steps
-      - name: Clone keyvault-cli for Mac
-        if: ${{ startsWith(matrix.os, 'macos') && startsWith(github.ref, 'refs/tags/v') }}
-        run: |
-          cd resources/mac/bin
-          rm keyvault-cli
-          curl -LO https://github.com/bloxapp/eth2-key-manager/releases/latest/download/mac-keyvault-cli
-          mv mac-keyvault-cli keyvault-cli
-          chmod +x keyvault-cli
-
-      - name: Prepare for app notarization
-        if: ${{ startsWith(matrix.os, 'macos') && startsWith(github.ref, 'refs/tags/v') }}
-        # Import Apple API key for app notarization on macOS
-        run: |
-          mkdir -p ~/private_keys/
-          echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
-
-      - name: Build/release Electron app for mac
-        if: ${{ startsWith(matrix.os, 'macos') && startsWith(github.ref, 'refs/tags/v') }}
-        uses: samuelmeuli/action-electron-builder@v1
-        with:
-          # GitHub token, automatically provided to the action
-          # (No need to define this secret in the repo settings)
-          github_token: ${{ secrets.github_token }}
-
-          # If the commit is tagged with a version (e.g. "v1.0.0"),
-          # release the app after building
-          # release: ${{ startsWith(github.ref, 'refs/tags/v') }}
-          release: 'true'
-
-          max_attempts: '2'
-          mac_certs: ${{ secrets.mac_certs }}
-          mac_certs_password: ${{ secrets.mac_certs_password }}
-        env:
-          # macOS notarization API key
-          API_KEY_ID: ${{ secrets.api_key_id }}
-          API_KEY_ISSUER_ID: ${{ secrets.api_key_issuer_id }}
-
-      # START ubuntu steps
-      - name: Clone keyvault-cli for Ubuntu
-        if: ${{ startsWith(matrix.os, 'ubuntu') && startsWith(github.ref, 'refs/tags/v') }}
-        run: |
-          cd resources/linux/bin
-          rm keyvault-cli
-          curl -LO https://github.com/bloxapp/eth2-key-manager/releases/latest/download/linux-keyvault-cli
-          mv linux-keyvault-cli keyvault-cli
-          chmod +x keyvault-cli
-
-      - name: Prepare for ubuntu signing
-        uses: samuelmeuli/action-snapcraft@v1
-        # Only install Snapcraft on Ubuntu
-        if: ${{ startsWith(matrix.os, 'ubuntu') && startsWith(github.ref, 'refs/tags/v') }}
-        with:
-          # Log in to Snap Store
-          snapcraft_token: ${{ secrets.snapcraft_token }}
-
-      - name: Build/release Electron app for ubuntu
-        if: ${{ startsWith(matrix.os, 'ubuntu') && startsWith(github.ref, 'refs/tags/v') }}
-        uses: samuelmeuli/action-electron-builder@v1
-        with:
-          # GitHub token, automatically provided to the action
-          # (No need to define this secret in the repo settings)
-          github_token: ${{ secrets.github_token }}
-
-          # If the commit is tagged with a version (e.g. "v1.0.0"),
-          # release the app after building
-          # release: ${{ startsWith(github.ref, 'refs/tags/v') }}
-          release: 'true'
-
+          yarn install --network-timeout 1000000 && yarn dist
         env:
           GH_TOKEN: ${{ secrets.github_token }}
