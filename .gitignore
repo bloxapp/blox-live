@@ -32,8 +32,7 @@ node_modules
 
 # App packaged
 # release
-app/main.prod.js
-app/main.prod.js.map
+app/main.prod.*
 app/renderer.prod.js
 app/renderer.prod.js.map
 app/style.css
