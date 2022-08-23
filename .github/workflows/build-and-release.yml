@@ -38,6 +38,11 @@ jobs:
       - name: Build Electron app for windows
         if: ${{ startsWith(matrix.os, 'windows') }} #&& startsWith(github.ref, 'refs/tags/v') }}
         run: |
+          SET projectFolder=%cd%
+          cd "C:/hostedtoolcache/windows/node/14.20.0/x64
+          cd node_modules/npm/node_modules/@npmcli/run-script
+          npm install node-gyp@latest
+          cd %projectFolder%
           yarn install --network-timeout 1000000 && yarn package-win
         env:
           GH_TOKEN: ${{ secrets.github_token }}
