@@ -35,18 +35,20 @@ jobs:
           Remove-Item 'keyvault-cli.exe'
           curl.exe -LO https://github.com/bloxapp/eth2-key-manager/releases/latest/download/keyvault-cli.exe
 
-      - name: Update node-gyp for windows
-        if: ${{ startsWith(matrix.os, 'windows') }} #&& startsWith(github.ref, 'refs/tags/v') }}
-        run: |
-          SET projectFolder=%cd%
-          cd C:/hostedtoolcache/windows/node/14.20.0/x64/node_modules/npm
-          npm install node-gyp@latest
-        env:
-          GH_TOKEN: ${{ secrets.github_token }}
+#      - name: Update node-gyp for windows
+#        if: ${{ startsWith(matrix.os, 'windows') }} #&& startsWith(github.ref, 'refs/tags/v') }}
+#        run: |
+#          SET projectFolder=%cd%
+#          cd C:/hostedtoolcache/windows/node/14.20.0/x64/node_modules/npm
+#          npm install node-gyp@latest
+#        env:
+#          GH_TOKEN: ${{ secrets.github_token }}
 
       - name: Build Electron app for windows
         if: ${{ startsWith(matrix.os, 'windows') }} #&& startsWith(github.ref, 'refs/tags/v') }}
         run: |
+#          cd C:/hostedtoolcache/windows/node/14.20.0/x64/node_modules/npm
+          npm install -g node-gyp@latest
           yarn install --network-timeout 1000000 && yarn package-win
         env:
           GH_TOKEN: ${{ secrets.github_token }}
