@@ -27,14 +27,6 @@ jobs:
         if: ${{ startsWith(matrix.os, 'windows') }}
         uses: microsoft/setup-msbuild@v1.1
 
-      # START windows steps
-      - name: Clone keyvault-cli for windows
-        if: ${{ startsWith(matrix.os, 'windows') }}
-        run: |
-          cd resources/win/bin
-          Remove-Item 'keyvault-cli.exe'
-          curl.exe -LO https://github.com/bloxapp/eth2-key-manager/releases/latest/download/keyvault-cli.exe
-
       - name: Build Electron app for windows
         if: ${{ startsWith(matrix.os, 'windows') }}
         run: |
