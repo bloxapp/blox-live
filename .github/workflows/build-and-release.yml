@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ windows-latest, macos-latest, ubuntu-latest ]
+        os: [ windows-2019, macos-latest, ubuntu-latest ]
 
     steps:
       - name: Check out Git repository
@@ -24,63 +24,63 @@ jobs:
           node-version: '12.x'
 
 #      # START windows steps
-#      - name: Clone keyvault-cli for windows
-#        if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
-#        run: |
-#          cd resources/win/bin
-#          Remove-Item 'keyvault-cli.exe'
-#          curl.exe -LO https://github.com/bloxapp/eth2-key-manager/releases/latest/download/keyvault-cli.exe
-#
-#      - name: Build Electron app for windows
-#        if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
-#        run: yarn install --network-timeout 1000000 && yarn package-win
-#        env:
-#          GH_TOKEN: ${{ secrets.github_token }}
-#
-#      - name: Setup dotnet env for sigining
-#        if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
-#        uses: actions/setup-dotnet@v1
-#        with:
-#          dotnet-version: ${{ env.DOTNET_VERSION }}
-#
-#      - name: Get files to sign
-#        if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
-#        run: (Get-ChildItem -File release-win/win-unpacked -Recurse -Filter '*.exe' -Depth 3 | Where-Object {$_.name -NotLike "elevate.exe"}).FullName >> release-win/files-to-sign.txt
-#
-#      - name: AzureSignTool Sign on keyvault-cli and Blox-live.exe
-#        if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
-#        uses: fluffy-bunny/action-azuresigntool@v0.1dev
-#        with:
-#          azure_sign_tool_credentials: ${{ secrets.AZURE_SIGN_TOOL_CREDENTIALS_MANAGED_IDENTITY }}
-#          azure_sign_tool_assembly: tools/AzureSignTool-DEV/netcoreapp2.1/any/AzureSignTool.dll
-#          files_to_sign: release-win/files-to-sign.txt
-#
-#      - name: Get Installer for signing
-#        if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
-#        run: ((Get-ChildItem -File release-win | where {$_.extension -in ".exe"}).FullName | Out-File release-win/files-to-sign.txt)
-#
-#      - name: Pack Electron app for windows
-#        if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
-#        run: yarn package-win-prepackaged
-#        env:
-#          GH_TOKEN: ${{ secrets.github_token }}
-#
-#      - name: AzureSignTool Sign on Installer
-#        if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
-#        uses: fluffy-bunny/action-azuresigntool@v0.1dev
-#        with:
-#          azure_sign_tool_credentials: ${{ secrets.AZURE_SIGN_TOOL_CREDENTIALS_MANAGED_IDENTITY }}
-#          azure_sign_tool_assembly: tools/AzureSignTool-DEV/netcoreapp2.1/any/AzureSignTool.dll
-#          files_to_sign: release-win/files-to-sign.txt
-#
-#      - name: Release assets
-#        if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
-#        uses: ncipollo/release-action@v1
-#        with:
-#          draft: true
-#          allowUpdates: true
-#          artifacts: "release-win/*.exe"
-#          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Clone keyvault-cli for windows
+        if: ${{ startsWith(matrix.os, 'windows') }} #&& startsWith(github.ref, 'refs/tags/v') }}
+        run: |
+          cd resources/win/bin
+          Remove-Item 'keyvault-cli.exe'
+          curl.exe -LO https://github.com/bloxapp/eth2-key-manager/releases/latest/download/keyvault-cli.exe
+
+      - name: Build Electron app for windows
+        if: ${{ startsWith(matrix.os, 'windows') }} #&& startsWith(github.ref, 'refs/tags/v') }}
+        run: yarn install --network-timeout 1000000 && yarn package-win
+        env:
+          GH_TOKEN: ${{ secrets.github_token }}
+
+      - name: Setup dotnet env for sigining
+        if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Get files to sign
+        if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
+        run: (Get-ChildItem -File release-win/win-unpacked -Recurse -Filter '*.exe' -Depth 3 | Where-Object {$_.name -NotLike "elevate.exe"}).FullName >> release-win/files-to-sign.txt
+
+      - name: AzureSignTool Sign on keyvault-cli and Blox-live.exe
+        if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
+        uses: fluffy-bunny/action-azuresigntool@v0.1dev
+        with:
+          azure_sign_tool_credentials: ${{ secrets.AZURE_SIGN_TOOL_CREDENTIALS_MANAGED_IDENTITY }}
+          azure_sign_tool_assembly: tools/AzureSignTool-DEV/netcoreapp2.1/any/AzureSignTool.dll
+          files_to_sign: release-win/files-to-sign.txt
+
+      - name: Get Installer for signing
+        if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
+        run: ((Get-ChildItem -File release-win | where {$_.extension -in ".exe"}).FullName | Out-File release-win/files-to-sign.txt)
+
+      - name: Pack Electron app for windows
+        if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
+        run: yarn package-win-prepackaged
+        env:
+          GH_TOKEN: ${{ secrets.github_token }}
+
+      - name: AzureSignTool Sign on Installer
+        if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
+        uses: fluffy-bunny/action-azuresigntool@v0.1dev
+        with:
+          azure_sign_tool_credentials: ${{ secrets.AZURE_SIGN_TOOL_CREDENTIALS_MANAGED_IDENTITY }}
+          azure_sign_tool_assembly: tools/AzureSignTool-DEV/netcoreapp2.1/any/AzureSignTool.dll
+          files_to_sign: release-win/files-to-sign.txt
+
+      - name: Release assets
+        if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
+        uses: ncipollo/release-action@v1
+        with:
+          draft: true
+          allowUpdates: true
+          artifacts: "release-win/*.exe"
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       # START macOs steps
       - name: Clone keyvault-cli for Mac
