@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ windows-latest, macos-latest, ubuntu-latest ]
+        os: [ windows-windows-2019 ]
 
     steps:
       - name: Check out Git repository
@@ -21,11 +21,11 @@ jobs:
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@v1
         with:
-          node-version: '14.x'
+          node-version: '12.x'
 
-      - name: Add msbuild to PATH
-        if: ${{ startsWith(matrix.os, 'windows') }}
-        uses: microsoft/setup-msbuild@v1.1
+#      - name: Add msbuild to PATH
+#        if: ${{ startsWith(matrix.os, 'windows') }}
+#        uses: microsoft/setup-msbuild@v1.1
 
       # START windows steps
       - name: Clone keyvault-cli for windows
@@ -43,6 +43,7 @@ jobs:
 #          npm install node-gyp@latest
 #        env:
 #          GH_TOKEN: ${{ secrets.github_token }}
+
       - name: Build Electron app for windows
         if: ${{ startsWith(matrix.os, 'windows') }} #&& startsWith(github.ref, 'refs/tags/v') }}
         run: |
