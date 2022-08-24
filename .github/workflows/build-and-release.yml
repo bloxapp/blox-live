@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: '12.x'
 
-#      # START windows steps
+      # START windows steps
       - name: Clone keyvault-cli for windows
         if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
         run: |
