@@ -15,34 +15,34 @@ const formattedBalance = (balance: number | string | null): string | null => {
 export default [
   {
     key: 'key',
+    width: '40%',
     title: 'Public Key',
-    width: '35%',
     justifyContent: 'flex-start',
-    compareFunction: (a, b, dir) => compareFunction('publicKey', a, b, dir, 'string'),
     valueRender: (value) => <KeyCell value={value} />,
+    compareFunction: (a, b, dir) => compareFunction('publicKey', a, b, dir, 'string'),
   }, {
-    width: '21%',
+    width: '20%',
     writable: true,
     key: 'feeRecipient',
-    justifyContent: 'center',
-    title: 'Proposal Rewards Address',
+    justifyContent: 'flex-start',
+    title: 'Fee Recipent Address',
     valueRender: (value, _totalCount, item) => <RewardAddress validator={item} />,
   },
   {
-    key: 'currentBalance',
-    title: 'Balance',
     width: '10%',
-    justifyContent: 'center',
+    title: 'Balance',
+    key: 'currentBalance',
+    justifyContent: 'flex-start',
     compareFunction: (a, b, dir) => compareFunction('currentBalance', a, b, dir, 'number'),
     valueRender: (balance) => {
       return <Balance balance={formattedBalance(balance)} />;
     }
   },
   {
+    width: '10%',
     key: 'change',
     title: 'Change',
-    width: '10%',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     compareFunction: (a, b, dir) => compareFunction('change', a, b, dir, 'number'),
     valueRender: (value, _totalCount, item) => {
       return <Change change={item.status === 'pending' ? null : formattedBalance(value)} />;
@@ -50,17 +50,17 @@ export default [
   },
   {
     key: 'apr',
+    width: '10%',
     title: 'Est. APR(%)',
-    width: '12%',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     compareFunction: (a, b, dir) => compareFunction('apr', a, b, dir, 'number'),
     valueRender: (change) => <Apr change={change} />,
   },
   {
+    width: '10%',
     key: 'status',
     title: 'Status',
-    width: '12%',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
     compareFunction: (a, b, dir) => compareFunction('status', a, b, dir, 'string'),
     valueRender: (value) => <Status status={value} />,
   }

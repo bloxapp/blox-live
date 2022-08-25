@@ -6,6 +6,8 @@ import pencilImg from '~app/assets/images/pencil.svg';
 import useRouting from '../../../../hooks/useRouting';
 import Connection from '../../../../../backend/common/store-manager/connection';
 import usePasswordHandler from '../../../../../components/PasswordHandler/usePasswordHandler';
+import {isVersionHigherOrEqual} from '../../../../../utils/service';
+import config from '../../../../../backend/common/config';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -21,9 +23,9 @@ const Cell = styled.div`
   display: flex;
   align-items: center;
   width: ${({width}) => width};
-  border-left:  solid 1px ${({theme}) => theme.gray300};
+  border-left:  ${props => props.withoutColumnBorder ? '' : `solid 1px ${props.theme.gray300}`};
   &:first-child {
-    border-left: 0;
+    border-left:  0;
   }
   justify-content:${({justifyContent}) => justifyContent || 'flex-start'};
 `;
@@ -39,7 +41,7 @@ const Pencil = styled.div`
 
 `;
 
-const Header = ({columns, selectedSorting, sortType, onSortClick, height}) => {
+const Header = ({columns, selectedSorting, sortType, onSortClick, height, withoutColumnBorder}) => {
   const { goToPage, ROUTES } = useRouting();
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
 
@@ -60,7 +62,12 @@ const Header = ({columns, selectedSorting, sortType, onSortClick, height}) => {
   };
 
   const goToRewardPage = async () => {
-    await showPasswordProtectedDialog(() => goToPage(ROUTES.REWARD_ADDRESSES));
+    const keyVaultVersion = Connection.db().get('keyVaultVersion');
+    if (isVersionHigherOrEqual(keyVaultVersion, config.env.MERGE_SUPPORTED_TAG)) {
+      await showPasswordProtectedDialog(() => goToPage(ROUTES.REWARD_ADDRESSES));
+    } else {
+      goToPage(ROUTES.REWARD_ADDRESSES);
+    }
   };
 
   return (
@@ -77,6 +84,7 @@ const Header = ({columns, selectedSorting, sortType, onSortClick, height}) => {
               key={index}
               width={width}
               justifyContent={justifyContent}
+              withoutColumnBorder={withoutColumnBorder}
             >
               {title}
               <Sorting
@@ -95,6 +103,7 @@ const Header = ({columns, selectedSorting, sortType, onSortClick, height}) => {
             key={index}
             width={width}
             justifyContent={justifyContent}
+            withoutColumnBorder={withoutColumnBorder}
           >
             {title}
             {writable && <Pencil onClick={goToRewardPage} />}
@@ -107,18 +116,20 @@ const Header = ({columns, selectedSorting, sortType, onSortClick, height}) => {
 
 Header.propTypes = {
   columns: PropTypes.array,
-  selectedSorting: PropTypes.string,
-  height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   sortType: PropTypes.string,
   onSortClick: PropTypes.func,
+  selectedSorting: PropTypes.string,
+  withoutColumnBorder: PropTypes.bool,
+  height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 
 Header.defaultProps = {
   columns: [],
-  selectedSorting: '',
   height: null,
+  selectedSorting: '',
   sortType: 'disabled',
-  onSortClick: () => {}
+  onSortClick: () => {},
+  withoutColumnBorder: false,
 };
 
 export default Header;

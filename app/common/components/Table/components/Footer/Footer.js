@@ -6,8 +6,8 @@ import Pagination from './Pagination';
 const Wrapper = styled.div`
   width: 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-end;
+  justify-content: flex-end;
   height: ${({height}) => height || '50px'};
   border-top: solid 1px ${({theme}) => theme.gray300};
 `;

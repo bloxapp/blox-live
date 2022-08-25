@@ -6,6 +6,8 @@ import useRouting from '../../../../../common/hooks/useRouting';
 import {longStringShorten} from '../../../../../common/components/DropZone/components/SelectedFilesTable';
 import Connection from '../../../../../backend/common/store-manager/connection';
 import usePasswordHandler from '../../../../PasswordHandler/usePasswordHandler';
+import {isVersionHigherOrEqual} from '../../../../../utils/service';
+import config from '../../../../../backend/common/config';
 
 const Wrapper = styled.div`
   display: flex;
@@ -44,20 +46,25 @@ const RewardAddress = ({validator}) => {
       : checkIfPasswordIsNeeded(callback);
   };
 
+  const goToRewardAddressPage = () => {
+    const keyVaultVersion = Connection.db().get('keyVaultVersion');
+    const callback = () => {
+      try {
+        Connection.db().set('network', validator.network);
+      } catch (e) {
+        console.log(e.message);
+      }
+      goToPage(ROUTES.REWARD_ADDRESSES);
+    };
+    if (isVersionHigherOrEqual(keyVaultVersion, config.env.MERGE_SUPPORTED_TAG)) {
+      showPasswordProtectedDialog(callback);
+    } else {
+      callback();
+    }
+  };
+
   return (
-    <Wrapper>{publicKey ?? (
-      <AddAddressButton onClick={() => {
-        showPasswordProtectedDialog(() => {
-          try {
-            Connection.db().set('network', validator.network);
-          } catch (e) {
-            console.log(e.message);
-          }
-          goToPage(ROUTES.REWARD_ADDRESSES);
-        });
-      }}>
-        Add Address</AddAddressButton>
-    )}
+    <Wrapper>{publicKey ?? <AddAddressButton onClick={goToRewardAddressPage}>Add Address</AddAddressButton>}
     </Wrapper>
   );
 };

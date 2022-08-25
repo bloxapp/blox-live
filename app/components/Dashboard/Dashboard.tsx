@@ -18,8 +18,6 @@ import { clearWizardPage, clearWizardPageData, clearWizardStep } from '~app/comp
 import {MODAL_TYPES} from './constants';
 import {bindActionCreators} from 'redux';
 import * as actionsFromDashboard from './actions';
-import Connection from '../../backend/common/store-manager/connection';
-import {isVersionHigherOrEqual} from '../../utils/service';
 import useNetworkSwitcher from './components/NetworkSwitcher/useNetworkSwitcher';
 
 const Wrapper = styled.div`
@@ -57,9 +55,8 @@ const Dashboard = (props) => {
   const [normalizedEventLogs, setNormalizedEventLogs] = React.useState(null);
 
   React.useEffect(() => {
-    const keyVaultVersion = Connection.db().get('keyVaultVersion');
     const mainnetValidators = accounts.find((validator) => !validator.feeRecipient && validator.network === config.env.MAINNET_NETWORK);
-    if (!isMergePopUpSeen && mainnetValidators !== undefined && isVersionHigherOrEqual(keyVaultVersion, 'v1.4.4')) {
+    if (!isMergePopUpSeen && mainnetValidators !== undefined) {
       setTestNetShowFlag(false);
       setModalDisplay({ show: true, type: MODAL_TYPES.MERGE_COMING });
       setModalMergeAsSeen();

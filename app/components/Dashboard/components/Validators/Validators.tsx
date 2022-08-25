@@ -105,6 +105,7 @@ const Validators = ({ accounts, isTestNetShow, showNetworkSwitcher }) => {
         withHeader
         isPagination
         sortType={sortType}
+        withoutColumnBorder
         data={pagedAccounts}
         columns={tableColumns}
         onSortClick={onSortClick}

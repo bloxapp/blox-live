@@ -17,7 +17,7 @@ const Table = (props: Props) => {
   const {
     data, columns, withHeader, isPagination, selectedSorting,
     sortType, onSortClick, customLoader, paginationInfo, onPageClick, totalCount,
-    navButtonWidth, rowMinHeight, headerHeight, footerHeight } = props;
+    navButtonWidth, rowMinHeight, headerHeight, footerHeight, withoutColumnBorder, withBlueHover } = props;
 
   return (
     <Wrapper>
@@ -28,6 +28,7 @@ const Table = (props: Props) => {
           height={headerHeight}
           onSortClick={onSortClick}
           selectedSorting={selectedSorting}
+          withoutColumnBorder={withoutColumnBorder}
         />
       )}
       <Body
@@ -35,7 +36,9 @@ const Table = (props: Props) => {
         columns={columns}
         customLoader={customLoader}
         rowMinHeight={rowMinHeight}
+        withBlueHover={withBlueHover}
         totalCount={totalCount || null}
+        withoutColumnBorder={withoutColumnBorder}
       />
       <Footer
         height={footerHeight}
@@ -56,8 +59,10 @@ type Props = {
   totalCount?: number;
   customLoader?: any;
   isPagination: boolean;
+  withBlueHover?: boolean;
   navButtonWidth?: string;
   selectedSorting?: string;
+  withoutColumnBorder?: boolean;
   onPageClick: (offset) => void;
   rowMinHeight?: number | string;
   headerHeight?: number | string;

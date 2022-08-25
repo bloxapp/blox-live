@@ -66,6 +66,7 @@ const EventLogs = ({ events, isTestNetShow, showNetworkSwitcher }) => {
             isPagination
             withHeader={false}
             data={pagedEvents}
+            withoutColumnBorder
             columns={tableColumns}
             onPageClick={onPageClick}
             paginationInfo={paginationInfo}

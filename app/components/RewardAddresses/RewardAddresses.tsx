@@ -1,28 +1,30 @@
 import Web3 from 'web3';
 import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
 import React, {useEffect, useMemo, useState} from 'react';
 import styled from 'styled-components';
+import { Checkbox} from '~app/common/components';
 import Spinner from '~app/common/components/Spinner';
 import useRouting from '~app/common/hooks/useRouting';
-import { Checkbox} from '~app/common/components';
 import { selectedSeedMode } from '~app/common/service';
-import useAccounts from '~app/components/Accounts/useAccounts';
-import { handlePageClick } from '~app/common/components/Table/service';
-import {getAddAnotherAccount, getSeedlessDepositNeededStatus} from '~app/components/Accounts/selectors';
 import { setWizardPage} from '~app/components/Wizard/actions';
+import useAccounts from '~app/components/Accounts/useAccounts';
+import { openExternalLink } from '~app/components/common/service';
+import { handlePageClick } from '~app/common/components/Table/service';
 import {BackButton, Link, Title, BigButton} from '~app/components/Wizard/components/common';
+import {getAddAnotherAccount, getSeedlessDepositNeededStatus} from '~app/components/Accounts/selectors';
 import {getPage, getPageData, getStep, getWizardFinishedStatus} from '~app/components/Wizard/selectors';
-import {Table} from '../../common/components';
 import tableColumns from './tableColumns';
-import KeyVaultService from '../../backend/services/key-vault/key-vault.service';
+import {Table} from '../../common/components';
+import config from '../../backend/common/config';
+import {MODAL_TYPES} from '../Dashboard/constants';
+import {isVersionHigherOrEqual} from '../../utils/service';
+import * as actionsFromDashboard from '../Dashboard/actions';
 import useDashboardData from '../Dashboard/useDashboardData';
 import useProcessRunner from '../ProcessRunner/useProcessRunner';
-import config from '../../backend/common/config';
 import Connection from '../../backend/common/store-manager/connection';
-import {MODAL_TYPES} from '../Dashboard/constants';
-import {bindActionCreators} from 'redux';
-import * as actionsFromDashboard from '../Dashboard/actions';
 import WalletService from '../../backend/services/wallet/wallet.service';
+import KeyVaultService from '../../backend/services/key-vault/key-vault.service';
 
 const Wrapper = styled.div`
   height: 100%;
@@ -88,6 +90,22 @@ const LoaderText = styled.span`
   color: ${({ theme }) => theme.primary900};
 `;
 
+const SubmitButton = styled(BigButton)`
+  width: 238px;
+  height: 40px;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.75;
+  text-align: center;
+  font-style: normal;
+  font-stretch: normal;
+  padding: 6px 24px 8px;
+  letter-spacing: normal;
+  color: ${({theme}) => theme.gray50};
+  cursor: ${({isDisabled}) => (isDisabled ? 'default' : 'pointer')};
+  background-color: ${({ theme, isDisabled }) => isDisabled ? theme.gray400 : theme.primary900};
+`;
+
 const RewardAddresses = (props: Props) => {
   const { setPage, dashboardActions, walletNeedsUpdate } = props;
   const {accounts} = useAccounts();
@@ -95,12 +113,12 @@ const RewardAddresses = (props: Props) => {
   const [checked, setChecked] = useState();
   const [error, showError] = useState('');
   const { isDone, processData } = useProcessRunner();
+  const { loadDataAfterNewAccount } = useDashboardData();
   const [validators, setValidators] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const { setModalDisplay, clearModalDisplayData } = dashboardActions;
   const [validatorsPage, setPagedValidators] = useState([]);
   const [paginationInfo, setPaginationInfo] = useState({});
-  const { loadDataAfterNewAccount } = useDashboardData();
   const [addressesVerified, setAddressesVerified] = useState({});
   const buttonEnable =
     checked &&
@@ -109,23 +127,32 @@ const RewardAddresses = (props: Props) => {
 
   useEffect(() => {
     const keyVaultService = new KeyVaultService();
+    const keyVaultVersion = Connection.db().get('keyVaultVersion');
+    if (isVersionHigherOrEqual(keyVaultVersion, config.env.MERGE_SUPPORTED_TAG)) {
       keyVaultService.getListAccountsRewardKeys().then(response => {
-        const validatorsAccounts = (isDone ? processData : accounts).filter(item => item.network === Connection.db().get('network'));
-        const newObject = validatorsAccounts.reduce((prev, curr, index) => {
-          const rewardAddress = (response?.fee_recipients && response.fee_recipients[curr?.publicKey]) ?? '';
-          // eslint-disable-next-line no-param-reassign
-          prev[curr?.publicKey] = {...curr, rewardAddress, addressStatus: undefined, index};
-          return prev;
-        }, {});
-
-        setValidators(newObject);
-        onPageClick(0, newObject);
-    }).catch((e) => {
-      console.log('<<<<<<<<<<<<<<<<<<<<<<<<<error>>>>>>>>>>>>>>>>>>>>>>>>>');
-      console.log(e.message);
-      console.log('<<<<<<<<<<<<<<<<<<<<<<<<<error>>>>>>>>>>>>>>>>>>>>>>>>>');
-    });
+        initAccounts(response);
+      }).catch((e) => {
+        console.log('<<<<<<<<<<<<<<<<<<<<<<<<<error>>>>>>>>>>>>>>>>>>>>>>>>>');
+        console.log(e.message);
+        console.log('<<<<<<<<<<<<<<<<<<<<<<<<<error>>>>>>>>>>>>>>>>>>>>>>>>>');
+      });
+    } else {
+      initAccounts({});
+    }
   }, []);
+
+  const initAccounts = (keyVaultConfig: any) => {
+    const validatorsAccounts = (isDone ? processData : accounts).filter(item => item.network === Connection.db().get('network'));
+    const newObject = validatorsAccounts.reduce((prev, curr, index) => {
+      const rewardAddress = (keyVaultConfig?.fee_recipients && keyVaultConfig.fee_recipients[curr?.publicKey]) ?? '';
+      // eslint-disable-next-line no-param-reassign
+      prev[curr?.publicKey] = {...curr, rewardAddress, addressStatus: undefined, index};
+      return prev;
+    }, {});
+
+    setValidators(newObject);
+    onPageClick(0, newObject);
+  };
 
   useEffect(() => {
     verifyAddresses();
@@ -252,11 +279,11 @@ const RewardAddresses = (props: Props) => {
           goToPage(ROUTES.DASHBOARD);
         }} />
       )}
-      <Title>Proposal Rewards Address</Title>
+      <Title>Fee Recipent Address</Title>
       <Text style={{marginBottom: 8}}>
-        Please enter an Ethereum address in order to receive block proposal rewards for each of <br /> your
+        Please enter an Ethereum address in order to receive fee recipent address for each of <br /> your
         {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-        &nbsp;validators. <Link style={{fontSize: 14, textDecoration: 'underline'}}>What are proposal rewards?</Link>
+        &nbsp;validators. <Link onClick={() => openExternalLink('', 'https://bloxstaking.com/blog/product-updates/merge-is-here/')} style={{fontSize: 14, textDecoration: 'underline'}}>What are proposal rewards?</Link>
       </Text>
       <TinyText>
         Please note that standard rewards from performing other duties will remain to be credited to your validator
@@ -266,6 +293,7 @@ const RewardAddresses = (props: Props) => {
         <Table
           withHeader
           isPagination
+          withBlueHover
           data={validatorsPage}
           rowMinHeight={'33px'}
           navButtonWidth={'12%'}
@@ -284,12 +312,12 @@ const RewardAddresses = (props: Props) => {
         labelStyle={{marginBottom: 24, marginTop: 9}}>
         I confirm that I have access to the addresses above.
       </Checkbox>
-      <BigButton
+      <SubmitButton
         isDisabled={!buttonEnable}
         onClick={submitRewardAddresses}
       >
         Next
-      </BigButton>
+      </SubmitButton>
       {error && <ErrorMessage>{error}</ErrorMessage>}
       {isLoading && (
         <LoaderWrapper>

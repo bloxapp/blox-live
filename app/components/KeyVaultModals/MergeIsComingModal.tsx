@@ -6,6 +6,7 @@ import imageSrc from '../../assets/images/info.svg';
 import Tooltip from '~app/common/components/Tooltip';
 import image from '~app/assets/images/pop_up_image.svg';
 import { Link } from '../Wizard/components/common';
+import { openExternalLink } from '~app/components/common/service';
 import * as selectors from '~app/components/PasswordHandler/selectors';
 import * as actionsFromDashboard from '~app/components/Dashboard/actions';
 import { Button, ModalTemplate } from '~app/common/components';
@@ -17,6 +18,8 @@ import useRouting from '../../common/hooks/useRouting';
 import * as keyVaultSelectors from '../KeyVaultManagement/selectors';
 import Connection from '../../backend/common/store-manager/connection';
 import usePasswordHandler from '../PasswordHandler/usePasswordHandler';
+import {isVersionHigherOrEqual} from '../../utils/service';
+import config from '../../backend/common/config';
 
 const Image = styled.img`
   margin-left: 4px;
@@ -51,7 +54,9 @@ const MergeIsComing = (props: Props) => {
   };
 
   const passwordProtectedWrapper = () => {
-    return showPasswordProtectedDialog(onButtonClick);
+    const keyVaultVersion = Connection.db().get('keyVaultVersion');
+    if (isVersionHigherOrEqual(keyVaultVersion, config.env.MERGE_SUPPORTED_TAG)) return showPasswordProtectedDialog(onButtonClick);
+    return onButtonClick();
   };
 
   const onButtonClick = () => {
@@ -62,13 +67,13 @@ const MergeIsComing = (props: Props) => {
   return (
     <ModalTemplate padding={'48px 60px 57px 71px'} image={image}>
       <Title>The Merge is here!</Title>
-      <Description>With the transition to Proof of Stake, validators can now earn block proposal rewards.</Description>
+      <Description>With the transition to Proof of Stake, validators can now earn fee recipent address.</Description>
       <Description>These rewards will be distributed to a new Ethereum address of your choice.
-        <Tooltip interactive title={<LinkTo href={'https://bloxstaking.com/blog/product-updates/merge-is-here/'}>What are proposal rewards?</LinkTo>} placement={'bottom'}>
+        <Tooltip interactive title={<LinkTo onClick={() => openExternalLink('', 'https://bloxstaking.com/blog/product-updates/merge-is-here/')}>What are proposal rewards?</LinkTo>} placement={'bottom'}>
           <Image src={imageSrc} />
         </Tooltip>
       </Description>
-      <Description>In order to reap these rewards you must provide a proposal rewards address for your validators and update your KeyVault.</Description>
+      <Description>In order to reap these rewards you must provide a fee recipent address for your validators and update your KeyVault.</Description>
       <Warning style={{marginBottom: 44}} text={'Not providing an address could incur potential financial loss in the form of these rewards.'} />
       <Button isDisabled={false} onClick={passwordProtectedWrapper}>Add Addresses</Button>
     </ModalTemplate>

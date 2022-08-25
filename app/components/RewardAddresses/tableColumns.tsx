@@ -1,7 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-// import { KeyCell, Status } from '~app/components/Dashboard/components/Validators/components';
-// import { compareFunction } from '~app/common/components/Table/service';
 import {truncateText} from '../common/service';
 import x from '~app/assets/images/red_x.svg';
 import checkmark from '~app/assets/images/v_mark.svg';
@@ -12,9 +10,11 @@ const RewardAddressInput = styled.input`
   border-radius: 2px;
   margin: 8px 0 8px 16px;
   background-color: ${({theme}) => theme.white};
-  border: none;
+  border: solid 1px ${({theme}) => theme.gray300};
   &:focus {
-    border: 1px solid ${({theme}) => theme.gray300};
+    outline: none;
+    border-radius: 4px;
+    border: solid 1px ${({theme}) => theme.primary900};
   }
 `;
 
@@ -144,7 +144,7 @@ const columnsData = (props: columnsDataProps) => {
     {
       width: '70%',
       key: 'rewardAddress',
-      title: <HeaderCell>Proposal Rewards Address</HeaderCell>,
+      title: <HeaderCell>Fee Recipent Address</HeaderCell>,
       // compareFunction: (a, b, dir) => compareFunction('status', a, b, dir, 'string'),
       valueRender: (a, b, publicKey) => (
         <RewardAddressWrapper>

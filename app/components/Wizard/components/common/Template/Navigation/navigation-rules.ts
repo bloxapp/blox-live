@@ -268,7 +268,7 @@ const navigationRules = [
         }
       },
       {
-        name: 'Proposal Rewards Address',
+        name: 'Fee Recipent Address',
         page: config.WIZARD_PAGES.WALLET.IMPORT_VALIDATORS_REWARD_ADDRESS,
         done: (props: Record<string, any>): boolean => {
           return props.page > config.WIZARD_PAGES.WALLET.IMPORT_VALIDATORS_REWARD_ADDRESS;
@@ -278,7 +278,7 @@ const navigationRules = [
         }
       },
       {
-        name: 'Proposal Rewards Address',
+        name: 'Fee Recipent Address',
         page: config.WIZARD_PAGES.VALIDATOR.REWARD_ADDRESS,
         done: (props: Record<string, any>): boolean => {
           return props.page > config.WIZARD_PAGES.VALIDATOR.SLASHING_WARNING;
