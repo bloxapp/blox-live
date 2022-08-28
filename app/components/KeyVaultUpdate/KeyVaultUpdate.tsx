@@ -1,14 +1,13 @@
-import React, {useState} from 'react';
-import {connect} from 'react-redux';
-import {selectedKeystoreMode} from '~app/common/service';
-
+import React, { useState } from 'react';
+import { connect } from 'react-redux';
+import { selectedKeystoreMode } from '~app/common/service';
 import { getProcessNameForUpdate } from '~app/utils/process';
 import * as wizardSelectors from '~app/components/Wizard/selectors';
 import Connection from '~app/backend/common/store-manager/connection';
 import * as SeedlessModals from '~app/components/AccountRecovery/SeedlessModals';
-
 import * as keyVaultSelectors from '~app/components/KeyVaultManagement/selectors';
 import { SuccessModal, ReinstallingModal, FailureModal, ThankYouModal } from '~app/components/KeyVaultModals';
+
 // @ts-ignore
 import activeImage from '../Wizard/assets/img-key-vault.svg';
 

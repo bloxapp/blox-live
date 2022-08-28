@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 import useRouting from '~app/common/hooks/useRouting';
 import { setWizardPageData } from '~app/components/Wizard/actions';
 import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
-import { setAddAnotherAccount, setDepositNeeded, setSeedlessDepositNeeded } from '~app/components/Accounts/actions';
 import Date from '~app/components/Dashboard/components/Validators/components/KeyCell/components/Date';
 import BlueButton from '~app/components/Dashboard/components/Validators/components/KeyCell/components/BlueButton';
+import { setAddAnotherAccount, setDepositNeeded, setSeedlessDepositNeeded } from '~app/components/Accounts/actions';
 import WarningText from '~app/components/Dashboard/components/Validators/components/KeyCell/components/WarningText';
 
 const AdditionalData = (props) => {

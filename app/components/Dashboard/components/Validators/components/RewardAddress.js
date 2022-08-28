@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import {Button} from '~app/common/components';
-import useRouting from '../../../../../common/hooks/useRouting';
-import {longStringShorten} from '../../../../../common/components/DropZone/components/SelectedFilesTable';
-import Connection from '../../../../../backend/common/store-manager/connection';
-import usePasswordHandler from '../../../../PasswordHandler/usePasswordHandler';
-import {isVersionHigherOrEqual} from '../../../../../utils/service';
-import config from '../../../../../backend/common/config';
+import { Button } from '~app/common/components';
+import config from '~app/backend/common/config';
+import useRouting from '~app/common/hooks/useRouting';
+import { isVersionHigherOrEqual } from '~app/utils/service';
+import Connection from '~app/backend/common/store-manager/connection';
+import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
+import { longStringShorten } from '~app/common/components/DropZone/components/SelectedFilesTable';
 
 const Wrapper = styled.div`
   display: flex;

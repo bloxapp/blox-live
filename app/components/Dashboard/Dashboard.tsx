@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
+import { bindActionCreators } from 'redux';
 import config from '~app/backend/common/config';
 import { Loader, DiscordButton } from '~app/common/components';
 import EventLogs from '~app/components/Dashboard/components/EventLogs';
@@ -13,12 +14,11 @@ import {
   normalizeEventLogs,
   accountsHaveMoreThanOneNetwork
 } from '~app/components/Dashboard/service';
+import { MODAL_TYPES } from '~app/components/Dashboard/constants';
+import * as actionsFromDashboard from '~app/components/Dashboard/actions';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 import { clearWizardPage, clearWizardPageData, clearWizardStep } from '~app/components/Wizard/actions';
-import {MODAL_TYPES} from './constants';
-import {bindActionCreators} from 'redux';
-import * as actionsFromDashboard from './actions';
-import useNetworkSwitcher from './components/NetworkSwitcher/useNetworkSwitcher';
+import useNetworkSwitcher from '~app/components/Dashboard/components/NetworkSwitcher/useNetworkSwitcher';
 
 const Wrapper = styled.div`
   width: 100%;

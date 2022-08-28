@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import Sorting from './Sorting';
+import config from '~app/backend/common/config';
 import pencilImg from '~app/assets/images/pencil.svg';
-import useRouting from '../../../../hooks/useRouting';
-import Connection from '../../../../../backend/common/store-manager/connection';
-import usePasswordHandler from '../../../../../components/PasswordHandler/usePasswordHandler';
-import {isVersionHigherOrEqual} from '../../../../../utils/service';
-import config from '../../../../../backend/common/config';
+import useRouting from '~app/common/hooks/useRouting';
+import { isVersionHigherOrEqual } from '~app/utils/service';
+import Connection from '~app/backend/common/store-manager/connection';
+import Sorting from '~app/common/components/Table/components/header/Sorting';
+import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
 
 const Wrapper = styled.div`
   width: 100%;

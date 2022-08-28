@@ -2,24 +2,27 @@ import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
-import imageSrc from '../../assets/images/info.svg';
+import config from '~app/backend/common/config';
 import Tooltip from '~app/common/components/Tooltip';
-import image from '~app/assets/images/pop_up_image.svg';
-import { Link } from '../Wizard/components/common';
+import useRouting from '~app/common/hooks/useRouting';
+import { isVersionHigherOrEqual } from '~app/utils/service';
+import { Button, ModalTemplate } from '~app/common/components';
+import { Link } from '~app/components/Wizard/components/common';
+import { MODAL_TYPES } from '~app/components/Dashboard/constants';
 import { openExternalLink } from '~app/components/common/service';
+import Connection from '~app/backend/common/store-manager/connection';
+import Warning from '~app/components/Wizard/components/common/Warning';
 import * as selectors from '~app/components/PasswordHandler/selectors';
 import * as actionsFromDashboard from '~app/components/Dashboard/actions';
-import { Button, ModalTemplate } from '~app/common/components';
 import * as actionsFromPassword from '~app/components/PasswordHandler/actions';
+import * as keyVaultSelectors from '~app/components/KeyVaultManagement/selectors';
+import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
 import { Title, Description } from '~app/common/components/ModalTemplate/components';
-import Warning from '../Wizard/components/common/Warning';
-import {MODAL_TYPES} from '../Dashboard/constants';
-import useRouting from '../../common/hooks/useRouting';
-import * as keyVaultSelectors from '../KeyVaultManagement/selectors';
-import Connection from '../../backend/common/store-manager/connection';
-import usePasswordHandler from '../PasswordHandler/usePasswordHandler';
-import {isVersionHigherOrEqual} from '../../utils/service';
-import config from '../../backend/common/config';
+
+// @ts-ignore
+import imageSrc from '~app/assets/images/info.svg';
+// @ts-ignore
+import image from '~app/assets/images/pop_up_image.svg';
 
 const Image = styled.img`
   margin-left: 4px;

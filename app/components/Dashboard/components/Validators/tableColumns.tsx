@@ -1,7 +1,7 @@
 import React from 'react';
-import RewardAddress from './components/RewardAddress';
-import { KeyCell, Status, Change, Apr, Balance } from './components';
 import { compareFunction } from '~app/common/components/Table/service';
+import RewardAddress from '~app/components/Dashboard/components/Validators/components/RewardAddress';
+import { KeyCell, Status, Change, Apr, Balance } from '~app/components/Dashboard/components/Validators/components';
 
 const formattedBalance = (balance: number | string | null): string | null => {
   if (!balance) {
@@ -26,7 +26,7 @@ export default [
     key: 'feeRecipient',
     justifyContent: 'flex-start',
     title: 'Fee Recipent Address',
-    valueRender: (value, _totalCount, item) => <RewardAddress validator={item} />,
+    valueRender: (_value, _totalCount, item) => <RewardAddress validator={item} />,
   },
   {
     width: '10%',

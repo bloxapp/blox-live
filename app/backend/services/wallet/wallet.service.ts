@@ -1,11 +1,11 @@
 import { Catch, Step } from '~app/backend/decorators';
 import { Log } from '~app/backend/common/logger/logger';
+import { selectedKeystoreMode } from '~app/common/service';
 import Connection from '~app/backend/common/store-manager/connection';
 import BloxApi from '~app/backend/common/communication-manager/blox-api';
 import { METHOD } from '~app/backend/common/communication-manager/constants';
 import KeyVaultSsh from '~app/backend/common/communication-manager/key-vault-ssh';
 import KeyManagerService from '~app/backend/services/key-manager/key-manager.service';
-import {selectedKeystoreMode} from '../../../common/service';
 
 // @CatchClass<WalletService>()
 export default class WalletService {

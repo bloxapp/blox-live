@@ -1,18 +1,16 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
-
+import { bindActionCreators } from 'redux';
 import { openExternalLink } from '~app/components/common/service';
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
 import Connection from '~app/backend/common/store-manager/connection';
+import * as dashboardActions from '~app/components/Dashboard/actions';
+import Box from '~app/components/Dashboard/components/Wallet/components/Box';
 import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
-
-import Box from './Box';
-import UpdatePopper from './UpdatePopper';
-import ReactivatePopper from './ReactivatePopper';
-import * as dashboardActions from '../../../actions';
+import UpdatePopper from '~app/components/Dashboard/components/Wallet/components/UpdatePopper';
+import ReactivatePopper from '~app/components/Dashboard/components/Wallet/components/ReactivatePopper';
 
 const Wrapper = styled.div`
   position:relative;
@@ -30,6 +28,7 @@ const BoxWithTooltip = (props) => {
       onSuccess = () => setModalDisplay({
         show: true,
         type: MODAL_TYPES.MUST_UPDATE_APP,
+        // eslint-disable-next-line jsx-a11y/anchor-is-valid,jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
         text: <div>You must update Blox app to the <a onClick={() => openExternalLink('download')}>latest version</a> before updating your KeyVault.</div>,
         displayCloseButton: true,
       });
