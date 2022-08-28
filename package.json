@@ -322,7 +322,7 @@
     "invariant": "^2.2.4",
     "jwt-decode": "^2.2.0",
     "link-module-alias": "^1.2.0",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "log4js": "^6.3.0",
     "lottie-web-react": "^1.0.3",
     "macos-release": "^2.5.0",
