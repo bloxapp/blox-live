@@ -42,7 +42,7 @@ const EventLogs = ({ events, isTestNetShow, showNetworkSwitcher }) => {
         if (!isTestNetShow) {
           return event.network === config.env.MAINNET_NETWORK;
         }
-        return event.network === config.env.PYRMONT_NETWORK;
+        return event.network === config.env.PRATER_NETWORK;
       }));
     }
     setPaginationInfo(null);
@@ -63,12 +63,13 @@ const EventLogs = ({ events, isTestNetShow, showNetworkSwitcher }) => {
      {(pagedEvents && pagedEvents.length > 0) ?
         (
           <Table
-            columns={tableColumns}
-            data={pagedEvents}
-            withHeader={false}
             isPagination
-            paginationInfo={paginationInfo}
+            withHeader={false}
+            data={pagedEvents}
+            withoutColumnBorder
+            columns={tableColumns}
             onPageClick={onPageClick}
+            paginationInfo={paginationInfo}
           />
         ) :
      ('There are no events to show at the moment')}

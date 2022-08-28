@@ -2,7 +2,9 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import useRouting from '~app/common/hooks/useRouting';
+import useVersions from '~app/components/Versions/useVersions';
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
+import { openExternalLink } from '~app/components/common/service';
 import * as actionsFromWizard from '~app/components/Wizard/actions';
 import Connection from '~app/backend/common/store-manager/connection';
 import * as actionsFromAccounts from '~app/components/Accounts/actions';
@@ -20,17 +22,21 @@ const AddValidatorButtonWrapper = (props: AddValidatorButtonWrapperProps) => {
   const { dashboardActions, accountsActions, wizardActions, walletStatus,
     keyvaultCurrentVersion, keyvaultLatestVersion, children, style } = props;
   const { setModalDisplay, clearModalDisplayData } = dashboardActions;
-  const { setAddAnotherAccount } = accountsActions;
-  const { setFinishedWizard, setOpenedWizard } = wizardActions;
+  const { setAddAnotherAccount, setSeedlessDepositNeeded } = accountsActions;
+  const { setFinishedWizard, setOpenedWizard, clearDecryptKeyStores, clearDecryptProgress } = wizardActions;
   const walletNeedsUpdate = keyvaultCurrentVersion !== keyvaultLatestVersion;
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
   const { goToPage, ROUTES } = useRouting();
   const { clearProcessState, isLoading, isDone, error } = useProcessRunner();
+  const { bloxLiveNeedsUpdate } = useVersions();
 
   /**
    * Open create/import validator wizard
    */
   const createValidatorWizardActivator = () => {
+    clearDecryptKeyStores();
+    clearDecryptProgress();
+    setSeedlessDepositNeeded(null);
     setAddAnotherAccount(true);
     setFinishedWizard(false);
     setOpenedWizard(true);
@@ -77,7 +83,10 @@ const AddValidatorButtonWrapper = (props: AddValidatorButtonWrapperProps) => {
         confirmButtonText,
         cancelButtonText: 'Later',
         onConfirmButtonClick: () => {
-          setModalDisplay({ show: true, type: MODAL_TYPES.UPDATE });
+          if (bloxLiveNeedsUpdate && !Connection.db('').get('ignoreNewBloxLiveVersion')) {
+            return mustUpgradeBloxLive();
+          }
+          setModalDisplay({show: true, type: MODAL_TYPES.UPDATE});
         },
         onCancelButtonClick: () => clearModalDisplayData()
       }
@@ -98,6 +107,15 @@ const AddValidatorButtonWrapper = (props: AddValidatorButtonWrapperProps) => {
     return isTemporaryCryptoKeyValid
       ? callback()
       : checkIfPasswordIsNeeded(callback);
+  };
+
+  const mustUpgradeBloxLive = () => {
+    setModalDisplay({
+      show: true,
+      type: MODAL_TYPES.MUST_UPDATE_APP,
+      text: <div>You must update Blox app to the <a onClick={() => openExternalLink('download')}>latest version</a> before updating your KeyVault.</div>,
+      displayCloseButton: true
+    });
   };
 
   /**

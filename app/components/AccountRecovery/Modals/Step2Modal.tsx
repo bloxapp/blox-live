@@ -3,31 +3,18 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
 import useCreateServer from '~app/common/hooks/useCreateServer';
+import { getAccounts } from '~app/components/Accounts/selectors';
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
+import { getInputData } from '~app/utils/getInputDataForProccess';
 import Connection from '~app/backend/common/store-manager/connection';
 import * as actionsFromKeyvault from '~app/components/KeyVaultManagement/actions';
 import * as keyvaultSelectors from '~app/components/KeyVaultManagement/selectors';
 import { Title, Description } from '~app/common/components/ModalTemplate/components';
 import { ModalTemplate, Button, PasswordInput, Spinner } from '~app/common/components';
+import { getDecryptedKeyStores, getWalletSeedlessFlag } from '~app/components/Wizard/selectors';
+import { PasswordInputsWrapper, StepIndicator, LoadingWrapper } from '~app/components/AccountRecovery/components';
+// @ts-ignore
 import image from 'assets/images/img-recovery.svg';
-
-const StepIndicator = styled.div`
-  font-size: 12px;
-  font-weight: 500;
-  color:${({theme}) => theme.gray400};
-  margin-bottom:8px;
-`;
-
-const PasswordInputsWrapper = styled.div`
-  width: 400px;
-  height: 150px;
-  margin:21px 0px;
-  display: flex;
-  flex-direction:column;
-  justify-content:space-between;
-  font-size: 16px;
-  font-weight: 500;
-`;
 
 const ButtonWrapper = styled.div`
   margin-top:41px;
@@ -40,16 +27,8 @@ const Message = styled.span<{ error?: string }>`
   color: ${({theme, error}) => error ? theme.destructive600 : theme.primary900};
 `;
 
-const LoadingWrapper = styled.div`
-  display:flex;
-  align-items: center;
-  margin-top: 8px;
-  width: 90%;
-  justify-content: space-between;
-`;
-
-const Step1Modal = (props: Props) => {
-  const { onClick, areAwsKeyvsValid, isValidLoading, isValidError, keyvaultActions, type } = props;
+const Step2Modal = (props: Props) => {
+  const { onClick, areAwsKeyvsValid, isValidLoading, isValidError, keyvaultActions, type, isSeedless, accounts, decryptedKeyStores } = props;
   const { validateAwsKeys, clearAwsKeysState } = keyvaultActions;
 
   React.useEffect(() => {
@@ -69,28 +48,45 @@ const Step1Modal = (props: Props) => {
   }, [isValidLoading]);
 
   const onStart = () => onClick();
+  // In Seedless mode provide extracted keystore data to the process
 
   const { accessKeyId, setAccessKeyId, secretAccessKey, setSecretAccessKey,
           onStartProcessClick, isPasswordInputDisabled, isButtonDisabled
-        } = useCreateServer({onStart});
+        } = useCreateServer({ onStart, inputData: getInputData({isSeedless, accounts, decryptedKeyStores}) });
 
-  const onButtonClick = () => validateAwsKeys({accessKeyId, secretAccessKey});
+  const onButtonClick = () => validateAwsKeys({ accessKeyId, secretAccessKey });
 
   return (
-    <ModalTemplate height={'560px'} padding={'30px 32px 30px 64px'} justifyContent={'initial'} image={image}>
+    <ModalTemplate
+      image={image}
+      height="560px"
+      justifyContent={'initial'}
+      padding={'30px 32px 30px 64px'}
+    >
       <Title>Recover Account Data</Title>
-      <StepIndicator>Step 02</StepIndicator>
+      <StepIndicator>Step 0{isSeedless ? 4 : 2}</StepIndicator>
       <Description>
         Importing your data to recover your account is an automated <br />
         process that only takes a few minutes. Provide access to your <br />
         AWS tokens below for Blox to complete this step
       </Description>
-      <PasswordInputsWrapper>
-        <PasswordInput name={'accessKeyId'} title={'Access Key ID'} autoFocus
-          onChange={setAccessKeyId} value={accessKeyId} isDisabled={isPasswordInputDisabled}
+      <PasswordInputsWrapper style={{ flexDirection: 'column' }}>
+        <PasswordInput
+          autoFocus
+          value={accessKeyId}
+          name={'accessKeyId'}
+          title={'Access Key ID'}
+          onChange={setAccessKeyId}
+          isDisabled={isPasswordInputDisabled}
         />
-        <PasswordInput name={'secretAccessKey'} title={'Secret Access Key'} width={'320px'}
-          onChange={setSecretAccessKey} value={secretAccessKey} isDisabled={isPasswordInputDisabled}
+        <br />
+        <PasswordInput
+          width={'320px'}
+          value={secretAccessKey}
+          name={'secretAccessKey'}
+          title={'Secret Access Key'}
+          onChange={setSecretAccessKey}
+          isDisabled={isPasswordInputDisabled}
         />
       </PasswordInputsWrapper>
       <ButtonWrapper>
@@ -110,9 +106,12 @@ const Step1Modal = (props: Props) => {
 };
 
 const mapStateToProps = (state) => ({
-  areAwsKeyvsValid: keyvaultSelectors.getAwsKeysValidStatus(state),
-  isValidLoading: keyvaultSelectors.getIsLoading(state),
+  accounts: getAccounts(state),
+  isSeedless: getWalletSeedlessFlag(state),
   isValidError: keyvaultSelectors.getError(state),
+  decryptedKeyStores: getDecryptedKeyStores(state),
+  isValidLoading: keyvaultSelectors.getIsLoading(state),
+  areAwsKeyvsValid: keyvaultSelectors.getAwsKeysValidStatus(state)
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -120,12 +119,15 @@ const mapDispatchToProps = (dispatch) => ({
 });
 
 type Props = {
-  areAwsKeyvsValid: boolean;
-  isValidLoading: boolean;
-  isValidError: string;
-  keyvaultActions: Record<string, any>;
-  onClick: () => void;
   type: string;
+  onClick: () => void;
+  accounts: Array<any>;
+  isSeedless?: boolean;
+  isValidError: string;
+  isValidLoading: boolean;
+  areAwsKeyvsValid: boolean;
+  decryptedKeyStores: Array<any>;
+  keyvaultActions: Record<string, any>;
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Step1Modal);
+export default connect(mapStateToProps, mapDispatchToProps)(Step2Modal);

@@ -1,19 +1,28 @@
-import util from 'util';
-import { exec } from 'child_process';
 import { execPath } from '~app/binaries';
+import { selectedSeedMode } from '~app/common/service';
 import { Log } from '~app/backend/common/logger/logger';
 import { Catch, CatchClass } from '~app/backend/decorators';
+import { cliExecutor } from '~app/backend/common/cli-executor';
+import Seed from '~app/backend/services/key-manager/Strategy/Seed.strategy';
+import SeedLess from '~app/backend/services/key-manager/Strategy/SeedLess.strategy';
+import Strategy from '~app/backend/services/key-manager/Strategy/strategy.interface';
 
 @CatchClass<KeyManagerService>()
 export default class KeyManagerService {
   private readonly executablePath: string;
   private readonly executor: (command: string) => Promise<any>;
   private logger: Log;
+  private strategy: Strategy;
 
   constructor() {
     this.logger = new Log(KeyManagerService.name);
-    this.executor = util.promisify(exec);
+    this.executor = cliExecutor;
     this.executablePath = execPath;
+    if (selectedSeedMode()) {
+      this.strategy = new Seed();
+    } else {
+      this.strategy = new SeedLess();
+    }
   }
 
   async createWallet(network: string): Promise<string> {
@@ -27,54 +36,44 @@ export default class KeyManagerService {
   @Catch({
     displayMessage: 'Create Keyvault account failed'
   })
-  async createAccount(seed: string, index: number, network: string, highestSource: string, highestTarget: string, highestProposal: string): Promise<string> {
+  async createAccount(inputData: string, index: number, network: string, highestSource: string, highestTarget: string, highestProposal: string, accumulate: boolean = true): Promise<string> {
+    const object = false;
+    const createAccountCommand = this.strategy.getAccountCommand({inputData, index, network, highestTarget, highestProposal, highestSource, object, accumulate});
     try {
-      const { stdout } = await this.executor(
-        `${this.executablePath} wallet account create --seed=${seed} --index=${index} --network=${network} --accumulate=true --highest-source=${highestSource} --highest-target=${highestTarget} --highest-proposal=${highestProposal}`
-      );
+      const { stdout } = await this.executor(createAccountCommand);
       return stdout.replace('\n', '');
-    } catch (e) {
+    } catch (error) {
+      console.error('KeyManagerService::createAccount error', { command: createAccountCommand.replace(inputData, '***'), error });
       throw new Error(`Create account with index ${JSON.stringify(index)} was failed`);
     }
   }
 
-  async getAccount(seed: string, index: number, network: string, accumulate: boolean = false): Promise<any> {
-    let highestSource = '';
-    let highestTarget = '';
-    let highestProposal = '';
-
-    if (!accumulate) {
-      highestSource = '0';
-      highestTarget = '1';
-      highestProposal = '0';
-    } else {
-      for (let i = 0; i <= index; i += 1) {
-        highestSource += `${i.toString()}${i === index ? '' : ','}`;
-        highestTarget += `${(i + 1).toString()}${i === index ? '' : ','}`;
-      }
-      highestProposal = highestSource;
-    }
-
-    const getAccountCommand = `${this.executablePath} \
-      wallet account create \
-      --seed=${seed} \
-      --index=${index} \
-      --network=${network} \
-      --response-type=object \
-      --accumulate=${accumulate} \
-      --highest-source=${highestSource} \
-      --highest-target=${highestTarget} \
-      --highest-proposal=${highestProposal}`;
-
+  /**
+   * Get accounts from seed
+   * @param inputData
+   * @param index
+   * @param network
+   * @param accumulate
+   */
+  async getAccount(inputData: string, index: number, network: string, accumulate: boolean = true): Promise<any> {
+    const object = true;
+    const accountCommand = this.strategy.getAccountCommand({index, network, inputData, accumulate, object});
     try {
-      const { stdout } = await this.executor(getAccountCommand);
+      const { stdout } = await this.executor(accountCommand);
       return stdout ? JSON.parse(stdout) : {};
     } catch (error) {
-      console.error('KeyManagerService::getAccount error', { command: getAccountCommand.replace(seed, '***'), error });
+      console.error('KeyManagerService::getAccount error', { command: accountCommand.replace(inputData, '***'), error });
       throw new Error(`Get keyvault account with index ${JSON.stringify(index)} was failed.`);
     }
   }
 
+  /**
+   * Get deposit data from seed
+   * @param seed
+   * @param index
+   * @param publicKey
+   * @param network
+   */
   async getDepositData(seed: string, index: number, publicKey: string, network: string): Promise<any> {
     const getDepositDataCommand = `${this.executablePath} \
       wallet account deposit-data \
@@ -97,7 +96,8 @@ export default class KeyManagerService {
       const { stdout } = await this.executor(`${this.executablePath} mnemonic generate`);
       this.logger.trace(stdout);
       return stdout.replace('\n', '');
-    } catch (e) {
+    } catch (error) {
+      console.error('KeyManagerService::mnemonicGenerate error', { command: `${this.executablePath} mnemonic generate`, error });
       throw new Error('Generate mnemonic failed.');
     }
   }

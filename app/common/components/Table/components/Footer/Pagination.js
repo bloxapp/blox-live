@@ -6,11 +6,11 @@ import styled from 'styled-components';
 const navButtonDefaultWidth = '8%';
 
 const Wrapper = styled.div`
-  width: ${navButtonDefaultWidth};
   min-height: 50px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  width: ${navButtonDefaultWidth};
   :hover {
     color: ${({theme, color}) => (color && theme.primary700) || '#ffffff'};
   }
@@ -45,51 +45,51 @@ const Pagination = ({paginationInfo, onPageClick, navButtonWidth}) => {
   const paginationButtons = [
     {
       type: 'page',
-      title: `${paginationInfo.offset + 1} ~ ${Math.min(pageLength, paginationInfo.total)} of ${paginationInfo.total}`,
       color: 'gray600',
       reverse: true,
       clickable: false,
-      withBorder: false
+      withBorder: false,
+      title: `${paginationInfo.offset + 1} ~ ${Math.min(pageLength, paginationInfo.total)} of ${paginationInfo.total}`
     },
     {
       type: PaginationAction.FIRST,
       title: 'First',
-      icon: 'first-page',
-      iconColor: `${paginationInfo.offset > 0 ? 'primary900' : 'gray400'}`,
-      color: `${paginationInfo.offset > 0 ? 'primary900' : 'gray400'}`,
       reverse: true,
+      withBorder: true,
+      icon: 'first-page',
       clickable: paginationInfo.offset > 0,
-      withBorder: true
+      color: `${paginationInfo.offset > 0 ? 'primary900' : 'gray400'}`,
+      iconColor: `${paginationInfo.offset > 0 ? 'primary900' : 'gray400'}`
     },
     {
       type: PaginationAction.PREVIEW,
       title: 'Prev',
-      icon: 'chevron-left',
-      iconColor: `${paginationInfo.offset > 0 ? 'primary900' : 'gray400'}`,
-      color: `${paginationInfo.offset > 0 ? 'primary900' : 'gray400'}`,
       reverse: true,
+      withBorder: true,
+      icon: 'chevron-left',
       clickable: paginationInfo.offset > 0,
-      withBorder: true
+      color: `${paginationInfo.offset > 0 ? 'primary900' : 'gray400'}`,
+      iconColor: `${paginationInfo.offset > 0 ? 'primary900' : 'gray400'}`
     },
     {
       type: PaginationAction.NEXT,
       title: 'Next',
-      icon: 'chevron-right',
-      iconColor: `${pageLength < paginationInfo.total ? 'primary900' : 'gray400'}`,
-      color: `${pageLength < paginationInfo.total ? 'primary900' : 'gray400'}`,
       reverse: false,
+      withBorder: true,
+      icon: 'chevron-right',
       clickable: pageLength < paginationInfo.total,
-      withBorder: true
+      color: `${pageLength < paginationInfo.total ? 'primary900' : 'gray400'}`,
+      iconColor: `${pageLength < paginationInfo.total ? 'primary900' : 'gray400'}`
     },
     {
       type: PaginationAction.LAST,
       title: 'Last',
-      icon: 'last-page',
-      iconColor: `${pageLength < paginationInfo.total ? 'primary900' : 'gray400'}`,
-      color: `${pageLength < paginationInfo.total ? 'primary900' : 'gray400'}`,
       reverse: false,
+      withBorder: true,
+      icon: 'last-page',
       clickable: pageLength < paginationInfo.total,
-      withBorder: true
+      color: `${pageLength < paginationInfo.total ? 'primary900' : 'gray400'}`,
+      iconColor: `${pageLength < paginationInfo.total ? 'primary900' : 'gray400'}`
     }
   ];
 

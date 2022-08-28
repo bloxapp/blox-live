@@ -20,7 +20,7 @@ export default class ReinstallProcess extends ProcessClass {
   public readonly actions: Array<any>;
   public readonly fallbackActions: Array<any>;
 
-  constructor() {
+  constructor({ inputData = null, rewardAddressesData = null }) {
     super('Reinstallation');
     const baseStore = new BaseStore();
     Connection.setup({
@@ -44,17 +44,18 @@ export default class ReinstallProcess extends ProcessClass {
     this.walletServiceTmp = new WalletService(tempStorePrefix);
     this.actions = [
       { instance: this.keyVaultService, method: 'importKeyVaultData' },
+      { instance: this.keyVaultService, method: 'importKeyVaultConfigData', params: {rewardAddressesData} },
       {
         instance: Connection,
         method: 'clone',
         params: {
           fromPrefix: mainStorePrefix,
           toPrefix: tempStorePrefix,
-          fields: ['uuid', 'securityGroupId', 'credentials', 'keyPair', 'slashingData', 'index', 'seed', 'port'],
+          fields: ['uuid', 'securityGroupId', 'credentials', 'rewardConfig', 'keyPair', 'slashingData', 'index', 'seed', 'port'],
           preClean: true, // clean toPrefix store before clone fields valie
           postClean: {
             prefix: mainStorePrefix,
-            fields: ['slashingData', 'index']
+            fields: ['slashingData', 'index', 'rewardConfig']
           }
         }
       },
@@ -67,10 +68,12 @@ export default class ReinstallProcess extends ProcessClass {
       { instance: this.keyVaultServiceTmp, method: 'runDockerContainer' },
       { instance: this.keyVaultServiceTmp, method: 'getKeyVaultRootToken' },
       { instance: this.keyVaultServiceTmp, method: 'getKeyVaultStatus' },
-      { instance: this.accountServiceTmp, method: 'restoreAccounts' },
+      { instance: this.accountServiceTmp, method: 'restoreAccounts', params: { inputData } },
       { instance: this.keyVaultServiceTmp, method: 'updateVaultMountsStorage' },
-      { instance: this.walletServiceTmp, method: 'syncVaultWithBlox', params: { isNew: false, processName: 'reinstall' } },
+      { instance: this.keyVaultServiceTmp, method: 'updateKeyVaultConfigStorage' },
+      { instance: this.walletServiceTmp, method: 'syncVaultWithBlox', params: { isNew: false, processName: 'reinstall', isSeedless: typeof inputData === 'object' && inputData !== null} },
       { instance: this.awsServiceTmp, method: 'truncateOldKvResources' },
+      { instance: this.awsServiceTmp, method: 'optimizeInstanceSecurity' },
       {
         instance: Connection,
         method: 'clone',
@@ -110,6 +113,7 @@ export default class ReinstallProcess extends ProcessClass {
             }
           },
           { instance: this.awsService, method: 'truncateOldKvResources' },
+          { instance: this.awsService, method: 'optimizeInstanceSecurity' },
           {
             instance: Connection,
             method: 'remove',

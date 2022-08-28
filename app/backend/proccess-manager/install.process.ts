@@ -43,6 +43,7 @@ export default class InstallProcess extends ProcessClass {
       { instance: this.keyVaultService, method: 'getKeyVaultStatus' },
       { instance: this.walletService, method: 'syncVaultWithBlox', params: { isNew, processName: 'install' } },
       { instance: this.awsService, method: 'truncateOldKvResources' },
+      { instance: this.awsService, method: 'optimizeInstanceSecurity' },
       {
         hook: async () => {
           await analytics.track('kv-install-completed');

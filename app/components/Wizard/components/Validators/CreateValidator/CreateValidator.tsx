@@ -4,6 +4,7 @@ import config from '~app/backend/common/config';
 import { getNetwork } from '~app/components/Wizard/selectors';
 import { loadDepositData } from '~app/components/Wizard/actions';
 import * as wizardSelectors from '~app/components/Wizard/selectors';
+import Connection from '~app/backend/common/store-manager/connection';
 import useDashboardData from '~app/components/Dashboard/useDashboardData';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
@@ -31,7 +32,9 @@ const CreateValidator = (props: Props) => {
         clearProcessState();
       }
       if (!isLoading) {
-        startProcess('createAccount', 'Generating Validator Keys...');
+        startProcess('createAccount', 'Generating Validator Keys...', {
+          inputData: Connection.db('').get('seed')
+        });
       }
     };
     checkIfPasswordIsNeeded(onSuccess);
@@ -41,6 +44,7 @@ const CreateValidator = (props: Props) => {
     const { publicKey, network } = account;
     const accountIndex = +account.name.replace('account-', '');
     // Load fresh accounts before WizardStartPage logic will start working
+    await setPage(config.WIZARD_PAGES.VALIDATOR.REWARD_ADDRESS);
     await loadDataAfterNewAccount().then(async () => {
       await callSetAddAnotherAccount(false);
       await callSetDepositNeeded({
@@ -49,7 +53,6 @@ const CreateValidator = (props: Props) => {
         accountIndex,
         network
       });
-      await setPage(config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT);
     });
   };
 
@@ -70,31 +73,31 @@ const mapStateToProps = (state: State) => ({
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  callLoadDepositData: (publicKey, accountIndex, network) => dispatch(loadDepositData(publicKey, accountIndex, network)),
-  callSetDepositNeeded: (payload: DepositNeededPayload) => dispatch(setDepositNeeded(payload)),
   callSetAddAnotherAccount: (payload: boolean) => dispatch(setAddAnotherAccount(payload)),
+  callSetDepositNeeded: (payload: DepositNeededPayload) => dispatch(setDepositNeeded(payload)),
+  callLoadDepositData: (publicKey, accountIndex, network) => dispatch(loadDepositData(publicKey, accountIndex, network)),
 });
 
 type Props = {
   page: number;
-  network: string;
-  setPage: (page: number) => void;
-  setPageData: (data: any) => void;
   step: number;
-  setStep: (page: number) => void;
-  processData?: Record<string, any> | null;
-  callLoadDepositData: (publicKey: string, accountIndex: number, network: string) => void;
-  callSetDepositNeeded: (payload: DepositNeededPayload) => void;
-  callSetAddAnotherAccount: (payload: boolean) => void;
-  selectedNetwork: string;
+  network: string;
   depositData: any;
+  selectedNetwork: string;
+  setPage: (page: number) => void;
+  setStep: (page: number) => void;
+  setPageData: (data: any) => void;
+  processData?: Record<string, any> | null;
+  callSetAddAnotherAccount: (payload: boolean) => void;
+  callSetDepositNeeded: (payload: DepositNeededPayload) => void;
+  callLoadDepositData: (publicKey: string, accountIndex: number, network: string) => void;
 };
 
 type DepositNeededPayload = {
+  network: string;
   isNeeded: boolean;
   publicKey: string;
   accountIndex: number;
-  network: string;
 };
 
 type State = Record<string, any>;

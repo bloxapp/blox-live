@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { reportCrash } from '~app/components/common/service';
 import { Button, FailureIcon, ModalTemplate } from '~app/common/components';
 import { Title, Description, Wrapper } from '~app/common/components/ModalTemplate/components';
+// @ts-ignore
 import image from '../Wizard/assets/img-key-vault-inactive.svg';
 
 const LoaderText = styled.span`
@@ -31,16 +32,18 @@ const FailureModal = ({ title, subtitle, onClick, onClose, customImage }) => {
     <ModalTemplate onClose={onClose} image={customImage || image}>
       <Wrapper>
         <FailureIcon size={'40px'} fontSize={'30px'} />
-        <Title fontSize={'32px'} color={'warning900'}>{title}</Title>
+        <Title color={'warning900'}>{title}</Title>
       </Wrapper>
       <Description>{description}</Description>
       <Wrapper>
-        <Button
-          isDisabled={showLoaderText}
-          onClick={onSendReportClick}
-        >
-          Send Report
-        </Button>
+        {onClick && (
+          <Button
+            isDisabled={showLoaderText}
+            onClick={onSendReportClick}
+          >
+            Send Report
+          </Button>
+        )}
         <LoaderText>
           {showLoaderText ? 'Sending error report...' : ''} &nbsp;
         </LoaderText>
@@ -60,7 +63,7 @@ FailureModal.propTypes = {
 FailureModal.defaultProps = {
   title: '',
   subtitle: '',
-  onClick: () => {},
+  onClick: null,
   onClose: null,
   customImage: null
 };

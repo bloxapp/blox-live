@@ -4,10 +4,16 @@ import { LOGOUT } from '~app/components/Login/components/CallbackPage/actionType
 
 const initialState = {
   isLoading: false,
+  isDecryptingKeyStores: false,
   error: null,
   wallet: null,
   network: '',
   account: null,
+  keyStores: [],
+  decryptedKeyStores: [],
+  keyStoreErrorObject: {message: '', file: ''},
+  shouldDisplayError: false,
+  filesDecrypted: 0,
   depositData: null,
   isFinished: false,
   isOpened: false,
@@ -90,6 +96,51 @@ const wizardReducer = (state = initialState, action: Action) => produce(state, (
       draft.pageData = initialState.pageData;
       draft.page = initialState.page;
       draft.step = initialState.step;
+      draft.isDecryptingKeyStores = false;
+      draft.keyStores = initialState.keyStores;
+      draft.decryptedKeyStores = initialState.decryptedKeyStores;
+      draft.shouldDisplayError = initialState.shouldDisplayError;
+      draft.keyStoreErrorObject = initialState.keyStoreErrorObject;
+      break;
+    case actionTypes.INCREMENT_FILES_DECYPTED:
+      draft.filesDecrypted = action.payload;
+      break;
+    case actionTypes.UPLOAD_KEY_STORES:
+      draft.keyStores = action.payload;
+      break;
+    case actionTypes.DISPLAY_KEY_STORE_ERROR:
+      draft.shouldDisplayError = action.payload.status;
+      draft.keyStoreErrorObject = action.payload;
+      break;
+    case actionTypes.DECRYPT_KEY_STORES:
+      draft.isDecryptingKeyStores = true;
+      break;
+    case actionTypes.DECRYPT_KEY_STORES_SUCCESS:
+      draft.keyStoreErrorObject = initialState.keyStoreErrorObject;
+      draft.shouldDisplayError = false;
+      draft.isDecryptingKeyStores = false;
+      draft.decryptedKeyStores = [...draft.decryptedKeyStores, ...action.payload];
+      break;
+    case actionTypes.CLEAR_DECRYPT_PROGRESS:
+      draft.keyStores = [];
+      draft.filesDecrypted = 0;
+      draft.shouldDisplayError = false;
+      draft.isDecryptingKeyStores = false;
+      // draft.decryptedKeyStores = initialState.decryptedKeyStores;
+      draft.shouldDisplayError = initialState.shouldDisplayError;
+      draft.keyStoreErrorObject = initialState.keyStoreErrorObject;
+      break;
+    case actionTypes.CLEAR_DECRYPT_KEY_STORES:
+      draft.filesDecrypted = 0;
+      draft.isDecryptingKeyStores = false;
+      draft.decryptedKeyStores = initialState.decryptedKeyStores;
+      break;
+    case actionTypes.DECRYPT_KEY_STORES_FAILURE:
+      draft.filesDecrypted = 0;
+      draft.shouldDisplayError = true;
+      draft.isDecryptingKeyStores = false;
+      draft.keyStoreErrorObject = action.payload;
+      // draft.decryptedKeyStores = initialState.decryptedKeyStores;
       break;
   }
 });

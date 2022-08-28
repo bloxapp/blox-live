@@ -11,6 +11,8 @@ const initialState = {
     show: false,
     text: '',
     onSuccess: null,
+    rewardAddressesData: null,
+    displayCloseButton: true,
 
     // Attributes for confirmation dialog
     confirmation: {
@@ -20,7 +22,8 @@ const initialState = {
       onConfirmButtonClick: null,
       onCancelButtonClick: null
     }
-  }
+  },
+  mergePopUpSeen: false,
 };
 
 /* eslint-disable default-case, no-param-reassign */
@@ -31,6 +34,8 @@ const dashboardReducer = (state = initialState, action: Action) => produce(state
         type: action.payload.type,
         show: action.payload.show,
         text: action.payload.text,
+        rewardAddressesData: action.payload.rewardAddressesData,
+        displayCloseButton: action.payload.displayCloseButton,
         confirmation: action.payload.confirmation ?? initialState.dialog.confirmation,
         onSuccess: action.payload.confirmation?.onConfirmButtonClick
           || action.payload.onSuccess
@@ -39,6 +44,9 @@ const dashboardReducer = (state = initialState, action: Action) => produce(state
       break;
     case actionTypes.CLEAR_MODAL_DISPLAY_DATA:
       draft.dialog = initialState.dialog;
+      break;
+    case actionTypes.SET_MODAL_MERGE_AS_SEEN:
+      draft.mergePopUpSeen = true;
       break;
     case actionTypes.SET_TESTNET_FLAG:
       draft.testNet.show = action.payload.testNet?.show || initialState.testNet.show;

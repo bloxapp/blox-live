@@ -51,8 +51,8 @@ const Checkbox = ({ checked, onClick, style, disabled }: CheckboxProps) => {
 
 const CheckboxWrapper = styled.div`
   width: 100%;
-  margin-top: 15px;
   display: flex;
+  margin-top: 15px;
   flex-direction: row;
   justify-content: flex-start;
 `;

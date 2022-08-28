@@ -49,10 +49,10 @@ const useStyles = makeStyles(() => ({
 const testNetConfigKey = config.FLAGS.DASHBOARD.TESTNET_SHOW;
 
 const NetworkSwitcher = () => {
+  const { setTestNetShowFlag } = useNetworkSwitcher();
+  const [isMenuOpened, toggleMenuOpen] = useState(false);
   const isTestNetShowInConfig = Connection.db().get(testNetConfigKey);
   const [isTestNetShow, setTestNetShow] = useState(Boolean(isTestNetShowInConfig));
-  const [isMenuOpened, toggleMenuOpen] = useState(false);
-  const { setTestNetShowFlag } = useNetworkSwitcher();
   const styles = useStyles();
 
   useEffect(() => {

@@ -7,6 +7,7 @@ const initialState = {
   error: null,
   data: null,
   addAnotherAccount: false,
+  seedlessDepositNeeded: null,
   depositNeededData: {
     isNeeded: false,
     publicKey: '',
@@ -38,6 +39,9 @@ const accountsReducer = (state = initialState, action: Action) => produce(state,
       case actionTypes.ADD_ANOTHER_ACCOUNT:
         draft.addAnotherAccount = action.payload;
         break;
+      case actionTypes.SET_SEEDLESS_DEPOSIT_NEEDED:
+        draft.seedlessDepositNeeded = action.payload;
+        break;
       case actionTypes.CLEAR_DATA:
       case LOGOUT:
         draft.isLoading = initialState.isLoading;
@@ -45,6 +49,7 @@ const accountsReducer = (state = initialState, action: Action) => produce(state,
         draft.data = initialState.data;
         draft.addAnotherAccount = initialState.addAnotherAccount;
         draft.depositNeededData = initialState.depositNeededData;
+        draft.seedlessDepositNeeded = initialState.seedlessDepositNeeded;
         break;
     }
   });

@@ -7,7 +7,7 @@ import config from '~app/backend/common/config';
 import useRouting from '~app/common/hooks/useRouting';
 import * as actionsFromWizard from '~app/components/Wizard/actions';
 import * as actionsFromAccounts from '~app/components/Accounts/actions';
-import { getAddAnotherAccount } from '~app/components/Accounts/selectors';
+import {getAddAnotherAccount, getSeedlessDepositNeededStatus} from '~app/components/Accounts/selectors';
 import useDashboardData from '~app/components/Dashboard/useDashboardData';
 import { getWizardFinishedStatus } from '~app/components/Wizard/selectors';
 import { contentAnimation } from '~app/components/Wizard/components/common';
@@ -36,10 +36,10 @@ const ComponentWrapper = styled.div`
 `;
 
 const BackgroundImage = styled.img`
+  right: 0;
   width: 300px;
   height: 300px;
   position: absolute;
-  right: 0;
 `;
 
 const CloseButton = styled.div`
@@ -129,6 +129,7 @@ const Template = (props: Props) => {
 const mapStateToProps = (state) => ({
   isFinishedWizard: getWizardFinishedStatus(state),
   addAnotherAccount: getAddAnotherAccount(state),
+  seedLessNeedDeposit: getSeedlessDepositNeededStatus(state),
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -138,18 +139,19 @@ const mapDispatchToProps = (dispatch) => ({
 
 type Props = {
   component: JSX.Element;
+  page: number;
+  step: number;
+  pageData: any;
+  accounts: any;
   bgImage: string;
   backButton?: boolean;
-  page: number;
-  pageData: any;
+  isFinishedWizard: boolean;
+  addAnotherAccount: boolean;
+  seedLessNeedDeposit: boolean;
   setPage: (page: number) => void;
-  step: number;
   setStep: (page: number) => void;
   wizardActions: Record<string, any>;
   accountsActions: Record<string, any>;
-  isFinishedWizard: boolean;
-  addAnotherAccount: boolean;
-  accounts: any;
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Template);

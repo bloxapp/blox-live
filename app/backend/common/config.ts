@@ -1,4 +1,6 @@
+import { isVersionHigherOrEqual } from '~app/utils/service';
 import BaseStore from '~app/backend/common/store-manager/base-store';
+import Connection from '~app/backend/common/store-manager/connection';
 
 export default class Config {
   private static instance: Config;
@@ -28,23 +30,26 @@ export default class Config {
       DISCORD_GOETH_INVITE: 'https://discord.gg/wXxuQwY',
       HTTP_RETRIES: 3,
       HTTP_RETRY_DELAY: 1000,
-      PYRMONT_NETWORK: 'pyrmont',
+      PRATER_NETWORK: 'prater',
       MAINNET_NETWORK: 'mainnet',
-      TESTNET: {
-        GOERLI_NETWORK: 'goerli'
-      },
       SSL_SUPPORTED_TAG: 'v0.1.25',
+      MERGE_SUPPORTED_TAG: 'v1.4.4',
       HIGHEST_ATTESTATION_SUPPORTED_TAG: 'v0.3.2',
       DEFAULT_SSH_PORT: 22,
       TARGET_SSH_PORT: 2200,
       BEACONCHA_URL: 'https://beaconcha.in/api/v1',
-      PYRMONT_BEACONCHA_URL: 'https://pyrmont.beaconcha.in/api/v1',
+      PRATER_BEACONCHA_URL: 'https://prater.beaconcha.in/api/v1',
       INFURA_API_KEY: 'ad49ce6ad5d64c2685f4b2ba86512c76',
       ETH_INITIAL_BALANCE: 32.00,
       UNAUTHORIZED_CHECK_INTERVAL: 10 * 60 * 1000,
       CONTACT_US_LINK: 'http://bit.ly/2Nqy2Ao',
       KNOWLEDGE_BASE_LINK: 'http://bit.ly/3eFOyHH',
       SEND_FEEDBACK_LINK: 'http://bit.ly/3eK2cts',
+      LAUNCHPAD_URL: {
+        MAINNET: 'https://launchpad.ethereum.org/',
+        TESTNET: 'https://prater.launchpad.ethereum.org/',
+      },
+      CREATE_BLOX_ACCOUNTS_BATCH_SIZE: 50,
 
       // Wizard pages constants in one central place, environment-independent
       WIZARD_PAGES: {
@@ -53,21 +58,33 @@ export default class Config {
           SELECT_CLOUD_PROVIDER: 1,
           CREATE_SERVER: 2,
           CONGRATULATIONS: 3,
+          SEED_OR_KEYSTORE: 3.5, // Keystore or Seed mode switch
           IMPORT_OR_GENERATE_SEED: 4,
           ENTER_MNEMONIC: 5,
           IMPORT_MNEMONIC: 10,
-          IMPORT_VALIDATORS: 11
+          IMPORT_VALIDATORS: 11,
+          IMPORT_VALIDATORS_REWARD_ADDRESS: 12,
+        },
+        ACCOUNT: {
+          SET_PASSWORD: 20, // Keystore mode
         },
         VALIDATOR: {
           SELECT_NETWORK: 6,
+          UPLOAD_KEYSTORE_FILE: 6.5, // Keystore mode
           CREATE_VALIDATOR: 7,
+          VALIDATOR_SUMMARY: 7.1, // Keystore mode
+          SLASHING_WARNING: 7.2, // Keystore mode - shown only for "deposited" validators
+          REWARD_ADDRESS: 7.3,
+          DEPOSIT_OVERVIEW: 7.5, // Keystore mode - shown only for "not deposited" validators
+          UPLOAD_DEPOSIT_FILE: 7.6, // Keystore mode - shown only for "not deposited" validators
           STAKING_DEPOSIT: 8,
           CONGRATULATIONS: 9
         }
       },
       WIZARD_STEPS: {
         KEY_VAULT_SETUP: 1,
-        VALIDATOR_SETUP: 2
+        VALIDATOR_SETUP: 2,
+        ACCOUNT_SETUP: 3, // Keystore mode
       },
       FLAGS: {
         DASHBOARD: {
@@ -81,7 +98,12 @@ export default class Config {
         },
         COMPLIANCE: {
           RESTRICTED_TEST: 'compliance:restricted:test'
-        }
+        },
+        VALIDATORS_MODE: {
+          KEY: 'VALIDATORS_MODE',
+          SEED: 'seed',
+          KEYSTORE: 'keystore'
+        },
       }
     }
   };
@@ -130,5 +152,13 @@ export default class Config {
 
   static get FLAGS(): any {
     return this.env.FLAGS;
+  }
+
+  static get TESTNET_NETWORK(): string {
+    const keyVaultVersion = Connection.db().get('keyVaultVersion');
+    if (isVersionHigherOrEqual(keyVaultVersion, 'v1.2.0')) {
+      return 'prater';
+    }
+    return 'pyrmont';
   }
 }

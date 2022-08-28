@@ -3,12 +3,16 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import config from '~app/backend/common/config';
 import { Template } from '~app/components/Wizard/components/common';
-import WizardStartPage from '~app/components/Wizard/components/WizardStartPage';
 import * as WalletPages from '~app/components/Wizard/components/Wallet';
 import { getDepositToNetwork } from '~app/components/Accounts/selectors';
 import * as ValidatorPages from '~app/components/Wizard/components/Validators';
+import WizardStartPage from '~app/components/Wizard/components/WizardStartPage';
+import * as AccountSetupPages from '~app/components/Wizard/components/AccountSetup';
+// @ts-ignore
 import walletImage from 'components/Wizard/assets/img-key-vault.svg';
+// @ts-ignore
 import testnetValidatorImage from '../../assets/img-validator-test-net.svg';
+// @ts-ignore
 import mainnetValidatorImage from '../../assets/img-validator-main-net.svg';
 
 const Wrapper = styled.div`
@@ -18,7 +22,7 @@ const Wrapper = styled.div`
 
 const switcher = (props: Props) => {
   const { page, network } = props;
-  const validatorImage = network === config.env.PYRMONT_NETWORK ? testnetValidatorImage : mainnetValidatorImage;
+  const validatorImage = network === config.env.PRATER_NETWORK ? testnetValidatorImage : mainnetValidatorImage;
   let component;
   let bgImage = '';
 
@@ -39,8 +43,18 @@ const switcher = (props: Props) => {
       break;
 
     case config.WIZARD_PAGES.WALLET.IMPORT_OR_GENERATE_SEED:
-      bgImage = validatorImage;
+      bgImage = '';
       component = <WalletPages.ImportOrGenerateSeed {...props} />;
+      break;
+
+    case config.WIZARD_PAGES.WALLET.SEED_OR_KEYSTORE:
+      bgImage = '';
+      component = <WalletPages.SeedOrKeystore {...props} />;
+      break;
+
+    case config.WIZARD_PAGES.ACCOUNT.SET_PASSWORD:
+      bgImage = validatorImage;
+      component = <AccountSetupPages.SetPassword {...props} />;
       break;
 
     case config.WIZARD_PAGES.WALLET.ENTER_MNEMONIC:
@@ -50,6 +64,30 @@ const switcher = (props: Props) => {
 
     case config.WIZARD_PAGES.VALIDATOR.SELECT_NETWORK:
       component = <ValidatorPages.SelectNetwork {...props} />;
+      break;
+
+    case config.WIZARD_PAGES.VALIDATOR.UPLOAD_KEYSTORE_FILE:
+      component = <ValidatorPages.UploadKeystoreFile {...props} />;
+      break;
+
+    case config.WIZARD_PAGES.VALIDATOR.VALIDATOR_SUMMARY:
+      component = <ValidatorPages.ValidatorsSummary {...props} />;
+      break;
+
+    case config.WIZARD_PAGES.VALIDATOR.REWARD_ADDRESS:
+      component = <ValidatorPages.RewardAddress {...props} />;
+      break;
+
+    case config.WIZARD_PAGES.WALLET.IMPORT_VALIDATORS_REWARD_ADDRESS:
+      component = <ValidatorPages.RewardAddress {...props} />;
+      break;
+
+    case config.WIZARD_PAGES.VALIDATOR.SLASHING_WARNING:
+      component = <ValidatorPages.SlashingWarning {...props} />;
+      break;
+
+    case config.WIZARD_PAGES.VALIDATOR.DEPOSIT_OVERVIEW:
+      component = <ValidatorPages.DepositOverview {...props} />;
       break;
 
     case config.WIZARD_PAGES.VALIDATOR.CREATE_VALIDATOR:
@@ -82,8 +120,8 @@ const switcher = (props: Props) => {
     return (
       <Template
         key={page}
-        bgImage={bgImage}
         {...props}
+        bgImage={bgImage}
         component={component}
       />
     );
@@ -100,14 +138,14 @@ const mapStateToProps = (state: any) => ({
 
 type Props = {
   page: number;
-  pageData: any;
-  setPage: (page: number) => void;
-  setPageData: (data: any) => void;
-  clearPageData: () => void;
   step: number;
-  setStep: (page: number) => void;
-  network: string;
+  pageData: any;
   accounts: any;
+  network: string;
+  clearPageData: () => void;
+  setPage: (page: number) => void;
+  setStep: (page: number) => void;
+  setPageData: (data: any) => void;
 };
 
 export default connect(mapStateToProps)(ContentManager);

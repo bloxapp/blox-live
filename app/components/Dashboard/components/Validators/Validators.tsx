@@ -62,7 +62,7 @@ const Validators = ({ accounts, isTestNetShow, showNetworkSwitcher }) => {
         if (!isTestNetShow) {
           return account.network === config.env.MAINNET_NETWORK;
         }
-        return account.network === config.env.PYRMONT_NETWORK;
+        return account.network === config.env.PRATER_NETWORK;
       }));
     }
     setPaginationInfo(null);
@@ -102,15 +102,16 @@ const Validators = ({ accounts, isTestNetShow, showNetworkSwitcher }) => {
     <Wrapper>
       <Title>Validators</Title>
       <Table
-        columns={tableColumns}
-        data={pagedAccounts}
         withHeader
         isPagination
-        selectedSorting={selectedSort}
         sortType={sortType}
+        withoutColumnBorder
+        data={pagedAccounts}
+        columns={tableColumns}
         onSortClick={onSortClick}
-        paginationInfo={paginationInfo}
         onPageClick={onPageClick}
+        selectedSorting={selectedSort}
+        paginationInfo={paginationInfo}
       />
     </Wrapper>
   );

@@ -5,6 +5,7 @@ import { bindActionCreators } from 'redux';
 import {
   Switch, Route, Redirect
 } from 'react-router-dom';
+import config from '~app/backend/common/config';
 import { Loader } from '~app/common/components';
 import Wizard from '~app/components/Wizard/Wizard';
 import wizardSaga from '~app/components/Wizard/saga';
@@ -23,6 +24,7 @@ import Connection from '~app/backend/common/store-manager/connection';
 import Content from '~app/components/EntryPage/routes/wrappers/Content';
 import * as actionsFromDashboard from '~app/components/Dashboard/actions';
 import SettingsRoute from '~app/components/EntryPage/routes/SettingsRoute';
+import RewardAddresses from '~app/components/RewardAddresses/RewardAddresses';
 import * as keyvaultSelectors from '~app/components/KeyVaultManagement/selectors';
 import { keyvaultLoadLatestVersion } from '~app/components/KeyVaultManagement/actions';
 
@@ -33,11 +35,19 @@ const DashboardWrapper = styled.div`
   background-color: #f7fcff;
 `;
 
+const RewardAddressWrapper = styled.div`
+  width: 100%;
+  display: grid;
+  min-height: 100%;
+  padding-top: 70px;
+  background-color: #f7fcff;
+`;
+
 const WizardWrapper = styled.div`
   width: 100%;
+  display: grid;
   min-height: 100%;
   background-color: #f7fcff;
-  display: grid;
 `;
 
 const wizardKey = 'wizard';
@@ -46,7 +56,7 @@ const walletKey = 'keyvaultManagement';
 const EntryPage = (props: Props) => {
   const {
     callLoadWallet, loadWalletLatestVersion, walletStatus, walletVersion,
-    isLoadingWallet, walletError, keyvaultCurrentVersion,
+    isLoadingWallet, walletError, keyvaultCurrentVersion, isSeedless,
     keyvaultLatestVersion, isLoadingKeyvault, keyvaultError,
     dashboardActions, isFinishedWizard, wizardWallet, isOpenedWizard
   } = props;
@@ -69,6 +79,12 @@ const EntryPage = (props: Props) => {
   }, []);
 
   useEffect(() => {
+    if (isSeedless && !Connection.db().get(config.FLAGS.VALIDATORS_MODE.KEY)) {
+      Connection.db().set(config.FLAGS.VALIDATORS_MODE.KEY, config.FLAGS.VALIDATORS_MODE.KEYSTORE);
+    }
+  }, [isSeedless]);
+
+  useEffect(() => {
     const didntLoadWallet = !walletStatus && !isLoadingWallet && !walletError;
     const didntLoadKeyvaultVersion = !keyvaultLatestVersion && !isLoadingKeyvault && !keyvaultError;
 
@@ -83,15 +99,15 @@ const EntryPage = (props: Props) => {
   const walletNeedsUpdate = keyvaultCurrentVersion !== keyvaultLatestVersion;
 
   const otherProps = {
-    walletNeedsUpdate,
+    accounts,
+    eventLogs,
     walletStatus,
     isLoadingWallet,
-    accounts,
     isLoadingAccounts,
-    eventLogs,
+    walletNeedsUpdate,
     isLoadingEventLogs,
-    isLoadingBloxLiveVersion,
     bloxLiveNeedsUpdate,
+    isLoadingBloxLiveVersion,
     walletVersion: String(walletVersion).replace('v', '')
   };
 
@@ -112,10 +128,10 @@ const EntryPage = (props: Props) => {
         exact
         path={ROUTES.LOGGED_IN}
         render={() => {
-          if (showWizard) {
-            return <Redirect to={ROUTES.WIZARD} />;
-          }
-          return <Redirect to={ROUTES.DASHBOARD} />;
+            if (showWizard) {
+              return <Redirect to={ROUTES.WIZARD} />;
+            }
+            return <Redirect to={ROUTES.DASHBOARD} />;
         }}
       />
       <Route
@@ -140,6 +156,19 @@ const EntryPage = (props: Props) => {
         )}
       />
       <Route
+        path={ROUTES.REWARD_ADDRESSES}
+        render={() => (
+          <>
+            <Header withMenu />
+            <Content>
+              <RewardAddressWrapper>
+                <RewardAddresses {...otherProps} />
+              </RewardAddressWrapper>
+            </Content>
+          </>
+        )}
+      />
+      <Route
         path={ROUTES.SETTINGS}
         render={(renderProps) => (
           <SettingsRoute
@@ -152,41 +181,38 @@ const EntryPage = (props: Props) => {
 };
 
 type Props = {
-  walletStatus: string;
-  walletVersion: string;
-  isLoadingWallet: boolean;
-  walletError: string;
-  callLoadWallet: () => void;
-  loadWalletLatestVersion: () => void;
-
-  keyvaultCurrentVersion: string;
-  keyvaultLatestVersion: string;
-  isLoadingKeyvault: boolean;
-  keyvaultError: string;
-
-  bloxLiveNeedsUpdate: boolean;
-  isLoadingBloxLiveVersion: boolean;
-
-  dashboardActions: Record<string, any>;
-  isFinishedWizard: boolean;
-  isOpenedWizard: boolean;
   wizardWallet: any;
+  isSeedless: boolean;
+  walletError: string;
+  walletStatus: string;
+  keyvaultError: string;
+  walletVersion: string;
+  isOpenedWizard: boolean;
+  isLoadingWallet: boolean;
+  isFinishedWizard: boolean;
+  isLoadingKeyvault: boolean;
+  callLoadWallet: () => void;
+  bloxLiveNeedsUpdate: boolean;
+  keyvaultLatestVersion: string;
+  keyvaultCurrentVersion: string;
+  isLoadingBloxLiveVersion: boolean;
+  loadWalletLatestVersion: () => void;
+  dashboardActions: Record<string, any>;
 };
 
 const mapStateToProps = (state: State) => ({
-  walletStatus: wizardSelectors.getWalletStatus(state),
-  walletVersion: wizardSelectors.getWalletVersion(state),
-  isLoadingWallet: wizardSelectors.getIsLoading(state),
+  wizardWallet: wizardSelectors.getWallet(state),
+  keyvaultError: keyvaultSelectors.getError(state),
   walletError: wizardSelectors.getWalletError(state),
-
+  walletStatus: wizardSelectors.getWalletStatus(state),
+  isLoadingWallet: wizardSelectors.getIsLoading(state),
+  walletVersion: wizardSelectors.getWalletVersion(state),
+  isSeedless: wizardSelectors.getWalletSeedlessFlag(state),
+  isLoadingKeyvault: keyvaultSelectors.getIsLoading(state),
+  isOpenedWizard: wizardSelectors.getWizardOpenedStatus(state),
   keyvaultCurrentVersion: wizardSelectors.getWalletVersion(state),
   keyvaultLatestVersion: keyvaultSelectors.getLatestVersion(state),
-  isLoadingKeyvault: keyvaultSelectors.getIsLoading(state),
-  keyvaultError: keyvaultSelectors.getError(state),
-
   isFinishedWizard: wizardSelectors.getWizardFinishedStatus(state),
-  isOpenedWizard: wizardSelectors.getWizardOpenedStatus(state),
-  wizardWallet: wizardSelectors.getWallet(state),
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({

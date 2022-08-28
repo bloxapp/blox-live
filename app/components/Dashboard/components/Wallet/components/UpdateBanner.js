@@ -16,9 +16,9 @@ const Wrapper = styled.div`
   font-size: 14px;
   font-weight: 900;
   border-radius: 8px;
-  border: 1px solid ${({theme}) => theme.gray300};
   margin-left: 100px;
   margin-bottom: 36px;
+  border: 1px solid ${({theme}) => theme.gray300};
 `;
 
 const Image = styled.img`

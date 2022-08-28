@@ -133,12 +133,12 @@ token expired scenario and will make request to refresh token only once, and wil
 
 5. Specifically set network for beaconcha API
 
-`"network": "pyrmont"`
+`"network": "prater"`
 
 6. Specifically set network for validators import feature.
 By default, it is `mainnet`.
 
-`"feature:import:network": "pyrmont"`
+`"feature:import:network": "prater"`
 
 
 
@@ -162,7 +162,8 @@ See our [docs and guides here](https://www.bloxstaking.com/blox-blog/)
 
 ## Maintainers
 
-- [David Marciano](https://github.com/david-blox)
+- [Dmitri Meshin](https://github.com/dmitri-blox)
+- [Guy Muroch](https://github.com/guym-blox)
 - [Oleg Shmuelov](https://github.com/olegshmuelov)
 - [Vadim Chumak](https://github.com/vadiminc)
 - [Niv Muroch](https://github.com/nivBlox)

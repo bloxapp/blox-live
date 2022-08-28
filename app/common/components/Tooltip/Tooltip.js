@@ -29,8 +29,8 @@ const BloxTooltip = ({ children, ...rest }) => (
 );
 
 BloxTooltip.propTypes = {
+  title: PropTypes.any,
   children: PropTypes.node,
-  title: PropTypes.string,
   placement: PropTypes.string,
   bgColor: PropTypes.string,
 };

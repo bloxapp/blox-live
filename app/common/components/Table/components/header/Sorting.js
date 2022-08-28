@@ -1,8 +1,8 @@
-import PropTypes from 'prop-types';
-import {Icon} from '../../../index';
 import React from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { SORT_TYPE } from '../../../../constants';
+import { Icon } from '~app/common/components';
+import { SORT_TYPE } from '~app/common/constants';
 
 const Wrapper = styled.div``;
 

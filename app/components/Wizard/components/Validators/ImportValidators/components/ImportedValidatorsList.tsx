@@ -1,20 +1,21 @@
-import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components/dist/styled-components.esm';
 import analytics from '~app/backend/analytics';
 import config from '~app/backend/common/config';
 import Table from '~app/common/components/Table';
 import { Checkbox, ProcessLoader } from '~app/common/components';
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
+import Connection from '~app/backend/common/store-manager/connection';
 import { handlePageClick } from '~app/common/components/Table/service';
 import * as actionsFromDashboard from '~app/components/Dashboard/actions';
 import { Paragraph, Link } from '~app/components/Wizard/components/common';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
+import useNetworkSwitcher from '~app/components/Dashboard/components/NetworkSwitcher/useNetworkSwitcher';
 import tableColumns from '~app/components/Wizard/components/Validators/ImportValidators/components/table-columns';
 import { getNetworkForImport } from '~app/components/Wizard/components/Validators/ImportValidators/components/helpers';
-import useNetworkSwitcher from '~app/components/Dashboard/components/NetworkSwitcher/useNetworkSwitcher';
 
 const TableWrapper = styled.div`
   width: 100%;
@@ -91,7 +92,7 @@ const ImportedValidatorsList = ({ show, validators, onDone, dashboardActions }: 
 
   useEffect(() => {
     if (isDone && processData && !error) {
-      setTestNetShowFlag(getNetworkForImport() === config.env.PYRMONT_NETWORK);
+      setTestNetShowFlag(getNetworkForImport() === config.env.PRATER_NETWORK);
       onDone();
       analytics.track('import-completed');
     } else if (isDone && error && !isLoading) {
@@ -113,6 +114,7 @@ const ImportedValidatorsList = ({ show, validators, onDone, dashboardActions }: 
           'Creating account..',
           {
             network: getNetworkForImport(),
+            inputData: Connection.db('').get('seed'),
             indexToRestore: validators.length - 1
           }
         );
@@ -134,18 +136,18 @@ const ImportedValidatorsList = ({ show, validators, onDone, dashboardActions }: 
       <Paragraph>List of Validator(s) to be imported:</Paragraph>
       <TableWrapper>
         <Table
-          data={pagedValidators}
-          columns={tableColumns}
           withHeader
-          onPageClick={onPageClick}
           isPagination
-          paginationInfo={paginationInfo}
-          totalCount={validators.length}
           sortType="disabled"
-          navButtonWidth="15%"
           rowMinHeight="40px"
           headerHeight="40px"
           footerHeight="40px"
+          navButtonWidth="15%"
+          data={pagedValidators}
+          columns={tableColumns}
+          onPageClick={onPageClick}
+          totalCount={validators.length}
+          paginationInfo={paginationInfo}
         />
       </TableWrapper>
 

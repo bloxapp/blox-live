@@ -18,11 +18,14 @@ const CongratulationPage = (props: Props) => {
   const { wizardActions, accountsActions, pageData } = props;
   const { isImportValidators, importedValidatorsCount } = pageData;
   const { clearAccountsData } = accountsActions;
-  const { setFinishedWizard, setOpenedWizard, clearWizardData } = wizardActions;
+  const { setFinishedWizard, setOpenedWizard, clearWizardData,
+    clearDecryptKeyStores, clearDecryptProgress } = wizardActions;
   const { loadDashboardData } = useDashboardData();
   const { goToPage, ROUTES } = useRouting();
 
   const onClick = async () => {
+    clearDecryptKeyStores();
+    clearDecryptProgress();
     await clearAccountsData();
     await clearWizardData();
     await setFinishedWizard(true);
@@ -39,10 +42,10 @@ const CongratulationPage = (props: Props) => {
 
         {!isImportValidators && (
           <>
-            <Title color="accent2400" style={{ marginTop: 30 }}>Validator created successfully!</Title>
+            <Title color="accent2400" style={{ marginTop: 30 }}>Validator{importedValidatorsCount > 1 ? 's' : ''} created successfully!</Title>
             <Paragraph>
-              Approving your validator can sometime take between 4 to 24 hours. We will <br />
-              notify you via email once your validator is approved and is actively staking on <br />
+              Getting your validator{importedValidatorsCount > 1 ? 's' : ''} approved takes between 4 to 24 hours. We will <br />
+              notify you via email once your validator{importedValidatorsCount > 1 ? 's' : ''} {importedValidatorsCount > 1 ? 'are' : 'is'} approved and actively staking on <br />
               the ETH 2 network. <br /> <br />
 
               Meanwhile, let&apos;s visit the dashboard.
@@ -57,7 +60,7 @@ const CongratulationPage = (props: Props) => {
               &nbsp;Validator{(importedValidatorsCount && importedValidatorsCount === 1) ? '' : 's'}
               &nbsp;imported successfully
             </Title>
-            <Paragraph>
+            <Paragraph style={{width: '70%'}}>
               Please note that it can take a few minutes for newly imported validators to appear in your dashboard.
             </Paragraph>
           </>
@@ -76,10 +79,10 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 
 type Props = {
   page: number;
+  pageData: any;
   setPage: (page: number) => void;
   wizardActions: Record<string, any>;
   accountsActions: Record<string, any>;
-  pageData: any;
 };
 
 type Dispatch = (arg0: { type: string }) => any;

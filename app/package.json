@@ -1,7 +1,7 @@
 {
   "name": "blox-live",
   "productName": "blox-live-desktop-app",
-  "version": "1.5.1-dev.0",
+  "version": "1.6.2-dev.19",
   "description": "Blox Staking desktop app for managing staking accounts",
   "main": "./main.prod.js",
   "author": {
@@ -15,6 +15,7 @@
   },
   "license": "GPL-3.0",
   "dependencies": {
+    "@material-ui/icons": "^4.11.2",
     "got": "11.5.2",
     "web3": "^1.2.11"
   }

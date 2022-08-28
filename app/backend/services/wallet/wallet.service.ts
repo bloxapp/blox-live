@@ -1,10 +1,11 @@
-import { Log } from '../../common/logger/logger';
-import { Catch, CatchClass, Step } from '../../decorators';
-import Connection from '../../common/store-manager/connection';
-import BloxApi from '../../common/communication-manager/blox-api';
-import KeyManagerService from '../key-manager/key-manager.service';
-import { METHOD } from '../../common/communication-manager/constants';
-import KeyVaultSsh from '../../common/communication-manager/key-vault-ssh';
+import { Catch, Step } from '~app/backend/decorators';
+import { Log } from '~app/backend/common/logger/logger';
+import { selectedKeystoreMode } from '~app/common/service';
+import Connection from '~app/backend/common/store-manager/connection';
+import BloxApi from '~app/backend/common/communication-manager/blox-api';
+import { METHOD } from '~app/backend/common/communication-manager/constants';
+import KeyVaultSsh from '~app/backend/common/communication-manager/key-vault-ssh';
+import KeyManagerService from '~app/backend/services/key-manager/key-manager.service';
 
 // @CatchClass<WalletService>()
 export default class WalletService {
@@ -35,8 +36,8 @@ export default class WalletService {
     return await this.bloxApi.request(METHOD.POST, 'wallets/sync', payload);
   }
 
-  async reSync(payload: any) {
-    return await this.bloxApi.request(METHOD.PATCH, 'wallets/sync', payload);
+  async forceSyncAccounts(payload: any) {
+    return await this.bloxApi.request(METHOD.PATCH, 'wallets/refresh', payload);
   }
 
   async delete() {
@@ -70,15 +71,16 @@ export default class WalletService {
     const { stdout, stderr } = await ssh.execCommand(command, {});
     if (stderr || +stdout !== 200) throw Error(`${stderr || stdout}. Remove blox wallet failed`);
   }
-
   @Step({
     name: 'Syncing KeyVault with Blox...'
   })
-  async syncVaultWithBlox({ isNew, processName }): Promise<void> {
+  async syncVaultWithBlox({ isNew, processName, isSeedless }: { isNew?: boolean, processName?: string, isSeedless?: boolean }): Promise<void> {
     const envKey = (Connection.db(this.storePrefix).get('env') || 'production');
+    const seedless = isSeedless ?? selectedKeystoreMode();
     const payload: any = {
       url: `https://${Connection.db(this.storePrefix).get('publicIp')}:8200`,
-      accessToken: Connection.db(this.storePrefix).get('vaultSignerToken')
+      accessToken: Connection.db(this.storePrefix).get('vaultSignerToken'),
+      seedless,
     };
 
     // Send plugin version in all cases, but only if it's available
@@ -86,7 +88,6 @@ export default class WalletService {
     if (pluginVersion) {
       payload.pluginVersion = pluginVersion;
     }
-
     // Send version in only recovery/install/reinstall cases
     const version: any = `${Connection.db(this.storePrefix).get('keyVaultVersion')}${envKey === 'production' ? '' : '-rc'}`;
     const shouldUpdateVersion: boolean = ['reinstall', 'install', 'recovery'].indexOf(processName) !== -1;
@@ -103,7 +104,24 @@ export default class WalletService {
     });
     this.logger.debug(command);
     const { stdout, stderr } = await ssh.execCommand(command, {});
-    if (stderr || +stdout !== 200) throw Error(`${stdout || stderr}. Sync kv with blox failed`);
+    if (stderr || +stdout !== 200) throw Error(`${stdout || ''}. ${stderr || ''}. Sync kv with blox failed`);
+    Connection.db(this.storePrefix).delete('vaultSignerToken');
+  }
+
+  @Step({
+    name: 'Syncing KeyVault config with Blox...'
+  })
+  async syncVaultConfigWithBlox(): Promise<void> {
+    this.logger.debugWithData('Sync KeyVault with Blox Payload');
+    const ssh = await this.keyVaultSsh.getConnection();
+    const command = this.keyVaultSsh.buildCurlCommand({
+      authToken: Connection.db(this.storePrefix).get('authToken'),
+      method: METHOD.POST,
+      route: `${this.bloxApi.baseUrl}/wallets/refresh?components=config`
+    });
+    this.logger.debug(command);
+    const { stdout, stderr } = await ssh.execCommand(command, {});
+    if (stderr || +stdout !== 200) throw Error(`${stdout || ''}. ${stderr || ''}. Sync kv with blox failed`);
     Connection.db(this.storePrefix).delete('vaultSignerToken');
   }
 }

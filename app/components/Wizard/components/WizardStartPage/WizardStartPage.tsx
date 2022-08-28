@@ -2,15 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
-import wizardSaga from '~app/components/Wizard/saga';
 import config from '~app/backend/common/config';
+import wizardSaga from '~app/components/Wizard/saga';
 import useRouting from '~app/common/hooks/useRouting';
 import { useInjectSaga } from '~app/utils/injectSaga';
 import { Log } from '~app/backend/common/logger/logger';
 import { InfoWithTooltip } from '~app/common/components';
+import { getSelectedValidatorMode, selectedKeystoreMode, selectedSeedMode } from '~app/common/service';
+import useVersions from '~app/components/Versions/useVersions';
 import * as userSelectors from '~app/components/User/selectors';
 import * as wizardActions from '~app/components/Wizard/actions';
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
+import { openExternalLink } from '~app/components/common/service';
 import * as wizardSelectors from '~app/components/Wizard/selectors';
 import Connection from '~app/backend/common/store-manager/connection';
 import * as accountSelectors from '~app/components/Accounts/selectors';
@@ -19,8 +22,11 @@ import * as actionsFromDashboard from '~app/components/Dashboard/actions';
 import useDashboardData from '~app/components/Dashboard/useDashboardData';
 import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
 import ButtonWithIcon from '~app/components/Wizard/components/WizardStartPage/ButtonWithIcon';
+// @ts-ignore
 import keyVaultImg from '../../assets/img-key-vault.svg';
+// @ts-ignore
 import mainNetImg from '../../assets/img-validator-main-net.svg';
+// @ts-ignore
 import bgImage from '../../../../assets/images/bg_staking.jpg';
 
 const Wrapper = styled.div`
@@ -75,6 +81,8 @@ const WizardStartPage = (props: Props) => {
   const { loadDataAfterNewAccount } = useDashboardData();
   const { goToPage, ROUTES } = useRouting();
   const [showStep2, setStep2Status] = useState(false);
+  const [keyStoreMode, setKeyStoreMode] = useState(Connection.db().get('VALIDATORS_MODE') === 'keystore');
+  const { bloxLiveNeedsUpdate } = useVersions();
 
   const goToDashboard = () => {
     // Reload accounts and event logs before reaching dash
@@ -90,6 +98,7 @@ const WizardStartPage = (props: Props) => {
 
     const hasWallet = wallet && (wallet.status === 'active' || wallet.status === 'offline');
     const hasSeed = Connection.db().exists('seed');
+    setKeyStoreMode(Connection.db().get('VALIDATORS_MODE') === 'keystore');
     const finishedRecoveryOrInstallProcess = Connection.db().get('uuid');
     const isInRecoveryProcess = Connection.db().get('inRecoveryProcess');
     const isPrimaryDevice = !!finishedRecoveryOrInstallProcess && (finishedRecoveryOrInstallProcess === userInfo.uuid);
@@ -105,16 +114,34 @@ const WizardStartPage = (props: Props) => {
       if (!finishedRecoveryOrInstallProcess && !userInfo.uuid && accounts?.length > 0) {
         setModalDisplay({ show: true, type: MODAL_TYPES.DEVICE_SWITCH });
         logger.debug('️️🔶 Redirect to device switch!');
+        if (bloxLiveNeedsUpdate && !Connection.db('').get('ignoreNewBloxLiveVersion')) {
+          setModalDisplay({
+            show: true,
+            type: MODAL_TYPES.MUST_UPDATE_APP,
+            text: <div>You must update Blox app to the <a onClick={() => openExternalLink('download')}>latest version</a> before recovering your account.</div>,
+            displayCloseButton: false
+          });
+          return;
+        }
         return;
       }
       if (userInfo.uuid && ((!isPrimaryDevice && accounts?.length > 0) || isInRecoveryProcess)) {
+        if (bloxLiveNeedsUpdate && !Connection.db('').get('ignoreNewBloxLiveVersion')) {
+          setModalDisplay({
+            show: true,
+            type: MODAL_TYPES.MUST_UPDATE_APP,
+            text: <div>You must update Blox app to the <a onClick={() => openExternalLink('download')}>latest version</a> before recovering your account.</div>,
+            displayCloseButton: false
+          });
+          return;
+        }
         setModalDisplay({ show: true, type: MODAL_TYPES.DEVICE_SWITCH });
         logger.debug('️️🔶 Redirect to device switch!');
         return;
       }
 
       // Having saved seed in the app
-      if (hasSeed) {
+      if (hasSeed || keyStoreMode) {
         // Clicked on "Add Validator" button
         if (addAnotherAccount) {
           redirectToCreateAccount();
@@ -147,22 +174,38 @@ const WizardStartPage = (props: Props) => {
         }
       }
 
+      if (Connection.db().shouldSetupPassword()) {
+        redirectToPasswordSetup();
+        return;
+      }
+
       // No seed and just installed or recovered without accounts
       // Should import or generate seed
       if (finishedRecoveryOrInstallProcess && accounts?.length === 0) {
         if (page === config.WIZARD_PAGES.WALLET.IMPORT_OR_GENERATE_SEED) {
-          setPage(config.WIZARD_PAGES.WALLET.CONGRATULATIONS);
-          logger.debug('️️🔶 Redirect to congratulations after import or generate seed!');
+          redirectToCongratulationsPage();
           return;
         }
-        redirectToImportOrGenerateSeed();
-        logger.debug('️️🔶 Redirect to import or generate seed!');
-        return;
+
+        if (!getSelectedValidatorMode()) {
+          redirectToSelectValidatorMode();
+          return;
+        }
+
+        if (selectedSeedMode()) {
+          redirectToImportOrGenerateSeed();
+          return;
+        }
+
+        if (selectedKeystoreMode()) {
+          // Select network
+          redirectToSelectNetwork();
+          return;
+        }
       }
 
       // After all possible scenarios the only remaining is to return to dash
-      goToDashboard();
-      logger.debug('️️🔶 Redirect to Dashboard!');
+      redirectToDashboard();
     }
   }, [isLoading]);
 
@@ -181,12 +224,41 @@ const WizardStartPage = (props: Props) => {
     }
   };
 
+  const redirectToCongratulationsPage = () => {
+    setPage(config.WIZARD_PAGES.WALLET.CONGRATULATIONS);
+    logger.debug('️️🔶 Redirect to congratulations after import or generate seed!');
+  };
+
+  const redirectToSelectValidatorMode = () => {
+    setPage(config.WIZARD_PAGES.WALLET.SEED_OR_KEYSTORE);
+    setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
+    logger.debug('️️🔶 Redirect to select seed or keystore mode!');
+  };
+
+  const redirectToDashboard = () => {
+    goToDashboard();
+    logger.debug('️️🔶 Redirect to Dashboard!');
+  };
+
+  const redirectToSelectNetwork = () => {
+    setPage(config.WIZARD_PAGES.VALIDATOR.SELECT_NETWORK);
+    setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
+    logger.debug('️️🔶 Redirect to select network!');
+  };
+
   const redirectToImportOrGenerateSeed = () => {
     setPage(config.WIZARD_PAGES.WALLET.IMPORT_OR_GENERATE_SEED);
+    logger.debug('️️🔶 Redirect to import or generate seed!');
+  };
+
+  const redirectToPasswordSetup = () => {
+    setStep(config.WIZARD_STEPS.ACCOUNT_SETUP);
+    setPage(config.WIZARD_PAGES.ACCOUNT.SET_PASSWORD);
+    logger.debug('️️🔶 Redirect to set password screen!');
   };
 
   const redirectToCreateAccount = () => {
-    if (!accounts?.length) {
+    if (!accounts?.length && !keyStoreMode) {
       setStep(config.WIZARD_STEPS.VALIDATOR_SETUP);
       setPage(config.WIZARD_PAGES.WALLET.IMPORT_OR_GENERATE_SEED);
       logger.debug('️️🔶 Redirect to Import or Generate seed because no accounts!');
@@ -226,12 +298,12 @@ const WizardStartPage = (props: Props) => {
 };
 
 const mapStateToProps = (state: State) => ({
-  isLoading: wizardSelectors.getIsLoading(state),
+  userInfo: userSelectors.getInfo(state),
   wallet: wizardSelectors.getWallet(state),
   accounts: accountSelectors.getAccounts(state),
+  isLoading: wizardSelectors.getIsLoading(state),
   isDepositNeeded: accountSelectors.getDepositNeededStatus(state),
   addAnotherAccount: accountSelectors.getAddAnotherAccount(state),
-  userInfo: userSelectors.getInfo(state),
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({

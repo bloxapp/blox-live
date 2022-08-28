@@ -1,14 +1,13 @@
-import config from '../../common/config';
-import { Log } from '../../common/logger/logger';
-import WalletService from '../wallet/wallet.service';
-import VersionService from '../version/version.service';
-import { Catch, CatchClass, Step } from '../../decorators';
-import Connection from '../../common/store-manager/connection';
-import { isVersionHigherOrEqual } from '../../../utils/service';
-import BloxApi from '../../common/communication-manager/blox-api';
-import { METHOD } from '../../common/communication-manager/constants';
-import KeyVaultSsh from '../../common/communication-manager/key-vault-ssh';
-import KeyVaultApi from '../../common/communication-manager/key-vault-api';
+import config from '~app/backend/common/config';
+import { Catch, Step } from '~app/backend/decorators';
+import { Log } from '~app/backend/common/logger/logger';
+import { isVersionHigherOrEqual } from '~app/utils/service';
+import Connection from '~app/backend/common/store-manager/connection';
+import BloxApi from '~app/backend/common/communication-manager/blox-api';
+import VersionService from '~app/backend/services/version/version.service';
+import { METHOD } from '~app/backend/common/communication-manager/constants';
+import KeyVaultSsh from '~app/backend/common/communication-manager/key-vault-ssh';
+import KeyVaultApi from '~app/backend/common/communication-manager/key-vault-api';
 
 function sleep(milliseconds) {
   return new Promise(resolve => {
@@ -16,12 +15,10 @@ function sleep(milliseconds) {
   });
 }
 
-// @CatchClass<KeyVaultService>()
 export default class KeyVaultService {
   private readonly keyVaultSsh: KeyVaultSsh;
   private readonly keyVaultApi: KeyVaultApi;
   private readonly versionService: VersionService;
-  private readonly walletService: WalletService;
   private readonly bloxApi: BloxApi;
   private storePrefix: string;
   private logger: Log;
@@ -31,7 +28,6 @@ export default class KeyVaultService {
     this.keyVaultSsh = new KeyVaultSsh(this.storePrefix);
     this.versionService = new VersionService();
     this.keyVaultApi = new KeyVaultApi(this.storePrefix);
-    this.walletService = new WalletService(this.storePrefix);
     this.bloxApi = new BloxApi();
     this.bloxApi.init();
     this.logger = new Log('key-vault');
@@ -68,6 +64,55 @@ export default class KeyVaultService {
     }
   }
 
+  async getListAccountsRewardKeys() {
+    this.logger.info('try to get keyVault server accounts reward key...');
+    try {
+      const response = await this.keyVaultApi.requestThruSsh({
+        path: 'config',
+        method: METHOD.GET,
+        isNetworkRequired: true
+      });
+      return response?.data;
+    } catch (e) {
+      this.logger.error(e);
+      const { errors } = JSON.parse(e.message);
+      if (Array.isArray(errors)) {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const err of errors) {
+          if (err.includes('wallet not found')) {
+            return [];
+          }
+        }
+      }
+      throw e;
+    }
+  }
+
+  async setListAccountsRewardKeys(payload: object) {
+    this.logger.info('try to set keyVault server accounts reward key...');
+    try {
+      const response = await this.keyVaultApi.requestThruSsh({
+        data: payload,
+        path: 'config',
+        method: METHOD.POST
+      });
+
+      return response?.data;
+    } catch (e) {
+      this.logger.error(e);
+      const { errors } = JSON.parse(e.message);
+      if (Array.isArray(errors)) {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const err of errors) {
+          if (err.includes('wallet not found')) {
+            return [];
+          }
+        }
+      }
+      throw e;
+    }
+  }
+
   async healthCheck() {
     return await this.keyVaultApi.requestThruSsh({
       method: METHOD.GET,
@@ -82,14 +127,22 @@ export default class KeyVaultService {
       path: `ethereum/${config.env.MAINNET_NETWORK}/version`,
       isNetworkRequired: false
     });
-    const pyrmontVersion = await this.keyVaultApi.requestThruSsh({
+
+    let testNetwork = 'pyrmont';
+    const keyVaultVersion = await this.versionService.getLatestKeyVaultVersion();
+    // TODO: move gap version to constant in config.ts
+    if (isVersionHigherOrEqual(keyVaultVersion, 'v1.2.0')) {
+      testNetwork = 'prater';
+    }
+
+    const testnetVersion = await this.keyVaultApi.requestThruSsh({
       method: METHOD.GET,
-      path: `ethereum/${config.env.PYRMONT_NETWORK}/version`,
+      path: `ethereum/${testNetwork}/version`,
       isNetworkRequired: false
     });
     const result = {
       mainnetVersion,
-      pyrmontVersion
+      testnetVersion
     };
     this.logger.trace('KV server healthcheck', result);
     return result;
@@ -180,6 +233,9 @@ export default class KeyVaultService {
       `docker pull  ${dockerHubImage} && docker run -d --restart unless-stopped --cap-add=IPC_LOCK --name=key_vault ` +
       '-v $(pwd)/data:/data ' +
       '-v $(pwd)/policies:/policies ' +
+      '--log-driver json-file ' +
+      '--log-opt max-size=10m ' +
+      '--log-opt max-file=3 ' +
       '-p 8200:8200 ' +
       `-e VAULT_EXTERNAL_ADDRESS='${Connection.db(this.storePrefix).get('publicIp')}' ` +
       '-e UNSEAL=true ' +
@@ -214,7 +270,11 @@ export default class KeyVaultService {
     const dockerHubImage = `bloxstaking/key-vault${envKey === 'production' ? '' : '-rc'}:${keyVaultVersion}`;
     this.logger.info(`Going to run docker based on ${dockerHubImage} keyvault image`);
     const dockerCMD =
-      `docker pull ${dockerHubImage} && docker run -d --name=upgrade_key_vault ${dockerHubImage} && ` +
+      `docker pull ${dockerHubImage} &&` +
+      `docker run -d --name=upgrade_key_vault ${dockerHubImage} ` +
+      '--log-driver json-file ' +
+      '--log-opt max-size=10m ' +
+      '--log-opt max-file=3 && ' +
       'docker cp upgrade_key_vault:/vault/plugins/ethsign ./ &&' +
       'docker cp ethsign key_vault:/vault/plugins/';
     const vaultCMD =
@@ -286,7 +346,7 @@ export default class KeyVaultService {
     name: 'Import key-vault data...',
   })
   async importKeyVaultData(): Promise<any> {
-    const supportedNetworks = [config.env.PYRMONT_NETWORK, config.env.MAINNET_NETWORK];
+    const supportedNetworks = [config.TESTNET_NETWORK, config.env.MAINNET_NETWORK];
     // eslint-disable-next-line no-restricted-syntax
     for (const network of supportedNetworks) {
       Connection.db(this.storePrefix).set('network', network);
@@ -297,6 +357,43 @@ export default class KeyVaultService {
       // eslint-disable-next-line no-await-in-loop
       await this.importSlashingData();
     }
+  }
+
+  @Step({
+    name: 'Import key vault config data...',
+  })
+  async importKeyVaultConfigData({ rewardAddressesData }: { rewardAddressesData?: any }): Promise<any> {
+    const currentNetwork = Connection.db(this.storePrefix).get('network');
+    const supportedNetworks = [config.TESTNET_NETWORK, config.env.MAINNET_NETWORK];
+    // eslint-disable-next-line no-restricted-syntax
+    for (const network of supportedNetworks) {
+      Connection.db(this.storePrefix).set('network', network);
+      if (rewardAddressesData?.network === network && rewardAddressesData) {
+        Connection.db(this.storePrefix).set(`rewardConfig.${network}`, rewardAddressesData);
+      } else {
+        // eslint-disable-next-line no-await-in-loop
+        Connection.db(this.storePrefix).set(`rewardConfig.${network}`, await this.getListAccountsRewardKeys());
+      }
+    }
+    Connection.db(this.storePrefix).set('network', currentNetwork);
+  }
+
+  @Step({
+    name: 'Update key vault config data...',
+  })
+  async updateKeyVaultConfigStorage(): Promise<any> {
+    const currentNetwork = Connection.db(this.storePrefix).get('network');
+    const supportedNetworks = [config.TESTNET_NETWORK, config.env.MAINNET_NETWORK];
+    // eslint-disable-next-line no-restricted-syntax
+    for (const network of supportedNetworks) {
+      Connection.db(this.storePrefix).set('network', network);
+      const configData = Connection.db(this.storePrefix).get(`rewardConfig.${network}`);
+      // save latest network index
+      // eslint-disable-next-line no-await-in-loop
+      await this.setListAccountsRewardKeys(configData);
+      Connection.db(this.storePrefix).delete(`rewardConfig.${network}`);
+    }
+    Connection.db(this.storePrefix).set('network', currentNetwork);
   }
 
   @Step({

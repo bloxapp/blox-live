@@ -1,6 +1,7 @@
 import React from 'react';
-import { KeyCell, Status, Change, Apr, Balance } from './components';
 import { compareFunction } from '~app/common/components/Table/service';
+import RewardAddress from '~app/components/Dashboard/components/Validators/components/RewardAddress';
+import { KeyCell, Status, Change, Apr, Balance } from '~app/components/Dashboard/components/Validators/components';
 
 const formattedBalance = (balance: number | string | null): string | null => {
   if (!balance) {
@@ -14,27 +15,34 @@ const formattedBalance = (balance: number | string | null): string | null => {
 export default [
   {
     key: 'key',
-    title: 'Public Key',
     width: '40%',
+    title: 'Public Key',
     justifyContent: 'flex-start',
-    compareFunction: (a, b, dir) => compareFunction('publicKey', a, b, dir, 'string'),
     valueRender: (value) => <KeyCell value={value} />,
+    compareFunction: (a, b, dir) => compareFunction('publicKey', a, b, dir, 'string'),
+  }, {
+    width: '20%',
+    writable: true,
+    key: 'feeRecipient',
+    justifyContent: 'flex-start',
+    title: 'Fee Recipent Address',
+    valueRender: (_value, _totalCount, item) => <RewardAddress validator={item} />,
   },
   {
-    key: 'currentBalance',
+    width: '10%',
     title: 'Balance',
-    width: '15%',
-    justifyContent: 'flex-end',
+    key: 'currentBalance',
+    justifyContent: 'flex-start',
     compareFunction: (a, b, dir) => compareFunction('currentBalance', a, b, dir, 'number'),
     valueRender: (balance) => {
       return <Balance balance={formattedBalance(balance)} />;
     }
   },
   {
+    width: '10%',
     key: 'change',
     title: 'Change',
-    width: '15%',
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-start',
     compareFunction: (a, b, dir) => compareFunction('change', a, b, dir, 'number'),
     valueRender: (value, _totalCount, item) => {
       return <Change change={item.status === 'pending' ? null : formattedBalance(value)} />;
@@ -42,16 +50,16 @@ export default [
   },
   {
     key: 'apr',
+    width: '10%',
     title: 'Est. APR(%)',
-    width: '18%',
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-start',
     compareFunction: (a, b, dir) => compareFunction('apr', a, b, dir, 'number'),
     valueRender: (change) => <Apr change={change} />,
   },
   {
+    width: '10%',
     key: 'status',
     title: 'Status',
-    width: '12%',
     justifyContent: 'flex-end',
     compareFunction: (a, b, dir) => compareFunction('status', a, b, dir, 'string'),
     valueRender: (value) => <Status status={value} />,

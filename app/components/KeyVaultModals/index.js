@@ -1,8 +1,10 @@
 export { default as WelcomeModal } from './WelcomeModal';
-export { default as PasswordModal } from './PasswordModal';
-export { default as RestartingModal } from './RestartingModal';
-export { default as ReinstallingModal } from './ReinstallingModal';
 export { default as SuccessModal } from './SuccessModal';
 export { default as FailureModal } from './FailureModal';
+export { default as PasswordModal } from './PasswordModal';
 export { default as ThankYouModal } from './ThankYouModal';
+export { default as RestartingModal } from './RestartingModal';
+export { default as ReinstallingModal } from './ReinstallingModal';
 export { default as ConfirmationModal } from './ConfirmationModal';
+export { default as MergeIsComingModal } from './MergeIsComingModal';
+export { default as WalletMustUpgradeModal } from './WalletMustUpgradeModal';

@@ -5,10 +5,10 @@ import Pagination from './Pagination';
 
 const Wrapper = styled.div`
   width: 100%;
-  height: ${({height}) => height || '50px'};
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: flex-end;
+  height: ${({height}) => height || '50px'};
   border-top: solid 1px ${({theme}) => theme.gray300};
 `;
 

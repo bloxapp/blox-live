@@ -46,7 +46,7 @@ const Test = () => {
   const organizationService = new OrganizationService();
   let [env, setEnv] = useState('');
   let [cryptoKey, setCryptoKey] = useState('');
-  let [network, setNetwork] = useState(config.env.PYRMONT_NETWORK);
+  let [network, setNetwork] = useState(config.env.PRATER_NETWORK);
   let [accessKeyId, setAccessKeyId] = useState('');
   let [mnemonic, setMnemonic] = useState('');
   let [publicKey, setPublicKey] = useState('');
@@ -164,7 +164,7 @@ const Test = () => {
           Connection.db().set('network', event.target.value);
           console.log('network:', event.target.value);
         }}>
-          <option value={config.env.PYRMONT_NETWORK}>Test Network</option>
+          <option value={config.env.PRATER_NETWORK}>Test Network</option>
           <option value={config.env.MAINNET_NETWORK}>MainNet Network</option>
         </select>
         <h3>Step 4. Account create</h3>

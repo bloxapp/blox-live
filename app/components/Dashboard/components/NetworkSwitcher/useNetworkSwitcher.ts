@@ -10,6 +10,7 @@ const useNetworkSwitcher = () => {
   const setTestNetShowFlag = (show: boolean) => {
     dispatch(setTestNetShowFlagAction({ testNet: { show }}));
     Connection.db().set(testNetConfigKey, show);
+    Connection.db().set('network', show ? 'prater' : 'mainnet');
   };
 
   return { setTestNetShowFlag };

@@ -1,9 +1,16 @@
-import {call, put, takeLatest} from 'redux-saga/effects';
 import {notification} from 'antd';
-import {LOAD_WALLET, LOAD_DEPOSIT_DATA, UPDATE_ACCOUNT_STATUS} from './actionTypes';
-import * as actions from './actions';
-import WalletService from '../../backend/services/wallet/wallet.service';
-import AccountService from '../../backend/services/account/account.service';
+import { call, put, takeLatest, select } from 'redux-saga/effects';
+import * as actions from '~app/components/Wizard/actions';
+import WalletService from '~app/backend/services/wallet/wallet.service';
+import { getDecryptedKeyStores } from '~app/components/Wizard/selectors';
+import AccountService from '~app/backend/services/account/account.service';
+import { extractKeyStores } from '~app/components/Wizard/helpers/decreyptKeyStores';
+import {
+  LOAD_WALLET,
+  LOAD_DEPOSIT_DATA,
+  UPDATE_ACCOUNT_STATUS,
+  DECRYPT_KEY_STORES
+} from '~app/components/Wizard/actionTypes';
 
 function* onAccountStatusUpdateSuccess() {
   yield put(actions.updateAccountStatusSuccess());
@@ -72,8 +79,45 @@ function* startUpdatingAccountStatus(action) {
   }
 }
 
+function* onDecryptSuccess(response) {
+  if (response) {
+    yield put(actions.decryptKeyStoresSuccess(response));
+  }
+}
+
+function* onDecryptFailure(error, silent?: boolean) {
+  if (!silent) {
+    yield put(actions.decryptKeyStoresFailure(error));
+    notification.error({message: 'Error', description: error.message});
+  }
+}
+
+function* startDecryptKeyStores(action) {
+  const {payload} = action;
+  const {keyStores, password, incrementFilesDecryptedCounter, hashExistingPublicKeys, actionFlow, network} = payload;
+  try {
+    const decryptedKeyStores = yield select(getDecryptedKeyStores);
+    const keyStoresData = yield call(extractKeyStores, {
+      decryptedKeyStores,
+      keyStoresFiles: keyStores,
+      password,
+      callBack: incrementFilesDecryptedCounter,
+      hashExistingPublicKeys,
+      actionFlow,
+      network
+    });
+
+    yield call(onDecryptSuccess, keyStoresData);
+    incrementFilesDecryptedCounter(0);
+  } catch (error) {
+    console.log(error);
+    yield call(onDecryptFailure, error);
+  }
+}
+
 export default function* organizationActions() {
   yield takeLatest(LOAD_WALLET, loadWallet);
   yield takeLatest(LOAD_DEPOSIT_DATA, loadDepositData);
   yield takeLatest(UPDATE_ACCOUNT_STATUS, startUpdatingAccountStatus);
+  yield takeLatest(DECRYPT_KEY_STORES, startDecryptKeyStores);
 }

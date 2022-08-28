@@ -20,18 +20,21 @@ import {
   PasswordModal,
   FailureModal,
   ThankYouModal,
+  WalletMustUpgradeModal,
+  MergeIsComingModal,
   ConfirmationModal } from '~app/components/KeyVaultModals';
+// @ts-ignore
 import imageImportFailed from '../../../Wizard/assets/img-import-failed.svg';
 
 const ModalsManager = (props: Props) => {
   const { dashboardActions, wizardActions, accountsActions, userActions,
-    showModal, modalType, onSuccess, activeValidators, modalData } = props;
+    showModal, modalType, onSuccess, activeValidators, modalData, modalText, displayCloseButton } = props;
   const { clearModalDisplayData, setModalDisplay } = dashboardActions;
-  const { loadWallet, setFinishedWizard } = wizardActions;
+  const { loadWallet, setFinishedWizard, clearDecryptKeyStores, clearDecryptProgress } = wizardActions;
   const { loadAccounts } = accountsActions;
   const { loadUserInfo } = userActions;
-  const { loadDashboardData } = useDashboardData();
   const { goToPage, ROUTES } = useRouting();
+  const { loadDashboardData } = useDashboardData();
 
   const onPasswordSuccess = () => {
     clearModalDisplayData();
@@ -46,6 +49,8 @@ const ModalsManager = (props: Props) => {
   };
 
   const onAccountRecoverySuccess = async () => {
+    clearDecryptKeyStores();
+    clearDecryptProgress();
     setFinishedWizard(true);
     loadUserInfo();
     loadWallet();
@@ -55,35 +60,53 @@ const ModalsManager = (props: Props) => {
     goToPage(ROUTES.DASHBOARD);
   };
 
+  const onClose = () => {
+    clearModalDisplayData();
+    clearDecryptKeyStores();
+    clearDecryptProgress();
+  };
+
   if (showModal) {
     switch (modalType) {
       case MODAL_TYPES.PASSWORD:
         return (
           <PasswordModal
             onClick={onPasswordSuccess}
-            onClose={() => clearModalDisplayData()}
+            onClose={() => onClose()}
           />
         );
       case MODAL_TYPES.REACTIVATION:
         return (
           <KeyVaultReactivation
             onSuccess={() => onKeyVaultProcessSuccess()}
-            onClose={() => clearModalDisplayData()}
+            onClose={() => onClose()}
           />
         );
       case MODAL_TYPES.UPDATE:
         return (
           <KeyVaultUpdate
+            onClose={() => onClose()}
             onSuccess={() => onKeyVaultProcessSuccess()}
-            onClose={() => clearModalDisplayData()}
+            rewardAddressesData={modalData.rewardAddressesData}
+          />
+        );
+      case MODAL_TYPES.MUST_UPDATE_APP:
+        return (
+          <WalletMustUpgradeModal
+            onClose={displayCloseButton ? onClose : null}
+            text={modalText}
           />
         );
       case MODAL_TYPES.DEPOSIT_INFO:
-        return <DepositInfoModal onClose={() => clearModalDisplayData()} />;
+        return <DepositInfoModal onClose={() => onClose()} />;
+
+      case MODAL_TYPES.MERGE_COMING:
+        return <MergeIsComingModal />;
+
       case MODAL_TYPES.ACTIVE_VALIDATOR:
         return activeValidators.length > 0 && (
           <ActiveValidatorModal
-            onClose={() => clearModalDisplayData()}
+            onClose={() => onClose()}
             activeValidators={activeValidators}
           />
         );
@@ -92,7 +115,7 @@ const ModalsManager = (props: Props) => {
         return (
           <AccountRecovery
             onSuccess={() => onAccountRecoverySuccess()}
-            onClose={() => clearModalDisplayData()}
+            onClose={() => onClose()}
             type={modalType}
           />
         );
@@ -103,7 +126,7 @@ const ModalsManager = (props: Props) => {
             subtitle="Please contact our support to help with the import."
             customImage={imageImportFailed}
             onClose={() => {
-              clearModalDisplayData();
+              onClose();
               goToPage(ROUTES.DASHBOARD);
             }}
             onClick={() => {
@@ -117,7 +140,7 @@ const ModalsManager = (props: Props) => {
             onClose={async () => {
               setFinishedWizard(true);
               await loadDashboardData();
-              clearModalDisplayData();
+              onClose();
               goToPage(ROUTES.DASHBOARD);
             }}
             customImage={imageImportFailed}
@@ -129,8 +152,8 @@ const ModalsManager = (props: Props) => {
         return (
           <ConfirmationModal
             text={modalData.text}
-            confirmation={modalData.confirmation}
             onSuccess={modalData.onSuccess}
+            confirmation={modalData.confirmation}
           />
         );
       default:
@@ -141,19 +164,20 @@ const ModalsManager = (props: Props) => {
 };
 
 const mapStateToProps = (state) => ({
-  showModal: selectors.getModalDisplayStatus(state),
   modalType: selectors.getModalType(state),
   modalText: selectors.getModalText(state),
-  onSuccess: selectors.getModalOnSuccess(state),
-  activeValidators: getActiveValidators(state),
   modalData: selectors.getModalData(state),
+  activeValidators: getActiveValidators(state),
+  onSuccess: selectors.getModalOnSuccess(state),
+  showModal: selectors.getModalDisplayStatus(state),
+  displayCloseButton: selectors.getModalDisplayCloseButton(state),
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  dashboardActions: bindActionCreators(actionsFromDashboard, dispatch),
+  userActions: bindActionCreators(actionsFromUser, dispatch),
   wizardActions: bindActionCreators(actionsFromWizard, dispatch),
   accountsActions: bindActionCreators(actionsFromAccounts, dispatch),
-  userActions: bindActionCreators(actionsFromUser, dispatch),
+  dashboardActions: bindActionCreators(actionsFromDashboard, dispatch),
 });
 
 type Props = {
@@ -163,6 +187,7 @@ type Props = {
   userActions: Record<string, any>;
   showModal: boolean;
   modalType: string;
+  displayCloseButton: boolean;
   modalText: string;
   onSuccess: () => void;
   activeValidators: [{ publicKey: string }],

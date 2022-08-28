@@ -1,25 +1,28 @@
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useInjectSaga } from 'utils/injectSaga';
-
-import passwordSaga from 'components/PasswordHandler/saga';
-import { savePassword } from 'components/PasswordHandler/actions';
-import useProcessRunner from 'components/ProcessRunner/useProcessRunner';
-
-import userSaga from 'components/User/saga';
-import { loadUserInfo } from 'components/User/actions';
+import userSaga from '~app/components/User/saga';
+import { loadUserInfo } from '~app/components/User/actions';
+import passwordSaga from '~app/components/PasswordHandler/saga';
+import { savePassword } from '~app/components/PasswordHandler/actions';
+import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 
 const passwordKey = 'password';
 const userKey = 'user';
 
-const useCreateServer = ({onStart, onSuccess}: Props) => {
+type Credentials = {
+  accessKeyId: string;
+  secretAccessKey: string;
+};
+
+const useCreateServer = (props: useCreateServerProps) => {
   useInjectSaga({ key: passwordKey, saga: passwordSaga, mode: '' });
   useInjectSaga({ key: userKey, saga: userSaga, mode: '' });
-  const dispatch = useDispatch();
 
+  const dispatch = useDispatch();
+  const { onStart, onSuccess, inputData } = props;
   const { isLoading, isDone, error, processName, processMessage,
           startProcess, clearProcessState, loaderPercentage } = useProcessRunner();
-
   const [accessKeyId, setAccessKeyId] = useState('');
   const [secretAccessKey, setSecretAccessKey] = useState('');
   const isButtonDisabled = !accessKeyId || !secretAccessKey || isLoading || (isDone && !error);
@@ -37,7 +40,7 @@ const useCreateServer = ({onStart, onSuccess}: Props) => {
     if (!isButtonDisabled && !processMessage && !processName) {
       name === 'install' && dispatch(savePassword('temp'));
       const credentials: Credentials = { accessKeyId, secretAccessKey };
-      await startProcess(name, 'Checking KeyVault configuration...', { credentials });
+      await startProcess(name, 'Checking KeyVault configuration...', { credentials, inputData });
       onStart && onStart();
     }
   };
@@ -46,14 +49,10 @@ const useCreateServer = ({onStart, onSuccess}: Props) => {
            secretAccessKey, setSecretAccessKey, onStartProcessClick, isPasswordInputDisabled, isButtonDisabled };
 };
 
-type Props = {
+type useCreateServerProps = {
+  inputData?: any;
   onStart?: () => void;
   onSuccess?: () => void;
-};
-
-type Credentials = {
-  accessKeyId: string;
-  secretAccessKey: string;
 };
 
 export default useCreateServer;

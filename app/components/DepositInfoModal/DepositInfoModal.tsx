@@ -1,17 +1,15 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import styled from 'styled-components';
 import { notification } from 'antd';
-
-import { CustomModal, Tooltip, InfoWithTooltip } from 'common/components';
-import { openExternalLink } from '../common/service';
-
-import { CopyToClipboardIcon, Link } from '../Wizard/components/common';
-import { generateDepositDataInfo } from '../Wizard/components/Validators/service';
-import { NETWORKS } from '../Wizard/components/Validators/constants';
-import * as wizardActions from '../Wizard/actions';
-import { getDepositData } from '../Wizard/selectors';
+import { connect } from 'react-redux';
+import styled from 'styled-components';
+import { bindActionCreators } from 'redux';
+import * as wizardActions from '~app/components/Wizard/actions';
+import { openExternalLink } from '~app/components/common/service';
+import { getDepositData } from '~app/components/Wizard/selectors';
+import { CustomModal, Tooltip, InfoWithTooltip } from '~app/common/components';
+import { NETWORKS } from '~app/components/Wizard/components/Validators/constants';
+import { CopyToClipboardIcon, Link } from '~app/components/Wizard/components/common';
+import { generateDepositDataInfo } from '~app/components/Wizard/components/Validators/service';
 
 const InnerWrapper = styled.div`
   width:100%;
@@ -107,12 +105,13 @@ const DepositInfoModal = ({onClose, depositData, actions}: Props) => {
             </Row>
           );
         })}
-        {depositData?.network === NETWORKS.pyrmont.label && (
+        {depositData?.network === NETWORKS.prater.label && (
           <WarningText>
             Make sure you send GoETH Testnet tokens and not real ETH!
           </WarningText>
         )}
         <Row>
+          { /* eslint-disable-next-line jsx-a11y/anchor-is-valid,jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */ }
           <Link onClick={() => openExternalLink(needHelpLink)}>
             Need help?
           </Link>

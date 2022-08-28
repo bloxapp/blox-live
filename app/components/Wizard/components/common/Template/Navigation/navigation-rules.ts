@@ -1,4 +1,5 @@
 import config from '~app/backend/common/config';
+import { selectedKeystoreMode } from '~app/common/service';
 
 /**
  * Should indicate import validator page in navigation?
@@ -6,7 +7,8 @@ import config from '~app/backend/common/config';
 const showImportValidatorPage = (props: Record<string, any>): boolean => {
   return [
     config.WIZARD_PAGES.WALLET.IMPORT_MNEMONIC,
-    config.WIZARD_PAGES.WALLET.IMPORT_VALIDATORS
+    config.WIZARD_PAGES.WALLET.IMPORT_VALIDATORS,
+    config.WIZARD_PAGES.WALLET.IMPORT_VALIDATORS_REWARD_ADDRESS
   ].indexOf(props.page) !== -1;
 };
 
@@ -17,8 +19,9 @@ const showCreateValidatorPage = (props: Record<string, any>): boolean => {
   return [
     config.WIZARD_PAGES.WALLET.ENTER_MNEMONIC,
     config.WIZARD_PAGES.VALIDATOR.SELECT_NETWORK,
+    config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT,
     config.WIZARD_PAGES.VALIDATOR.CREATE_VALIDATOR,
-    config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT
+    config.WIZARD_PAGES.VALIDATOR.REWARD_ADDRESS
   ].indexOf(props.page) !== -1;
 };
 
@@ -33,7 +36,6 @@ const navigationRules = [
       if (props.accounts?.length === 1) {
         return [
           config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS,
-          config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT
         ].indexOf(props.page) !== -1;
       }
       return !props.accounts?.length;
@@ -70,6 +72,31 @@ const navigationRules = [
     separator: true
   },
   {
+    name: 'Account Setup',
+    step: config.WIZARD_STEPS.ACCOUNT_SETUP,
+    show: () => true,
+    done: (props: Record<string, any>): boolean => {
+      return !props.shouldSetupPassword && props.page > config.WIZARD_STEPS.ACCOUNT_SETUP;
+    },
+    active: (props: Record<string, any>): boolean => {
+      return props.step === config.WIZARD_STEPS.ACCOUNT_SETUP;
+    },
+    hideNumber: (): boolean => false,
+    pages: [
+      {
+        name: 'Set Password',
+        page: config.WIZARD_PAGES.ACCOUNT.SET_PASSWORD,
+        done: (props: Record<string, any>): boolean => {
+          return !props.shouldSetupPassword;
+        },
+        show: (props: Record<string, any>): boolean => {
+          return props.page === config.WIZARD_PAGES.ACCOUNT.SET_PASSWORD;
+        }
+      },
+    ],
+    separator: true
+  },
+  {
     name: 'Validator Setup',
     step: config.WIZARD_STEPS.VALIDATOR_SETUP,
     show: () => true,
@@ -93,10 +120,10 @@ const navigationRules = [
     },
     pages: [
       {
-        name: 'Import/Create Seed',
-        page: config.WIZARD_PAGES.WALLET.IMPORT_OR_GENERATE_SEED,
+        name: 'Seed or Keystore',
+        page: config.WIZARD_PAGES.WALLET.SEED_OR_KEYSTORE,
         done: (props: Record<string, any>): boolean => {
-          return props.page > config.WIZARD_PAGES.WALLET.IMPORT_OR_GENERATE_SEED;
+          return props.page > config.WIZARD_PAGES.WALLET.SEED_OR_KEYSTORE;
         },
         show: (props: Record<string, any>): boolean => {
           if (props.accounts?.length === 1) {
@@ -111,6 +138,37 @@ const navigationRules = [
           if (props.page === config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT) {
             return false;
           }
+          if (props.step === config.WIZARD_STEPS.VALIDATOR_SETUP) {
+            return true;
+          }
+          return showCreateValidatorPage(props);
+        }
+      },
+      {
+        name: 'Import/Create Seed',
+        page: config.WIZARD_PAGES.WALLET.IMPORT_OR_GENERATE_SEED,
+        done: (props: Record<string, any>): boolean => {
+          return props.page > config.WIZARD_PAGES.WALLET.IMPORT_OR_GENERATE_SEED;
+        },
+        show: (props: Record<string, any>): boolean => {
+          if (selectedKeystoreMode()) {
+            return false;
+          }
+          if (props.accounts?.length === 1) {
+            return props.page === config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT;
+          }
+          if (props.addAdditionalAccount) {
+            return false;
+          }
+          if (props.pageData?.finishValidatorSetup) {
+            return false;
+          }
+          if (props.page === config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT) {
+            return false;
+          }
+          if (props.page === config.WIZARD_PAGES.WALLET.IMPORT_OR_GENERATE_SEED) {
+            return true;
+          }
           return showCreateValidatorPage(props);
         }
       },
@@ -121,6 +179,9 @@ const navigationRules = [
           return props.page > config.WIZARD_PAGES.WALLET.ENTER_MNEMONIC;
         },
         show: (props: Record<string, any>): boolean => {
+          if (selectedKeystoreMode()) {
+            return false;
+          }
           if (props.pageData?.finishValidatorSetup) {
             return false;
           }
@@ -139,7 +200,12 @@ const navigationRules = [
         done: (props: Record<string, any>): boolean => {
           return props.page > config.WIZARD_PAGES.VALIDATOR.SELECT_NETWORK;
         },
-        show: showCreateValidatorPage
+        show: (props: Record<string, any>): boolean => {
+          if (selectedKeystoreMode()) {
+            return true;
+          }
+          return showCreateValidatorPage(props);
+        }
       },
       {
         name: 'Generate Keys',
@@ -147,16 +213,8 @@ const navigationRules = [
         done: (props: Record<string, any>): boolean => {
           return props.page > config.WIZARD_PAGES.VALIDATOR.CREATE_VALIDATOR;
         },
-        show: showCreateValidatorPage
-      },
-      {
-        name: 'Staking Deposit',
-        page: config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT,
-        done: (props: Record<string, any>): boolean => {
-          return props.page > config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT;
-        },
-        show: (props: Record<string, any>) => {
-          if (props.pageData?.newValidatorDeposited) {
+        show: (props: Record<string, any>): boolean => {
+          if (selectedKeystoreMode()) {
             return false;
           }
           return showCreateValidatorPage(props);
@@ -177,6 +235,83 @@ const navigationRules = [
           return props.page > config.WIZARD_PAGES.WALLET.IMPORT_VALIDATORS;
         },
         show: showImportValidatorPage
+      },
+      {
+        name: 'Upload Keystore File',
+        page: config.WIZARD_PAGES.VALIDATOR.UPLOAD_KEYSTORE_FILE,
+        done: (props: Record<string, any>): boolean => {
+          return props.page > config.WIZARD_PAGES.VALIDATOR.UPLOAD_KEYSTORE_FILE;
+        },
+        show: (): boolean => {
+          return selectedKeystoreMode();
+          // return showCreateValidatorPage(props);
+        }
+      },
+      {
+        name: 'Validator Summary',
+        page: config.WIZARD_PAGES.VALIDATOR.VALIDATOR_SUMMARY,
+        done: (props: Record<string, any>): boolean => {
+          return props.page > config.WIZARD_PAGES.VALIDATOR.VALIDATOR_SUMMARY;
+        },
+        show: (): boolean => {
+          return selectedKeystoreMode();
+        }
+      },
+      {
+        name: 'Slashing Warning',
+        page: config.WIZARD_PAGES.VALIDATOR.SLASHING_WARNING,
+        done: (props: Record<string, any>): boolean => {
+          return props.page > config.WIZARD_PAGES.VALIDATOR.SLASHING_WARNING;
+        },
+        show: (props: Record<string, any>): boolean => {
+          return props.seedLessNeedDeposit === false;
+        }
+      },
+      {
+        name: 'Fee Recipent Address',
+        page: config.WIZARD_PAGES.WALLET.IMPORT_VALIDATORS_REWARD_ADDRESS,
+        done: (props: Record<string, any>): boolean => {
+          return props.page > config.WIZARD_PAGES.WALLET.IMPORT_VALIDATORS_REWARD_ADDRESS;
+        },
+        show: (props: Record<string, any>): boolean => {
+          return showImportValidatorPage(props);
+        }
+      },
+      {
+        name: 'Fee Recipent Address',
+        page: config.WIZARD_PAGES.VALIDATOR.REWARD_ADDRESS,
+        done: (props: Record<string, any>): boolean => {
+          return props.page > config.WIZARD_PAGES.VALIDATOR.SLASHING_WARNING;
+        },
+        show: (props: Record<string, any>): boolean => {
+          return showCreateValidatorPage(props) || selectedKeystoreMode();
+        }
+      },
+      {
+        name: 'Staking Deposit',
+        page: config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT,
+        done: (props: Record<string, any>): boolean => {
+          return props.page > config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT;
+        },
+        show: (props: Record<string, any>) => {
+          if (props.pageData?.newValidatorDeposited) {
+            return false;
+          }
+          if (selectedKeystoreMode()) {
+            return false;
+          }
+          return showCreateValidatorPage(props);
+        }
+      },
+      {
+        name: 'Deposit Overview',
+        page: config.WIZARD_PAGES.VALIDATOR.DEPOSIT_OVERVIEW,
+        done: (props: Record<string, any>): boolean => {
+          return props.page > config.WIZARD_PAGES.VALIDATOR.DEPOSIT_OVERVIEW;
+        },
+        show: (props: Record<string, any>): boolean => {
+          return selectedKeystoreMode() && !!props.seedLessNeedDeposit;
+        }
       },
     ]
   }

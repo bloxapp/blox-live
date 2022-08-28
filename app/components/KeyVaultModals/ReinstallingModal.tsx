@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { Log } from '~app/backend/common/logger/logger';
 import { getProcessNameForUpdate } from '~app/utils/process';
+import { getInputData } from '~app/utils/getInputDataForProccess';
 import * as wizardSelectors from '~app/components/Wizard/selectors';
 import { PROCESSES } from '~app/components/ProcessRunner/constants';
 import { ProcessLoader, ModalTemplate } from '~app/common/components';
@@ -13,7 +14,9 @@ import {
   SmallText,
   Wrapper
 } from '~app/common/components/ModalTemplate/components';
+import { getAccounts } from '~app/components/Accounts/selectors';
 import * as keyVaultSelectors from '~app/components/KeyVaultManagement/selectors';
+import { getDecryptedKeyStores, getWalletSeedlessFlag } from '~app/components/Wizard/selectors';
 
 const logger = new Log('ReinstallingModal');
 
@@ -28,7 +31,7 @@ const ReinstallingModal = (props: Props) => {
     startProcess, clearProcessState, loaderPercentage, error } = useProcessRunner();
   const {
     title, description, move1StepForward, move2StepsForward, suggestedProcess,
-    onClose, image, keyVaultCurrentVersion, keyVaultLatestVersion } = props;
+    onClose, image, keyVaultCurrentVersion, keyVaultLatestVersion, accounts, decryptedKeyStores, rewardAddressesData, isSeedless } = props;
   const [reinstallStarted, startReinstall] = useState(false);
   const [modalTitle, setModalTitle] = useState(title);
   const [modalDescription, setModalDescription] = useState(description);
@@ -75,7 +78,8 @@ const ReinstallingModal = (props: Props) => {
         // Default previous flow for reinstall
         if (noProcess && !reinstallStarted) {
           logger.debug('Starting default reinstall process as initial process..');
-          startProcess(currentProcessName, processDefaultMessage);
+          startProcess(currentProcessName, processDefaultMessage,
+            {inputData: getInputData({isSeedless, accounts, decryptedKeyStores}), rewardAddressesData});
           return;
         }
         if (isDone) {
@@ -109,16 +113,23 @@ const ReinstallingModal = (props: Props) => {
 type Props = {
   image: string;
   title: string;
-  keyVaultCurrentVersion: string;
-  keyVaultLatestVersion: string;
+  accounts: Array<any>;
   description?: string;
-  move1StepForward: () => void;
-  move2StepsForward: () => void;
   onClose?: () => void;
+  isSeedless?: boolean;
   suggestedProcess?: string;
+  rewardAddressesData?: any;
+  move1StepForward: () => void;
+  keyVaultLatestVersion: string;
+  move2StepsForward: () => void;
+  keyVaultCurrentVersion: string;
+  decryptedKeyStores: Array<any>;
 };
 
 const mapStateToProps = (state: State) => ({
+  accounts: getAccounts(state),
+  isSeedless: getWalletSeedlessFlag(state),
+  decryptedKeyStores: getDecryptedKeyStores(state),
   keyVaultCurrentVersion: wizardSelectors.getWalletVersion(state),
   keyVaultLatestVersion: keyVaultSelectors.getLatestVersion(state),
 });

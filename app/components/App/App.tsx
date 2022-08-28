@@ -64,8 +64,14 @@ const AppRouter = ({ isLoggedIn }: AppRouterProps) => {
 
 const AppWrapper = styled.div`
   margin: 0 auto;
-  border-radius: 20px;
   height: 100%;
+  overflow: hidden;
+  overflow-y: scroll;
+  ::-webkit-scrollbar {
+    width: 0;  /* Remove scrollbar space */
+    background: transparent;  /* Optional: just make scrollbar invisible */
+  }
+
 `;
 
 const App = (props: AppProps) => {
@@ -184,10 +190,7 @@ const App = (props: AppProps) => {
     if (!didInitApp) {
       init();
     }
-    deepLink(
-      newAccessToken,
-      loginFailure
-    );
+    deepLink(newAccessToken, loginFailure);
     onLoginButtonClickedSubscribe();
     accessTokenRefreshedSubscribe();
     invalidTokenSubscribe();

@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
+import { bindActionCreators } from 'redux';
 import config from '~app/backend/common/config';
 import { Loader, DiscordButton } from '~app/common/components';
 import EventLogs from '~app/components/Dashboard/components/EventLogs';
@@ -13,8 +14,11 @@ import {
   normalizeEventLogs,
   accountsHaveMoreThanOneNetwork
 } from '~app/components/Dashboard/service';
+import { MODAL_TYPES } from '~app/components/Dashboard/constants';
+import * as actionsFromDashboard from '~app/components/Dashboard/actions';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 import { clearWizardPage, clearWizardPageData, clearWizardStep } from '~app/components/Wizard/actions';
+import useNetworkSwitcher from '~app/components/Dashboard/components/NetworkSwitcher/useNetworkSwitcher';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -26,17 +30,38 @@ const Wrapper = styled.div`
 `;
 
 const Dashboard = (props) => {
-  const { walletStatus, accounts, eventLogs, callClearWizardPageData,
-    callClearWizardStep, callClearWizardPage, walletVersion, walletNeedsUpdate,
-    bloxLiveNeedsUpdate, isTestNetShow } = props;
+  const {
+    accounts,
+    eventLogs,
+    walletStatus,
+    walletVersion,
+    isTestNetShow,
+    isMergePopUpSeen,
+    dashboardActions,
+    walletNeedsUpdate,
+    callClearWizardStep,
+    bloxLiveNeedsUpdate,
+    callClearWizardPage,
+    callClearWizardPageData
+  } = props;
+
+  const {setModalDisplay, setModalMergeAsSeen} = dashboardActions;
+  const { setTestNetShowFlag } = useNetworkSwitcher();
+  const { clearProcessState, isLoading, isDone } = useProcessRunner();
   const showNetworkSwitcher = accountsHaveMoreThanOneNetwork(accounts);
   const [filteredAccounts, setFilteredAccounts] = React.useState(null);
   const [accountsSummary, setAccountsSummary] = React.useState(null);
   const [normalizedAccounts, setNormalizedAccounts] = React.useState(null);
   const [normalizedEventLogs, setNormalizedEventLogs] = React.useState(null);
-  const { clearProcessState, isLoading, isDone } = useProcessRunner();
 
   React.useEffect(() => {
+    const mainnetValidators = accounts.find((validator) => !validator.feeRecipient && validator.network === config.env.MAINNET_NETWORK);
+    if (!isMergePopUpSeen && mainnetValidators !== undefined) {
+      setTestNetShowFlag(false);
+      setModalDisplay({ show: true, type: MODAL_TYPES.MERGE_COMING });
+      setModalMergeAsSeen();
+    }
+
     if (!isLoading && isDone) {
       clearProcessState();
     }
@@ -55,7 +80,7 @@ const Dashboard = (props) => {
         if (!isTestNetShow) {
           return account.network === config.env.MAINNET_NETWORK;
         }
-        return account.network === config.env.PYRMONT_NETWORK;
+        return account.network === config.env.PRATER_NETWORK;
       }));
     } else {
       setFilteredAccounts(null);
@@ -113,26 +138,30 @@ const Dashboard = (props) => {
 };
 
 Dashboard.propTypes = {
-  walletNeedsUpdate: PropTypes.bool,
-  walletStatus: PropTypes.string,
-  walletVersion: PropTypes.string,
   accounts: PropTypes.array,
   eventLogs: PropTypes.array,
-  bloxLiveNeedsUpdate: PropTypes.bool,
   isTestNetShow: PropTypes.bool,
-  callClearWizardPageData: PropTypes.func,
+  walletStatus: PropTypes.string,
+  walletVersion: PropTypes.string,
+  isMergePopUpSeen: PropTypes.bool,
+  dashboardActions: PropTypes.any,
+  walletNeedsUpdate: PropTypes.bool,
   callClearWizardPage: PropTypes.func,
   callClearWizardStep: PropTypes.func,
+  bloxLiveNeedsUpdate: PropTypes.bool,
+  callClearWizardPageData: PropTypes.func,
 };
 
 const mapStateToProps = (state) => ({
-  isTestNetShow: dashboardSelectors.getTestNetShowFlag(state)
+  isTestNetShow: dashboardSelectors.getTestNetShowFlag(state),
+  isMergePopUpSeen: dashboardSelectors.getMergePopUpSeen(state)
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  callClearWizardPageData: () => dispatch(clearWizardPageData()),
   callClearWizardPage: () => dispatch(clearWizardPage()),
-  callClearWizardStep: () => dispatch(clearWizardStep())
+  callClearWizardStep: () => dispatch(clearWizardStep()),
+  callClearWizardPageData: () => dispatch(clearWizardPageData()),
+  dashboardActions: bindActionCreators(actionsFromDashboard, dispatch)
 });
 
 type Dispatch = (arg0: { type: string }) => any;

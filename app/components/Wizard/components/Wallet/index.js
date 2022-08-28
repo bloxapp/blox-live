@@ -6,3 +6,4 @@ export { default as CongratulationPage } from './CongratulationPage';
 export { default as Guide } from './Guide';
 export { default as ImportOrGenerateSeed } from './ImportOrGenerateSeed';
 export { default as ImportValidators } from '../Validators/ImportValidators';
+export { default as SeedOrKeystore } from '../Validators/SeedOrKeystore';

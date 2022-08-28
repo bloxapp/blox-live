@@ -1,12 +1,12 @@
 import net from 'net';
 import * as AWS from 'aws-sdk';
 import { v4 as uuidv4 } from 'uuid';
-import config from '../../common/config';
-import UserService from '../users/users.service';
-import { Log } from '../../common/logger/logger';
-import VersionService from '../version/version.service';
-import { Catch, CatchClass, Step } from '../../decorators';
-import Connection from '../../common/store-manager/connection';
+import config from '~app/backend/common/config';
+import { Log } from '~app/backend/common/logger/logger';
+import { Catch, CatchClass, Step } from '~app/backend/decorators';
+import UserService from '~app/backend/services/users/users.service';
+import Connection from '~app/backend/common/store-manager/connection';
+import VersionService from '~app/backend/services/version/version.service';
 
 // TODO import from .env
 const defaultAwsOptions = {
@@ -106,16 +106,46 @@ export default class AwsService {
     Connection.db(this.storePrefix).set('publicIp', publicIp);
   }
 
-  @Step({
-    name: 'Setting security group permissions...'
-  })
-  async createSecurityGroup() {
-    // validate if in main.json we have port AND port === TARGET PORT (2200)
-    if (Connection.db(this.storePrefix).exists('port') && Connection.db(this.storePrefix).get('port') === config.env.TARGET_SSH_PORT) {
-      Connection.db(this.storePrefix).delete('port');
-      return;
+  /**
+   * Build security group permissions depending of which sate of instance setup we're on.
+   */
+  getSecurityGroupPermissions({ defaultSshPort, customSshPort, httpPort }: { defaultSshPort?: boolean, customSshPort?: boolean, httpPort?: boolean }): any[] {
+    const securityGroupPermissions = [];
+    if (httpPort) {
+      securityGroupPermissions.push({
+        IpProtocol: 'tcp',
+        FromPort: 8200,
+        ToPort: 8200,
+        IpRanges: [{ CidrIp: '0.0.0.0/0' }]
+      });
     }
+    if (defaultSshPort) {
+      securityGroupPermissions.push({
+        IpProtocol: 'tcp',
+        FromPort: 22,
+        ToPort: 22,
+        IpRanges: [{ CidrIp: '0.0.0.0/0' }]
+      });
+    }
+    if (customSshPort) {
+      securityGroupPermissions.push({
+        IpProtocol: 'tcp',
+        FromPort: config.env.TARGET_SSH_PORT,
+        ToPort: config.env.TARGET_SSH_PORT,
+        IpRanges: [{ CidrIp: '0.0.0.0/0' }]
+      });
+    }
+    return securityGroupPermissions;
+  }
 
+  /**
+   * If security group exists - return it's ID otherwise create it and return ID.
+   */
+  async getSecurityGroupId() {
+    const securityGroupId = Connection.db(this.storePrefix).get('securityGroupId');
+    if (securityGroupId) {
+      return securityGroupId;
+    }
     const vpcList = await this.ec2.describeVpcs().promise();
     if (!vpcList || !Array.isArray(vpcList.Vpcs)) {
       this.logger.error('wrong vpcList', vpcList);
@@ -130,33 +160,69 @@ export default class AwsService {
         VpcId: vpc
       })
       .promise();
-    const securityGroupId = securityData.GroupId;
-    await this.ec2
-      .authorizeSecurityGroupIngress({
-        GroupId: securityGroupId,
-        IpPermissions: [
-          {
-            IpProtocol: 'tcp',
-            FromPort: 8200,
-            ToPort: 8200,
-            IpRanges: [{ CidrIp: '0.0.0.0/0' }]
-          },
-          {
-            IpProtocol: 'tcp',
-            FromPort: 22,
-            ToPort: 22,
-            IpRanges: [{ CidrIp: '0.0.0.0/0' }]
-          },
-          {
-            IpProtocol: 'tcp',
-            FromPort: config.env.TARGET_SSH_PORT,
-            ToPort: config.env.TARGET_SSH_PORT,
-            IpRanges: [{ CidrIp: '0.0.0.0/0' }]
-          }
-        ]
-      }).promise();
-      Connection.db(this.storePrefix).set('securityGroupId', securityGroupId);
+    Connection.db(this.storePrefix).set('securityGroupId', securityData.GroupId);
+    return securityData.GroupId;
+  }
+
+  @Step({
+    name: 'Setting security group permissions...'
+  })
+  async createSecurityGroup() {
+    const securityGroupId = await this.getSecurityGroupId();
+    // validate if in main.json we have port AND port === TARGET PORT (2200)
+    if (Connection.db(this.storePrefix).exists('port') && Connection.db(this.storePrefix).get('port') === config.env.TARGET_SSH_PORT) {
+      // If port 2200 exists in blox.json, it means that:
+      //  1) security group already created before with all ports opened
+      //  2) this security group is used for all blox-live-related instances
+      //  3) and port 22 is closed (it is closed after each new instance installation)
+      // Because of this on reinstall we will not be able to access newly created instance.
+      // In order to fix it, we should open port 22 again, and after reinstall close it again.
+      if (securityGroupId) {
+        const IpPermissions = this.getSecurityGroupPermissions({ defaultSshPort: true });
+        // Revoke it first, in case if on any failure before - we didn't revoke it before.
+        // If we didn't revoke it before and rule exists as ALLOW - it will fail entire process as "Already exists ALLOW rule"
+        await this.ec2.revokeSecurityGroupIngress({
+          GroupId: securityGroupId,
+          IpPermissions,
+        }).promise();
+        await this.ec2.authorizeSecurityGroupIngress({
+          GroupId: securityGroupId,
+          IpPermissions,
+        }).promise();
+      }
+      // Only after opening port 22 we can delete custom 2200 port in order to access new instance on port 22.
       Connection.db(this.storePrefix).delete('port');
+      return;
+    }
+
+    // Authorize all ports on new instance
+    const IpPermissions = this.getSecurityGroupPermissions({
+      defaultSshPort: true,
+      customSshPort: true,
+      httpPort: true
+    });
+    await this.ec2.authorizeSecurityGroupIngress({
+      GroupId: securityGroupId,
+      IpPermissions,
+    }).promise();
+
+    Connection.db(this.storePrefix).delete('port');
+  }
+
+  @Step({
+    name: 'Optimizing security...'
+  })
+  async optimizeInstanceSecurity() {
+    const securityGroupId = await this.getSecurityGroupId();
+    if (!securityGroupId) {
+      this.logger.error('securityGroupId is not set!');
+      throw new Error('No security group exists in configuration file.');
+    }
+    const IpPermissions = this.getSecurityGroupPermissions({ defaultSshPort: true });
+    await this.ec2.revokeSecurityGroupIngress({
+      GroupId: securityGroupId,
+      IpPermissions,
+    }).promise();
   }
 
   @Step({
@@ -166,7 +232,7 @@ export default class AwsService {
     if (Connection.db(this.storePrefix).exists('instanceId')) return;
 
     const data = await this.ec2.runInstances({
-      ImageId: 'ami-0d3caf10672b8e870', // Amazon Linux. for us-west-1
+      ImageId: 'ami-0338d09808e6554d5', // Amazon Linux. for us-west-1
       InstanceType: 't2.micro',
       SecurityGroupIds: [Connection.db(this.storePrefix).get('securityGroupId')],
       KeyName: `${this.keyName}-${Connection.db(this.storePrefix).get('uuid')}`,

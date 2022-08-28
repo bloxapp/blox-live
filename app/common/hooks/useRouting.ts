@@ -44,10 +44,11 @@ const useRouting = () => {
   };
 
   ROUTES.WIZARD = `${ROUTES.LOGGED_IN}/wizard`;
-  ROUTES.SETTINGS = `${ROUTES.LOGGED_IN}/settings`;
-  ROUTES.DASHBOARD = `${ROUTES.LOGGED_IN}/dashboard`;
   ROUTES.TEST_PAGE = `${ROUTES.LOGGED_IN}/test`;
+  ROUTES.SETTINGS = `${ROUTES.LOGGED_IN}/settings`;
   ROUTES.LOGIN_CALLBACK = `${ROUTES.LOGIN}/callback`;
+  ROUTES.DASHBOARD = `${ROUTES.LOGGED_IN}/dashboard`;
+  ROUTES.REWARD_ADDRESSES = `${ROUTES.LOGGED_IN}/reward_addresses`;
 
   return {
     goToPage,

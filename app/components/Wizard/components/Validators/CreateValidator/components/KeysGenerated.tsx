@@ -45,7 +45,7 @@ const KeysGenerated = (props: Props) => {
   };
 
   useEffect(() => {
-    setTestNetShowFlag(validatorData.network === config.env.PYRMONT_NETWORK);
+    setTestNetShowFlag(validatorData.network === config.env.PRATER_NETWORK);
     setPageData({
       newValidatorDeposited: validatorData.deposited
     });
@@ -68,18 +68,9 @@ const KeysGenerated = (props: Props) => {
         Withdrawal Credentials
       </SubTitle>
       <KeyWrapper>{depositData.withdrawalCredentials}</KeyWrapper>
-
-      {!validatorData.deposited && (
-        <BigButton onClick={onClick}>
-          Continue to Staking Deposit
-        </BigButton>
-      )}
-
-      {validatorData.deposited && (
-        <BigButton onClick={onGoToDashboardClick}>
-          Continue to Dashboard
-        </BigButton>
-      )}
+      <BigButton onClick={!validatorData.deposited ? onClick : onGoToDashboardClick}>
+        Set reward proposal address
+      </BigButton>
     </>
   );
 };
