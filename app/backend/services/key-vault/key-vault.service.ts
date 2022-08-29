@@ -75,16 +75,7 @@ export default class KeyVaultService {
       return response?.data;
     } catch (e) {
       this.logger.error(e);
-      const { errors } = JSON.parse(e.message);
-      if (Array.isArray(errors)) {
-        // eslint-disable-next-line no-restricted-syntax
-        for (const err of errors) {
-          if (err.includes('wallet not found')) {
-            return [];
-          }
-        }
-      }
-      throw e;
+      return {};
     }
   }
 
@@ -127,7 +118,6 @@ export default class KeyVaultService {
       path: `ethereum/${config.env.MAINNET_NETWORK}/version`,
       isNetworkRequired: false
     });
-
     let testNetwork = 'pyrmont';
     const keyVaultVersion = await this.versionService.getLatestKeyVaultVersion();
     // TODO: move gap version to constant in config.ts
@@ -205,8 +195,8 @@ export default class KeyVaultService {
     const ssh = await this.keyVaultSsh.getConnection();
     const { stdout: rootToken } = await ssh.execCommand('sudo cat data/keys/vault.root.token', {});
     if (!rootToken) throw new Error('vault-plugin rootToken not found');
-    Connection.db(this.storePrefix).set('vaultRootToken', rootToken);
 
+    Connection.db(this.storePrefix).set('vaultRootToken', rootToken);
     const { stdout: signerToken } = await ssh.execCommand('sudo cat data/keys/vault.signer.token', {});
     if (!signerToken) throw new Error('vault-plugin signerToken not found');
     Connection.db(this.storePrefix).set('vaultSignerToken', signerToken);
@@ -252,7 +242,7 @@ export default class KeyVaultService {
     Connection.db(this.storePrefix).set('keyVaultVersion', keyVaultVersion);
     Connection.db(this.storePrefix).set('keyVaultPluginVersion', keyVaultVersion);
 
-    await sleep(12000);
+    await sleep(120000);
 
     if (error) {
       this.logger.error(error);
