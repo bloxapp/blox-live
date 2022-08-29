@@ -30,6 +30,7 @@ import {
   getDepositToIndex,
   getDepositToNetwork
 } from '~app/components/Accounts/selectors';
+import UserService from '../../../../../backend/services/users/users.service';
 
 const Wrapper = styled.div`
   width:580px;
@@ -69,7 +70,7 @@ const LaterBtn = styled.span`
 const StakingDeposit = (props: Props) => {
   const {
     setPage, depositData, accountsFromApi, actions, callSetAddAnotherAccount, accountDataFromProcess,
-    isDepositNeeded, publicKey, callSetDepositNeeded, callClearAccountsData, accountIndex, network, idToken
+    isDepositNeeded, publicKey, callSetDepositNeeded, callClearAccountsData, accountIndex, network
   } = props;
   const { loadDepositData, setFinishedWizard, clearWizardData,
     clearDecryptKeyStores, clearDecryptProgress } = actions;
@@ -142,11 +143,14 @@ const StakingDeposit = (props: Props) => {
 
     if (currentAccount) {
       let stakingDepositUrl = '';
+      const accountService = new UserService();
+      const temporaryToken = await accountService.getTemporaryToken();
       if (selectedSeedMode()) {
         const { txData } = depositData;
-        stakingDepositUrl = `${config.env.WEB_APP_URL}/staking-deposit?account_id=${currentAccount.id}&network_id=${NETWORKS[network].chainId}&tx_data=${txData}&id_token=${idToken}`;
+
+        stakingDepositUrl = `${config.env.WEB_APP_URL}/staking-deposit?id_token=${temporaryToken}&account_id=${currentAccount.id}&network_id=${NETWORKS[network].chainId}&tx_data=${txData}`;
       } else if (selectedKeystoreMode()) {
-        stakingDepositUrl = `${config.env.WEB_APP_URL}/upload_deposit_file?id_token=${idToken}&account_id=${currentAccount.id}&network_id=${NETWORKS[network].chainId}`;
+        stakingDepositUrl = `${config.env.WEB_APP_URL}/upload_deposit_file?id_token=${temporaryToken}&account_id=${currentAccount.id}&network_id=${NETWORKS[network].chainId}`;
       }
       await openExternalLink('', stakingDepositUrl);
     } else {

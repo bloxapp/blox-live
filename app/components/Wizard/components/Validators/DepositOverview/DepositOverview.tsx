@@ -19,6 +19,7 @@ import { getNetwork, getDecryptedKeyStores } from '~app/components/Wizard/select
 import { Title, Paragraph } from '~app/components/Wizard/components/common';
 import { MainNetKeyStoreText } from '~app/components/Wizard/components/Validators/StakingDeposit/components';
 import MoveToBrowserModal from '~app/components/Wizard/components/Validators/StakingDeposit/components/MoveToBrowserModal';
+import UserService from '../../../../../backend/services/users/users.service';
 
 const Wrapper = styled.div`
   width:650px;
@@ -69,7 +70,7 @@ const bloxApi = new BloxApi();
 bloxApi.init();
 
 const DepositOverview = (props: ValidatorsSummaryProps) => {
-  const { setPage, decryptedKeyStores, idToken, wizardActions, network, setPageData } = props;
+  const { setPage, decryptedKeyStores, wizardActions, network, setPageData } = props;
   const { clearDecryptKeyStores } = wizardActions;
   const { processData, clearProcessState } = useProcessRunner();
   const { loadDataAfterNewAccount } = useDashboardData();
@@ -102,7 +103,10 @@ const DepositOverview = (props: ValidatorsSummaryProps) => {
     }
     const ids = processData.map(user => user.id).join(',');
     setShowMoveToBrowserModal(true);
-    await openExternalLink('', `${config.env.WEB_APP_URL}/upload_deposit_file?id_token=${idToken}&account_id=${ids}&network_id=${NETWORKS[network].chainId}`);
+
+    const accountService = new UserService();
+    const temporaryToken = await accountService.getTemporaryToken();
+    await openExternalLink('', `${config.env.WEB_APP_URL}/upload_deposit_file?id_token=${temporaryToken}&account_id=${ids}&network_id=${NETWORKS[network].chainId}`);
   };
 
   const moveToDashboard = async () => {
