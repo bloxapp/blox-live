@@ -43,7 +43,9 @@ export default class KeyVaultSsh {
         });
         this.sshClient.connection.connect(params);
       });
-      console.log('======>', this.sshClient, this.sshClient.isConnected());
+      if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
+        console.debug('SSH:', this.sshClient, this.sshClient.isConnected());
+      }
     }
     this.logger.trace('> publicIp', Connection.db(this.storePrefix).get('publicIp'));
     this.logger.trace('> port', port);
