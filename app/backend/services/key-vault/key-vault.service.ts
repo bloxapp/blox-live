@@ -242,7 +242,7 @@ export default class KeyVaultService {
     Connection.db(this.storePrefix).set('keyVaultVersion', keyVaultVersion);
     Connection.db(this.storePrefix).set('keyVaultPluginVersion', keyVaultVersion);
 
-    await sleep(120000);
+    await sleep(12000);
 
     if (error) {
       this.logger.error(error);
