@@ -24,6 +24,7 @@ import KeyVaultService from '~app/backend/services/key-vault/key-vault.service';
 import { BackButton, Link, Title, BigButton } from '~app/components/Wizard/components/common';
 import { getAddAnotherAccount, getSeedlessDepositNeededStatus } from '~app/components/Accounts/selectors';
 import { getPage, getPageData, getStep, getWizardFinishedStatus } from '~app/components/Wizard/selectors';
+import usePasswordHandler from '../PasswordHandler/usePasswordHandler';
 
 const Wrapper = styled.div`
   height: 100%;
@@ -113,6 +114,7 @@ const RewardAddresses = (props: Props) => {
   const [error, showError] = useState('');
   const { isDone, processData } = useProcessRunner();
   const { loadDataAfterNewAccount } = useDashboardData();
+  const { checkIfPasswordIsNeeded } = usePasswordHandler();
   const [validators, setValidators] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const { setModalDisplay, clearModalDisplayData } = dashboardActions;
@@ -193,24 +195,18 @@ const RewardAddresses = (props: Props) => {
         return;
       }
 
-      console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<1>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
       showError('');
       const keyVaultService = new KeyVaultService();
       const response = await keyVaultService.getListAccountsRewardKeys();
-      console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-      console.log(response);
-      console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
       const newAddress = Object.keys(validators).reduce((prev: any, curr: string) => {
         // eslint-disable-next-line no-param-reassign
         prev[curr] = validators[curr].rewardAddress;
         return prev;
       }, {});
-      console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<3>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
       response.fee_recipients = {
         ...response.fee_recipients,
         ...newAddress
       };
-      console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<4>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
 
       if (walletNeedsUpdate) {
         const title = 'Update KeyVault';
@@ -224,7 +220,7 @@ const RewardAddresses = (props: Props) => {
             confirmButtonText,
             cancelButtonText: 'Later',
             onConfirmButtonClick: () => {
-              setModalDisplay({show: true, type: MODAL_TYPES.UPDATE, rewardAddressesData: response});
+              checkIfPasswordIsNeeded(() => setModalDisplay({show: true, type: MODAL_TYPES.UPDATE, rewardAddressesData: response}));
             },
             onCancelButtonClick: () => clearModalDisplayData()
           }
