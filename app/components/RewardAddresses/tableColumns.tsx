@@ -1,13 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
-import {truncateText} from '../common/service';
+import { truncateText } from '~app/components/common/service';
+// @ts-ignore
 import x from '~app/assets/images/red_x.svg';
+// @ts-ignore
 import checkmark from '~app/assets/images/v_mark.svg';
 
 const RewardAddressInput = styled.input`
   width: 304px;
   height: 24px;
   border-radius: 2px;
+  font-size: 12px;
   margin: 8px 0 8px 16px;
   background-color: ${({theme}) => theme.white};
   border: solid 1px ${({theme}) => theme.gray300};
@@ -144,9 +147,9 @@ const columnsData = (props: columnsDataProps) => {
     {
       width: '70%',
       key: 'rewardAddress',
-      title: <HeaderCell>Fee Recipent Address</HeaderCell>,
+      title: <HeaderCell>Fee Recipient Address</HeaderCell>,
       // compareFunction: (a, b, dir) => compareFunction('status', a, b, dir, 'string'),
-      valueRender: (a, b, publicKey) => (
+      valueRender: (_a, _b, publicKey) => (
         <RewardAddressWrapper>
           <RewardAddressInput
             type={'text'}

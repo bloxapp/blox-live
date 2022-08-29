@@ -281,9 +281,9 @@ const RewardAddresses = (props: Props) => {
           goToPage(ROUTES.DASHBOARD);
         }} />
       )}
-      <Title>Fee Recipent Address</Title>
+      <Title>Fee Recipient Address</Title>
       <Text style={{marginBottom: 8}}>
-        Please enter an Ethereum address in order to receive fee recipent address for each of <br /> your
+        Please enter an Ethereum address in order to receive fee recipient address for each of <br /> your
         {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
         &nbsp;validators. <Link onClick={() => openExternalLink('', 'https://bloxstaking.com/blog/product-updates/merge-is-here/')} style={{fontSize: 14, textDecoration: 'underline'}}>What are proposal rewards?</Link>
       </Text>

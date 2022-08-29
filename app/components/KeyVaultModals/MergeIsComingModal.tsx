@@ -70,13 +70,13 @@ const MergeIsComing = (props: Props) => {
   return (
     <ModalTemplate padding={'48px 60px 57px 71px'} image={image}>
       <Title>The Merge is here!</Title>
-      <Description>With the transition to Proof of Stake, validators can now earn fee recipent address.</Description>
+      <Description>With the transition to Proof of Stake, validators can now earn fee recipient address.</Description>
       <Description>These rewards will be distributed to a new Ethereum address of your choice.
         <Tooltip interactive title={<LinkTo onClick={() => openExternalLink('', 'https://bloxstaking.com/blog/product-updates/merge-is-here/')}>What are proposal rewards?</LinkTo>} placement={'bottom'}>
           <Image src={imageSrc} />
         </Tooltip>
       </Description>
-      <Description>In order to reap these rewards you must provide a fee recipent address for your validators and update your KeyVault.</Description>
+      <Description>In order to reap these rewards you must provide a fee recipient address for your validators and update your KeyVault.</Description>
       <Warning style={{marginBottom: 44}} text={'Not providing an address could incur potential financial loss in the form of these rewards.'} />
       <Button isDisabled={false} onClick={passwordProtectedWrapper}>Add Addresses</Button>
     </ModalTemplate>

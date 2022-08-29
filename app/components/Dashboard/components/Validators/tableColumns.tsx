@@ -25,7 +25,7 @@ export default [
     writable: true,
     key: 'feeRecipient',
     justifyContent: 'flex-start',
-    title: 'Fee Recipent Address',
+    title: 'Fee Recipient Address',
     valueRender: (_value, _totalCount, item) => <RewardAddress validator={item} />,
   },
   {

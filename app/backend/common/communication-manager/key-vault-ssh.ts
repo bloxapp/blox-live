@@ -1,27 +1,26 @@
 import NodeSSH from 'node-ssh';
 import { Readable } from 'stream';
 import { v4 as uuidv4 } from 'uuid';
-import config from '../config';
-import { Log } from '../logger/logger';
-import Connection from '../store-manager/connection';
+import config from '~app/backend/common/config';
+import { Log } from '~app/backend/common/logger/logger';
+import Connection from '~app/backend/common/store-manager/connection';
 
 const userName = 'ec2-user';
-let sshClient: NodeSSH;
 
 export default class KeyVaultSsh {
   private storePrefix: string;
   private logger: Log;
-  private sshClient: NodeSSH;
+  private readonly sshClient: NodeSSH;
 
   constructor(prefix: string = '') {
     this.storePrefix = prefix;
     this.logger = new Log('key-vault-ssh');
-    sshClient = new NodeSSH();
+    this.sshClient = new NodeSSH();
   }
 
   async getConnection(payload: any = {}): Promise<NodeSSH> {
     const { customPort } = payload;
-    sshClient.dispose();
+    this.sshClient.dispose();
     const keyPair: any = Connection.db(this.storePrefix).get('keyPair');
     const port = customPort || Connection.db(this.storePrefix).get('port') || config.env.port;
     const params = {
@@ -32,23 +31,23 @@ export default class KeyVaultSsh {
     };
 
     try {
-      await sshClient.connect(params);
+      await this.sshClient.connect(params);
     } catch (e) {
       this.logger.debug(e);
       await new Promise((resolve, reject) => {
         console.log('try connect thru ssh2');
-        sshClient.connection.on('error', reject);
-        sshClient.connection.on('ready', () => {
+        this.sshClient.connection.on('error', reject);
+        this.sshClient.connection.on('ready', () => {
           console.log('Client :: ready');
           resolve(true);
         });
-        sshClient.connection.connect(params);
+        this.sshClient.connection.connect(params);
       });
-      console.log('======>', sshClient, sshClient.isConnected());
+      console.log('======>', this.sshClient, this.sshClient.isConnected());
     }
     this.logger.trace('> publicIp', Connection.db(this.storePrefix).get('publicIp'));
     this.logger.trace('> port', port);
-    return sshClient;
+    return this.sshClient;
   }
 
   buildCurlCommand(data: any, returnBodyResponse?: boolean): string {

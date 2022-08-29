@@ -41,13 +41,17 @@ const KeyCell = ({ value }) => {
   return (
     <Wrapper>
       <Left>
-        <AddressKey>
+        <AddressKey style={{ margin: 'auto', display: 'flex' }}>
+          {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
           <Link
             style={beaconchaLinkStyle}
             onClick={() => shell.openExternal(getNetworkLink(network, publicKey))}
           >
-            {truncateText(publicKey, 24, 6)}
+            {truncateText(publicKey, 6, 4)}
           </Link>
+          <CopyToClipboard text={publicKey} onCopy={onCopy}>
+            <Icon name="copy" color="gray800" fontSize="16px" onClick={() => false} style={{display: 'inline', marginLeft: 10 }} />
+          </CopyToClipboard>
         </AddressKey>
         <AdditionalDataWrapper>
           <AdditionalData
@@ -60,9 +64,6 @@ const KeyCell = ({ value }) => {
         </AdditionalDataWrapper>
       </Left>
       <Right>
-        <CopyToClipboard text={publicKey} onCopy={onCopy}>
-          <Icon name="copy" color="gray800" fontSize="16px" onClick={() => false} />
-        </CopyToClipboard>
         {network === NETWORKS.prater.label && <TestNet>Prater Testnet</TestNet>}
         {network === NETWORKS.mainnet.label && <TestNet>MainNet</TestNet>}
       </Right>
