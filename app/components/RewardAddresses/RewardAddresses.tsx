@@ -220,7 +220,9 @@ const RewardAddresses = (props: Props) => {
             confirmButtonText,
             cancelButtonText: 'Later',
             onConfirmButtonClick: () => {
-              checkIfPasswordIsNeeded(() => setModalDisplay({show: true, type: MODAL_TYPES.UPDATE, rewardAddressesData: response}));
+              checkIfPasswordIsNeeded(() => {
+                setModalDisplay({show: true, type: MODAL_TYPES.UPDATE, rewardAddressesData: response});
+              });
             },
             onCancelButtonClick: () => clearModalDisplayData()
           }
