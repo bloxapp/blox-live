@@ -15,7 +15,7 @@ const formattedBalance = (balance: number | string | null): string | null => {
 export default [
   {
     key: 'key',
-    width: '40%',
+    width: '30%',
     title: 'Public Key',
     justifyContent: 'flex-start',
     valueRender: (value) => <KeyCell value={value} />,
@@ -29,7 +29,7 @@ export default [
     valueRender: (_value, _totalCount, item) => <RewardAddress validator={item} />,
   },
   {
-    width: '10%',
+    width: '13%',
     title: 'Balance',
     key: 'currentBalance',
     justifyContent: 'flex-start',
@@ -39,7 +39,7 @@ export default [
     }
   },
   {
-    width: '10%',
+    width: '13%',
     key: 'change',
     title: 'Change',
     justifyContent: 'flex-start',
@@ -50,7 +50,7 @@ export default [
   },
   {
     key: 'apr',
-    width: '10%',
+    width: '13%',
     title: 'Est. APR(%)',
     justifyContent: 'flex-start',
     compareFunction: (a, b, dir) => compareFunction('apr', a, b, dir, 'number'),

@@ -40,7 +40,7 @@ const KeyCell = ({ value }) => {
 
   return (
     <Wrapper>
-      <Left>
+      <Left style={{ width: '65%' }}>
         <AddressKey style={{ margin: 'auto', display: 'flex' }}>
           {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
           <Link
@@ -63,9 +63,9 @@ const KeyCell = ({ value }) => {
           />
         </AdditionalDataWrapper>
       </Left>
-      <Right>
-        {network === NETWORKS.prater.label && <TestNet>Prater Testnet</TestNet>}
-        {network === NETWORKS.mainnet.label && <TestNet>MainNet</TestNet>}
+      <Right style={{ width: '35%' }}>
+        {network === NETWORKS.prater.label && <TestNet style={{ margin: 'auto' }}>Prater Testnet</TestNet>}
+        {network === NETWORKS.mainnet.label && <TestNet style={{ margin: 'auto' }}>MainNet</TestNet>}
       </Right>
     </Wrapper>
   );
