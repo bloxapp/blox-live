@@ -192,18 +192,25 @@ const RewardAddresses = (props: Props) => {
         }
         return;
       }
+
+      console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<1>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
       showError('');
       const keyVaultService = new KeyVaultService();
       const response = await keyVaultService.getListAccountsRewardKeys();
+      console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+      console.log(response);
+      console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
       const newAddress = Object.keys(validators).reduce((prev: any, curr: string) => {
         // eslint-disable-next-line no-param-reassign
         prev[curr] = validators[curr].rewardAddress;
         return prev;
       }, {});
+      console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<3>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
       response.fee_recipients = {
         ...response.fee_recipients,
         ...newAddress
       };
+      console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<4>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
 
       if (walletNeedsUpdate) {
         const title = 'Update KeyVault';
