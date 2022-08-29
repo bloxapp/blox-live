@@ -79,10 +79,10 @@ export default class AccountService {
           if (isNaN(value)) throw new Error(`${value} is not number value`);
         });
         const epoch = Math.max(...[
-          bloxSourceEpoch + 2,
-          bloxTargetEpoch + 2,
+          bloxSourceEpoch,
+          bloxTargetEpoch,
           beaconchaEpoch + 2,
-          keyManagerData.epoch + 2
+          keyManagerData.epoch
         ]);
         const slot = Math.max(...[
           bloxSlot,
