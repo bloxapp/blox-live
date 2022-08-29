@@ -69,7 +69,12 @@ export default class Connection {
     }, {});
     logger.debug('Going to set multiple store values');
     Connection.db(payload.toPrefix).setMultiple(data);
-    logger.debug('Set multiple store values result', Connection.db(payload.toPrefix).all());
+    if (
+      process.env.NODE_ENV === 'development'
+      || process.env.DEBUG_PROD === 'true'
+    ) {
+      logger.debug('Set multiple store values result', Connection.db(payload.toPrefix).all());
+    }
     if (postClean) {
       if (postClean.fields) {
         postClean.fields.forEach(field => Connection.db(postClean.prefix).delete(field));
