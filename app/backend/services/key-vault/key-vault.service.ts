@@ -85,22 +85,14 @@ export default class KeyVaultService {
       const response = await this.keyVaultApi.requestThruSsh({
         data: payload,
         path: 'config',
-        method: METHOD.POST
+        method: METHOD.POST,
+        isNetworkRequired: true
       });
 
       return response?.data;
     } catch (e) {
       this.logger.error(e);
-      const { errors } = JSON.parse(e.message);
-      if (Array.isArray(errors)) {
-        // eslint-disable-next-line no-restricted-syntax
-        for (const err of errors) {
-          if (err.includes('wallet not found')) {
-            return [];
-          }
-        }
-      }
-      throw e;
+      return {};
     }
   }
 
@@ -378,7 +370,6 @@ export default class KeyVaultService {
     for (const network of supportedNetworks) {
       Connection.db(this.storePrefix).set('network', network);
       const configData = Connection.db(this.storePrefix).get(`rewardConfig.${network}`);
-      // save latest network index
       // eslint-disable-next-line no-await-in-loop
       await this.setListAccountsRewardKeys(configData);
       Connection.db(this.storePrefix).delete(`rewardConfig.${network}`);

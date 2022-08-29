@@ -15,6 +15,10 @@ export default class UserService {
     return await this.bloxApi.request(METHOD.GET, 'users/profile');
   }
 
+  async getTemporaryToken() {
+    return await this.bloxApi.request(METHOD.POST, 'tokens');
+  }
+
   async update(payload: Record<string, any>) {
     return await this.bloxApi.request(METHOD.PATCH, 'users', payload);
   }
