@@ -196,6 +196,17 @@ const RewardAddresses = (props: Props) => {
       }
 
       showError('');
+      const keyVaultService = new KeyVaultService();
+      const newAddress = Object.keys(validators).reduce((prev: any, curr: string) => {
+        // eslint-disable-next-line no-param-reassign
+        prev[curr] = validators[curr].rewardAddress;
+        return prev;
+      }, {});
+
+      const assignData = {
+        fee_recipients: newAddress,
+        network: Connection.db().get('network'),
+      };
 
       if (walletNeedsUpdate) {
         const title = 'Update KeyVault';
@@ -210,19 +221,7 @@ const RewardAddresses = (props: Props) => {
             cancelButtonText: 'Later',
             onConfirmButtonClick: () => {
               checkIfPasswordIsNeeded(async () => {
-                const keyVaultService = new KeyVaultService();
-                const response = await keyVaultService.getListAccountsRewardKeys();
-                const newAddress = Object.keys(validators).reduce((prev: any, curr: string) => {
-                  // eslint-disable-next-line no-param-reassign
-                  prev[curr] = validators[curr].rewardAddress;
-                  return prev;
-                }, {});
-                response.fee_recipients = {
-                  ...response.fee_recipients,
-                  ...newAddress
-                };
-
-                setModalDisplay({show: true, type: MODAL_TYPES.UPDATE, rewardAddressesData: response});
+                setModalDisplay({show: true, type: MODAL_TYPES.UPDATE, rewardAddressesData: assignData});
               });
             },
             onCancelButtonClick: () => clearModalDisplayData()
@@ -236,6 +235,7 @@ const RewardAddresses = (props: Props) => {
       const depositRedirect = selectedSeedMode() ? config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT : config.WIZARD_PAGES.VALIDATOR.DEPOSIT_OVERVIEW;
       const redirectTo = goToDeposit ? depositRedirect : config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS;
       const walletService = new WalletService();
+      await keyVaultService.setListAccountsRewardKeys(assignData);
       await walletService.syncVaultConfigWithBlox();
       if (props.flowPage) await setPage(redirectTo);
       else {
