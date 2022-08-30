@@ -29,7 +29,7 @@ const Message = styled.span<{ error?: string }>`
 
 const Step2Modal = (props: Props) => {
   const { onClick, areAwsKeyvsValid, isValidLoading, isValidError, keyvaultActions, type, isSeedless, accounts, decryptedKeyStores } = props;
-  const { validateAwsKeys, clearAwsKeysState } = keyvaultActions;
+  const { validateAwsKeys } = keyvaultActions;
 
   React.useEffect(() => {
     if (type === MODAL_TYPES.DEVICE_SWITCH) {
@@ -42,16 +42,14 @@ const Step2Modal = (props: Props) => {
 
   React.useEffect(() => {
     if (areAwsKeyvsValid && !isValidError && !isValidLoading) {
-      onStartProcessClick('recovery');
-      clearAwsKeysState();
+      onClick(accessKeyId, secretAccessKey);
     }
   }, [isValidLoading]);
 
-  const onStart = () => onClick();
+  const onStart = () => onClick(accessKeyId, secretAccessKey);
   // In Seedless mode provide extracted keystore data to the process
 
-  const { accessKeyId, setAccessKeyId, secretAccessKey, setSecretAccessKey,
-          onStartProcessClick, isPasswordInputDisabled, isButtonDisabled
+  const { accessKeyId, setAccessKeyId, secretAccessKey, setSecretAccessKey, isPasswordInputDisabled, isButtonDisabled
         } = useCreateServer({ onStart, inputData: getInputData({isSeedless, accounts, decryptedKeyStores}) });
 
   const onButtonClick = () => validateAwsKeys({ accessKeyId, secretAccessKey });
@@ -120,7 +118,6 @@ const mapDispatchToProps = (dispatch) => ({
 
 type Props = {
   type: string;
-  onClick: () => void;
   accounts: Array<any>;
   isSeedless?: boolean;
   isValidError: string;
@@ -128,6 +125,7 @@ type Props = {
   areAwsKeyvsValid: boolean;
   decryptedKeyStores: Array<any>;
   keyvaultActions: Record<string, any>;
+  onClick: (accessKeyId: any, secretAccessKey: any) => void;
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Step2Modal);

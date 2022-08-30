@@ -231,18 +231,20 @@ const RewardAddresses = (props: Props) => {
         return;
       }
 
-      const goToDeposit = props.pageData.newValidatorDeposited === false || !!props.seedLessNeedDeposit;
-      const depositRedirect = selectedSeedMode() ? config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT : config.WIZARD_PAGES.VALIDATOR.DEPOSIT_OVERVIEW;
-      const redirectTo = goToDeposit ? depositRedirect : config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS;
-      const walletService = new WalletService();
-      await keyVaultService.setListAccountsRewardKeys(assignData);
-      await walletService.syncVaultConfigWithBlox();
-      if (props.flowPage) await setPage(redirectTo);
-      else {
-        await loadDataAfterNewAccount();
-        goToPage(ROUTES.DASHBOARD);
-      }
-      setIsLoading(false);
+      checkIfPasswordIsNeeded(async () => {
+        const goToDeposit = props.pageData.newValidatorDeposited === false || !!props.seedLessNeedDeposit;
+        const depositRedirect = selectedSeedMode() ? config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT : config.WIZARD_PAGES.VALIDATOR.DEPOSIT_OVERVIEW;
+        const redirectTo = goToDeposit ? depositRedirect : config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS;
+        const walletService = new WalletService();
+        await keyVaultService.setListAccountsRewardKeys(assignData);
+        await walletService.syncVaultConfigWithBlox();
+        if (props.flowPage) await setPage(redirectTo);
+        else {
+          await loadDataAfterNewAccount();
+          goToPage(ROUTES.DASHBOARD);
+        }
+        setIsLoading(false);
+      });
     }
   };
 

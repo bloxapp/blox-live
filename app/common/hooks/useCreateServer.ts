@@ -36,8 +36,14 @@ const useCreateServer = (props: useCreateServerProps) => {
     }
   }, [isLoading, isDone, error]);
 
-  const onStartProcessClick = async (name: string) => {
-    if (!isButtonDisabled && !processMessage && !processName) {
+  const onStartProcessClick = async (name: string, force?: boolean, forceAccessKeyId?: string, forceSecretAccessKey?: string) => {
+    if (force) {
+      const credentials: Credentials = { accessKeyId: forceAccessKeyId, secretAccessKey: forceSecretAccessKey};
+      await startProcess(name, 'Checking KeyVault configuration...', { credentials, inputData });
+      onStart && onStart();
+      return;
+    }
+    if ((!isButtonDisabled && !processMessage && !processName) || force) {
       name === 'install' && dispatch(savePassword('temp'));
       const credentials: Credentials = { accessKeyId, secretAccessKey };
       await startProcess(name, 'Checking KeyVault configuration...', { credentials, inputData });

@@ -8,13 +8,14 @@ import { getWalletSeedlessFlag } from '~app/components/Wizard/selectors';
 import * as SeedlessModals from '~app/components/AccountRecovery/SeedlessModals';
 import { FailureModal, SuccessModal, ThankYouModal } from '~app/components/KeyVaultModals';
 
-const { WelcomeModal, Step1Modal, Step2Modal, RecoveringModal } = Modals;
+const { WelcomeModal, Step1Modal, Step2Modal, RecoveringModal, SlashingEpochsWarning } = Modals;
 const { SeedlessKeystoreStepModal, SeedlessSummaryStepModal, SeedlessPasswordStepModal } = SeedlessModals;
 const successText = 'You\'re all set! This is now your primary device and you have full access to your Blox staking account.';
 
 const AccountRecovery = (props: AccountRecoveryProps) => {
   const { onSuccess, onClose, type, isSeedless } = props;
   const [step, setStep] = useState(0);
+  const [awsCreds, setAwsCreds] = useState(null);
   const move1StepForward = () => setStep(step + 1);
   const move1StepBackward = () => setStep(step - 1);
   const move2StepsForward = () => setStep(step + 2);
@@ -62,10 +63,20 @@ const AccountRecovery = (props: AccountRecoveryProps) => {
         return (
           <Step2Modal
             type={type}
-            onClick={move1StepForward}
+            onClick={(accessKeyId: any, secretAccessKey: any) => {
+              setAwsCreds({accessKeyId, secretAccessKey });
+              move1StepForward();
+            }}
           />
         );
       case 5:
+        return (
+          <SlashingEpochsWarning
+            awsCreds={awsCreds}
+            onClick={move1StepForward}
+          />
+        );
+      case 6:
         return (
           <RecoveringModal
             type={type}
@@ -73,7 +84,7 @@ const AccountRecovery = (props: AccountRecoveryProps) => {
             move2StepsForward={move2StepsForward}
           />
         );
-      case 6:
+      case 7:
         return (
           <SuccessModal
             text={successText}
@@ -81,14 +92,14 @@ const AccountRecovery = (props: AccountRecoveryProps) => {
             title={'Account Recovered'}
           />
         );
-      case 7:
+      case 8:
         return (
           <FailureModal
             onClick={move1StepForward}
             title={'Failed To Recover'}
           />
         );
-      case 8:
+      case 9:
         return (
           <ThankYouModal
             type={type}
@@ -117,10 +128,20 @@ const AccountRecovery = (props: AccountRecoveryProps) => {
       return (
         <Step2Modal
           type={type}
-          onClick={move1StepForward}
+          onClick={(accessKeyId: any, secretAccessKey: any) => {
+            setAwsCreds({accessKeyId, secretAccessKey });
+            move1StepForward();
+          }}
         />
       );
     case 3:
+      return (
+        <SlashingEpochsWarning
+          awsCreds={awsCreds}
+          onClick={move1StepForward}
+        />
+      );
+    case 4:
       return (
         <RecoveringModal
           type={type}
@@ -128,7 +149,7 @@ const AccountRecovery = (props: AccountRecoveryProps) => {
           move2StepsForward={move2StepsForward}
         />
       );
-    case 4:
+    case 5:
       return (
         <SuccessModal
           text={successText}
@@ -136,14 +157,14 @@ const AccountRecovery = (props: AccountRecoveryProps) => {
           title={'Account Recovered'}
         />
       );
-    case 5:
+    case 6:
       return (
         <FailureModal
           onClick={move1StepForward}
           title={'Failed To Recover'}
         />
       );
-    case 6:
+    case 7:
       return (
         <ThankYouModal
           type={type}

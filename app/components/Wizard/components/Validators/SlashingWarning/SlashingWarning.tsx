@@ -46,7 +46,8 @@ const Button = styled.button<{ isDisabled }>`
 const SlashingWarning = (props: SlashingWarningProps) => {
   const { isLoading, isDone, processData, error, startProcess, clearProcessState, loaderPercentage, processMessage } = useProcessRunner();
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
-  const [isChecked, setIsChecked] = useState(false);
+  const [firstCheckBoxChecked, setFirstCheckBoxIsChecked] = useState(false);
+  const [secondCheckBoxChecked, setSecondCheckBoxIsChecked] = useState(false);
   const [isContinueButtonDisabled, setContinueButtonDisabled] = useState(true);
   const account = processData && processData.length ? processData[0] : processData;
   const checkboxStyle = { marginRight: 5 };
@@ -56,8 +57,8 @@ const SlashingWarning = (props: SlashingWarningProps) => {
   const { clearDecryptKeyStores } = wizardActions;
 
   useEffect(() => {
-    setContinueButtonDisabled(!isChecked);
-  }, [isChecked]);
+    setContinueButtonDisabled(!firstCheckBoxChecked || !secondCheckBoxChecked);
+  }, [firstCheckBoxChecked, secondCheckBoxChecked]);
 
   useEffect(() => {
     if (isDone && account && !error) {
@@ -124,13 +125,26 @@ const SlashingWarning = (props: SlashingWarningProps) => {
         your validators with BloxStaking.
       </Paragraph>
       <br />
+      <Paragraph style={{ marginBottom: 5 }}>
+        Please note that in order to mitigate potential slashing risk, <br />
+        BloxLive will start to attest duties only 2 epochs after the import process has been completed.
+      </Paragraph>
+      <br />
       <Checkbox
-        checked={isChecked}
-        onClick={() => { setIsChecked(!isChecked); }}
+        checked={firstCheckBoxChecked}
+        onClick={() => { setFirstCheckBoxIsChecked(!firstCheckBoxChecked); }}
         checkboxStyle={checkboxStyle}
         labelStyle={checkboxLabelStyle}
       >
         I&apos;m aware that before running my validators, to avoid slashing risks, my validators needs to be offline.
+      </Checkbox>
+      <Checkbox
+        checked={secondCheckBoxChecked}
+        onClick={() => { setSecondCheckBoxIsChecked(!secondCheckBoxChecked); }}
+        checkboxStyle={checkboxStyle}
+        labelStyle={checkboxLabelStyle}
+      >
+        I acknowledge and agree to the above measures in order to protect my validators from potential slashing risks.
       </Checkbox>
       <ButtonWrapper>
         <Button
