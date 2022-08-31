@@ -386,19 +386,6 @@ export default class KeyVaultService {
   }
 
   @Step({
-    name: 'bla bla bla...',
-  })
-  async printKeyVaultResults(): Promise<any> {
-    const supportedNetworks = [config.TESTNET_NETWORK, config.env.MAINNET_NETWORK];
-    // eslint-disable-next-line no-restricted-syntax
-    for (const network of supportedNetworks) {
-      Connection.db(this.storePrefix).set('network', network);
-      // eslint-disable-next-line no-await-in-loop
-      console.log(await this.getListAccountsRewardKeys());
-    }
-  }
-
-  @Step({
     name: 'Import slashing protection data...',
   })
   async importSlashingData(): Promise<any> {

@@ -52,7 +52,7 @@ export default class ReinstallProcess extends ProcessClass {
           fromPrefix: mainStorePrefix,
           toPrefix: tempStorePrefix,
           fields: ['uuid', 'securityGroupId', 'credentials', 'rewardConfig', 'keyPair', 'slashingData', 'index', 'seed', 'port'],
-          preClean: true, // clean toPrefix store before clone fields valie
+          preClean: true, // clean toPrefix store before clone fields values
           postClean: {
             prefix: mainStorePrefix,
             fields: ['slashingData', 'index', 'rewardConfig']
@@ -68,10 +68,23 @@ export default class ReinstallProcess extends ProcessClass {
       { instance: this.keyVaultServiceTmp, method: 'runDockerContainer' },
       { instance: this.keyVaultServiceTmp, method: 'getKeyVaultRootToken' },
       { instance: this.keyVaultServiceTmp, method: 'getKeyVaultStatus' },
+      { instance: this.keyVaultService, method: 'importKeyVaultData' },
+      {
+        instance: Connection,
+        method: 'clone',
+        params: {
+          fromPrefix: mainStorePrefix,
+          toPrefix: tempStorePrefix,
+          fields: ['slashingData'],
+        },
+        postClean: {
+          prefix: mainStorePrefix,
+          fields: ['slashingData']
+        }
+      },
       { instance: this.accountServiceTmp, method: 'restoreAccounts', params: { inputData } },
       { instance: this.keyVaultServiceTmp, method: 'updateVaultMountsStorage' },
       { instance: this.keyVaultServiceTmp, method: 'updateKeyVaultConfigStorage' },
-      { instance: this.keyVaultServiceTmp, method: 'printKeyVaultResults' },
       { instance: this.walletServiceTmp, method: 'syncVaultWithBlox', params: { isNew: false, processName: 'reinstall', isSeedless: typeof inputData === 'object' && inputData !== null} },
       { instance: this.awsServiceTmp, method: 'truncateOldKvResources' },
       { instance: this.awsServiceTmp, method: 'optimizeInstanceSecurity' },
