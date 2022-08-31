@@ -32,7 +32,7 @@ const SlashingEpochsWarning = ({awsCreds, onClick, isSeedless, accounts, decrypt
           recovery process has completed
         </Description>
         <Checkbox checked={checked} onClick={setIsChecked} checkboxStyle={{marginBottom: 24, marginTop: 12, marginRight: 8}} labelStyle={{marginBottom: 24, marginTop: 9}}>
-          I acknowledge and agree to the above measures in order to protect my validators from potential slashing risks.
+          I agree to the above measures and acknowledge that I will not receive potential gains for that period of time in which my validator will be inactive.
         </Checkbox>
         <Button isDisabled={!checked} onClick={onNext}>Continue</Button>
       </>

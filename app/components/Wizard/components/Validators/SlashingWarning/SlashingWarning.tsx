@@ -126,7 +126,7 @@ const SlashingWarning = (props: SlashingWarningProps) => {
       </Paragraph>
       <br />
       <Paragraph style={{ marginBottom: 5 }}>
-        Please note that in order to mitigate potential slashing risk, <br />
+        Please note that in order to mitigate potential slashing risk,
         BloxLive will start to attest duties only 2 epochs after the import process has been completed.
       </Paragraph>
       <br />
@@ -144,7 +144,7 @@ const SlashingWarning = (props: SlashingWarningProps) => {
         checkboxStyle={checkboxStyle}
         labelStyle={checkboxLabelStyle}
       >
-        I acknowledge and agree to the above measures in order to protect my validators from potential slashing risks.
+        I agree to the above measures and acknowledge that I will not receive potential gains for that period of time in which my validator will be inactive.
       </Checkbox>
       <ButtonWrapper>
         <Button

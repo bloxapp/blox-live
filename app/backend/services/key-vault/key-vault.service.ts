@@ -209,7 +209,11 @@ export default class KeyVaultService {
     const keyVaultVersion = await this.versionService.getLatestKeyVaultVersion();
     console.log('keyVaultVersion', keyVaultVersion);
     const envKey = (Connection.db(this.storePrefix).get('env') || 'production');
-    const dockerHubImage = `bloxstaking/key-vault${envKey === 'production' ? '' : '-rc'}:${keyVaultVersion}`;
+    let dockerHubImage = `bloxstaking/key-vault${envKey === 'production' ? '' : '-rc'}:${keyVaultVersion}`;
+    if (Connection.db(this.storePrefix).get('customKeyVaultHubUrl')) {
+      dockerHubImage = Connection.db(this.storePrefix).get('customKeyVaultHubUrl');
+    }
+    // const dockerHubImage = `bloxstaking/key-vault${envKey === 'production' ? '' : '-rc'}:${keyVaultVersion}`;
     this.logger.info(`Going to run docker based on ${dockerHubImage} keyvault image`);
     const dockerCMD = 'docker start key_vault 2>/dev/null || ' +
       `docker pull  ${dockerHubImage} && docker run -d --restart unless-stopped --cap-add=IPC_LOCK --name=key_vault ` +
@@ -249,7 +253,11 @@ export default class KeyVaultService {
   async upgradePlugin(): Promise<void> {
     const keyVaultVersion = await this.versionService.getLatestKeyVaultVersion();
     const envKey = (Connection.db(this.storePrefix).get('env') || 'production');
-    const dockerHubImage = `bloxstaking/key-vault${envKey === 'production' ? '' : '-rc'}:${keyVaultVersion}`;
+    let dockerHubImage = `bloxstaking/key-vault${envKey === 'production' ? '' : '-rc'}:${keyVaultVersion}`;
+    if (Connection.db(this.storePrefix).get('customKeyVaultHubUrl')) {
+      dockerHubImage = Connection.db(this.storePrefix).get('customKeyVaultHubUrl');
+    }
+    // const dockerHubImage = `bloxstaking/key-vault${envKey === 'production' ? '' : '-rc'}:${keyVaultVersion}`;
     this.logger.info(`Going to run docker based on ${dockerHubImage} keyvault image`);
     const dockerCMD =
       `docker pull ${dockerHubImage} &&` +
