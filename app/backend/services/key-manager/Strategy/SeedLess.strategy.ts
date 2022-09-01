@@ -9,8 +9,18 @@ export default class SeedLess implements Strategy {
   }
 
    getAccountCommand(props: GetAccountProps): string {
-    const {index, inputData, network, object} = props;
-    const {highestSource, highestTarget, highestProposal} = this.getHighestValues({index, inputData});
+    const {index, inputData, network, object, highestSource, highestTarget, highestProposal, enforceSlashingInput} = props;
+    let tempHighestSource = highestSource;
+    let tempHighestTarget = highestTarget;
+    let tempHighestProposal = highestProposal;
+
+     if (enforceSlashingInput && !(highestSource && highestTarget && highestProposal)) throw new Error();
+     if (!(highestSource && highestTarget && highestProposal)) {
+       const {initHighestSource, initHighestTarget, initHighestProposal} = this.getHighestValues({index, inputData});
+       tempHighestSource = initHighestSource;
+       tempHighestTarget = initHighestTarget;
+       tempHighestProposal = initHighestProposal;
+     }
 
     return `${this.executablePath} \
       wallet account create \
@@ -18,9 +28,9 @@ export default class SeedLess implements Strategy {
       --index=${index} \
       --network=${network} \
       ${object ? '--response-type=object' : ''} \
-      --highest-source=${highestSource} \
-      --highest-target=${highestTarget} \
-      --highest-proposal=${highestProposal}`;
+      --highest-source=${tempHighestSource} \
+      --highest-target=${tempHighestTarget} \
+      --highest-proposal=${tempHighestProposal}`;
   }
 
   /**
@@ -29,19 +39,19 @@ export default class SeedLess implements Strategy {
    */
   getHighestValues(props: HighestValuesProps) {
     const {inputData} = props;
-    let highestSource = '';
-    let highestTarget = '';
-    let highestProposal = '';
+    let initHighestSource = '';
+    let initHighestTarget = '';
+    let initHighestProposal = '';
 
     for (let i = 0; i < inputData.split(',').length; i += 1) {
-      highestSource += `${i === 0 ? '' : ','}${i.toString()}`;
-      highestTarget += `${i === 0 ? '' : ','}${(i + 1).toString()}`;
+      initHighestSource += `${i === 0 ? '' : ','}${i.toString()}`;
+      initHighestTarget += `${i === 0 ? '' : ','}${(i + 1).toString()}`;
     }
-    highestProposal = highestSource;
+    initHighestProposal = initHighestSource;
     return {
-      highestSource,
-      highestTarget,
-      highestProposal,
+      initHighestSource,
+      initHighestTarget,
+      initHighestProposal,
     };
   }
 }

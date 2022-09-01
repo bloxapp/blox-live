@@ -7,12 +7,13 @@ export type HighestValuesProps = {
 export type GetAccountProps = {
   index: number,
   network: string,
+  object?: boolean,
   inputData: string,
   accumulate?: boolean
   highestSource?: string,
   highestTarget?: string,
   highestProposal?: string,
-  object?: boolean,
+  enforceSlashingInput?: boolean,
 };
 
 export default interface Strategy {

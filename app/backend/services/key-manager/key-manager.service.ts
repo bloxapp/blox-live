@@ -38,8 +38,9 @@ export default class KeyManagerService {
   })
   async createAccount(inputData: string, index: number, network: string, highestSource: string, highestTarget: string, highestProposal: string, accumulate: boolean = true): Promise<string> {
     const object = false;
-    const createAccountCommand = this.strategy.getAccountCommand({inputData, index, network, highestTarget, highestProposal, highestSource, object, accumulate});
+    let createAccountCommand;
     try {
+      createAccountCommand = this.strategy.getAccountCommand({inputData, index, network, highestTarget, highestProposal, highestSource, object, accumulate, enforceSlashingInput: true});
       const { stdout } = await this.executor(createAccountCommand);
       return stdout.replace('\n', '');
     } catch (error) {
@@ -54,10 +55,11 @@ export default class KeyManagerService {
    * @param index
    * @param network
    * @param accumulate
+   * @param enforceSlashingInput
    */
-  async getAccount(inputData: string, index: number, network: string, accumulate: boolean = true): Promise<any> {
+  async getAccount(inputData: string, index: number, network: string, accumulate: boolean = true, enforceSlashingInput: boolean = false): Promise<any> {
     const object = true;
-    const accountCommand = this.strategy.getAccountCommand({index, network, inputData, accumulate, object});
+    const accountCommand = this.strategy.getAccountCommand({index, network, inputData, accumulate, object, enforceSlashingInput});
     try {
       const { stdout } = await this.executor(accountCommand);
       return stdout ? JSON.parse(stdout) : {};
