@@ -32,8 +32,8 @@ export default class ReinstallProcess extends ProcessClass {
       prefix: tempStorePrefix
     });
     Connection.cloneCryptoKey({
-      fromPrefix: mainStorePrefix,
-      toPrefix: tempStorePrefix
+      toPrefix: tempStorePrefix,
+      fromPrefix: mainStorePrefix
     });
 
     this.keyVaultServiceTmp = new KeyVaultService(tempStorePrefix);
@@ -68,7 +68,7 @@ export default class ReinstallProcess extends ProcessClass {
       { instance: this.keyVaultServiceTmp, method: 'runDockerContainer' },
       { instance: this.keyVaultServiceTmp, method: 'getKeyVaultRootToken' },
       { instance: this.keyVaultServiceTmp, method: 'getKeyVaultStatus' },
-      { instance: this.keyVaultService, method: 'importKeyVaultData' },
+      { instance: this.keyVaultService, method: 'importKeyVaultData', params: {slashingDataOnly: true} },
       {
         instance: Connection,
         method: 'clone',
@@ -76,13 +76,13 @@ export default class ReinstallProcess extends ProcessClass {
           fromPrefix: mainStorePrefix,
           toPrefix: tempStorePrefix,
           fields: ['slashingData'],
+          postClean: {
+            prefix: mainStorePrefix,
+            fields: ['slashingData']
+          }
         },
-        postClean: {
-          prefix: mainStorePrefix,
-          fields: ['slashingData']
-        }
       },
-      { instance: this.accountServiceTmp, method: 'restoreAccounts', params: { inputData } },
+      { instance: this.accountServiceTmp, method: 'restoreAccounts', params: { inputData, addSlashingProtection: true } },
       { instance: this.keyVaultServiceTmp, method: 'updateVaultMountsStorage' },
       { instance: this.keyVaultServiceTmp, method: 'updateKeyVaultConfigStorage' },
       { instance: this.walletServiceTmp, method: 'syncVaultWithBlox', params: { isNew: false, processName: 'reinstall', isSeedless: typeof inputData === 'object' && inputData !== null} },

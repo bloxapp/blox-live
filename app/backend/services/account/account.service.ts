@@ -78,21 +78,24 @@ export default class AccountService {
           // eslint-disable-next-line no-restricted-globals
           if (isNaN(value)) throw new Error(`${value} is not number value`);
         });
-        const epoch = Math.max(...[
-          bloxSourceEpoch,
-          bloxTargetEpoch,
-          beaconchaEpoch + 2,
-          keyManagerData.epoch
-        ]);
+
+        // eslint-disable-next-line no-restricted-globals
+        const sources = [bloxTargetEpoch, beaconchaEpoch, keyManagerData.epoch].filter(item => !isNaN(item) && item !== null);
+        if (sources.length === 0) throw new Error('missing target epoch');
+        // adding 2 for slashing protection mechanism
+        const targetEpoch = Math.max(...sources) + 2;
+
         const slot = Math.max(...[
           bloxSlot,
           beaconchaSlot,
           keyManagerData.slot
         ]);
+
+        // adding 1 for slashing protection mechanism
         generalData[key] = {
-          highest_proposal_slot: slot,
-          highest_source_epoch: epoch,
-          highest_target_epoch: epoch
+          highest_proposal_slot: slot + 1,
+          highest_target_epoch: targetEpoch,
+          highest_source_epoch: targetEpoch - 1
         };
       });
       this.logger.info('getHighestAttestation: selected', generalData);
@@ -225,7 +228,7 @@ export default class AccountService {
   @Catch({
     displayMessage: 'CLI Create Account failed'
   })
-  async createAccount({ indexToRestore, inputData }: { indexToRestore?: number, inputData?: string }): Promise<void> {
+  async createAccount({ indexToRestore, inputData, addSlashingProtection }: { indexToRestore?: number, inputData?: string, addSlashingProtection?: boolean }): Promise<void> {
     const network = Connection.db(this.storePrefix).get('network');
     const index: number = indexToRestore ?? await this.getNextIndex(network);
 
@@ -241,7 +244,7 @@ export default class AccountService {
     if (!Array.isArray(accounts)) {
       accounts = [accounts];
     }
-
+    accounts = accounts.reverse();
     const accountsHash = Object.assign({}, ...accounts.map(account => ({[account.validationPubKey]: account})));
     const publicKeysToGetHighestAttestation = [];
 
@@ -249,6 +252,10 @@ export default class AccountService {
     let slashingData = {};
     if (Connection.db(this.storePrefix).exists(`slashingData.${network}`)) {
       slashingData = Connection.db(this.storePrefix).get(`slashingData.${network}`);
+      console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<slashing data saved from key vault >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+      console.log(slashingData);
+      this.logger.info(slashingData);
+      console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<slashing data saved from key vault >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
       Connection.db(this.storePrefix).delete('slashingData');
     }
 
@@ -259,11 +266,24 @@ export default class AccountService {
       if (slashingData && slashingData.hasOwnProperty(key)) {
         const decodedValue = hexDecode(slashingData[key]);
         const decodedValueJson = JSON.parse(decodedValue);
+
+        let sdHighestAttestationSource = decodedValueJson?.HighestAttestation?.source?.epoch;
+        let sdHighestAttestationTarget = decodedValueJson?.HighestAttestation?.target?.epoch;
+        let sdHighestProposal = decodedValueJson?.HighestProposal?.slot;
+
+        // adding 2 for slashing protection mechanism
+        if (addSlashingProtection && sdHighestAttestationSource) sdHighestAttestationSource += 2;
+        if (addSlashingProtection && sdHighestAttestationTarget) sdHighestAttestationTarget += 2;
+        // adding 1 for slashing protection mechanism
+        if (addSlashingProtection && sdHighestProposal) sdHighestProposal += 1;
+
         const highestAttestation = {
-          'highest_source_epoch': decodedValueJson?.HighestAttestation?.source?.epoch,
-          'highest_target_epoch': decodedValueJson?.HighestAttestation?.target?.epoch,
-          'highest_proposal_slot': decodedValueJson?.HighestProposal?.slot,
+          'highest_proposal_slot': sdHighestProposal,
+          'highest_source_epoch': sdHighestAttestationSource,
+          'highest_target_epoch': sdHighestAttestationTarget,
         };
+        const isKeyMissing = Object.values(highestAttestation).some(item => !item);
+        if (isKeyMissing) publicKeysToGetHighestAttestation.push(key);
         accountsHash[key] = {...accountsHash[key], ...highestAttestation};
       } else {
         publicKeysToGetHighestAttestation.push(key);
@@ -279,14 +299,21 @@ export default class AccountService {
     // eslint-disable-next-line no-restricted-syntax
     for (const [key, value] of Object.entries(highestAttestationsMap)) {
       // @ts-ignore
-      accountsHash[key] = {...accountsHash[key], ...value};
+      if (!accountsHash[key].highest_source_epoch) accountsHash[key].highest_source_epoch = value.highest_source_epoch;
+      // @ts-ignore
+      if (!accountsHash[key].highest_target_epoch) accountsHash[key].highest_target_epoch = value.highest_target_epoch;
+      // @ts-ignore
+      if (!accountsHash[key].highest_proposal_slot) accountsHash[key].highest_proposal_slot = value.highest_proposal_slot;
     }
 
-    const accountsArray = Object.values(accountsHash);
+    console.log('<<<<<<<<<<<<<<<<<<<<<<<accounts with updated slashing data>>>>>>>>>>>>>>>>>>>>>>>');
+    console.table(accountsHash);
+    this.logger.info(accountsHash);
+    console.log('<<<<<<<<<<<<<<<<<<<<<<<accounts with updated slashing data>>>>>>>>>>>>>>>>>>>>>>>');
 
-    const highestSource = accountsArray.map(({ highest_source_epoch }) => highest_source_epoch);
-    const highestTarget = accountsArray.map(({ highest_target_epoch }) => highest_target_epoch);
-    const highestProposal = accountsArray.map(({ highest_proposal_slot }) => highest_proposal_slot);
+    const highestSource = accounts.map(account => accountsHash[account.validationPubKey].highest_source_epoch);
+    const highestTarget = accounts.map(account => accountsHash[account.validationPubKey].highest_target_epoch);
+    const highestProposal = accounts.map(account => accountsHash[account.validationPubKey].highest_proposal_slot);
 
     // // // 6. create accounts
     const storage = await this.keyManagerService.createAccount(inputData, index, network, highestSource.join(','), highestTarget.join(','), highestProposal.join(','));
@@ -436,7 +463,7 @@ export default class AccountService {
   @Catch({
     displayMessage: 'CLI Create Account failed'
   })
-  async restoreAccounts({ inputData }: { inputData?: any }): Promise<void> {
+  async restoreAccounts({ inputData, addSlashingProtection }: { inputData?: any, addSlashingProtection?: boolean }): Promise<void> {
     const keyVaultVersion = Connection.db().get('keyVaultVersion');
     const supportedNetworks = [config.env.MAINNET_NETWORK];
 
@@ -454,7 +481,7 @@ export default class AccountService {
             Connection.db(this.storePrefix).set('network', network);
             const conditionalData = typeof (inputData) === 'object' ? inputData[String(network)] : inputData;
             // eslint-disable-next-line no-await-in-loop
-            await this.createAccount({ indexToRestore: index, inputData: conditionalData });
+            await this.createAccount({ indexToRestore: index, inputData: conditionalData, addSlashingProtection });
           }
         }
       }

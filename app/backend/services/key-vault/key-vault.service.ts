@@ -335,15 +335,17 @@ export default class KeyVaultService {
   @Step({
     name: 'Import key-vault data...',
   })
-  async importKeyVaultData(): Promise<any> {
+  async importKeyVaultData({ slashingDataOnly = false }: { slashingDataOnly?: any }): Promise<any> {
     const supportedNetworks = [config.TESTNET_NETWORK, config.env.MAINNET_NETWORK];
     // eslint-disable-next-line no-restricted-syntax
     for (const network of supportedNetworks) {
       Connection.db(this.storePrefix).set('network', network);
       // save latest network index
-      // eslint-disable-next-line no-await-in-loop
-      const accounts = await this.listAccounts();
-      Connection.db(this.storePrefix).set(`index.${network}`, (accounts.length - 1).toString());
+      if (!slashingDataOnly) {
+        // eslint-disable-next-line no-await-in-loop
+        const accounts = await this.listAccounts();
+        Connection.db(this.storePrefix).set(`index.${network}`, (accounts.length - 1).toString());
+      }
       // eslint-disable-next-line no-await-in-loop
       await this.importSlashingData();
     }
