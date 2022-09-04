@@ -230,10 +230,9 @@ export default class AwsService {
   })
   async createInstance() {
     if (Connection.db(this.storePrefix).exists('instanceId')) return;
-
     const data = await this.ec2.runInstances({
       ImageId: 'ami-0338d09808e6554d5', // Amazon Linux. for us-west-1
-      InstanceType: 't2.micro',
+      InstanceType: this.instanceType(),
       SecurityGroupIds: [Connection.db(this.storePrefix).get('securityGroupId')],
       KeyName: `${this.keyName}-${Connection.db(this.storePrefix).get('uuid')}`,
       MinCount: 1,
@@ -262,6 +261,13 @@ export default class AwsService {
       InstanceId: instanceId
     }).promise();
     await new Promise((resolve) => setTimeout(resolve, 25000)); // hard delay for 25sec
+  }
+
+  instanceType() {
+    if (Connection.db().exists('instanceType')) {
+      return Connection.db().get('instanceType');
+    }
+    return 't2.micro';
   }
 
   @Step({
