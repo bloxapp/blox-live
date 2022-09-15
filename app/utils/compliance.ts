@@ -6,55 +6,47 @@ import AccountService from '~app/backend/services/account/account.service';
 const logger = new Log('utils/compliance');
 const baseStore = new BaseStore();
 
-const getRestrictedCountriesList = async () => {
+const getRestrictedLocations = async () => {
   return await fetch(config.env.COMPLIANCE_URL).then(res => res.json());
 };
 
-const getCurrentUserCountry = async () => {
-  const fetchCountry = async (requestUri: string, getCountryCallback: any) => {
+const getCurrentUserLocation = async () => {
+  const fetchLocation = async (requestUri: string, getCountryCallback: any) => {
     return await fetch(requestUri)
       .then(res => res.json())
       .then(getCountryCallback);
   };
   const countryGetters = [
     {
-      url: 'https://extreme-ip-lookup.com/json/',
-      callback: (response) => {
-        return response.country;
-      }
-    },
-    {
       url: 'http://ip-api.com/json',
       callback: (response) => {
-        return response.country;
+        return [response.country, response.regionName];
       }
     },
     {
-      url: 'http://geolocation-db.com/json/',
+      url: 'https://geolocation-db.com/json/',
       callback: (response) => {
-        return response.country_name;
+        return [response.country_name, response.city];
       }
     }
   ];
 
-  let detectedCountry;
   for (let i = 0; i < countryGetters.length; i += 1) {
     const countryGetter = countryGetters[i];
     try {
       // eslint-disable-next-line no-await-in-loop
-      const currentCountry = await fetchCountry(
+      const currentLocation = await fetchLocation(
         countryGetter.url,
         countryGetter.callback
       );
-      if (currentCountry) {
-        detectedCountry = currentCountry;
-        break;
+      if (currentLocation?.length) {
+        return currentLocation;
       }
     } catch (error) {
-      logger.error('Detecting country failed using:', countryGetter.url);
+      logger.error('Detecting location failed using:', countryGetter.url);
     }
   }
-  return detectedCountry;
+  return [];
 };
 
 /**
@@ -66,13 +58,21 @@ export const checkCompliance = async () => {
   const haveAccounts = accounts?.length > 0;
 
   if (!haveAccounts) {
-    const userCountry = await getCurrentUserCountry();
-    const restrictedCountries = await getRestrictedCountriesList();
+    const userLocation = await getCurrentUserLocation();
+    const restrictedLocations = await getRestrictedLocations();
     const testRestrictedCountry = baseStore.get(config.FLAGS.COMPLIANCE.RESTRICTED_TEST);
     if (testRestrictedCountry) {
-      restrictedCountries.push(testRestrictedCountry);
+      restrictedLocations.push(testRestrictedCountry);
     }
-    return restrictedCountries.indexOf(userCountry) !== -1;
+    // eslint-disable-next-line no-restricted-syntax
+    for (const location of userLocation) {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const restrictedLocation of restrictedLocations) {
+        if (String(restrictedLocation).toLowerCase().indexOf(String(location).toLowerCase()) !== -1) {
+          return true;
+        }
+      }
+    }
   }
   return false;
 };

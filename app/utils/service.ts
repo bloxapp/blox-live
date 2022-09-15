@@ -73,17 +73,22 @@ export const hexDecode = (hex) => {
 };
 
 export const isVersionHigherOrEqual = (current, defaultValue) => {
-  const pattern = /(?<=\..*)\./g;
-  // eslint-disable-next-line no-param-reassign
-  current = current
-    .replace('v', '')
-    .replace(pattern, '');
-  // eslint-disable-next-line no-param-reassign
-  defaultValue = defaultValue
-    .replace('v', '')
-    .replace(pattern, '');
+  try {
+    const pattern = /(?<=\..*)\./g;
+    // eslint-disable-next-line no-param-reassign
+    current = current
+      .replace('v', '')
+      .replace(pattern, '');
+    // eslint-disable-next-line no-param-reassign
+    defaultValue = defaultValue
+      .replace('v', '')
+      .replace(pattern, '');
 
-  return +current >= +defaultValue;
+    return +current >= +defaultValue;
+  } catch (e) {
+    console.error(e);
+    return false;
+  }
 };
 
 export const isVersionHigher = (current, compareWith) => {
