@@ -16,17 +16,41 @@ const getCurrentUserLocation = async () => {
       .then(res => res.json())
       .then(getCountryCallback);
   };
+  const filterEmpty = (name: undefined | null | string) => {
+    return !!name;
+  };
   const countryGetters = [
+    {
+      url: 'https://api.ipregistry.co/?key=szh9vdbsf64ez2bk',
+      callback: (response) => {
+        return [
+          response.location?.country?.name,
+          response.location?.region?.name,
+          response.location?.city,
+        ].filter(filterEmpty);
+      },
+    },
+    {
+      url: 'https://api.bigdatacloud.net/data/country-by-ip?key=bdc_daa2e4e3f8fb49eaad6f68f0f6732d38',
+      callback: (response) => {
+        return [
+          response.country?.name,
+          response.country?.isoName,
+          response.location?.city,
+          response.location?.localityName,
+        ].filter(filterEmpty);
+      },
+    },
     {
       url: 'http://ip-api.com/json',
       callback: (response) => {
-        return [response.country, response.regionName];
+        return [response.country, response.regionName].filter(filterEmpty);
       }
     },
     {
       url: 'https://geolocation-db.com/json/',
       callback: (response) => {
-        return [response.country_name, response.city];
+        return [response.country_name, response.city].filter(filterEmpty);
       }
     }
   ];

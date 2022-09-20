@@ -6,7 +6,7 @@ import Connection from '../store-manager/connection';
 import { isVersionHigherOrEqual } from '../../../utils/service';
 
 export default class KeyVaultApi extends Http {
-  private storePrefix: string;
+  protected storePrefix: string;
   private readonly keyVaultSsh: KeyVaultSsh;
 
   constructor(prefix: string = '') {
