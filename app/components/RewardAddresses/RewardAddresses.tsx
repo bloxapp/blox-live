@@ -118,9 +118,10 @@ const RewardAddresses = (props: Props) => {
   const [validators, setValidators] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const { setModalDisplay, clearModalDisplayData } = dashboardActions;
-  const [validatorsPage, setPagedValidators] = useState([]);
   const [paginationInfo, setPaginationInfo] = useState({});
+  const [validatorsPage, setPagedValidators] = useState([]);
   const [addressesVerified, setAddressesVerified] = useState({});
+  const [keyVaultConfigData, setKeyVaultConfigData] = useState({});
   const buttonEnable =
     checked &&
     !isLoading &&
@@ -132,6 +133,7 @@ const RewardAddresses = (props: Props) => {
     if (isVersionHigherOrEqual(keyVaultVersion, config.env.MERGE_SUPPORTED_TAG)) {
       keyVaultService.getListAccountsRewardKeys().then(response => {
         initAccounts(response);
+        setKeyVaultConfigData(response?.fee_recipients);
       }).catch((e) => {
         console.log('<<<<<<<<<<<<<<<<<<<<<<<<<error>>>>>>>>>>>>>>>>>>>>>>>>>');
         console.log(e.message);
@@ -197,11 +199,13 @@ const RewardAddresses = (props: Props) => {
 
       showError('');
       const keyVaultService = new KeyVaultService();
-      const newAddress = Object.keys(validators).reduce((prev: any, curr: string) => {
+      let newAddress = Object.keys(validators).reduce((prev: any, curr: string) => {
         // eslint-disable-next-line no-param-reassign
         prev[curr] = validators[curr].rewardAddress;
         return prev;
       }, {});
+
+      if (isDone) newAddress = {...newAddress, ...keyVaultConfigData};
 
       const assignData = {
         fee_recipients: newAddress,
