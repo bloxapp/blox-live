@@ -55,6 +55,7 @@ export const lastDateFormat = (utcDate) => {
 export const getOsVersion = () => {
   const type = os.type();
   const release = os.release();
+  // if(release === '22.1.0') return `${type} Ventura 13.0.1`
   if (type === 'Darwin') {
     return `${type} ${macOsRelease().name} ${macOsRelease().version}`;
   }
