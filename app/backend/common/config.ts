@@ -30,7 +30,7 @@ export default class Config {
       HTTP_RETRIES: 3,
       HTTP_RETRY_DELAY: 1000,
       PRATER_NETWORK: 'prater',
-      MAX_KEYSTORES_UPLOAD: 250,
+      MAX_KEYSTORES_UPLOAD: 100,
       MAINNET_NETWORK: 'mainnet',
       SSL_SUPPORTED_TAG: 'v0.1.25',
       MERGE_SUPPORTED_TAG: 'v1.4.4',
