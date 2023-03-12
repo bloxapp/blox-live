@@ -167,7 +167,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
 
     newFileList = newFileList.filter((v, i, a) => a.findIndex(t => (t.name === v.name)) === i);
 
-    if (newFileList.length > 100) {
+    if (newFileList.length > config.env.MAX_KEYSTORES_UPLOAD) {
       displayKeyStoreError({status: true, message: 'You can’t upload more than 100 validators at once.'});
       return;
     }

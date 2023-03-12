@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
+import config from '~app/backend/common/config';
 import DropZone from '~app/common/components/DropZone';
 import * as actionsFromWizard from '~app/components/Wizard/actions';
 import { ModalTemplate, PasswordInput } from '~app/common/components';
@@ -10,11 +11,11 @@ import { StepIndicator } from '~app/components/AccountRecovery/components';
 import { Description } from '~app/common/components/ModalTemplate/components';
 import { DECODE_STATUS, FileDecodeProgress } from '~app/common/components/DropZone/components/FileDecode';
 import { SelectedFilesTable, RemoveFileDataType } from '~app/common/components/DropZone/components/SelectedFilesTable';
+
 import {
   getDecryptedKeyStoresError, getKeyStores, getDecryptedKeyStores,
   getShouldDisplayError, getDecryptedFilesCount, getIsDecryptingKeyStores
 } from '~app/components/Wizard/selectors';
-
 // @ts-ignore
 import recoveryImage from 'assets/images/img-recovery.svg';
 import {getAccounts} from '../../Accounts/selectors';
@@ -141,7 +142,7 @@ const UploadKeystoreFile = (props: UploadKeystoreFileProps) => {
     }
     setGoToNextPage(false);
     let newFileList = [...files, ...keyStores];
-    if (newFileList.length > 100) {
+    if (newFileList.length > config.env.MAX_KEYSTORES_UPLOAD) {
       displayKeyStoreError({ status: true, message: 'You can’t upload more than 100 validators at once.' });
       return;
     }
