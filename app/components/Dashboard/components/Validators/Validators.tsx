@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import tableColumns from './tableColumns';
 import { Table } from '~app/common/components';
 import config from '~app/backend/common/config';
+import { getTableColumns } from './tableColumns';
 import { SORT_TYPE } from '~app/common/constants';
 import { handlePageClick } from '~app/common/components/Table/service';
 import * as dashboardSelectors from '~app/components/Dashboard/selectors';
@@ -97,6 +97,17 @@ const Validators = ({ accounts, isTestNetShow, showNetworkSwitcher }) => {
       </Wrapper>
     );
   }
+
+  // Check if at least one validator should have voluntary exit option
+  let exitValidatorEnabled = false;
+  pagedAccounts.map((item: Record<string, any>) => {
+    exitValidatorEnabled =
+      exitValidatorEnabled || (item.withdrawalKey.startsWith('0x01') && item.status === 'active');
+    return item;
+  });
+  const tableColumns = getTableColumns({
+    exitValidatorEnabled,
+  });
 
   return (
     <Wrapper>

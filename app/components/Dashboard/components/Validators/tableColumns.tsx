@@ -1,7 +1,14 @@
 import React from 'react';
 import { compareFunction } from '~app/common/components/Table/service';
-import RewardAddress from '~app/components/Dashboard/components/Validators/components/RewardAddress';
-import { KeyCell, Status, Change, Apr, Balance } from '~app/components/Dashboard/components/Validators/components';
+import {
+  KeyCell,
+  Status,
+  Change,
+  Apr,
+  Balance,
+  RewardAddress,
+  ExitValidatorDropdown
+} from '~app/components/Dashboard/components/Validators/components';
 
 const formattedBalance = (balance: number | string | null): string | null => {
   if (!balance) {
@@ -12,7 +19,7 @@ const formattedBalance = (balance: number | string | null): string | null => {
   return floatValue.toFixed(fractionDigits);
 };
 
-export default [
+const defaultTableItems: Record<string, any>[] = [
   {
     key: 'key',
     width: '30%',
@@ -65,3 +72,29 @@ export default [
     valueRender: (value) => <Status status={value} />,
   }
 ];
+
+/**
+ * Build different sets of columns depending on different feature flags
+ * @param flags
+ */
+export const getTableColumns = (flags: Record<string, any> = {}) => {
+  if (flags.exitValidatorEnabled) {
+    const lastItem: any = defaultTableItems[defaultTableItems.length - 1];
+
+    if (lastItem.key === 'exit_validator') {
+      return defaultTableItems;
+    }
+
+    lastItem.width = '7%';
+    lastItem.justifyContent = 'flex-start';
+
+    defaultTableItems.push({
+      width: '3%',
+      key: 'exit_validator',
+      title: '',
+      justifyContent: 'flex-end',
+      valueRender: (_value, _totalCount, item) => <ExitValidatorDropdown validator={item} />
+    });
+  }
+  return defaultTableItems;
+};
