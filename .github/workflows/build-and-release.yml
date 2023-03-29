@@ -36,7 +36,7 @@ jobs:
         run: |
           cd resources/win/bin
           Remove-Item 'keyvault-cli.exe'
-          curl.exe -LO https://github.com/bloxapp/eth2-key-manager/releases/latest/download/keyvault-cli.exe
+          curl.exe -LO https://github.com/bloxapp/eth2-key-manager/releases/download/untagged-2b1bcdd4e18905ca11c9/keyvault-cli.exe
 
       - name: Build Electron app for windows
         if: ${{ startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v') }}
@@ -95,7 +95,7 @@ jobs:
         run: |
           cd resources/mac/bin
           rm keyvault-cli
-          curl -LO https://github.com/bloxapp/eth2-key-manager/releases/latest/download/mac-keyvault-cli
+          curl -LO https://github.com/bloxapp/eth2-key-manager/releases/download/untagged-2b1bcdd4e18905ca11c9/mac-keyvault-cli
           mv mac-keyvault-cli keyvault-cli
           chmod +x keyvault-cli
 
@@ -133,7 +133,7 @@ jobs:
         run: |
           cd resources/linux/bin
           rm keyvault-cli
-          curl -LO https://github.com/bloxapp/eth2-key-manager/releases/latest/download/linux-keyvault-cli
+          curl -LO https://github.com/bloxapp/eth2-key-manager/releases/download/untagged-2b1bcdd4e18905ca11c9/linux-keyvault-cli
           mv linux-keyvault-cli keyvault-cli
           chmod +x keyvault-cli
 
