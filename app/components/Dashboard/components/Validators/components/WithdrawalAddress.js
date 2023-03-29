@@ -28,10 +28,10 @@ const AddAddressButton = styled(Button)`
   background-color:${({theme}) => theme.warning700};
 `;
 
-const RewardAddress = ({validator}) => {
+const WithdrawalAddress = ({validator}) => {
   const {goToPage, ROUTES} = useRouting();
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
-  const publicKey = validator?.feeRecipient && `0x${longStringShorten(validator?.feeRecipient.replace('0x', ''), 4)}`;
+  const withdrawalKey = validator?.deposited && validator?.withdrawalKey.startsWith('0x01') ? `0x${longStringShorten(validator?.withdrawalKey.replace('0x', ''))}` : undefined;
 
   const showPasswordProtectedDialog = async (callback) => {
     const cryptoKey = 'temp';
@@ -46,7 +46,7 @@ const RewardAddress = ({validator}) => {
       : checkIfPasswordIsNeeded(callback);
   };
 
-  const goToRewardAddressPage = () => {
+  const goToWithdrawalAddressPage = () => {
     const keyVaultVersion = Connection.db().get('keyVaultVersion');
     const callback = () => {
       try {
@@ -54,7 +54,7 @@ const RewardAddress = ({validator}) => {
       } catch (e) {
         console.log(e.message);
       }
-      goToPage(ROUTES.REWARD_ADDRESSES);
+      goToPage(ROUTES.WITHDRAWAL_ADDRESSES);
     };
     if (isVersionHigherOrEqual(keyVaultVersion, config.env.MERGE_SUPPORTED_TAG)) {
       showPasswordProtectedDialog(callback);
@@ -65,13 +65,13 @@ const RewardAddress = ({validator}) => {
 
   return (
     <Wrapper>
-      {publicKey ?? <AddAddressButton onClick={goToRewardAddressPage}>Add Address</AddAddressButton>}
+      {withdrawalKey ?? <AddAddressButton onClick={goToWithdrawalAddressPage}>Add Address</AddAddressButton>}
     </Wrapper>
   );
 };
 
-RewardAddress.propTypes = {
+WithdrawalAddress.propTypes = {
   validator: PropTypes.any,
 };
 
-export default RewardAddress;
+export default WithdrawalAddress;
