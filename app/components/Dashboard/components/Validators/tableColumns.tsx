@@ -1,8 +1,8 @@
 import React from 'react';
 import { compareFunction } from '~app/common/components/Table/service';
 import RewardAddress from '~app/components/Dashboard/components/Validators/components/RewardAddress';
+import WithdrawalAddress from '~app/components/Dashboard/components/Validators/components/WithdrawalAddress';
 import { KeyCell, Status, Change, Apr, Balance } from '~app/components/Dashboard/components/Validators/components';
-
 const formattedBalance = (balance: number | string | null): string | null => {
   if (!balance) {
     return null;
@@ -20,16 +20,28 @@ export default [
     justifyContent: 'flex-start',
     valueRender: (value) => <KeyCell value={value} />,
     compareFunction: (a, b, dir) => compareFunction('publicKey', a, b, dir, 'string'),
-  }, {
-    width: '20%',
+  },
+  {
+    width: '14.5%',
     writable: true,
     key: 'feeRecipient',
     justifyContent: 'flex-start',
     title: 'Fee Recipient Address',
+    writeAction: 'reward_address',
     valueRender: (_value, _totalCount, item) => <RewardAddress validator={item} />,
   },
+
   {
-    width: '13%',
+    width: '14.5%',
+    writable: true,
+    key: 'withdrawalAddress',
+    justifyContent: 'flex-start',
+    title: 'Withdrawal Address',
+    writeAction: 'withdrawal_address',
+    valueRender: (_value, _totalCount, item) => <WithdrawalAddress validator={item} />,
+  },
+  {
+    width: '10%',
     title: 'Balance',
     key: 'currentBalance',
     justifyContent: 'flex-start',
@@ -39,7 +51,7 @@ export default [
     }
   },
   {
-    width: '13%',
+    width: '10%',
     key: 'change',
     title: 'Change',
     justifyContent: 'flex-start',
@@ -50,7 +62,7 @@ export default [
   },
   {
     key: 'apr',
-    width: '13%',
+    width: '10%',
     title: 'Est. APR(%)',
     justifyContent: 'flex-start',
     compareFunction: (a, b, dir) => compareFunction('apr', a, b, dir, 'number'),

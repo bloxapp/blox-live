@@ -49,6 +49,7 @@ const useRouting = () => {
   ROUTES.LOGIN_CALLBACK = `${ROUTES.LOGIN}/callback`;
   ROUTES.DASHBOARD = `${ROUTES.LOGGED_IN}/dashboard`;
   ROUTES.REWARD_ADDRESSES = `${ROUTES.LOGGED_IN}/reward_addresses`;
+  ROUTES.WITHDRAWAL_ADDRESSES = `${ROUTES.LOGGED_IN}/withdrawal_addresses`;
 
   return {
     goToPage,

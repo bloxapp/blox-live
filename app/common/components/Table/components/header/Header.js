@@ -61,10 +61,11 @@ const Header = ({columns, selectedSorting, sortType, onSortClick, height, withou
       : checkIfPasswordIsNeeded(callback);
   };
 
-  const goToRewardPage = async () => {
+  const redirectAction = async (link) => {
+    console.log(link);
     const keyVaultVersion = Connection.db().get('keyVaultVersion');
     if (isVersionHigherOrEqual(keyVaultVersion, config.env.MERGE_SUPPORTED_TAG)) {
-      await showPasswordProtectedDialog(() => goToPage(ROUTES.REWARD_ADDRESSES));
+      await showPasswordProtectedDialog(() => goToPage(link === 'withdrawal_address' ? ROUTES.WITHDRAWAL_ADDRESSES : ROUTES.REWARD_ADDRESSES));
     } else {
       goToPage(ROUTES.REWARD_ADDRESSES);
     }
@@ -75,7 +76,7 @@ const Header = ({columns, selectedSorting, sortType, onSortClick, height, withou
       height={height}
     >
       {columns.map((column, index) => {
-        const {key, title, width, justifyContent, compareFunction, writable} = column;
+        const {key, title, width, justifyContent, compareFunction, writable, writeAction} = column;
         const withSorting = compareFunction && sortType !== 'disabled';
 
         if (withSorting) {
@@ -106,7 +107,7 @@ const Header = ({columns, selectedSorting, sortType, onSortClick, height, withou
             withoutColumnBorder={withoutColumnBorder}
           >
             {title}
-            {writable && <Pencil onClick={goToRewardPage} />}
+            {writable && <Pencil onClick={() => redirectAction(writeAction)} />}
           </Cell>
         );
       })}

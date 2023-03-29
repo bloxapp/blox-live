@@ -27,6 +27,7 @@ import SettingsRoute from '~app/components/EntryPage/routes/SettingsRoute';
 import RewardAddresses from '~app/components/RewardAddresses/RewardAddresses';
 import * as keyvaultSelectors from '~app/components/KeyVaultManagement/selectors';
 import { keyvaultLoadLatestVersion } from '~app/components/KeyVaultManagement/actions';
+import WithdrawalAddresses from '~app/components/WithdrawalAddresses/WithdrawalAddresses';
 
 const DashboardWrapper = styled.div`
   width: 100%;
@@ -163,6 +164,19 @@ const EntryPage = (props: Props) => {
             <Content>
               <RewardAddressWrapper>
                 <RewardAddresses {...otherProps} />
+              </RewardAddressWrapper>
+            </Content>
+          </>
+        )}
+      />
+      <Route
+        path={ROUTES.WITHDRAWAL_ADDRESSES}
+        render={() => (
+          <>
+            <Header withMenu />
+            <Content>
+              <RewardAddressWrapper>
+                <WithdrawalAddresses {...otherProps} />
               </RewardAddressWrapper>
             </Content>
           </>

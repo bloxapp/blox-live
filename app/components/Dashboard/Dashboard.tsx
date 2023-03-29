@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
 import config from '~app/backend/common/config';
-import { Loader, DiscordButton } from '~app/common/components';
 import EventLogs from '~app/components/Dashboard/components/EventLogs';
 import * as dashboardSelectors from '~app/components/Dashboard/selectors';
 import { Wallet, Validators } from '~app/components/Dashboard/components';
@@ -17,6 +16,7 @@ import {
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
 import * as actionsFromDashboard from '~app/components/Dashboard/actions';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
+import { Loader, DiscordButton, WithdrawalsPopUp } from '~app/common/components';
 import { clearWizardPage, clearWizardPageData, clearWizardStep } from '~app/components/Wizard/actions';
 import useNetworkSwitcher from '~app/components/Dashboard/components/NetworkSwitcher/useNetworkSwitcher';
 
@@ -121,17 +121,15 @@ const Dashboard = (props) => {
         summary={accountsSummary}
         showNetworkSwitcher={showNetworkSwitcher}
       />
-
+      <WithdrawalsPopUp />
       <Validators
         accounts={normalizedAccounts}
         showNetworkSwitcher={showNetworkSwitcher}
       />
-
       <EventLogs
         events={normalizedEventLogs}
         showNetworkSwitcher={showNetworkSwitcher}
       />
-
       <DiscordButton />
     </Wrapper>
   );
