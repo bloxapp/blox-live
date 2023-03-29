@@ -22,12 +22,13 @@ const Title = styled.h1`
   margin-bottom: 20px;
 `;
 
-const EventLogs = ({ events, isTestNetShow, showNetworkSwitcher }) => {
+const EventLogs = ({ events, features }) => {
   const PAGE_SIZE = 10;
   const [pagedEvents, setPagedEvents] = React.useState([]);
   const [paginationInfo, setPaginationInfo] = React.useState(null);
   const [filteredEvents, setFilteredEvents] = React.useState([]);
 
+  // TODO: move this logic to saga
   React.useEffect(() => {
     if (!events?.length) {
       setFilteredEvents([]);
@@ -36,17 +37,17 @@ const EventLogs = ({ events, isTestNetShow, showNetworkSwitcher }) => {
         if (!event.network) {
           return true;
         }
-        if (!showNetworkSwitcher) {
+        if (!features.showNetworkSwitcher) {
           return true;
         }
-        if (!isTestNetShow) {
+        if (!features.isTestNetShow) {
           return event.network === config.env.MAINNET_NETWORK;
         }
         return event.network === config.env.PRATER_NETWORK;
       }));
     }
     setPaginationInfo(null);
-  }, [events, isTestNetShow, showNetworkSwitcher]);
+  }, [events, features.isTestNetShow, features.showNetworkSwitcher]);
 
   const onPageClick = (offset) => {
     handlePageClick(filteredEvents, offset, setPagedEvents, setPaginationInfo, PAGE_SIZE);
@@ -79,12 +80,11 @@ const EventLogs = ({ events, isTestNetShow, showNetworkSwitcher }) => {
 
 EventLogs.propTypes = {
   events: PropTypes.array,
-  isTestNetShow: PropTypes.bool,
-  showNetworkSwitcher: PropTypes.bool
+  features: PropTypes.object,
 };
 
 const mapStateToProps = (state) => ({
-  isTestNetShow: dashboardSelectors.getTestNetShowFlag(state)
+  features: dashboardSelectors.getFeatures(state),
 });
 
 export default connect(mapStateToProps, null)(EventLogs);

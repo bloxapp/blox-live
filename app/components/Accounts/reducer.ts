@@ -6,6 +6,8 @@ const initialState = {
   isLoading: false,
   error: null,
   data: null,
+  filteredAccounts: null,
+  accountsSummary: null,
   addAnotherAccount: false,
   seedlessDepositNeeded: null,
   depositNeededData: {
@@ -18,41 +20,49 @@ const initialState = {
 
 /* eslint-disable default-case, no-param-reassign */
 const accountsReducer = (state = initialState, action: Action) => produce(state, (draft) => {
-    switch (action.type) {
-      case actionTypes.LOAD_ACCOUNTS:
-        draft.isLoading = true;
-        break;
-      case actionTypes.LOAD_ACCOUNTS_SUCCESS:
-        draft.data = action.payload;
-        draft.isLoading = false;
-        break;
-      case actionTypes.LOAD_ACCOUNTS_FAILURE:
-        draft.error = action.payload;
-        draft.isLoading = false;
-        break;
-      case actionTypes.SET_DEPOSIT_NEEDED:
-        draft.depositNeededData.isNeeded = action.payload.isNeeded;
-        draft.depositNeededData.publicKey = action.payload.publicKey;
-        draft.depositNeededData.accountIndex = action.payload.accountIndex;
-        draft.depositNeededData.network = action.payload.network;
-        break;
-      case actionTypes.ADD_ANOTHER_ACCOUNT:
-        draft.addAnotherAccount = action.payload;
-        break;
-      case actionTypes.SET_SEEDLESS_DEPOSIT_NEEDED:
-        draft.seedlessDepositNeeded = action.payload;
-        break;
-      case actionTypes.CLEAR_DATA:
-      case LOGOUT:
-        draft.isLoading = initialState.isLoading;
-        draft.error = initialState.error;
-        draft.data = initialState.data;
-        draft.addAnotherAccount = initialState.addAnotherAccount;
-        draft.depositNeededData = initialState.depositNeededData;
-        draft.seedlessDepositNeeded = initialState.seedlessDepositNeeded;
-        break;
-    }
-  });
+  switch (action.type) {
+    case actionTypes.LOAD_ACCOUNTS:
+      draft.isLoading = true;
+      break;
+    case actionTypes.LOAD_ACCOUNTS_SUCCESS:
+      draft.data = action.payload;
+      draft.isLoading = false;
+      break;
+    case actionTypes.SET_FILTERED_ACCOUNTS:
+      draft.filteredAccounts = action.payload;
+      draft.isLoading = false;
+      break;
+    case actionTypes.SET_ACCOUNTS_SUMMARY:
+      draft.accountsSummary = action.payload;
+      draft.isLoading = false;
+      break;
+    case actionTypes.LOAD_ACCOUNTS_FAILURE:
+      draft.error = action.payload;
+      draft.isLoading = false;
+      break;
+    case actionTypes.SET_DEPOSIT_NEEDED:
+      draft.depositNeededData.isNeeded = action.payload.isNeeded;
+      draft.depositNeededData.publicKey = action.payload.publicKey;
+      draft.depositNeededData.accountIndex = action.payload.accountIndex;
+      draft.depositNeededData.network = action.payload.network;
+      break;
+    case actionTypes.ADD_ANOTHER_ACCOUNT:
+      draft.addAnotherAccount = action.payload;
+      break;
+    case actionTypes.SET_SEEDLESS_DEPOSIT_NEEDED:
+      draft.seedlessDepositNeeded = action.payload;
+      break;
+    case actionTypes.CLEAR_DATA:
+    case LOGOUT:
+      draft.isLoading = initialState.isLoading;
+      draft.error = initialState.error;
+      draft.data = initialState.data;
+      draft.addAnotherAccount = initialState.addAnotherAccount;
+      draft.depositNeededData = initialState.depositNeededData;
+      draft.seedlessDepositNeeded = initialState.seedlessDepositNeeded;
+      break;
+  }
+});
 
 type Action = {
   type: string;

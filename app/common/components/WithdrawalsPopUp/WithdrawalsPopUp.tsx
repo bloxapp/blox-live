@@ -1,7 +1,16 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
-import {Icon} from 'common/components';
-import useRouting from '../../hooks/useRouting';
+import { Icon } from 'common/components';
+import { bindActionCreators } from 'redux';
+import config from '~app/backend/common/config';
+import useRouting from '~app/common/hooks/useRouting';
+import useAccounts from '~app/components/Accounts/useAccounts';
+import { MODAL_TYPES } from '~app/components/Dashboard/constants';
+import * as dashboardSelectors from '~app/components/Dashboard/selectors';
+import * as actionsFromDashboard from '~app/components/Dashboard/actions';
+import useNetworkSwitcher from '~app/components/Dashboard/components/NetworkSwitcher/useNetworkSwitcher';
 
 const TextWrapper = styled.div`
   display: flex;
@@ -9,9 +18,11 @@ const TextWrapper = styled.div`
   align-self: center;
   flex-direction: column;
 `;
+
 const FirstSectionWrapper = styled.div`
   display: flex;
 `;
+
 const BlueText = styled.span`
   color: #2536b8;
   font-size: 14px;
@@ -21,6 +32,7 @@ const BlueText = styled.span`
   font-stretch: normal;
   letter-spacing: normal;
 `;
+
 const LinkText = styled.span`
   font-size: 12px;
   font-weight: 900;
@@ -31,6 +43,7 @@ const LinkText = styled.span`
   letter-spacing: normal;
   color: ${({theme}) => theme.primary600};
 `;
+
 const SubText = styled.span`
   font-size: 11px;
   font-weight: 500;
@@ -58,11 +71,32 @@ const Wrapper = styled.div`
   border: ${({theme}) => `solid 1px ${theme.primary900}`};
 `;
 
-const WithdrawalsPopUp = () => {
+const WithdrawalsPopUp = ({ features, dashboardActions }) => {
+  const { accounts } = useAccounts();
   const { goToPage, ROUTES } = useRouting();
+  const { setTestNetShowFlag } = useNetworkSwitcher();
   const editWithdrawalAddress = () => {
     goToPage(ROUTES.WITHDRAWAL_ADDRESSES);
   };
+
+  React.useEffect(() => {
+    const mainnetValidators = accounts.find(
+      (validator: any) => {
+        return !validator.feeRecipient && validator.network === config.env.MAINNET_NETWORK;
+      }
+    );
+    // TODO: what is the logic for show merge popup?? calculate it in accounts saga where all features calculated
+    if (features.showMergePopUp && mainnetValidators !== undefined) {
+      setTestNetShowFlag(false);
+      dashboardActions.setModalDisplay({
+        show: true,
+        type: MODAL_TYPES.MERGE_COMING,
+      });
+      dashboardActions.setFeatures({
+        showMergePopUp: true,
+      });
+    }
+  });
 
   return (
     <Wrapper onClick={editWithdrawalAddress}>
@@ -79,4 +113,19 @@ const WithdrawalsPopUp = () => {
   );
 };
 
-export default WithdrawalsPopUp;
+WithdrawalsPopUp.propTypes = {
+  features: PropTypes.object,
+  dashboardActions: PropTypes.any,
+};
+
+const mapStateToProps = (state) => ({
+  features: dashboardSelectors.getFeatures(state),
+});
+
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  dashboardActions: bindActionCreators(actionsFromDashboard, dispatch)
+});
+
+type Dispatch = (arg0: { type: string }) => any;
+
+export default connect(mapStateToProps, mapDispatchToProps)(WithdrawalsPopUp);

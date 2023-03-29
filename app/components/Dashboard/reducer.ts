@@ -2,9 +2,6 @@ import produce from 'immer';
 import * as actionTypes from '~app/components/Dashboard/actionTypes';
 
 const initialState = {
-  testNet: {
-    show: false
-  },
   dialog: {
     // Usual modal dialog attributes
     type: '',
@@ -23,7 +20,12 @@ const initialState = {
       onCancelButtonClick: null
     }
   },
-  mergePopUpSeen: false,
+  features: {
+    isTestNetShow: false,
+    showMergePopUp: false,
+    showNetworkSwitcher: false,
+    exitValidatorEnabled: false,
+  },
 };
 
 /* eslint-disable default-case, no-param-reassign */
@@ -45,11 +47,12 @@ const dashboardReducer = (state = initialState, action: Action) => produce(state
     case actionTypes.CLEAR_MODAL_DISPLAY_DATA:
       draft.dialog = initialState.dialog;
       break;
-    case actionTypes.SET_MODAL_MERGE_AS_SEEN:
-      draft.mergePopUpSeen = true;
-      break;
-    case actionTypes.SET_TESTNET_FLAG:
-      draft.testNet.show = action.payload.testNet?.show || initialState.testNet.show;
+    case actionTypes.SET_FEATURES:
+      draft.features = {
+        ...initialState.features,
+        ...state.features,
+        ...action.payload
+      };
       break;
   }
 });

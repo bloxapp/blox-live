@@ -1,28 +1,43 @@
 import { useEffect } from 'react';
 import { useSelector, useDispatch, shallowEqual } from 'react-redux';
-
-import * as selectors from './selectors';
-import { loadAccounts } from './actions';
 import saga from './saga';
+import * as selectors from './selectors';
 import { useInjectSaga } from 'utils/injectSaga';
+import { loadAccounts, setFilteredAccounts, setAccountsSummary } from './actions';
 
-const { getAccounts, getAccountsLoadingStatus, getAccountsError } = selectors;
+const {
+  getAccounts,
+  getAccountsError,
+  getAccountsSummary,
+  getFilteredAccounts,
+  getAccountsLoadingStatus,
+} = selectors;
 
 const useAccounts = () => {
   useInjectSaga({key: 'accounts', saga, mode: ''});
 
-  const accounts: [] = useSelector(getAccounts, shallowEqual);
-  const isLoadingAccounts: boolean = useSelector(getAccountsLoadingStatus, shallowEqual);
-  const accountsErorr: string = useSelector(getAccountsError, shallowEqual);
   const dispatch = useDispatch();
+  const accounts: [] = useSelector(getAccounts, shallowEqual);
+  const accountsError: string = useSelector(getAccountsError);
+  const accountsSummary: any = useSelector(getAccountsSummary);
+  const filteredAccounts: any = useSelector(getFilteredAccounts, shallowEqual);
+  const isLoadingAccounts: boolean = useSelector(getAccountsLoadingStatus);
 
   useEffect(() => {
-    if (!accounts && !isLoadingAccounts && !accountsErorr) {
+    if (!accounts && !isLoadingAccounts && !accountsError) {
       dispatch(loadAccounts());
     }
-  }, [isLoadingAccounts]);
+  }, [isLoadingAccounts, accounts, accountsError]);
 
-  return { accounts, isLoadingAccounts, accountsErorr };
+  return {
+    isLoadingAccounts,
+    accounts,
+    accountsError,
+    filteredAccounts,
+    accountsSummary,
+    setFilteredAccounts,
+    setAccountsSummary,
+  };
 };
 
 export default useAccounts;
