@@ -44,10 +44,10 @@ export default class SeedLess implements Strategy {
     let initHighestProposal = '';
 
     for (let i = 0; i < inputData.split(',').length; i += 1) {
-      initHighestSource += `${i === 0 ? '' : ','}${i.toString()}`;
-      initHighestTarget += `${i === 0 ? '' : ','}${(i + 1).toString()}`;
+      initHighestSource += `${i === 0 ? '' : ','}0`;
+      initHighestTarget += `${i === 0 ? '' : ','}1`;
     }
-    initHighestProposal = initHighestSource;
+    initHighestProposal = initHighestTarget;
     return {
       initHighestSource,
       initHighestTarget,
