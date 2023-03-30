@@ -89,6 +89,8 @@ export default class Config {
       FLAGS: {
         DASHBOARD: {
           TESTNET_SHOW: 'dashboard:testNet:show',
+          EMULATE_MERGE_POPUP: 'dashboard:mergePopup:emulate',
+          TESTNET_SWITCHER_SHOW_FORCE: 'dashboard:testNet:switcherShowForce',
         },
         AUTH: {
           TEST_EXPIRED_ACCESS_TOKEN: 'auth:expired:test',

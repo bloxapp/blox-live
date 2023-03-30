@@ -57,14 +57,25 @@ export function* prepareAccounts(accounts: any) {
   yield put(setAccountsSummary(summarizeAccounts(filtered)));
 
   // Calculate other features
-  let exitValidatorEnabled = false;
+  const newFeatures: Record<string, any> = {...features};
   // eslint-disable-next-line no-restricted-syntax
   for (const account of accounts) {
     // Exit validator enabled in accounts table
-    exitValidatorEnabled =
-      exitValidatorEnabled || (account.withdrawalKey.startsWith('0x01') && account.status === 'active');
+    newFeatures.exitValidatorEnabled = newFeatures.exitValidatorEnabled
+      || (account.withdrawalKey.startsWith('0x01') && account.status === 'active');
+
+    // Merge popup
+    newFeatures.showMergePopUp = newFeatures.showMergePopUp
+      || (
+        account.withdrawalKey.startsWith('0x00')
+        && account.status === 'active'
+        && (
+          account.network === config.env.MAINNET_NETWORK
+          || config.FLAGS.DASHBOARD.EMULATE_MERGE_POPUP
+        )
+      );
   }
-  yield call(submitFeatures, { exitValidatorEnabled });
+  yield call(submitFeatures, newFeatures);
 }
 
 function* onLoadingSuccess(response: Record<string, any>) {

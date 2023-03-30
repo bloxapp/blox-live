@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import { Icon } from 'common/components';
 import { bindActionCreators } from 'redux';
 import config from '~app/backend/common/config';
 import useRouting from '~app/common/hooks/useRouting';
@@ -11,6 +10,9 @@ import { MODAL_TYPES } from '~app/components/Dashboard/constants';
 import * as dashboardSelectors from '~app/components/Dashboard/selectors';
 import * as actionsFromDashboard from '~app/components/Dashboard/actions';
 import useNetworkSwitcher from '~app/components/Dashboard/components/NetworkSwitcher/useNetworkSwitcher';
+
+// @ts-ignore
+import withdrawalImage from './images/withdrawals.svg';
 
 const TextWrapper = styled.div`
   display: flex;
@@ -62,7 +64,7 @@ const Wrapper = styled.div`
   border-radius: 8px;
   align-items: center;
   margin-bottom: 32px;
-  padding: 9px 32px 6px;
+  padding: 9px 32px 9px;
   background-color: #ffffff;
   justify-content: space-between;
   &:hover {
@@ -101,7 +103,7 @@ const WithdrawalsPopUp = ({ features, dashboardActions }) => {
   return (
     <Wrapper onClick={editWithdrawalAddress}>
       <FirstSectionWrapper>
-        <Icon color={'gray50'} name={'discord-symbol'} fontSize={'67px'} />
+        <img src={withdrawalImage} />
         <TextWrapper>
           <BlueText>Withdrawals are here!</BlueText>
           <SubText>Stakers are now enabled to withdraw earned rewards from the Beacon Chain or exit the
