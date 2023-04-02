@@ -44,14 +44,14 @@ export default class Seed implements Strategy {
 
     if (accumulate) {
       for (let i = 0; i <= index; i += 1) {
-        highestSource += `${i.toString()}${i === parseInt(String(index), 10) ? '' : ','}`;
-        highestTarget += `${(i + 1).toString()}${i === parseInt(String(index), 10) ? '' : ','}`;
+        highestSource += `0${i === parseInt(String(index), 10) ? '' : ','}`;
+        highestTarget += `1${i === parseInt(String(index), 10) ? '' : ','}`;
       }
-      highestProposal = highestSource;
+      highestProposal = highestTarget;
     } else {
       highestSource = '0';
       highestTarget = '1';
-      highestProposal = '0';
+      highestProposal = '1';
     }
     return {
       highestSource,
