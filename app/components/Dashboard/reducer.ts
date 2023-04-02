@@ -7,8 +7,8 @@ const initialState = {
     type: '',
     show: false,
     text: '',
+    data: null, // Custom data passed to dialog, can be any type and structure for different logic
     onSuccess: null,
-    rewardAddressesData: null,
     displayCloseButton: true,
 
     // Attributes for confirmation dialog
@@ -37,7 +37,7 @@ const dashboardReducer = (state = initialState, action: Action) => produce(state
         type: action.payload.type,
         show: action.payload.show,
         text: action.payload.text,
-        rewardAddressesData: action.payload.rewardAddressesData,
+        data: action.payload.data,
         displayCloseButton: action.payload.displayCloseButton,
         confirmation: action.payload.confirmation ?? initialState.dialog.confirmation,
         onSuccess: action.payload.confirmation?.onConfirmButtonClick

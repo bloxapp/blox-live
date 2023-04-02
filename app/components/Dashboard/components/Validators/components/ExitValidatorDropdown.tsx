@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import useRouting from '~app/common/hooks/useRouting';
 import { Icon, DropDown } from '~app/common/components';
+import { setWizardPageData } from '~app/components/Wizard/actions';
 
 const Wrapper = styled.div`
   position: relative;
 `;
 
 interface ExitValidatorProps {
-  validator: Record<string, any>
+  validator: Record<string, any>,
+  setPageData: Function,
 }
 
-const ExitValidatorDropdown = ({ validator }: ExitValidatorProps) => {
+const ExitValidatorDropdown = ({ validator, setPageData }: ExitValidatorProps) => {
   const [isMenuOpen, toggleMenuDisplay] = useState(false);
   const { goToPage, ROUTES } = useRouting();
   const onClick = () => toggleMenuDisplay(!isMenuOpen);
@@ -21,6 +24,7 @@ const ExitValidatorDropdown = ({ validator }: ExitValidatorProps) => {
     {
       name: 'Exit Validator',
       onClick: () => {
+        setPageData(validator);
         goToPage(ROUTES.EXIT_VALIDATOR);
         console.log('Exit Validator clicked: ', validator);
       },
@@ -48,4 +52,10 @@ const ExitValidatorDropdown = ({ validator }: ExitValidatorProps) => {
   );
 };
 
-export default ExitValidatorDropdown;
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  setPageData: (data: any) => dispatch(setWizardPageData(data))
+});
+
+type Dispatch = (arg0: { type: string }) => any;
+
+export default connect(null, mapDispatchToProps)(ExitValidatorDropdown);

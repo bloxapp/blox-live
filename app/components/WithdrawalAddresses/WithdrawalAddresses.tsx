@@ -20,10 +20,10 @@ import useDashboardData from '~app/components/Dashboard/useDashboardData';
 import tableColumns from '~app/components/WithdrawalAddresses/tableColumns';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 import KeyVaultService from '~app/backend/services/key-vault/key-vault.service';
+import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
 import { BackButton, Title, BigButton } from '~app/components/Wizard/components/common';
 import { getAddAnotherAccount, getSeedlessDepositNeededStatus } from '~app/components/Accounts/selectors';
 import { getPage, getPageData, getStep, getWizardFinishedStatus } from '~app/components/Wizard/selectors';
-import usePasswordHandler from '../PasswordHandler/usePasswordHandler';
 
 const Wrapper = styled.div`
   height: 100%;
@@ -215,7 +215,7 @@ const WithdrawalAddresses = (props: Props) => {
             cancelButtonText: 'Later',
             onConfirmButtonClick: () => {
               checkIfPasswordIsNeeded(async () => {
-                setModalDisplay({show: true, type: MODAL_TYPES.UPDATE, rewardAddressesData: assignData});
+                setModalDisplay({show: true, type: MODAL_TYPES.UPDATE, data: assignData});
               });
             },
             onCancelButtonClick: () => clearModalDisplayData()

@@ -87,7 +87,7 @@ const ModalsManager = (props: Props) => {
           <KeyVaultUpdate
             onClose={() => onClose()}
             onSuccess={() => onKeyVaultProcessSuccess()}
-            rewardAddressesData={modalData.rewardAddressesData}
+            rewardAddressesData={modalData.data}
           />
         );
       case MODAL_TYPES.MUST_UPDATE_APP:

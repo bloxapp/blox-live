@@ -7,32 +7,51 @@ import { Checkbox } from '~app/common/components';
 import Spinner from '~app/common/components/Spinner';
 import useRouting from '~app/common/hooks/useRouting';
 import { setWizardPage} from '~app/components/Wizard/actions';
+import { getPageData } from '~app/components/Wizard/selectors';
+import {openEtherscanLink} from '~app/components/common/service';
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
+import { SecondaryButton } from '~app/common/components/Modal/Modal';
+import Warning from '~app/components/Wizard/components/common/Warning';
 import * as actionsFromDashboard from '~app/components/Dashboard/actions';
 import useDashboardData from '~app/components/Dashboard/useDashboardData';
 // import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 // import KeyVaultService from '~app/backend/services/key-vault/key-vault.service';
 import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
-import { BackButton, Title, BigButton } from '~app/components/Wizard/components/common';
-import { getAddAnotherAccount, getSeedlessDepositNeededStatus } from '~app/components/Accounts/selectors';
-import { getPage, getPageData, getStep, getWizardFinishedStatus } from '~app/components/Wizard/selectors';
+import { BackButton, Title, BigButton, Link } from '~app/components/Wizard/components/common';
+import { longStringShorten } from '~app/common/components/DropZone/components/SelectedFilesTable';
 
 const Wrapper = styled.div`
   height: 100%;
-  //margin-top: 64px;
   margin: 70px auto;
   flex-direction: column;
-  //padding: 70px 150px 64px 150px;
   background-color: ${({theme}) => theme.gray50};
+  max-width: 595px;
 `;
 
 const Text = styled.span`
   display: block;
   font-size: 14px;
-  font-weight: 500;
-  line-height: 1.14;
   font-family: Avenir, serif;
-  color: ${({theme}) => theme.gray600};
+  color: ${({theme}) => theme.gray800};
+`;
+
+const Code = styled.span`
+  display: flex;
+  min-width: 100%;
+  justify-content: space-between;
+  width: 100%;
+  padding: 18px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.62;
+  letter-spacing: normal;
+  text-align: left;
+  color: #63768b;
+  border: solid 1px ${({theme}) => theme.gray300};
+  background-color: solid 1px ${({theme}) => theme.gray100};
 `;
 
 const ErrorMessage = styled.span`
@@ -72,7 +91,7 @@ const SubmitButton = styled(BigButton)`
 `;
 
 const ExitValidator = (props: Props) => {
-  const { dashboardActions, walletNeedsUpdate } = props;
+  const { dashboardActions, walletNeedsUpdate, pageData } = props;
   const { goToPage, ROUTES } = useRouting();
   const [checked, setChecked] = useState();
   // const keyVaultService = new KeyVaultService();
@@ -87,6 +106,10 @@ const ExitValidator = (props: Props) => {
   useEffect(() => {
     setButtonEnabled(checked && !isLoading);
   }, [checked, isLoading]);
+
+  const onCancelButtonClick = () => {
+    goToPage(ROUTES.DASHBOARD);
+  };
 
   const afterPasswordValidationCallback = async () => {
     console.log('TODO: afterPasswordValidationCallback - use if necessary for state changes etc');
@@ -112,7 +135,7 @@ const ExitValidator = (props: Props) => {
             title,
             confirmButtonText,
             cancelButtonText: 'Later',
-            onConfirmButtonClick: () => {
+            onConfirmButtonClick: async () => {
               return checkIfPasswordIsNeeded(afterPasswordValidationCallback);
             },
             onCancelButtonClick: () => clearModalDisplayData()
@@ -146,21 +169,75 @@ const ExitValidator = (props: Props) => {
         }} />
       )}
       <Title>Exit Validator</Title>
-      <Text style={{marginBottom: 16}}>
-        Some text
+
+      <Text style={{marginBottom: 16, fontSize: 16}}>
+        Validator Public Key
       </Text>
 
+      <Code style={{marginBottom: 32}}>
+        {longStringShorten(pageData.publicKey, 27)}
+      </Code>
+
+      <Text style={{marginBottom: 16}}>
+        Exiting from the Beacon Chain will stop your validator from validating the Ethereum network.
+      </Text>
+
+      <Text style={{marginBottom: 16}}>
+        After exiting, the entire validator entire balance consisting of the 32 ETH principle and accrued rewards will be unlocked from the Beacon Chain and sent to the validator&apos;s withdrawal address.
+      </Text>
+
+      <Text style={{marginBottom: 16}}>
+        Keep in mind that as withdrawals are processed within a queue, the procces of exiting your validator is not immediate and could take up to a few hours. During this time, your validator will continue to perform duties on the Beacon Chain.
+      </Text>
+
+      <Text style={{marginBottom: 32}}>
+        Please refrain from making any changes to your AWS account until your see a confirmation in your dashboard that the process has been finalized.
+      </Text>
+
+      <Text style={{marginBottom: 16, fontSize: 16}}>
+        Withdrawal Address
+      </Text>
+
+      <Code style={{marginBottom: 32}}>
+        <div>{pageData.feeRecipient}</div>
+        {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+        <Link
+          style={{fontSize: 14, marginLeft: 'auto', marginRight: 10}}
+          onClick={async () => openEtherscanLink(`/address/${pageData.feeRecipient}`, pageData.network)}
+        >
+          View on Etherscan ⬈
+        </Link>
+      </Code>
+
+      <Warning
+        style={{marginBottom: 32, maxWidth: 'none', fontSize: 12, padding: 20}}
+        text={'The process of exiting your validator is irreversible and could not be changed in the future.'}
+      />
+
       <Checkbox checked={checked} onClick={setChecked} checkboxStyle={{marginBottom: 24, marginTop: 9, marginRight: 8}}
-        labelStyle={{marginBottom: 24, marginTop: 9}}>
+        labelStyle={{marginBottom: 24, marginTop: 9, fontSize: 12}}>
         I understand that exiting my validator is irreversible and could take some time to be processed.
       </Checkbox>
 
-      <SubmitButton
-        isDisabled={!buttonEnabled}
-        onClick={exitValidator}
-      >
-        Exit Validator
-      </SubmitButton>
+      <div style={{display: 'flex', alignItems: 'center', alignContent: 'center', justifyContent: 'left', height: 'auto'}}>
+        <div
+          style={{display: 'flex', minWidth: 200, alignContent: 'center', justifyContent: 'center', marginTop: 'auto'}}
+        >
+          <SecondaryButton
+            style={{fontSize: 16, color: '#047fff', display: 'block', maxWidth: 70}}
+            onClick={onCancelButtonClick}
+          >
+            Cancel
+          </SecondaryButton>
+        </div>
+
+        <SubmitButton
+          isDisabled={!buttonEnabled}
+          onClick={exitValidator}
+        >
+          Exit Validator
+        </SubmitButton>
+      </div>
 
       {error && <ErrorMessage>{error}</ErrorMessage>}
 
@@ -175,12 +252,7 @@ const ExitValidator = (props: Props) => {
 };
 
 const mapStateToProps = (state) => ({
-  page: getPage(state),
-  step: getStep(state),
   pageData: getPageData(state),
-  addAnotherAccount: getAddAnotherAccount(state),
-  isFinishedWizard: getWizardFinishedStatus(state),
-  seedLessNeedDeposit: getSeedlessDepositNeededStatus(state),
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
@@ -189,20 +261,11 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 });
 
 type Props = {
-  page: number;
-  step: number;
-  accounts: any;
   pageData: any;
   dashboardActions: any,
   flowPage: boolean;
-  isFinishedWizard: boolean;
   walletNeedsUpdate: boolean,
-  addAnotherAccount: boolean;
-  seedLessNeedDeposit: boolean;
-  setPage: (page: number) => void;
-  setStep: (page: number) => void;
   setPageData: (data: any) => void;
-  wizardActions: Record<string, any>;
 };
 
 type Dispatch = (arg0: { type: string }) => any;

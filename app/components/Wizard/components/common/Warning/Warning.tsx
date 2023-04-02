@@ -23,20 +23,21 @@ const IconWrapper = styled.div`
 const Text = styled.div``;
 
 const Warning = (props) => {
-  const { text, style } = props;
+  const { text, style, textStyle } = props;
   return (
     <Wrapper style={style || {}}>
       <IconWrapper>
         <Icon name={'report'} fontSize={'22px'} color={'warning900'} />
       </IconWrapper>
-      <Text>{text}</Text>
+      <Text style={textStyle || {}}>{text}</Text>
     </Wrapper>
   );
 };
 
 Warning.propTypes = {
   text: PropTypes.any,
-  style: PropTypes.object
+  style: PropTypes.object,
+  textStyle: PropTypes.object,
 };
 
 export default Warning;

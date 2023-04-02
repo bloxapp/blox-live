@@ -4,6 +4,7 @@ import OrganizationService from '../../backend/services/organization/organizatio
 import Connection from '../../backend/common/store-manager/connection';
 import {version} from '../../package.json';
 import FormData from 'form-data';
+import { NETWORKS } from '~app/components/Wizard/components/Validators/constants';
 
 export const truncateText = (value, fromStartIndex, fromEndIndex) => {
   if (value == null || !value.length) {
@@ -15,6 +16,28 @@ export const truncateText = (value, fromStartIndex, fromEndIndex) => {
 export const openExternalLink = async (url, base: string = undefined) => {
   const fullUrl = `${config.env.WEBSITE_URL}/${url}`;
   await shell.openExternal(`${base ?? fullUrl}`);
+};
+
+export const trimTrailingSlash = (url: string) => url.replace(/\/$/, '');
+
+/**
+ * Open specific path on etherscan depending on network
+ * @param path
+ * @param network
+ */
+export const openEtherscanLink = async (path: string, network: string): Promise<void> => {
+  let link = '';
+  switch (network) {
+    case NETWORKS.mainnet.label:
+      link = `https://etherscan.io/${trimTrailingSlash(path)}`;
+      break;
+    case NETWORKS.prater.label:
+      link = `https://goerli.etherscan.io/${trimTrailingSlash(path)}`;
+      break;
+  }
+  if (link) {
+    await shell.openExternal(link);
+  }
 };
 
 export const reportCrash = async () => {
