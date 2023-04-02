@@ -2,11 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import {bindActionCreators} from 'redux';
+import { bindActionCreators } from 'redux';
 import config from '~app/backend/common/config';
 import useAccounts from '~app/components/Accounts/useAccounts';
-import {MODAL_TYPES} from '~app/components/Dashboard/constants';
-import Connection from '~app/backend/common/store-manager/connection';
+import { MODAL_TYPES } from '~app/components/Dashboard/constants';
+import BaseStore from '~app/backend/common/store-manager/base-store';
 import EventLogs from '~app/components/Dashboard/components/EventLogs';
 import { normalizeEventLogs } from '~app/components/Dashboard/service';
 import * as dashboardSelectors from '~app/components/Dashboard/selectors';
@@ -40,6 +40,7 @@ const Dashboard = (props) => {
     callClearWizardPage,
     callClearWizardPageData
   } = props;
+  const baseStore = new BaseStore();
   const { setTestNetShowFlag } = useNetworkSwitcher();
   const { clearProcessState, isLoading, isDone } = useProcessRunner();
   const { isLoadingAccounts, accountsSummary, filteredAccounts } = useAccounts();
@@ -73,7 +74,7 @@ const Dashboard = (props) => {
   }
 
   React.useEffect(() => {
-    const emulateMergePopUp = Connection.db('').get(config.FLAGS.FEATURES.EMULATE_MERGE_POPUP);
+    const emulateMergePopUp = baseStore.get(config.FLAGS.FEATURES.EMULATE_MERGE_POPUP) === 'true';
     if (!features.mergePopUpSeen && (features.showMergePopUp || emulateMergePopUp) && !isModalActive) {
       setTestNetShowFlag(false);
       dashboardActions.setModalDisplay({
@@ -81,7 +82,7 @@ const Dashboard = (props) => {
         type: MODAL_TYPES.MERGE_COMING,
       });
     }
-  }, []);
+  }, [features.showMergePopUp, isModalActive]);
 
   return (
     <Wrapper>

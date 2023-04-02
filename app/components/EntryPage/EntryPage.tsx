@@ -21,6 +21,7 @@ import useEventLogs from '~app/components/EventLogs/useEventLogs';
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
 import * as wizardSelectors from '~app/components/Wizard/selectors';
 import Connection from '~app/backend/common/store-manager/connection';
+import ExitValidator from '~app/components/ExitValidator/ExitValidator';
 import Content from '~app/components/EntryPage/routes/wrappers/Content';
 import * as actionsFromDashboard from '~app/components/Dashboard/actions';
 import SettingsRoute from '~app/components/EntryPage/routes/SettingsRoute';
@@ -164,6 +165,19 @@ const EntryPage = (props: Props) => {
             <Content>
               <RewardAddressWrapper>
                 <RewardAddresses {...otherProps} />
+              </RewardAddressWrapper>
+            </Content>
+          </>
+        )}
+      />
+      <Route
+        path={ROUTES.EXIT_VALIDATOR}
+        render={() => (
+          <>
+            <Header withMenu />
+            <Content>
+              <RewardAddressWrapper>
+                <ExitValidator {...otherProps} />
               </RewardAddressWrapper>
             </Content>
           </>

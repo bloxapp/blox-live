@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import styled from 'styled-components';
-import { Icon, DropDown } from 'common/components';
+import useRouting from '~app/common/hooks/useRouting';
+import { Icon, DropDown } from '~app/common/components';
 
 const Wrapper = styled.div`
   position: relative;
@@ -13,13 +14,14 @@ interface ExitValidatorProps {
 
 const ExitValidatorDropdown = ({ validator }: ExitValidatorProps) => {
   const [isMenuOpen, toggleMenuDisplay] = useState(false);
+  const { goToPage, ROUTES } = useRouting();
   const onClick = () => toggleMenuDisplay(!isMenuOpen);
 
   const menuItems = [
     {
       name: 'Exit Validator',
       onClick: () => {
-        // TODO: navigate to exit validator screen
+        goToPage(ROUTES.EXIT_VALIDATOR);
         console.log('Exit Validator clicked: ', validator);
       },
       color: false
