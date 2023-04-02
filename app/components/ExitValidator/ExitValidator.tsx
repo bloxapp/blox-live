@@ -1,19 +1,22 @@
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import {bindActionCreators} from 'redux';
-import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 // import config from '~app/backend/common/config';
 import { Checkbox } from '~app/common/components';
 import Spinner from '~app/common/components/Spinner';
+import { SuccessView } from 'components/SuccessView';
 import useRouting from '~app/common/hooks/useRouting';
-import { setWizardPage} from '~app/components/Wizard/actions';
+import {setWizardPage } from '~app/components/Wizard/actions';
 import { getPageData } from '~app/components/Wizard/selectors';
 import {openEtherscanLink} from '~app/components/common/service';
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
+import * as actionsFromWizard from '~app/components/Wizard/actions';
 import { SecondaryButton } from '~app/common/components/Modal/Modal';
 import Warning from '~app/components/Wizard/components/common/Warning';
 import * as actionsFromDashboard from '~app/components/Dashboard/actions';
 import useDashboardData from '~app/components/Dashboard/useDashboardData';
+import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 // import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 // import KeyVaultService from '~app/backend/services/key-vault/key-vault.service';
 import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
@@ -22,6 +25,7 @@ import { longStringShorten } from '~app/common/components/DropZone/components/Se
 
 const Wrapper = styled.div`
   height: 100%;
+  width: 100%;
   margin: 70px auto;
   flex-direction: column;
   background-color: ${({theme}) => theme.gray50};
@@ -91,28 +95,38 @@ const SubmitButton = styled(BigButton)`
 `;
 
 const ExitValidator = (props: Props) => {
-  const { dashboardActions, walletNeedsUpdate, pageData } = props;
+  const { dashboardActions, walletNeedsUpdate, pageData, wizardActions } = props;
+  const { setFinishedWizard } = wizardActions;
   const { goToPage, ROUTES } = useRouting();
-  const [checked, setChecked] = useState();
+  const [checked, setChecked] = useState(false);
   // const keyVaultService = new KeyVaultService();
-  const [error, showError] = useState('');
   // const { isDone, processData } = useProcessRunner();
   const { loadDataAfterNewAccount } = useDashboardData();
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
-  const [isLoading, setIsLoading] = useState(false);
   const { setModalDisplay, clearModalDisplayData } = dashboardActions;
-  const [buttonEnabled, setButtonEnabled] = useState(checked && !isLoading);
+  const [showSuccessScreen, setShowSuccessScreen] = useState(false);
+  const { isLoading, isDone, error, clearProcessState } = useProcessRunner();
+  const [buttonEnabled, setButtonEnabled] = useState((checked && !isLoading) || isDone);
 
   useEffect(() => {
-    setButtonEnabled(checked && !isLoading);
-  }, [checked, isLoading]);
+    if (!showSuccessScreen) {
+      setButtonEnabled((checked && !isLoading) || isDone);
+    }
+  }, [checked, isLoading, isDone, showSuccessScreen]);
 
   const onCancelButtonClick = () => {
+    clearProcessState();
     goToPage(ROUTES.DASHBOARD);
   };
 
   const afterPasswordValidationCallback = async () => {
-    console.log('TODO: afterPasswordValidationCallback - use if necessary for state changes etc');
+    // Start exit validator process
+    await startExitValidatorProcess().then(() => {
+      // TODO: remove delay as it uses only for presentation of long-lasting process
+      setTimeout(() => {
+        return goToSuccessScreen();
+      }, 5000);
+    });
   };
 
   const startExitValidatorProcess = async () => {
@@ -121,9 +135,6 @@ const ExitValidator = (props: Props) => {
 
   const exitValidator = async () => {
     if (buttonEnabled) {
-      setIsLoading(true);
-      showError('');
-
       if (walletNeedsUpdate) {
         const title = 'Update KeyVault';
         const confirmButtonText = title;
@@ -141,22 +152,44 @@ const ExitValidator = (props: Props) => {
             onCancelButtonClick: () => clearModalDisplayData()
           }
         });
-      } else {
-        await checkIfPasswordIsNeeded(afterPasswordValidationCallback);
+        return;
       }
-
-      // Start exit validator process
-      await startExitValidatorProcess().then(() => {
-        setIsLoading(false);
-        // TODO: show success screen here
-        // TODO: on success screen when "Return to Dashboard" clicked - do goToPage(ROUTES.DASHBOARD);
-        loadDataAfterNewAccount().then(() => {
-          // TODO: change to success screen route
-          goToPage(ROUTES.DASHBOARD);
-        });
-      });
+      await checkIfPasswordIsNeeded(afterPasswordValidationCallback);
     }
   };
+
+  const goToSuccessScreen = async () => {
+    clearProcessState();
+    await setFinishedWizard(true);
+    setShowSuccessScreen(true);
+  };
+
+  const goToDashboard = async () => {
+    await loadDataAfterNewAccount().then(() => {
+      goToPage(ROUTES.DASHBOARD);
+    });
+  };
+
+  if (showSuccessScreen) {
+    return (
+      <Wrapper>
+        <SuccessView>
+          <Text style={{marginBottom: 32}}>
+            Your request to exit your validator was sent successfully to the Beacon Chain.
+          </Text>
+          <Text style={{marginBottom: 32}}>
+            Please keep in mind that the process finalization on the Beacon Chain is not immediate and could take up to a few hours.
+          </Text>
+          <SubmitButton
+            isDisabled={false}
+            onClick={goToDashboard}
+          >
+            Return to Dashboard
+          </SubmitButton>
+        </SuccessView>
+      </Wrapper>
+    );
+  }
 
   return (
     <Wrapper>
@@ -214,8 +247,13 @@ const ExitValidator = (props: Props) => {
         text={'The process of exiting your validator is irreversible and could not be changed in the future.'}
       />
 
-      <Checkbox checked={checked} onClick={setChecked} checkboxStyle={{marginBottom: 24, marginTop: 9, marginRight: 8}}
-        labelStyle={{marginBottom: 24, marginTop: 9, fontSize: 12}}>
+      <Checkbox
+        disabled={isLoading}
+        checked={checked}
+        onClick={setChecked}
+        checkboxStyle={{marginBottom: 24, marginTop: 9, marginRight: 8}}
+        labelStyle={{marginBottom: 24, marginTop: 9, fontSize: 12}}
+      >
         I understand that exiting my validator is irreversible and could take some time to be processed.
       </Checkbox>
 
@@ -225,7 +263,7 @@ const ExitValidator = (props: Props) => {
         >
           <SecondaryButton
             style={{fontSize: 16, color: '#047fff', display: 'block', maxWidth: 70}}
-            onClick={onCancelButtonClick}
+            onClick={!isLoading && onCancelButtonClick}
           >
             Cancel
           </SecondaryButton>
@@ -257,12 +295,14 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   setPage: (page: any) => dispatch(setWizardPage(page)),
-  dashboardActions: bindActionCreators(actionsFromDashboard, dispatch)
+  wizardActions: bindActionCreators(actionsFromWizard, dispatch),
+  dashboardActions: bindActionCreators(actionsFromDashboard, dispatch),
 });
 
 type Props = {
   pageData: any;
   dashboardActions: any,
+  wizardActions: any,
   flowPage: boolean;
   walletNeedsUpdate: boolean,
   setPageData: (data: any) => void;
