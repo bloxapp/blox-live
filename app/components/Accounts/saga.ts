@@ -63,18 +63,12 @@ export function* prepareAccounts(accounts: any) {
     // Exit validator enabled in accounts table
     newFeatures.exitValidatorEnabled = newFeatures.exitValidatorEnabled
       || (account.withdrawalKey.startsWith('0x01') && account.status === 'active');
-
-    // Merge popup
-    newFeatures.showMergePopUp = newFeatures.showMergePopUp
-      || (
-        account.withdrawalKey.startsWith('0x00')
-        && account.status === 'active'
-        && (
-          account.network === config.env.MAINNET_NETWORK
-          || config.FLAGS.DASHBOARD.EMULATE_MERGE_POPUP
-        )
-      );
   }
+
+  // Merge popup
+  const mainnetValidators = accounts.find((validator) => !validator.feeRecipient && validator.network === config.env.MAINNET_NETWORK);
+  newFeatures.showMergePopUp = !features.mergePopUpSeen && mainnetValidators !== undefined;
+
   yield call(submitFeatures, newFeatures);
 }
 

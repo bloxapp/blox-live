@@ -23,6 +23,7 @@ const initialState = {
   features: {
     isTestNetShow: false,
     showMergePopUp: false,
+    mergePopUpSeen: false,
     showNetworkSwitcher: false,
     exitValidatorEnabled: false,
   },

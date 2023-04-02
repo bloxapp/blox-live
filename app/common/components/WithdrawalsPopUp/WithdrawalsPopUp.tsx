@@ -3,13 +3,10 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
-import config from '~app/backend/common/config';
 import useRouting from '~app/common/hooks/useRouting';
-import useAccounts from '~app/components/Accounts/useAccounts';
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
 import * as dashboardSelectors from '~app/components/Dashboard/selectors';
 import * as actionsFromDashboard from '~app/components/Dashboard/actions';
-import useNetworkSwitcher from '~app/components/Dashboard/components/NetworkSwitcher/useNetworkSwitcher';
 
 // @ts-ignore
 import withdrawalImage from './images/withdrawals.svg';
@@ -73,32 +70,15 @@ const Wrapper = styled.div`
   border: ${({theme}) => `solid 1px ${theme.primary900}`};
 `;
 
-const WithdrawalsPopUp = ({ features, dashboardActions }) => {
-  const { accounts } = useAccounts();
+const WithdrawalsPopUp = ({ dashboardActions }) => {
   const { goToPage, ROUTES } = useRouting();
-  const { setTestNetShowFlag } = useNetworkSwitcher();
   const editWithdrawalAddress = () => {
+    dashboardActions.setModalDisplay({
+      show: false,
+      type: MODAL_TYPES.MERGE_COMING,
+    });
     goToPage(ROUTES.WITHDRAWAL_ADDRESSES);
   };
-
-  React.useEffect(() => {
-    const mainnetValidators = accounts.find(
-      (validator: any) => {
-        return !validator.feeRecipient && validator.network === config.env.MAINNET_NETWORK;
-      }
-    );
-    // TODO: what is the logic for show merge popup?? calculate it in accounts saga where all features calculated
-    if (features.showMergePopUp && mainnetValidators !== undefined) {
-      setTestNetShowFlag(false);
-      dashboardActions.setModalDisplay({
-        show: true,
-        type: MODAL_TYPES.MERGE_COMING,
-      });
-      dashboardActions.setFeatures({
-        showMergePopUp: true,
-      });
-    }
-  });
 
   return (
     <Wrapper onClick={editWithdrawalAddress}>
@@ -116,12 +96,12 @@ const WithdrawalsPopUp = ({ features, dashboardActions }) => {
 };
 
 WithdrawalsPopUp.propTypes = {
-  features: PropTypes.object,
   dashboardActions: PropTypes.any,
 };
 
 const mapStateToProps = (state) => ({
   features: dashboardSelectors.getFeatures(state),
+  isModalActive: dashboardSelectors.getModalDisplayStatus(state),
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({

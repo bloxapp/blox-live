@@ -35,7 +35,7 @@ const LinkTo = styled(Link)`
 `;
 
 const MergeIsComing = (props: Props) => {
-  const {dashboardActions} = props;
+  const { dashboardActions } = props;
   const { goToPage, ROUTES } = useRouting();
   const { setModalDisplay } = dashboardActions;
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
@@ -63,7 +63,13 @@ const MergeIsComing = (props: Props) => {
   };
 
   const onButtonClick = () => {
-    setModalDisplay({ show: false, type: MODAL_TYPES.MERGE_COMING });
+    dashboardActions.setFeatures({
+      mergePopUpSeen: true,
+    });
+    setModalDisplay({
+      show: false,
+      type: MODAL_TYPES.MERGE_COMING,
+    });
     goToPage(ROUTES.REWARD_ADDRESSES);
   };
 
