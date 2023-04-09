@@ -262,7 +262,7 @@ export default class AwsService {
       InstanceId: instanceId
     }).promise();
 
-    const maxAttempts = 18;
+    const maxAttempts = 30;
     let currentAttempt = 1;
 
     // Retry mechanism for checking the instance status
