@@ -242,6 +242,7 @@ export default class AwsService {
     await this.ec2
       .waitFor('instanceRunning', { InstanceIds: [instanceId] })
       .promise();
+
     Connection.db(this.storePrefix).set('instanceId', instanceId);
 
     const keyVaultVersion = await this.versionService.getLatestKeyVaultVersion();
@@ -260,7 +261,48 @@ export default class AwsService {
       AllocationId: Connection.db(this.storePrefix).get('addressId'),
       InstanceId: instanceId
     }).promise();
-    await new Promise((resolve) => setTimeout(resolve, 25000)); // hard delay for 25sec
+
+    const maxAttempts = 30;
+    let currentAttempt = 1;
+
+    // Retry mechanism for checking the instance status
+    const checkInstanceStatus = () => {
+      const waitForStatusChecksParams = {
+        InstanceIds: [instanceId],
+        Filters: [
+          {
+            Name: 'instance-status.status',
+            Values: ['ok'],
+          },
+        ],
+      };
+
+      return new Promise((resolve) => {
+        if (currentAttempt > maxAttempts) {
+          console.error(`Instance status check failed after ${maxAttempts} attempts.`);
+          resolve(false);
+        }
+        this.ec2.describeInstanceStatus(waitForStatusChecksParams, async (statusErr, statusData) => {
+          if (statusErr) {
+            this.logger.error('Error checking instance status:', statusErr);
+            resolve(true);
+          }
+
+          if (statusData.InstanceStatuses.length > 0 && statusData.InstanceStatuses[0].InstanceStatus.Status === 'ok') {
+            this.logger.info('Instance status checks passed. Instance is ready for SSH connections.');
+            this.logger.info('Instance details:', statusData.InstanceStatuses[0]);
+            resolve(true);
+          } else {
+            this.logger.info('Instance not ready yet. Retrying in 10 seconds...');
+            await new Promise((resolvee) => setTimeout(resolvee, 10000)); // hard delay for 10sec
+            currentAttempt += 1;
+            resolve(checkInstanceStatus());
+          }
+        });
+      });
+    };
+
+    await checkInstanceStatus();
   }
 
   instanceType() {
