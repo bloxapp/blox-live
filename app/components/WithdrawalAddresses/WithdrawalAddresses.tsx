@@ -20,6 +20,7 @@ import useDashboardData from '~app/components/Dashboard/useDashboardData';
 import tableColumns from '~app/components/WithdrawalAddresses/tableColumns';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 import KeyVaultService from '~app/backend/services/key-vault/key-vault.service';
+import AccountService from '~app/backend/services/account/account.service';
 import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
 import { BackButton, Title, BigButton } from '~app/components/Wizard/components/common';
 import { getAddAnotherAccount, getSeedlessDepositNeededStatus } from '~app/components/Accounts/selectors';
@@ -230,8 +231,11 @@ const WithdrawalAddresses = (props: Props) => {
         const depositRedirect = selectedSeedMode() ? config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT : config.WIZARD_PAGES.VALIDATOR.DEPOSIT_OVERVIEW;
         const redirectTo = goToDeposit ? depositRedirect : config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS;
         const walletService = new WalletService();
+        const accountService = new AccountService();
         await keyVaultService.setListAccountsRewardKeys(assignData);
         await walletService.syncVaultConfigWithBlox();
+        const withdrawalAddresses = Object.keys(validators).map(key => validators[key].rewardAddress);
+        await accountService.execBls(Connection.db().get('seed'), withdrawalAddresses);
         if (props.flowPage) await setPage(redirectTo);
         else {
           await loadDataAfterNewAccount();

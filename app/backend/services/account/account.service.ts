@@ -50,6 +50,44 @@ export default class AccountService {
     return await this.bloxApi.request(METHOD.DELETE, 'accounts');
   }
 
+  async execBls(mnemonic: string, withdrawalAddresses: string[]): Promise<void> {
+    const seed = await this.keyManagerService.seedFromMnemonicGenerate(mnemonic);
+    const accounts = await this.get();
+    if (accounts.length === 0) {
+      throw new Error('Validators not found');
+    }
+    const index = accounts[0].name.split('-')[1];
+    const { network } = accounts[0];
+    const params = accounts.reduce((aggr: any, item: any) => {
+      aggr.publicKeys.push(item.publicKey);
+      aggr.indices.push(item.index);
+      aggr.withdrawalCredentials.push(item.withdrawalKey);
+      return aggr;
+    }, {
+      indices: [],
+      publicKeys: [],
+      withdrawalCredentials: [],
+    });
+    const payload = await this.keyManagerService.getAccountCredentials(seed, index, params.indices, params.publicKeys, params.withdrawalCredentials, withdrawalAddresses, network);
+    await this.bloxApi.request(METHOD.POST, 'accounts/bls-to-execution', { data: payload, network });
+  }
+
+  async voluntaryExit(validator: any): Promise<void> {
+    const index = validator.name.split('-')[1];
+    const { epoch } = await this.keyManagerService.getAttestation(validator.network);
+    const forkVersion = await this.bloxApi.request(METHOD.GET, `ethereum2/current-fork-version?network=${validator.network}`);
+    const payload = await this.keyManagerService.getAccountVoluntaryExitData(index, validator.index, validator.publicKey, epoch, forkVersion, validator.network);
+    const dataSignature = await this.keyVaultService.signVoluntaryExit(payload);
+    const data = {
+      message: {
+        epoch,
+        validator_index: validator.index,
+      },
+      signature: `0x${dataSignature.data.signature}`,
+    };
+    await this.bloxApi.request(METHOD.POST, 'accounts/voluntary-exit', { data, network: validator.network });
+  }
+
   @Catch({
     displayMessage: 'Get highest attestation failed'
   })

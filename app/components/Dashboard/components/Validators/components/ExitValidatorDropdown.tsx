@@ -26,7 +26,6 @@ const ExitValidatorDropdown = ({ validator, setPageData }: ExitValidatorProps) =
       onClick: () => {
         setPageData(validator);
         goToPage(ROUTES.EXIT_VALIDATOR);
-        console.log('Exit Validator clicked: ', validator);
       },
       color: false
     },

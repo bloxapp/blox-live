@@ -104,6 +104,63 @@ export default class KeyManagerService {
     }
   }
 
+  /**
+   * Get account credentials
+   * @param seed
+   * @param index
+   * @param indices
+   * @param publicKeys
+   * @param withdrawalCredentials
+   * @param execAddresses
+   * @param network
+   */
+  async getAccountCredentials(seed: string, index: number, indices: string[], publicKeys: string[], withdrawalCredentials: string[], execAddresses: string[], network: string): Promise<any> {
+    const getAccountCredentialsCommand = `${this.executablePath} \
+      wallet account credentials \
+      --seed=${seed} \
+      --index=${index} \
+      --validator-indices=${indices.join(',')} \
+      --validator-public-keys=${publicKeys.join(',')} \
+      --withdrawal-credentials=${withdrawalCredentials.join(',')} \
+      --to-execution-address=${execAddresses.join(',')} \
+      --network=${network}`;
+
+    try {
+      const { stdout } = await this.executor(getAccountCredentialsCommand);
+      return stdout ? JSON.parse(stdout) : {};
+    } catch (error) {
+      console.error('KeyManagerService::getAccountCredentials error', { command: getAccountCredentialsCommand.replace(seed, '***'), error });
+      throw new Error(`Get ${network} account credentials data with index ${JSON.stringify(index)} was failed.`);
+    }
+  }
+
+  /**
+   * Get account voluntary exit data
+   * @param index
+   * @param validatorIndex
+   * @param validatorPublicKey
+   * @param epoch
+   * @param forkVersion
+   * @param network
+   */
+  async getAccountVoluntaryExitData(index: number, validatorIndex: string, validatorPublicKey: string, epoch: string, forkVersion: string, network: string): Promise<any> {
+    const getAccountVoluntaryExitCommand = `${this.executablePath} \
+      wallet account voluntary-exit \
+      --index=${index} \
+      --validator-index=${validatorIndex} \
+      --validator-public-key=${validatorPublicKey} \
+      --epoch=${epoch} \
+      --current-fork-version=${forkVersion} \
+      --network=${network}`;
+    try {
+      const { stdout } = await this.executor(getAccountVoluntaryExitCommand);
+      return stdout.trim();
+    } catch (error) {
+      console.error('KeyManagerService::getAccountVoluntaryExitData error', { command: getAccountVoluntaryExitCommand, error });
+      throw new Error(`Get ${network} account voluntary-exit data with index ${JSON.stringify(index)} was failed.`);
+    }
+  }
+
   @Catch({
     showErrorMessage: true
   })
