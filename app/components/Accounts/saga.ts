@@ -18,7 +18,6 @@ import {
 import {accountsHaveMoreThanOneNetwork, normalizeAccountsData, summarizeAccounts} from '~app/components/Dashboard/service';
 
 export function* prepareAccounts(accounts: any) {
-  console.log('accounts', accounts);
   // eslint-disable-next-line no-prototype-builtins
   if (!(accounts || {}).hasOwnProperty('payload')) {
     // eslint-disable-next-line no-param-reassign
