@@ -31,10 +31,10 @@ export default class KeyVaultApi extends Http {
   async requestThruSsh({
     method,
     path,
-    data = null,
+    data,
     isNetworkRequired = true
   }): Promise<any> {
-    let network: string;
+    let network = '';
     if (isNetworkRequired) {
       network = Connection.db(this.storePrefix).get('network');
       if (!network) {

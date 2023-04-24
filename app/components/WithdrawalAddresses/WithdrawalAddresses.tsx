@@ -20,6 +20,7 @@ import useDashboardData from '~app/components/Dashboard/useDashboardData';
 import tableColumns from '~app/components/WithdrawalAddresses/tableColumns';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 import KeyVaultService from '~app/backend/services/key-vault/key-vault.service';
+import AccountService from '~app/backend/services/account/account.service';
 import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
 import { BackButton, Title, BigButton } from '~app/components/Wizard/components/common';
 import { getAddAnotherAccount, getSeedlessDepositNeededStatus } from '~app/components/Accounts/selectors';
@@ -135,7 +136,9 @@ const WithdrawalAddresses = (props: Props) => {
   }, []);
 
   const initAccounts = (keyVaultConfig: any) => {
-    const validatorsAccounts = (isDone ? processData : accounts).filter(item => item.network === Connection.db().get('network'));
+    const validatorsAccounts = (isDone ? processData : accounts)
+      .filter(item => item.network === Connection.db().get('network'))
+      .filter(item => item.withdrawalKey && item.withdrawalKey.startsWith('0x00'));
     const newObject = validatorsAccounts.reduce((prev, curr, index) => {
       const rewardAddress = (keyVaultConfig?.fee_recipients && keyVaultConfig.fee_recipients[curr?.publicKey]) ?? '';
       // eslint-disable-next-line no-param-reassign
@@ -230,8 +233,14 @@ const WithdrawalAddresses = (props: Props) => {
         const depositRedirect = selectedSeedMode() ? config.WIZARD_PAGES.VALIDATOR.STAKING_DEPOSIT : config.WIZARD_PAGES.VALIDATOR.DEPOSIT_OVERVIEW;
         const redirectTo = goToDeposit ? depositRedirect : config.WIZARD_PAGES.VALIDATOR.CONGRATULATIONS;
         const walletService = new WalletService();
+        const accountService = new AccountService();
         await keyVaultService.setListAccountsRewardKeys(assignData);
         await walletService.syncVaultConfigWithBlox();
+        // eslint-disable-next-line no-restricted-syntax
+        for (const key of Object.keys(validators)) {
+          // eslint-disable-next-line no-await-in-loop
+          await accountService.execBls(Connection.db().get('seed'), validators[key]);
+        }
         if (props.flowPage) await setPage(redirectTo);
         else {
           await loadDataAfterNewAccount();

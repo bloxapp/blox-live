@@ -22,6 +22,7 @@ import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
 import { BackButton, Title, BigButton, Link } from '~app/components/Wizard/components/common';
 import { longStringShorten } from '~app/common/components/DropZone/components/SelectedFilesTable';
+import AccountService from '~app/backend/services/account/account.service';
 
 const Wrapper = styled.div`
   height: 100%;
@@ -130,7 +131,8 @@ const ExitValidator = (props: Props) => {
   };
 
   const startExitValidatorProcess = async () => {
-    // TODO: put the call for exit validator process here
+    const accountService = new AccountService();
+    await accountService.voluntaryExit(pageData);
   };
 
   const exitValidator = async () => {

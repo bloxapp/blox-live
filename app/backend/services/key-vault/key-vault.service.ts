@@ -33,6 +33,17 @@ export default class KeyVaultService {
     this.logger = new Log('key-vault');
   }
 
+  async signVoluntaryExit(signReq: string) {
+    const signature = await this.keyVaultApi.requestThruSsh({
+      method: METHOD.POST,
+      path: 'accounts/sign-voluntary-exit',
+      data: {
+        sign_req: signReq,
+      }
+    });
+    return signature;
+  }
+
   async updateStorage(payload: any) {
     return await this.keyVaultApi.requestThruSsh({
       method: METHOD.POST,

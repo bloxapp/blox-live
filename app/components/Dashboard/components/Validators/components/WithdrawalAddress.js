@@ -31,7 +31,7 @@ const AddAddressButton = styled(Button)`
 const WithdrawalAddress = ({validator}) => {
   const {goToPage, ROUTES} = useRouting();
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
-  const withdrawalKey = validator?.deposited && validator?.withdrawalKey.startsWith('0x01') ? `0x${longStringShorten(validator?.withdrawalKey.replace('0x', ''))}` : undefined;
+  const withdrawalKey = validator?.deposited && validator?.withdrawalKey && validator?.withdrawalKey.startsWith('0x01') ? `0x${longStringShorten(validator?.withdrawalKey.replace('0x', ''))}` : undefined;
 
   const showPasswordProtectedDialog = async (callback) => {
     const cryptoKey = 'temp';

@@ -50,6 +50,34 @@ export default class AccountService {
     return await this.bloxApi.request(METHOD.DELETE, 'accounts');
   }
 
+  async execBls(seed: string, validator: any): Promise<void> {
+    const index = validator.name.split('-')[1];
+    const { network } = validator;
+    const params = {
+      indices: [validator.index],
+      publicKeys: [validator.publicKey],
+      withdrawalCredentials: [validator.withdrawalKey],
+    };
+    const payload = await this.keyManagerService.getAccountCredentials(seed, index, params.indices, params.publicKeys, params.withdrawalCredentials, [validator.rewardAddress], network);
+    await this.bloxApi.request(METHOD.POST, 'accounts/bls-to-execution', { data: payload, network });
+  }
+
+  async voluntaryExit(validator: any): Promise<void> {
+    const index = validator.name.split('-')[1];
+    const { epoch } = await this.keyManagerService.getAttestation(validator.network);
+    const forkVersion = await this.bloxApi.request(METHOD.GET, `ethereum2/current-fork-version?network=${validator.network}`);
+    const payload = await this.keyManagerService.getAccountVoluntaryExitData(index, validator.index, validator.publicKey, epoch, forkVersion, validator.network);
+    const dataSignature = await this.keyVaultService.signVoluntaryExit(payload);
+    const data = {
+      message: {
+        epoch,
+        validator_index: validator.index,
+      },
+      signature: `0x${dataSignature.data.signature}`,
+    };
+    await this.bloxApi.request(METHOD.POST, 'accounts/voluntary-exit', { data, network: validator.network });
+  }
+
   @Catch({
     displayMessage: 'Get highest attestation failed'
   })
