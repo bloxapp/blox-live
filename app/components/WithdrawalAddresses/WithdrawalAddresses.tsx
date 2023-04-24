@@ -136,7 +136,9 @@ const WithdrawalAddresses = (props: Props) => {
   }, []);
 
   const initAccounts = (keyVaultConfig: any) => {
-    const validatorsAccounts = (isDone ? processData : accounts).filter(item => item.network === Connection.db().get('network'));
+    const validatorsAccounts = (isDone ? processData : accounts)
+      .filter(item => item.network === Connection.db().get('network'))
+      .filter(item => item.withdrawalKey && item.withdrawalKey.startsWith('0x00'));
     const newObject = validatorsAccounts.reduce((prev, curr, index) => {
       const rewardAddress = (keyVaultConfig?.fee_recipients && keyVaultConfig.fee_recipients[curr?.publicKey]) ?? '';
       // eslint-disable-next-line no-param-reassign
@@ -234,8 +236,11 @@ const WithdrawalAddresses = (props: Props) => {
         const accountService = new AccountService();
         await keyVaultService.setListAccountsRewardKeys(assignData);
         await walletService.syncVaultConfigWithBlox();
-        const withdrawalAddresses = Object.keys(validators).map(key => validators[key].rewardAddress);
-        await accountService.execBls(Connection.db().get('seed'), withdrawalAddresses);
+        // eslint-disable-next-line no-restricted-syntax
+        for (const key of Object.keys(validators)) {
+          // eslint-disable-next-line no-await-in-loop
+          await accountService.execBls(Connection.db().get('seed'), validators[key]);
+        }
         if (props.flowPage) await setPage(redirectTo);
         else {
           await loadDataAfterNewAccount();

@@ -50,25 +50,15 @@ export default class AccountService {
     return await this.bloxApi.request(METHOD.DELETE, 'accounts');
   }
 
-  async execBls(mnemonic: string, withdrawalAddresses: string[]): Promise<void> {
-    const seed = await this.keyManagerService.seedFromMnemonicGenerate(mnemonic);
-    const accounts = await this.get();
-    if (accounts.length === 0) {
-      throw new Error('Validators not found');
-    }
-    const index = accounts[0].name.split('-')[1];
-    const { network } = accounts[0];
-    const params = accounts.reduce((aggr: any, item: any) => {
-      aggr.publicKeys.push(item.publicKey);
-      aggr.indices.push(item.index);
-      aggr.withdrawalCredentials.push(item.withdrawalKey);
-      return aggr;
-    }, {
-      indices: [],
-      publicKeys: [],
-      withdrawalCredentials: [],
-    });
-    const payload = await this.keyManagerService.getAccountCredentials(seed, index, params.indices, params.publicKeys, params.withdrawalCredentials, withdrawalAddresses, network);
+  async execBls(seed: string, validator: any): Promise<void> {
+    const index = validator.name.split('-')[1];
+    const { network } = validator;
+    const params = {
+      indices: [validator.index],
+      publicKeys: [validator.publicKey],
+      withdrawalCredentials: [validator.withdrawalKey],
+    };
+    const payload = await this.keyManagerService.getAccountCredentials(seed, index, params.indices, params.publicKeys, params.withdrawalCredentials, [validator.rewardAddress], network);
     await this.bloxApi.request(METHOD.POST, 'accounts/bls-to-execution', { data: payload, network });
   }
 
