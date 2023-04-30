@@ -11,6 +11,18 @@ const Wrapper = styled.a`
   }
 `;
 
-const Link = (props) => <Wrapper {...props} target={'_blank'} />;
+const Link = (props) => (
+  <Wrapper
+    {...props}
+    onClick={async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      // eslint-disable-next-line react/prop-types
+      await (props.onClick || (() => {}))(event);
+    }}
+    href="#"
+    target={'_blank'}
+  />
+);
 
 export default Link;

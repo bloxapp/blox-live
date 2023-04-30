@@ -1,5 +1,9 @@
 export const getAccounts = (state: Record<string, any>) => state.accounts?.data;
 
+export const getFilteredAccounts = (state: Record<string, any>) => state.accounts?.filteredAccounts;
+
+export const getAccountsSummary = (state: Record<string, any>) => state.accounts?.accountsSummary;
+
 export const getAccountsLoadingStatus = (state: Record<string, any>) => state.accounts?.isLoading;
 
 export const getAccountsError = (state: Record<string, any>) => state.accounts?.error;

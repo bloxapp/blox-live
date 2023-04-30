@@ -8,7 +8,7 @@ const Wrapper = styled.div`
   display: flex;
   align-items: flex-end;
   justify-content: flex-end;
-  height: ${({height}) => height || '50px'};
+  height: ${({height}) => height || 'initial'};
   border-top: solid 1px ${({theme}) => theme.gray300};
 `;
 

@@ -1,5 +1,6 @@
 import moment from 'moment';
 import config from '~app/backend/common/config';
+import Connection from '../../backend/common/store-manager/connection';
 
 const initialBalance = config.env.ETH_INITIAL_BALANCE;
 
@@ -100,6 +101,10 @@ export const normalizeEventLogs = (events) => { // TODO: fix and move to EventLo
  * Returns true if there is more than one different networks in accounts
  */
 export const accountsHaveMoreThanOneNetwork = (accounts: { network: string }[]) => {
+  const forceNetworkSwitcherEnabled = Connection.db('').get(config.FLAGS.DASHBOARD.TESTNET_SWITCHER_SHOW_FORCE);
+  if (forceNetworkSwitcherEnabled) {
+    return true;
+  }
   if (!accounts?.length) {
     return false;
   }

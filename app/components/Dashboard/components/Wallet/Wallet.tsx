@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
+import * as dashboardSelectors from '~app/components/Dashboard/selectors';
 import NetworkSwitcher from '~app/components/Dashboard/components/NetworkSwitcher';
 import UpdateBanner from '~app/components/Dashboard/components/Wallet/components/UpdateBanner';
 import { Boxes, StatusBar, RefreshButton } from '~app/components/Dashboard/components/Wallet/components';
@@ -17,14 +19,14 @@ const TopPart = styled.div`
 `;
 
 const Wallet = (props) => {
-  const { isActive, isNeedUpdate, summary, version, showNetworkSwitcher, ...rest } = props;
+  const { isActive, isNeedUpdate, summary, version, features, ...rest } = props;
   return (
     <Wrapper>
       <UpdateBanner isNeedUpdate={isNeedUpdate} />
       {summary && (
         <TopPart>
           <RefreshButton />
-          { showNetworkSwitcher && <NetworkSwitcher />}
+          { features.showNetworkSwitcher && <NetworkSwitcher />}
         </TopPart>
       )}
       <StatusBar isActive={isActive} />
@@ -34,12 +36,16 @@ const Wallet = (props) => {
 };
 
 Wallet.propTypes = {
+  features: PropTypes.object,
   isActive: PropTypes.bool,
   isNeedUpdate: PropTypes.bool,
   walletNeedsUpdate: PropTypes.bool,
-  showNetworkSwitcher: PropTypes.bool,
   summary: PropTypes.object,
   version: PropTypes.string
 };
 
-export default Wallet;
+const mapStateToProps = (state) => ({
+  features: dashboardSelectors.getFeatures(state),
+});
+
+export default connect(mapStateToProps)(Wallet);

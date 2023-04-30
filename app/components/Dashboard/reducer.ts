@@ -2,16 +2,13 @@ import produce from 'immer';
 import * as actionTypes from '~app/components/Dashboard/actionTypes';
 
 const initialState = {
-  testNet: {
-    show: false
-  },
   dialog: {
     // Usual modal dialog attributes
     type: '',
     show: false,
     text: '',
+    data: null, // Custom data passed to dialog, can be any type and structure for different logic
     onSuccess: null,
-    rewardAddressesData: null,
     displayCloseButton: true,
 
     // Attributes for confirmation dialog
@@ -23,7 +20,13 @@ const initialState = {
       onCancelButtonClick: null
     }
   },
-  mergePopUpSeen: false,
+  features: {
+    isTestNetShow: false,
+    showMergePopUp: false,
+    mergePopUpSeen: false,
+    showNetworkSwitcher: false,
+    exitValidatorEnabled: false,
+  },
 };
 
 /* eslint-disable default-case, no-param-reassign */
@@ -34,7 +37,7 @@ const dashboardReducer = (state = initialState, action: Action) => produce(state
         type: action.payload.type,
         show: action.payload.show,
         text: action.payload.text,
-        rewardAddressesData: action.payload.rewardAddressesData,
+        data: action.payload.data,
         displayCloseButton: action.payload.displayCloseButton,
         confirmation: action.payload.confirmation ?? initialState.dialog.confirmation,
         onSuccess: action.payload.confirmation?.onConfirmButtonClick
@@ -45,11 +48,12 @@ const dashboardReducer = (state = initialState, action: Action) => produce(state
     case actionTypes.CLEAR_MODAL_DISPLAY_DATA:
       draft.dialog = initialState.dialog;
       break;
-    case actionTypes.SET_MODAL_MERGE_AS_SEEN:
-      draft.mergePopUpSeen = true;
-      break;
-    case actionTypes.SET_TESTNET_FLAG:
-      draft.testNet.show = action.payload.testNet?.show || initialState.testNet.show;
+    case actionTypes.SET_FEATURES:
+      draft.features = {
+        ...initialState.features,
+        ...state.features,
+        ...action.payload
+      };
       break;
   }
 });

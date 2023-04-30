@@ -5,3 +5,5 @@ export { default as Status } from './Status';
 export { default as Balance } from './Balance';
 export { default as KeyCell } from './KeyCell';
 export { default as RewardAddress } from './RewardAddress';
+export { default as WithdrawalAddress } from './WithdrawalAddress';
+export { default as ExitValidatorDropdown } from './ExitValidatorDropdown';

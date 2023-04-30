@@ -32,7 +32,7 @@ const useProcessRunner = () => {
   const loaderPercentage = precentageCalculator(steps.currentStep, steps.overallSteps);
 
   const startProcess: StartProcess = async (name, defaultMessage, params?: ProcessParams) => {
-    await dispatch(processSubscribe(name, defaultMessage, params));
+    return dispatch(processSubscribe(name, defaultMessage, params));
   };
 
   const clearProcessState: ClearProcess = () => dispatch(processClearState());

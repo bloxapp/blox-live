@@ -21,12 +21,16 @@ import useEventLogs from '~app/components/EventLogs/useEventLogs';
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
 import * as wizardSelectors from '~app/components/Wizard/selectors';
 import Connection from '~app/backend/common/store-manager/connection';
+import ExitValidator from '~app/components/ExitValidator/ExitValidator';
 import Content from '~app/components/EntryPage/routes/wrappers/Content';
 import * as actionsFromDashboard from '~app/components/Dashboard/actions';
 import SettingsRoute from '~app/components/EntryPage/routes/SettingsRoute';
+import WithdrawalsOverview from '~app/common/components/WithdrawalsOverview';
 import RewardAddresses from '~app/components/RewardAddresses/RewardAddresses';
 import * as keyvaultSelectors from '~app/components/KeyVaultManagement/selectors';
 import { keyvaultLoadLatestVersion } from '~app/components/KeyVaultManagement/actions';
+import WithdrawalAddresses from '~app/components/WithdrawalAddresses/WithdrawalAddresses';
+import WithdrawalAddressesReview from '~app/components/WithdrawalAddressesReview/WithdrawalAddressesReview';
 
 const DashboardWrapper = styled.div`
   width: 100%;
@@ -163,6 +167,58 @@ const EntryPage = (props: Props) => {
             <Content>
               <RewardAddressWrapper>
                 <RewardAddresses {...otherProps} />
+              </RewardAddressWrapper>
+            </Content>
+          </>
+        )}
+      />
+      <Route
+        path={ROUTES.EXIT_VALIDATOR}
+        render={() => (
+          <>
+            <Header withMenu />
+            <Content>
+              <RewardAddressWrapper>
+                <ExitValidator {...otherProps} />
+              </RewardAddressWrapper>
+            </Content>
+          </>
+        )}
+      />
+      <Route
+        path={ROUTES.WITHDRAWAL_ADDRESSES}
+        render={() => (
+          <>
+            <Header withMenu />
+            <Content>
+              <RewardAddressWrapper>
+                <WithdrawalAddresses {...otherProps} />
+              </RewardAddressWrapper>
+            </Content>
+          </>
+        )}
+      />
+      <Route
+        path={ROUTES.WITHDRAWAL_ADDRESSES_REVIEW}
+        render={() => (
+          <>
+            <Header withMenu />
+            <Content>
+              <RewardAddressWrapper>
+                <WithdrawalAddressesReview {...otherProps} />
+              </RewardAddressWrapper>
+            </Content>
+          </>
+        )}
+      />
+      <Route
+        path={ROUTES.WITHDRAWALS_OVERVIEW}
+        render={() => (
+          <>
+            <Header withMenu />
+            <Content>
+              <RewardAddressWrapper>
+                <WithdrawalsOverview {...otherProps} />
               </RewardAddressWrapper>
             </Content>
           </>

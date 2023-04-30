@@ -27,11 +27,23 @@ export const setSeedlessDepositNeeded = (needDeposit: boolean | null) => ({
   payload: needDeposit
 });
 
-export const clearAccountsData = () => ({ type: actionTypes.CLEAR_DATA });
-
-type DepositNeededPayload = {
-  isNeeded: boolean;
-  publicKey: string;
-  accountIndex: number;
-  network: string;
+export const setFilteredAccounts = (accounts: any) => {
+  return {
+    type: actionTypes.SET_FILTERED_ACCOUNTS,
+    payload: accounts
+  };
 };
+
+export const prepareAccounts = (accounts: any = null) => {
+  return {
+    type: actionTypes.PREPARE_ACCOUNTS,
+    payload: accounts || null
+  };
+};
+
+export const setAccountsSummary = (summary: any) => ({
+  type: actionTypes.SET_ACCOUNTS_SUMMARY,
+  payload: summary
+});
+
+export const clearAccountsData = () => ({ type: actionTypes.CLEAR_DATA });

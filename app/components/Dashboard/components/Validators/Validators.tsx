@@ -2,11 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import tableColumns from './tableColumns';
+import { bindActionCreators } from 'redux';
 import { Table } from '~app/common/components';
-import config from '~app/backend/common/config';
+import { getTableColumns } from './tableColumns';
 import { SORT_TYPE } from '~app/common/constants';
+import * as accountsAllActions from '~app/components/Accounts/actions';
 import { handlePageClick } from '~app/common/components/Table/service';
+import * as accountSelectors from '~app/components/Accounts/selectors';
 import * as dashboardSelectors from '~app/components/Dashboard/selectors';
 import AddValidatorButtonWrapper from '~app/components/common/Header/components/AddValidatorButtonWrapper';
 
@@ -43,30 +45,22 @@ const Title = styled.h1`
   margin-bottom: 20px;
 `;
 
-const Validators = ({ accounts, isTestNetShow, showNetworkSwitcher }) => {
+const Validators = (props) => {
+  const {
+    features,
+    accounts,
+    filteredAccounts,
+    isLoadingAccounts,
+  } = props;
   const PAGE_SIZE = 10;
-  const [pagedAccounts, setPagedAccounts] = React.useState([]);
-  const [paginationInfo, setPaginationInfo] = React.useState(null);
-  const [selectedSort, setSelectedSort] = React.useState('key');
   const [sortType, setSortType] = React.useState(SORT_TYPE.DESCENDING);
-  const [filteredAccounts, setFilteredAccounts] = React.useState([]);
+  const [pagedAccounts, setPagedAccounts] = React.useState([]);
+  const [selectedSort, setSelectedSort] = React.useState('key');
+  const [paginationInfo, setPaginationInfo] = React.useState(null);
 
   React.useEffect(() => {
-    if (!accounts?.length) {
-      setFilteredAccounts([]);
-    } else {
-      setFilteredAccounts(accounts.filter((account) => {
-        if (!showNetworkSwitcher) {
-          return true;
-        }
-        if (!isTestNetShow) {
-          return account.network === config.env.MAINNET_NETWORK;
-        }
-        return account.network === config.env.PRATER_NETWORK;
-      }));
-    }
     setPaginationInfo(null);
-  }, [accounts, isTestNetShow, showNetworkSwitcher]);
+  }, [accounts, features.isTestNetShow, features.showNetworkSwitcher]);
 
   const onPageClick = (offset) => {
     handlePageClick(filteredAccounts, offset, setPagedAccounts, setPaginationInfo, PAGE_SIZE);
@@ -80,7 +74,11 @@ const Validators = ({ accounts, isTestNetShow, showNetworkSwitcher }) => {
     setPagedAccounts(sortedAccounts.slice(paginationInfo.offset, size));
   };
 
-  if (paginationInfo == null) {
+  if (isLoadingAccounts) {
+    return <Wrapper />;
+  }
+
+  if (paginationInfo === null) {
     onPageClick(0);
     return <Wrapper />;
   }
@@ -107,7 +105,7 @@ const Validators = ({ accounts, isTestNetShow, showNetworkSwitcher }) => {
         sortType={sortType}
         withoutColumnBorder
         data={pagedAccounts}
-        columns={tableColumns}
+        columns={getTableColumns(features)}
         onSortClick={onSortClick}
         onPageClick={onPageClick}
         selectedSorting={selectedSort}
@@ -118,13 +116,23 @@ const Validators = ({ accounts, isTestNetShow, showNetworkSwitcher }) => {
 };
 
 Validators.propTypes = {
+  features: PropTypes.object,
   accounts: PropTypes.array,
-  isTestNetShow: PropTypes.bool,
-  showNetworkSwitcher: PropTypes.bool
+  filteredAccounts: PropTypes.any,
+  isLoadingAccounts: PropTypes.bool,
 };
 
 const mapStateToProps = (state) => ({
-  isTestNetShow: dashboardSelectors.getTestNetShowFlag(state)
+  accounts: accountSelectors.getAccounts(state),
+  features: dashboardSelectors.getFeatures(state),
+  filteredAccounts: accountSelectors.getFilteredAccounts(state),
+  isLoadingAccounts: accountSelectors.getAccountsLoadingStatus(state),
 });
 
-export default connect(mapStateToProps, null)(Validators);
+type Dispatch = (arg0: { type: string, payload?: any }) => any;
+
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  accountsActions: bindActionCreators(accountsAllActions, dispatch)
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Validators);

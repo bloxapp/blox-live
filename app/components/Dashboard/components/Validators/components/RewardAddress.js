@@ -64,7 +64,8 @@ const RewardAddress = ({validator}) => {
   };
 
   return (
-    <Wrapper>{publicKey ?? <AddAddressButton onClick={goToRewardAddressPage}>Add Address</AddAddressButton>}
+    <Wrapper>
+      {publicKey ?? <AddAddressButton onClick={goToRewardAddressPage}>Add Address</AddAddressButton>}
     </Wrapper>
   );
 };

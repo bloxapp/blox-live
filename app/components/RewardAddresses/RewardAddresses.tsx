@@ -1,6 +1,6 @@
 import Web3 from 'web3';
-import {connect} from 'react-redux';
-import {bindActionCreators} from 'redux';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import config from '~app/backend/common/config';
@@ -21,10 +21,12 @@ import * as actionsFromDashboard from '~app/components/Dashboard/actions';
 import useDashboardData from '~app/components/Dashboard/useDashboardData';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 import KeyVaultService from '~app/backend/services/key-vault/key-vault.service';
+import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
 import { BackButton, Link, Title, BigButton } from '~app/components/Wizard/components/common';
 import { getAddAnotherAccount, getSeedlessDepositNeededStatus } from '~app/components/Accounts/selectors';
 import { getPage, getPageData, getStep, getWizardFinishedStatus } from '~app/components/Wizard/selectors';
-import usePasswordHandler from '../PasswordHandler/usePasswordHandler';
+
+const web3 = new Web3(config.env.DEFAULT_WEB3_HTTP_PROVIDER);
 
 const Wrapper = styled.div`
   height: 100%;
@@ -163,9 +165,6 @@ const RewardAddresses = (props: Props) => {
 
   const isAddressVerify = (address: string): boolean => {
     try {
-      const web3 = new Web3(
-        'https://goerli.infura.io/v3/d03b92aa81864faeb158166231b7f895'
-      );
       return web3.utils.isAddress(address);
     } catch {
       return false;
@@ -225,7 +224,7 @@ const RewardAddresses = (props: Props) => {
             cancelButtonText: 'Later',
             onConfirmButtonClick: () => {
               checkIfPasswordIsNeeded(async () => {
-                setModalDisplay({show: true, type: MODAL_TYPES.UPDATE, rewardAddressesData: assignData});
+                setModalDisplay({show: true, type: MODAL_TYPES.UPDATE, data: assignData});
               });
             },
             onCancelButtonClick: () => clearModalDisplayData()

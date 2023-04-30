@@ -5,9 +5,10 @@
 
 // const depositTo = '0x0F0F0fc0530007361933EaB5DB97d09aCDD6C1c8';
 
-// const web3 = new Web3(
-//   'https://goerli.infura.io/v3/d03b92aa81864faeb158166231b7f895'
-// );
+// import Web3 from "web3";
+// import config from "../../backend/common/config";
+
+// const web3 = new Web3(config.env.DEFAULT_WEB3_HTTP_PROVIDER);
 // const depositContract = new web3.eth.Contract(depositContractABI, depositTo);
 
 // export default class MetaMask {

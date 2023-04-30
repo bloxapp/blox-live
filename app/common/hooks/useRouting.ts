@@ -48,7 +48,11 @@ const useRouting = () => {
   ROUTES.SETTINGS = `${ROUTES.LOGGED_IN}/settings`;
   ROUTES.LOGIN_CALLBACK = `${ROUTES.LOGIN}/callback`;
   ROUTES.DASHBOARD = `${ROUTES.LOGGED_IN}/dashboard`;
+  ROUTES.EXIT_VALIDATOR = `${ROUTES.LOGGED_IN}/exit_validator`;
   ROUTES.REWARD_ADDRESSES = `${ROUTES.LOGGED_IN}/reward_addresses`;
+  ROUTES.WITHDRAWAL_ADDRESSES = `${ROUTES.LOGGED_IN}/withdrawal_addresses`;
+  ROUTES.WITHDRAWALS_OVERVIEW = `${ROUTES.LOGGED_IN}/withdrawals_overview`;
+  ROUTES.WITHDRAWAL_ADDRESSES_REVIEW = `${ROUTES.LOGGED_IN}/withdrawal_addresses_review`;
 
   return {
     goToPage,

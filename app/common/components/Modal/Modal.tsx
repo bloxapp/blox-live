@@ -65,12 +65,12 @@ const Button = styled.div`
   cursor: pointer;
 `;
 
-const PrimaryButton = styled(Button)<{ bgColor: string }>`
+export const PrimaryButton = styled(Button)<{ bgColor: string }>`
   color: #ffffff;
   background-color: ${({ theme, bgColor }) => theme[bgColor]};
 `;
 
-const SecondaryButton = styled(Button)`
+export const SecondaryButton = styled(Button)`
   color: ${({ theme }) => theme.gray600};
 `;
 

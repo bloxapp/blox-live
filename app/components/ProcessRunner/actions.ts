@@ -7,6 +7,8 @@ type Credentials = {
 
 // inputData may be seed or keyStores
 export type ProcessParams = {
+  seed?: string,
+  accounts?: Record<string, any>,
   network?: string,
   inputData?: string,
   deposited?: boolean,

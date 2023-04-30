@@ -5,4 +5,5 @@ export const PROCESSES: Record<string, string> = {
   CREATE_ACCOUNT: 'createAccount',
   RECOVERY: 'recovery',
   UPGRADE: 'upgrade',
+  SET_WITHDRAWAL_ADDRESSES: 'setWithdrawalAddress',
 };

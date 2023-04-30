@@ -50,8 +50,12 @@ export default class Store {
   }
 
   isEncryptedKey(key: string): boolean {
-    const keyToCheck = key.replace(/\..*/, '.*');
-    return this.encryptedKeys.includes(keyToCheck);
+    try {
+      const keyToCheck = key.replace(/\..*/, '.*');
+      return this.encryptedKeys.includes(keyToCheck);
+    } catch {
+      return false;
+    }
   }
 
   exists(key: string): boolean {
