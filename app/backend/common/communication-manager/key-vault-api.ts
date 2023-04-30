@@ -31,7 +31,7 @@ export default class KeyVaultApi extends Http {
   async requestThruSsh({
     method,
     path,
-    data,
+    data = null,
     isNetworkRequired = true
   }): Promise<any> {
     let network = '';

@@ -50,6 +50,12 @@ export default class Config {
         TESTNET: 'https://prater.launchpad.ethereum.org/',
       },
       CREATE_BLOX_ACCOUNTS_BATCH_SIZE: 50,
+      WITHDRAWALS_FAQ_LINK: 'https://notes.ethereum.org/@launchpad/withdrawals-faq',
+      ETHERSCAN_LINK: {
+        MAINNET: 'https://etherscan.io',
+        TESTNET: 'https://goerli.etherscan.io',
+      },
+      DEFAULT_WEB3_HTTP_PROVIDER: 'https://goerli.infura.io/v3/d03b92aa81864faeb158166231b7f895',
 
       // Wizard pages constants in one central place, environment-independent
       WIZARD_PAGES: {
@@ -125,7 +131,6 @@ export default class Config {
     // eslint-disable-next-line no-restricted-syntax
     for (const key of Object.keys(this.settings.default)) {
       Object.defineProperty(this, key, {
-
         get: () => this.settings.default[key]
       });
     }

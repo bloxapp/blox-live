@@ -77,7 +77,7 @@ const WithdrawalsPopUp = ({ dashboardActions }) => {
       show: false,
       type: MODAL_TYPES.MERGE_COMING,
     });
-    goToPage(ROUTES.WITHDRAWAL_ADDRESSES);
+    goToPage(ROUTES.WITHDRAWALS_OVERVIEW);
   };
 
   return (

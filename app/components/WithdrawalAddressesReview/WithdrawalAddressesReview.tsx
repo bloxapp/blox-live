@@ -1,26 +1,26 @@
-import Web3 from 'web3';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Table } from '~app/common/components';
-import config from '~app/backend/common/config';
 import Spinner from '~app/common/components/Spinner';
 import useRouting from '~app/common/hooks/useRouting';
-import useAccounts from '~app/components/Accounts/useAccounts';
+import { Table, Checkbox } from '~app/common/components';
+import { setWizardPage} from '~app/components/Wizard/actions';
+// import useAccounts from '~app/components/Accounts/useAccounts';
 // import { MODAL_TYPES } from '~app/components/Dashboard/constants';
+import { PROCESSES } from '~app/components/ProcessRunner/constants';
 import Connection from '~app/backend/common/store-manager/connection';
 import { handlePageClick } from '~app/common/components/Table/service';
+// import WalletService from '~app/backend/services/wallet/wallet.service';
 import * as actionsFromDashboard from '~app/components/Dashboard/actions';
-import useDashboardData from '~app/components/Dashboard/useDashboardData';
-import tableColumns from '~app/components/WithdrawalAddresses/tableColumns';
-import { setWizardPage, setWizardPageData } from '~app/components/Wizard/actions';
-// import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
+// import useDashboardData from '~app/components/Dashboard/useDashboardData';
+import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
+import tableColumns from '~app/components/WithdrawalAddressesReview/tableColumns';
+import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
 import { BackButton, Title, BigButton } from '~app/components/Wizard/components/common';
 import { getAddAnotherAccount, getSeedlessDepositNeededStatus } from '~app/components/Accounts/selectors';
 import { getPage, getPageData, getStep, getWizardFinishedStatus } from '~app/components/Wizard/selectors';
-
-const web3 = new Web3(config.env.DEFAULT_WEB3_HTTP_PROVIDER);
+import Warning from '../Wizard/components/common/Warning';
 
 const Wrapper = styled.div`
   height: 100%;
@@ -32,16 +32,27 @@ const Wrapper = styled.div`
 `;
 
 const TableWrapper = styled.div`
-  width: 600px;
+  width: 800px;
+  border-radius: 4px;
+  background-color: ${({theme}) => theme.gray300}!important;
+  * {
+    background-color: ${({theme}) => theme.gray100}!important;
+    border-color: ${({theme}) => theme.gray300}!important;
+  }
 `;
 
-const Text = styled.span`
-  display: block;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.14;
-  font-family: Avenir, serif;
-  color: ${({theme}) => theme.gray600};
+const ErrorMessage = styled.span`
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.67;
+  color: ${({theme}) => theme.destructive600};
+  bottom:${({title}) => title ? '-27px' : '10px'};
+`;
+
+const LoaderWrapper = styled.div`
+  display:flex;
+  max-width:500px;
+  margin-top: 8px;
 `;
 
 const ValidatorsLoaderWrapper = styled.div`
@@ -55,6 +66,12 @@ const ValidatorsLoaderText = styled.span`
   font-weight: 500;
   margin-right: 12px;
   color: ${({theme}) => theme.gray800};
+`;
+
+const LoaderText = styled.span`
+  margin-left: 11px;
+  font-size: 12px;
+  color: ${({ theme }) => theme.primary900};
 `;
 
 const SubmitButton = styled(BigButton)`
@@ -73,34 +90,26 @@ const SubmitButton = styled(BigButton)`
   background-color: ${({ theme, isDisabled }) => isDisabled ? theme.gray400 : theme.primary900};
 `;
 
-const WithdrawalAddresses = (props: Props) => {
-  const { accounts } = useAccounts();
-  // const { dashboardActions } = props;
+const WithdrawalAddressesReview = (props: Props) => {
+  const {
+    // dashboardActions,
+    walletNeedsUpdate, pageData } = props;
   const { goToPage, ROUTES } = useRouting();
-  const { loadDataAfterNewAccount } = useDashboardData();
-  // const { checkIfPasswordIsNeeded } = usePasswordHandler();
+  const [checked1, setChecked1] = useState(false);
+  const [checked2, setChecked2] = useState(false);
+  // const { loadDataAfterNewAccount } = useDashboardData();
+  const { checkIfPasswordIsNeeded } = usePasswordHandler();
   const [validators, setValidators] = useState({});
-  const { walletNeedsUpdate, pageData, setPageData } = props;
   const [paginationInfo, setPaginationInfo] = useState({});
   const [validatorsPage, setPagedValidators] = useState([]);
   // const { setModalDisplay, clearModalDisplayData } = dashboardActions;
-  const [verifiedValidators, setVerifiedValidators] = useState({});
+  const { isLoading, isDone, error, startProcess } = useProcessRunner();
   const [isSubmitButtonDisabled, setSubmitButtonDisabled] = useState(true);
 
   const initAccounts = () => {
     // Get initial accounts list which is suitable for the flow
-    let initialAccounts = [];
-    if (pageData?.verifiedValidators) {
-      initialAccounts = Object.values(pageData?.verifiedValidators);
-    } else {
-      initialAccounts = accounts;
-    }
-
-    initialAccounts = initialAccounts
-      .filter(item => item.network === Connection.db().get('network'))
-      .filter(item => item.withdrawalKey && item.withdrawalKey.startsWith('0x00'));
-
-    const tableData = initialAccounts.reduce((prev, curr) => {
+    const verifiedValidators = pageData?.verifiedValidators || {};
+    const tableData: any = Object.values(verifiedValidators).reduce((prev: any, curr: any) => {
       // eslint-disable-next-line no-param-reassign
       prev[curr?.publicKey] = curr;
       return prev;
@@ -111,50 +120,9 @@ const WithdrawalAddresses = (props: Props) => {
   };
 
   /**
-   * To execution address validator function
-   * @param address
-   */
-  const validateToExecutionAddress = (address: string): boolean => {
-    try {
-      return web3.utils.isAddress(address);
-    } catch {
-      return false;
-    }
-  };
-
-  /**
-   * Verify to execution address
-   * TODO: as in on screen https://zpl.io/g8Ll5XA
-   *       show inline error without erasing bad data
-   */
-  const validateToExecutionAddresses = () => {
-    const newVerifiedValidators = {};
-    Object.keys(validators).forEach((publicKey: string) => {
-      const toExecutionAddress = validators[publicKey]?.toExecutionAddress;
-      const invalidAddress = !validateToExecutionAddress(toExecutionAddress);
-      if (toExecutionAddress?.length && invalidAddress) {
-        validators[publicKey] = {
-          ...validators[publicKey],
-          error: 'Invalid address'
-        };
-        delete newVerifiedValidators[publicKey];
-      } else if (toExecutionAddress?.length) {
-        validators[publicKey] = {
-          ...validators[publicKey],
-          error: null,
-        };
-        newVerifiedValidators[publicKey] = {
-          ...validators[publicKey],
-          error: null,
-        };
-      }
-    });
-    setVerifiedValidators(newVerifiedValidators);
-  };
-
-  /**
    * If wallet needs update - show this dialog
    */
+  // @ts-ignore
   // const showWalletUpdateDialog = () => {
   //   setModalDisplay({
   //     show: true,
@@ -175,37 +143,6 @@ const WithdrawalAddresses = (props: Props) => {
   // };
 
   /**
-   * Change address callback
-   * @param toExecutionAddress
-   * @param publicKey
-   */
-  const onChangeToExecutionAddress = (toExecutionAddress: string, publicKey: string) => {
-    const clonedObj = {...validators};
-    clonedObj[publicKey] = {...clonedObj[publicKey], toExecutionAddress };
-    setValidators(clonedObj);
-  };
-
-  /**
-   * Apply input to all the entries in a table.
-   * @param address
-   */
-  const applyToAll = (address: string) => {
-    if (!address?.length) {
-      return;
-    }
-    const addresses = Object.keys(validators);
-    const rewardAddresses = addresses.reduce((prev: any, curr: any) => {
-      const validator = validators[curr];
-      validator.toExecutionAddress = address;
-      // eslint-disable-next-line no-param-reassign
-      prev[curr] = validator;
-      return prev;
-    }, {});
-
-    setValidators(rewardAddresses);
-  };
-
-  /**
    * Table page change callback
    * @param offset
    * @param forceData
@@ -219,73 +156,74 @@ const WithdrawalAddresses = (props: Props) => {
    */
   const memoizedColumns = useMemo(
     () => tableColumns({
-      applyToAll,
       validators,
       valueField: 'toExecutionAddress',
-      onChangeAddress: onChangeToExecutionAddress,
     }),
     [validators]
   );
 
   /**
-   * Final submit button handler
+   * Final method which runs the process of setting withdrawal addresses.
    */
+  const setWithdrawalAddresses = async () => {
+    // Sync vault config with blox
+    // const walletService = new WalletService();
+    // await walletService.syncVaultConfigWithBlox();
+
+    console.warn({
+      seed: Connection.db().get('seed'),
+    });
+
+    startProcess(
+      PROCESSES.SET_WITHDRAWAL_ADDRESSES,
+      '',
+      {
+        seed: Connection.db().get('seed'),
+        accounts: Object.values(validators),
+      }
+    );
+  };
+
   const onSubmitButtonClick = async () => {
     // Show wallet update dialog if required to update
     if (walletNeedsUpdate) {
-      // TODO: uncomment when done with the flow
+      // TODO: uncomment this when flow is tested
       // return showWalletUpdateDialog();
     }
 
-    // Go to review page with final data
-    setPageData({ verifiedValidators });
-    goToPage(ROUTES.WITHDRAWAL_ADDRESSES_REVIEW);
+    // TODO: enable this only when at least one toExecutionAddress has been specified with correct data
+    // TODO: save final data with addresses to separate storage to work with it further
+
+    // TODO: check if password is required again
+    // TODO: and navigate to final execution screen with process inside
+    checkIfPasswordIsNeeded(setWithdrawalAddresses);
   };
 
   const checkSubmitButtonState = () => {
-    const disabled = !Object.keys(verifiedValidators).length ||
-      Object.keys(verifiedValidators).length !== Object.keys(validators).length;
-    setSubmitButtonDisabled(disabled);
+    setSubmitButtonDisabled((isLoading && !isDone) || !checked1 || !checked2);
   };
 
   useEffect(() => {
     checkSubmitButtonState();
-  }, [verifiedValidators, validators]);
-
-  // Validation effects
-  useEffect(() => {
-    validateToExecutionAddresses();
-  }, [validators]);
+  }, [isLoading, isDone, checked1, checked2]);
 
   // Initialize first table state
   useEffect(() => {
     initAccounts();
-  }, []);
+  }, [pageData]);
 
   return (
     <Wrapper>
       {!props.flowPage && (
         <>
           <BackButton onClick={() => {
-            loadDataAfterNewAccount().then(() => {
-              goToPage(ROUTES.DASHBOARD);
-            });
-            goToPage(ROUTES.DASHBOARD);
+            goToPage(ROUTES.WITHDRAWAL_ADDRESSES);
           }} />
           <br />
         </>
       )}
 
-      <Title>Withdrawal Address</Title>
-
-      <Text style={{marginBottom: 16}}>
-        Please enter an Ethereum address for each of your validators, in order to enable withdrawals.
-      </Text>
-
-      <Text style={{marginBottom: 24}}>
-        Setting a withdrawal address will make you eligible to participate in partial withdrawals and
-        <br /> will not exit your validator (which could be performed through a dedicated interface afterwards).
-      </Text>
+      <Title>Withdrawal Address Summary</Title>
 
       <TableWrapper>
         <Table
@@ -307,7 +245,22 @@ const WithdrawalAddresses = (props: Props) => {
         />
       </TableWrapper>
 
-      <br /><br />
+      <br />
+
+      <Warning
+        style={{marginBottom: 16, width: '100%', maxWidth: 'fit-content'}}
+        text={'The process of setting a withdrawal address is irreversible and could not be changed in the future - please ensure that you control the provided addresses, as lack of access would result in permanent lost of staked funds.'}
+      />
+
+      <Checkbox checked={checked1} onClick={setChecked1} checkboxStyle={{marginBottom: 0, marginTop: 9, marginRight: 8}}
+        labelStyle={{marginBottom: 0, marginTop: 9}}>
+        I confirm that I have access to the addresses above.
+      </Checkbox>
+
+      <Checkbox checked={checked2} onClick={setChecked2} checkboxStyle={{marginBottom: 0, marginTop: 9, marginRight: 8}}
+        labelStyle={{marginBottom: 32, marginTop: 9}}>
+        I understand that once I set withdrawal addresses, they can not be changed in the future.
+      </Checkbox>
 
       <SubmitButton
         isDisabled={isSubmitButtonDisabled}
@@ -315,6 +268,15 @@ const WithdrawalAddresses = (props: Props) => {
       >
         Next
       </SubmitButton>
+
+      {error && <ErrorMessage>{error}</ErrorMessage>}
+
+      {isLoading && (
+        <LoaderWrapper>
+          <Spinner width="17px" />
+          <LoaderText>Saving withdrawal addresses..</LoaderText>
+        </LoaderWrapper>
+      )}
     </Wrapper>
   );
 };
@@ -330,7 +292,6 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   setPage: (page: any) => dispatch(setWizardPage(page)),
-  setPageData: (data: any) => dispatch(setWizardPageData(data)),
   dashboardActions: bindActionCreators(actionsFromDashboard, dispatch)
 });
 
@@ -353,4 +314,4 @@ type Props = {
 
 type Dispatch = (arg0: { type: string }) => any;
 
-export default connect(mapStateToProps, mapDispatchToProps)(WithdrawalAddresses);
+export default connect(mapStateToProps, mapDispatchToProps)(WithdrawalAddressesReview);

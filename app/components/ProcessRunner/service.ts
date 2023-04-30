@@ -7,6 +7,7 @@ import { Observer } from '~app/backend/proccess-manager/observer.interface';
 import RecoveryProcess from '~app/backend/proccess-manager/recovery.process';
 import ReinstallProcess from '~app/backend/proccess-manager/reinstall.process';
 import AccountCreateProcess from '~app/backend/proccess-manager/account-create.process';
+import SetWithdrawalAddressProcess from '~app/backend/proccess-manager/set-withdrawal-address.process';
 
 export const processInstantiator = (processName: string, payload: Record<string, any> | undefined) => {
   if (processName === PROCESSES.INSTALL && payload.credentials) {
@@ -30,6 +31,9 @@ export const processInstantiator = (processName: string, payload: Record<string,
   }
   if (processName === PROCESSES.CREATE_ACCOUNT && payload.network) {
     return new AccountCreateProcess(payload.network, payload.indexToRestore, payload.inputData, payload.deposited);
+  }
+  if (processName === PROCESSES.SET_WITHDRAWAL_ADDRESSES) {
+    return new SetWithdrawalAddressProcess({ seed: payload.seed, accounts: payload.accounts });
   }
   return null;
 };

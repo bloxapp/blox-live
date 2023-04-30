@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import {bindActionCreators} from 'redux';
+import { bindActionCreators } from 'redux';
 import styled from 'styled-components';
 // import config from '~app/backend/common/config';
 import { Checkbox } from '~app/common/components';

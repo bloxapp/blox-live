@@ -29,10 +29,10 @@ export const openEtherscanLink = async (path: string, network: string): Promise<
   let link = '';
   switch (network) {
     case NETWORKS.mainnet.label:
-      link = `https://etherscan.io/${trimTrailingSlash(path)}`;
+      link = `${trimTrailingSlash(config.env.ETHERSCAN_LINK.MAINNET)}/${trimTrailingSlash(path)}`;
       break;
     case NETWORKS.prater.label:
-      link = `https://goerli.etherscan.io/${trimTrailingSlash(path)}`;
+      link = `${trimTrailingSlash(config.env.ETHERSCAN_LINK.TESTNET)}/${trimTrailingSlash(path)}`;
       break;
   }
   if (link) {

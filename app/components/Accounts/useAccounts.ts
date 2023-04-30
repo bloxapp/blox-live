@@ -17,7 +17,7 @@ const useAccounts = () => {
   useInjectSaga({key: 'accounts', saga, mode: ''});
 
   const dispatch = useDispatch();
-  const accounts: [] = useSelector(getAccounts, shallowEqual);
+  const accounts: any[] = useSelector(getAccounts, shallowEqual);
   const accountsError: string = useSelector(getAccountsError);
   const accountsSummary: any = useSelector(getAccountsSummary);
   const filteredAccounts: any = useSelector(getFilteredAccounts, shallowEqual);

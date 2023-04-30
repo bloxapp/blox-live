@@ -50,19 +50,50 @@ export default class AccountService {
     return await this.bloxApi.request(METHOD.DELETE, 'accounts');
   }
 
-  async execBls(seed: string, validator: any): Promise<void> {
-    const index = validator.name.split('-')[1];
-    const { network } = validator;
+  @Step({
+    name: 'Set withdrawal address'
+  })
+  @Catch({
+    displayMessage: 'Failed to set withdrawal address'
+  })
+  async blsToExecution({ seed, account }: { seed: string; account: Record<string, any> }): Promise<void> {
+    const index = account.name.split('-')[1];
+    const { network } = account;
     const params = {
-      indices: [validator.index],
-      publicKeys: [validator.publicKey],
-      withdrawalCredentials: [validator.withdrawalKey],
+      indices: [account.index],
+      publicKeys: [account.publicKey],
+      withdrawalCredentials: [account.withdrawalKey],
+      toExecutionAddress: account.toExecutionAddress,
     };
-    const payload = await this.keyManagerService.getAccountCredentials(seed, index, params.indices, params.publicKeys, params.withdrawalCredentials, [validator.rewardAddress], network);
-    await this.bloxApi.request(METHOD.POST, 'accounts/bls-to-execution', { data: payload, network });
+    console.warn('BLS TO EXECUTION PAYLOAD ACCOUNT CREDENTIALS PARAMS: ', params);
+
+    // TODO: validate all the parameters and raise exceptions
+
+    const payload = await this.keyManagerService.getAccountCredentials(
+      seed,
+      index,
+      params.indices,
+      params.publicKeys,
+      params.withdrawalCredentials,
+      [params.toExecutionAddress],
+      network,
+    );
+
+    if (payload.error) {
+      console.error(payload.error);
+      throw new Error(payload.error.message);
+    }
+
+    console.warn('BLS TO EXECUTION PAYLOAD: ', payload);
+    // await this.bloxApi.request(METHOD.POST, 'accounts/bls-to-execution', { data: payload, network });
+    // TODO: save in electron storage sign that this request already has been sent!
   }
 
-  async voluntaryExit(validator: any): Promise<void> {
+  /**
+   *
+   * @param validator
+   */
+  async voluntaryExit(validator: Record<string, any>): Promise<void> {
     const index = validator.name.split('-')[1];
     const { epoch } = await this.keyManagerService.getAttestation(validator.network);
     const forkVersion = await this.bloxApi.request(METHOD.GET, `ethereum2/current-fork-version?network=${validator.network}`);
@@ -75,7 +106,8 @@ export default class AccountService {
       },
       signature: `0x${dataSignature.data.signature}`,
     };
-    await this.bloxApi.request(METHOD.POST, 'accounts/voluntary-exit', { data, network: validator.network });
+    console.warn('VOLUNTARY EXIT PAYLOAD: ', data);
+    // await this.bloxApi.request(METHOD.POST, 'accounts/voluntary-exit', { data, network: validator.network });
   }
 
   @Catch({
@@ -385,10 +417,7 @@ export default class AccountService {
 
     const depositContractABI = require('./deposit_abi.json');
     const coin = network === config.env.MAINNET_NETWORK ? 'ETH' : 'GoETH';
-
-    const web3 = new Web3(
-      'https://goerli.infura.io/v3/d03b92aa81864faeb158166231b7f895'
-    );
+    const web3 = new Web3(config.env.DEFAULT_WEB3_HTTP_PROVIDER);
     const depositContract = new web3.eth.Contract(depositContractABI, depositContractAddress);
     const depositMethod = depositContract.methods.deposit(
       `0x${publicKey}`,
