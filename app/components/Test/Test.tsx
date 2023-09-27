@@ -11,6 +11,8 @@ import { Subject } from '../../backend/proccess-manager/subject.interface';
 import AccountCreateProcess from '../../backend/proccess-manager/account-create.process';
 import KeyManagerService from '../../backend/services/key-manager/key-manager.service';
 import KeyVaultService from '../../backend/services/key-vault/key-vault.service';
+import SsvKeysService from '../../backend/services/ssv-keys/ssv-keys.service';
+import MigrationService from '../../backend/services/migration/migration.service';
 import AccountService from '../../backend/services/account/account.service';
 import WalletService from '../../backend/services/wallet/wallet.service';
 import VersionService from '../../backend/services/version/version.service';
@@ -44,6 +46,8 @@ const Test = () => {
   const walletService = new WalletService();
   const versionService = new VersionService();
   const organizationService = new OrganizationService();
+  const ssvKeysService = new SsvKeysService();
+  const migrationService = new MigrationService();
   let [env, setEnv] = useState('');
   let [cryptoKey, setCryptoKey] = useState('');
   let [network, setNetwork] = useState(config.env.PRATER_NETWORK);
@@ -53,6 +57,17 @@ const Test = () => {
   let [index, setIndex] = useState(0);
   let [secretAccessKey, setSecretAccessKey] = useState('');
   let [processStatus, setProcessStatus] = useState('');
+  // ssv-keys
+  let [keyStoreJson, setKeyStoreJson] = useState('');
+  let [keyStorePassword, setKeyStorePassword] = useState('');
+  let [ownerAddress, setOwnerAddress] = useState('');
+  let [operators, setOperators] = useState('');
+  let [ownerNonce, setOwnerNonce] = useState(0);
+  let [privateKey, setPrivateKey] = useState('');
+  let [migrationKeyStoreJson, setMigrationKeyStoreJson] = useState('');
+  let [migration1OwnerAddress, setMigration1OwnerAddress] = useState('');
+  let [migration2OwnerAddress, setMigration2OwnerAddress] = useState('');
+
   if (!isRendered) {
     if (Connection.db().exists('env')) {
       setEnv(Connection.db().get('env'));
@@ -377,6 +392,53 @@ const Test = () => {
           console.log(slashingStorage);
         }}>
           Export Slashing Data
+        </button>
+      </div>
+      <p/>
+      <h2>SSV Keys</h2>
+      <div>
+        <input type={'text'} value={keyStoreJson} onChange={(event) => setKeyStoreJson(event.target.value)} placeholder="Keystore json" />
+        <input type={'password'} value={keyStorePassword} onChange={(event) => setKeyStorePassword(event.target.value)} placeholder="Keystore password" />
+        <input type={'text'} value={ownerAddress} onChange={(event) => setOwnerAddress(event.target.value)} placeholder="Owner address" />
+        <input type={'number'} value={ownerNonce} onChange={(event) => setOwnerNonce(+event.target.value)} placeholder="Owner nonce" />
+        <input type={'text'} value={operators} onChange={(event) => setOperators(event.target.value)} placeholder="Operators" />
+        <button
+          onClick={async () => {
+            const keyShares = await ssvKeysService.buildKeyShares(keyStoreJson, keyStorePassword, JSON.parse(operators), ownerAddress, ownerNonce);
+            console.log(keyShares);
+          }}
+        >
+          Build Keyshares
+        </button>
+      </div>
+      <p/>
+      <h2>Migration to SSV Network</h2>
+      <div>
+        <input type={'text'} value={migrationKeyStoreJson} onChange={(event) => setMigrationKeyStoreJson(event.target.value)} placeholder="Keystore json" />
+        <input type={'password'} value={keyStorePassword} onChange={(event) => setKeyStorePassword(event.target.value)} placeholder="Keystore password" />
+        <input type={'text'} value={migration1OwnerAddress} onChange={(event) => setMigration1OwnerAddress(event.target.value)} placeholder="Owner address" />
+        <button
+          onClick={async () => {
+            await migrationService.init();
+            const result = await migrationService.preBuildByKeystoresAndPassword(migration1OwnerAddress, [JSON.parse(migrationKeyStoreJson)], keyStorePassword);
+            console.log('key shares by keystore', result);
+          }}
+        >
+          Build Keyshares by Keystore
+        </button>
+      </div>
+      <p/>
+      <div>
+        <input type={'text'} value={privateKey} onChange={(event) => setPrivateKey(event.target.value)} placeholder="Private key" />
+        <input type={'text'} value={migration2OwnerAddress} onChange={(event) => setMigration2OwnerAddress(event.target.value)} placeholder="Owner address" />
+        <button
+          onClick={async () => {
+            await migrationService.init();
+            const result = await migrationService.preBuildByPrivateKeys(migration2OwnerAddress, [privateKey]);
+            console.log('key shares by keystore', result);
+          }}
+        >
+          Build Keyshares by Private key
         </button>
       </div>
       <p/>

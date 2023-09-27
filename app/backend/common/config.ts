@@ -12,7 +12,8 @@ export default class Config {
       AUTH0_DOMAIN: 'blox-infra.eu.auth0.com',
       AUTH0_CLIENT_ID: 'NsZvhkQvZOWwXT2rcA1RWGgA7YxxhsJZ',
       API_URL: 'https://api.stage.bloxstaking.com',
-      WEB_APP_URL: 'https://app.stage.bloxstaking.com'
+      WEB_APP_URL: 'https://app.stage.bloxstaking.com',
+      SSV_API_URL: 'http://localhost:3001/api/v4/prater',
     },
     production: {
       REFRESH_TOKEN_URL: 'https://api.bloxstaking.com/auth/token/refresh',
@@ -20,7 +21,8 @@ export default class Config {
       AUTH0_DOMAIN: 'blox-infra.eu.auth0.com',
       AUTH0_CLIENT_ID: 'UoQRP1Ndd5C0Y2VQyrHxZ7W9JXg7yRTv',
       API_URL: 'https://api.bloxstaking.com',
-      WEB_APP_URL: 'https://app.bloxstaking.com'
+      WEB_APP_URL: 'https://app.bloxstaking.com',
+      SSV_API_URL: 'https://api.stage.ssv.network/api/v4/prater',
     },
     default: {
       AUTH0_LOGOUT_URL: 'https://localhost:1212',

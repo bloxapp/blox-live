@@ -17,6 +17,7 @@
   "dependencies": {
     "@material-ui/icons": "^4.11.2",
     "got": "11.5.2",
+    "ssv-keys": "https://github.com/bloxapp/ssv-keys.git",
     "web3": "^1.2.11"
   }
 }
