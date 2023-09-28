@@ -63,7 +63,7 @@ const Test = () => {
   let [ownerAddress, setOwnerAddress] = useState('');
   let [operators, setOperators] = useState('');
   let [ownerNonce, setOwnerNonce] = useState(0);
-  let [privateKey, setPrivateKey] = useState('');
+  let [migration2PrivateKey, setMigration2PrivateKey] = useState('');
   let [migrationKeyStoreJson, setMigrationKeyStoreJson] = useState('');
   let [migration1OwnerAddress, setMigration1OwnerAddress] = useState('');
   let [migration2OwnerAddress, setMigration2OwnerAddress] = useState('');
@@ -404,7 +404,8 @@ const Test = () => {
         <input type={'text'} value={operators} onChange={(event) => setOperators(event.target.value)} placeholder="Operators" />
         <button
           onClick={async () => {
-            const keyShares = await ssvKeysService.buildKeyShares(keyStoreJson, keyStorePassword, JSON.parse(operators), ownerAddress, ownerNonce);
+            const { publickKey, privateKey } = await ssvKeysService.extractKeysFromKeystore(JSON.parse(keyStoreJson), keyStorePassword);
+            const keyShares = await ssvKeysService.buildKeyShares(publickKey, privateKey, JSON.parse(operators), ownerAddress, ownerNonce);
             console.log(keyShares);
           }}
         >
@@ -429,12 +430,12 @@ const Test = () => {
       </div>
       <p/>
       <div>
-        <input type={'text'} value={privateKey} onChange={(event) => setPrivateKey(event.target.value)} placeholder="Private key" />
+        <input type={'text'} value={migration2PrivateKey} onChange={(event) => setMigration2PrivateKey(event.target.value)} placeholder="Private key" />
         <input type={'text'} value={migration2OwnerAddress} onChange={(event) => setMigration2OwnerAddress(event.target.value)} placeholder="Owner address" />
         <button
           onClick={async () => {
             await migrationService.init();
-            const result = await migrationService.preBuildByPrivateKeys(migration2OwnerAddress, [privateKey]);
+            const result = await migrationService.preBuildByPrivateKeys(migration2OwnerAddress, [migration2PrivateKey]);
             console.log('key shares by keystore', result);
           }}
         >
