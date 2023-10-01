@@ -16,6 +16,7 @@ import MigrationService from '../../backend/services/migration/migration.service
 import AccountService from '../../backend/services/account/account.service';
 import WalletService from '../../backend/services/wallet/wallet.service';
 import VersionService from '../../backend/services/version/version.service';
+import { getValidatorKeysFromSeed } from '../../backend/services/validator-Keys/index';
 import OrganizationService from '../../backend/services/organization/organization.service';
 import { Link } from 'react-router-dom/esm/react-router-dom';
 import config from '../../backend/common/config';
@@ -67,6 +68,8 @@ const Test = () => {
   let [migrationKeyStoreJson, setMigrationKeyStoreJson] = useState('');
   let [migration1OwnerAddress, setMigration1OwnerAddress] = useState('');
   let [migration2OwnerAddress, setMigration2OwnerAddress] = useState('');
+  let [mSeed, setMSeed] = useState('');
+  let [mValidatorsCount, setMValidatorsCount] = useState(0);
 
   if (!isRendered) {
     if (Connection.db().exists('env')) {
@@ -440,6 +443,19 @@ const Test = () => {
           }}
         >
           Build Keyshares by Private key
+        </button>
+      </div>
+      <p/>
+      <div>
+        <input type={'text'} value={mSeed} onChange={(event) => setMSeed(event.target.value)} placeholder="Seed" />
+        <input type={'number'} value={mValidatorsCount} onChange={(event) => setMValidatorsCount(+event.target.value)} placeholder="Validators count" />
+        <button
+          onClick={async () => {
+            const keysFromSeed = await getValidatorKeysFromSeed(mSeed, mValidatorsCount);
+            console.log('key stores by seed', keysFromSeed);
+          }}
+        >
+          Build Keystores from Seed
         </button>
       </div>
       <p/>
