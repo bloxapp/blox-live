@@ -13,7 +13,6 @@ export default class SsvKeysService {
     // Initialize SSVKeys SDK
     const ssvKeys = new SSVKeys();
     const { publicKey, privateKey } = await ssvKeys.extractKeys(keystore, keystorePassword);
-
     // Return extracted keys
     return {
       publicKey,
@@ -22,14 +21,19 @@ export default class SsvKeysService {
   }
 
   async buildKeyShares(publicKey: string, privateKey: string, operators: any, ownerAddress: string, ownerNonce: number): Promise<any> {
-    const keyShares = new KeyShares();
-    await keyShares.update({ operators, ownerAddress, ownerNonce, publicKey });
-
     // Initialize SSVKeys SDK
     const ssvKeys = new SSVKeys();
 
     // Build shares from operator IDs and public keys
     const encryptedShares = await ssvKeys.buildShares(privateKey, operators);
+
+    const keyShares = new KeyShares();
+    await keyShares.update({
+      operators,
+      ownerAddress,
+      ownerNonce,
+      publicKey
+    });
 
     // Build final web3 transaction payload and update keyshares file with payload data
     await keyShares.buildPayload({
@@ -43,6 +47,6 @@ export default class SsvKeysService {
     });
 
     this.logger.info('Key shares successfully built');
-    return keyShares;
+    return keyShares.toJson();
   }
 }

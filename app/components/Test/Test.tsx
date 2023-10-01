@@ -404,8 +404,8 @@ const Test = () => {
         <input type={'text'} value={operators} onChange={(event) => setOperators(event.target.value)} placeholder="Operators" />
         <button
           onClick={async () => {
-            const { publickKey, privateKey } = await ssvKeysService.extractKeysFromKeystore(JSON.parse(keyStoreJson), keyStorePassword);
-            const keyShares = await ssvKeysService.buildKeyShares(publickKey, privateKey, JSON.parse(operators), ownerAddress, ownerNonce);
+            const keys = await ssvKeysService.extractKeysFromKeystore(JSON.parse(keyStoreJson), keyStorePassword);
+            const keyShares = await ssvKeysService.buildKeyShares(keys.publicKey, keys.privateKey, JSON.parse(operators), ownerAddress, ownerNonce);
             console.log(keyShares);
           }}
         >
