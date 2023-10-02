@@ -20,6 +20,7 @@ import walletSaga from '~app/components/KeyVaultManagement/saga';
 import useEventLogs from '~app/components/EventLogs/useEventLogs';
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
 import * as wizardSelectors from '~app/components/Wizard/selectors';
+import MigrationFlow from '~app/components/Migration/MigrationFlow';
 import Connection from '~app/backend/common/store-manager/connection';
 import Content from '~app/components/EntryPage/routes/wrappers/Content';
 import * as actionsFromDashboard from '~app/components/Dashboard/actions';
@@ -128,10 +129,10 @@ const EntryPage = (props: Props) => {
         exact
         path={ROUTES.LOGGED_IN}
         render={() => {
-            if (showWizard) {
-              return <Redirect to={ROUTES.WIZARD} />;
-            }
-            return <Redirect to={ROUTES.DASHBOARD} />;
+          if (showWizard) {
+            return <Redirect to={ROUTES.WIZARD} />;
+          }
+          return <Redirect to={ROUTES.DASHBOARD} />;
         }}
       />
       <Route
@@ -142,6 +143,19 @@ const EntryPage = (props: Props) => {
             <Content>
               <DashboardWrapper>
                 <Dashboard {...otherProps} />
+              </DashboardWrapper>
+            </Content>
+          </>
+        )}
+      />
+      <Route
+        path={ROUTES.MIGRATION_FLOW}
+        render={() => (
+          <>
+            <Header withMenu />
+            <Content>
+              <DashboardWrapper>
+                <MigrationFlow {...otherProps} />
               </DashboardWrapper>
             </Content>
           </>

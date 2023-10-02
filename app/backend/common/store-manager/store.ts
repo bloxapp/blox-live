@@ -1,7 +1,7 @@
 import fs from 'fs';
 import * as crypto from 'crypto';
 import ElectronStore from 'electron-store';
-import { Migrate } from '~app/backend/migrate';
+// import { Migrate } from '~app/backend/migrate';
 import { Catch } from '~app/backend/decorators';
 import { Log } from '~app/backend/common/logger/logger';
 import BaseStore from '~app/backend/common/store-manager/base-store';
@@ -186,7 +186,7 @@ export default class Store {
     // eslint-disable-next-line @typescript-eslint/no-implied-eval
     this.timer = setTimeout(this.unsetCryptoKey.bind(this), this.cryptoKeyTTL * 1000 * 60);
     // run migrations if exists
-    await Migrate.runCrypted(this.get('currentUserId'), this.storage.get('env'));
+    // await Migrate.runCrypted(this.get('currentUserId'), this.storage.get('env'));
   }
 
   @Catch()
