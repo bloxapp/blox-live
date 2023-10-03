@@ -13,7 +13,7 @@ export default class Config {
       AUTH0_CLIENT_ID: 'NsZvhkQvZOWwXT2rcA1RWGgA7YxxhsJZ',
       API_URL: 'https://api.stage.bloxstaking.com',
       WEB_APP_URL: 'https://app.stage.bloxstaking.com',
-      SSV_API_URL: 'http://localhost:3001/api/v4/prater',
+      SSV_API_URL: 'https://api.stage.ssv.network/api/v4/prater',
     },
     production: {
       REFRESH_TOKEN_URL: 'https://api.bloxstaking.com/auth/token/refresh',

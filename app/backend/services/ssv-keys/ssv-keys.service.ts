@@ -47,6 +47,6 @@ export default class SsvKeysService {
     });
 
     this.logger.info('Key shares successfully built');
-    return keyShares.toJson();
+    return JSON.parse(keyShares.toJson());
   }
 }

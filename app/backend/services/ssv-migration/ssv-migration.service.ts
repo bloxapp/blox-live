@@ -1,10 +1,14 @@
 import * as Bls from 'bls-eth-wasm/browser';
 
+import fs from 'fs';
+import path from 'path';
 import axios from 'axios';
-import config from '../../common/config';
+import electron from 'electron';
+
+import config from '~app/backend/common/config';
+import SsvKeysService from '~app/backend/services/ssv-keys/ssv-keys.service';
 
 import { Log } from '~app/backend/common/logger/logger';
-import SsvKeysService from '~app/backend/services/ssv-keys/ssv-keys.service';
 
 type Operator = {
   id: number;
@@ -12,13 +16,15 @@ type Operator = {
   validatorCount: number;
 };
 
-export default class MigrationService {
+export default class SsvMigrationService {
   private logger: Log;
-  private ssvKeysService: SsvKeysService;
   private operators: Operator[] = [];
+  private ssvKeysService: SsvKeysService;
+  private userDataPath: string;
 
   constructor() {
-    this.logger = new Log(MigrationService.name);
+    this.userDataPath = (electron.app || electron.remote.app).getPath('userData');
+    this.logger = new Log(SsvMigrationService.name);
     this.ssvKeysService = new SsvKeysService();
   }
 
@@ -54,47 +60,61 @@ export default class MigrationService {
     return selectedOperators.map(operator => ({ id: operator.id, operatorKey: operator.publicKey }));
   }
 
-  async preBuildByKeystoresAndPassword(ownerAddress: string, keyStores: any[], password: string): Promise<any[]> {
+  async buildByKeystoresAndPassword(ownerAddress: string, keyStores: any[], password: string): Promise<any> {
     // Get owner nonce from ssv-api
     const ownerData: any = await axios.get(`${config.env.SSV_API_URL}/accounts/${ownerAddress}`);
     const { nonce } = ownerData.data.data;
 
     // Build key shares
     const keySharesList: any[] = [];
+    let currentNonce = nonce;
     // eslint-disable-next-line no-restricted-syntax
     for (const keyStore of keyStores) {
+      // eslint-disable-next-line no-plusplus
+      currentNonce++;
       const operatorsForValidator = this.getDistributedOperators();
       // eslint-disable-next-line no-await-in-loop
       const { publicKey, privateKey } = await this.ssvKeysService.extractKeysFromKeystore(keyStore, password);
       // eslint-disable-next-line no-await-in-loop
-      const keyShares = await this.ssvKeysService.buildKeyShares(publicKey, privateKey, operatorsForValidator, ownerAddress, nonce);
+      const keyShares = await this.ssvKeysService.buildKeyShares(publicKey, privateKey, operatorsForValidator, ownerAddress, currentNonce);
       keySharesList.push(keyShares);
     }
 
-    this.logger.info('preBuild by keystores completed');
+    this.logger.info('build by keystores completed');
     return keySharesList;
   }
 
-  async preBuildByPrivateKeys(ownerAddress: string, privateKeys: string[]): Promise<any[]> {
+  async buildByPrivateKeys(ownerAddress: string, privateKeys: string[]): Promise<any> {
     await Bls.init(Bls.BLS12_381);
 
     // Get owner nonce from ssv-api
     const ownerData: any = await axios.get(`${config.env.SSV_API_URL}/accounts/${ownerAddress}`);
-    const { nonce } = ownerData.data;
+    console.log(ownerData);
+    const { nonce } = ownerData.data.data;
 
     // Build key shares
     const keySharesList: any[] = [];
+    let currentNonce = nonce;
     // eslint-disable-next-line no-restricted-syntax
     for (const privateKey of privateKeys) {
+      // eslint-disable-next-line no-plusplus
+      currentNonce++;
       const operatorsForValidator = this.getDistributedOperators();
       // eslint-disable-next-line no-await-in-loop
-      const publicKey = `0x${Bls.deserializeHexStrToSecretKey(privateKey).getPublicKey().serializeToHexStr()}`;
+      const publicKey = `0x${Bls.deserializeHexStrToSecretKey(privateKey.replace(/^0x/, '')).getPublicKey().serializeToHexStr()}`;
       // eslint-disable-next-line no-await-in-loop
-      const keyShares = await this.ssvKeysService.buildKeyShares(`0x${privateKey}`, publicKey, operatorsForValidator, ownerAddress, nonce);
+      const keyShares = await this.ssvKeysService.buildKeyShares(publicKey, `0x${privateKey.replace(/^0x/, '')}`, operatorsForValidator, ownerAddress, currentNonce);
       keySharesList.push(keyShares);
     }
 
-    this.logger.info('preBuild by keystores completed');
+    this.logger.info('build by private keys completed');
     return keySharesList;
+  }
+
+  storeKeyShares(keySharesList: any[]): string {
+    const outputPath = path.join(this.userDataPath, 'keyshares.json');
+    fs.writeFileSync(outputPath, JSON.stringify(keySharesList, null, 2));
+    this.logger.info(`build file saved in ${outputPath} file`);
+    return outputPath;
   }
 }

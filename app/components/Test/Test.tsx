@@ -6,37 +6,22 @@ import ReinstallProcess from '../../backend/proccess-manager/reinstall.process';
 import UpgradeProcess from '../../backend/proccess-manager/upgrade.process';
 import UninstallProcess from '../../backend/proccess-manager/uninstall.process';
 import RebootProcess from '../../backend/proccess-manager/reboot.process';
-import { Observer } from '../../backend/proccess-manager/observer.interface';
-import { Subject } from '../../backend/proccess-manager/subject.interface';
 import AccountCreateProcess from '../../backend/proccess-manager/account-create.process';
 import KeyManagerService from '../../backend/services/key-manager/key-manager.service';
 import KeyVaultService from '../../backend/services/key-vault/key-vault.service';
 import SsvKeysService from '../../backend/services/ssv-keys/ssv-keys.service';
-import MigrationService from '../../backend/services/migration/migration.service';
+import SsvMigrationService from '../../backend/services/ssv-migration/ssv-migration.service';
 import AccountService from '../../backend/services/account/account.service';
 import WalletService from '../../backend/services/wallet/wallet.service';
 import VersionService from '../../backend/services/version/version.service';
 import { getValidatorKeysFromSeed } from '../../backend/services/validator-Keys/index';
 import OrganizationService from '../../backend/services/organization/organization.service';
+import ProcessListener from '../../backend/proccess-manager/proccess.listener';
+import BaseStore from '../../backend/common/store-manager/base-store';
+
 import { Link } from 'react-router-dom/esm/react-router-dom';
 import config from '../../backend/common/config';
 import { reportCrash } from '../common/service';
-class Listener implements Observer {
-  private readonly logFunc: any;
-
-  constructor(func: any) {
-    this.logFunc = func;
-  }
-
-  public update(subject: Subject, payload: any) {
-    let message = payload.step?.name;
-    if (payload.state === 'fallback') {
-      message = 'Process failed, Rolling back...';
-    }
-    this.logFunc(`${payload.step?.num}/${payload.step?.numOf} > ${message}`);
-    console.log(`${payload.step?.num}/${payload.step?.numOf}`, payload);
-  }
-}
 
 let isRendered = null;
 
@@ -48,7 +33,7 @@ const Test = () => {
   const versionService = new VersionService();
   const organizationService = new OrganizationService();
   const ssvKeysService = new SsvKeysService();
-  const migrationService = new MigrationService();
+  const ssvMigrationService = new SsvMigrationService();
   let [env, setEnv] = useState('');
   let [cryptoKey, setCryptoKey] = useState('');
   let [network, setNetwork] = useState(config.env.PRATER_NETWORK);
@@ -154,7 +139,7 @@ const Test = () => {
         <button
           onClick={async () => { // TODO: check this func
             const installProcess = new InstallProcess({ accessKeyId, secretAccessKey });
-            const listener = new Listener(setProcessStatus);
+            const listener = new ProcessListener(setProcessStatus);
             installProcess.subscribe(listener);
             try {
               await installProcess.run();
@@ -189,7 +174,7 @@ const Test = () => {
         <button
           onClick={async () => {
             const accountCreateProcess = new AccountCreateProcess(network);
-            const listener = new Listener(setProcessStatus);
+            const listener = new ProcessListener(setProcessStatus);
             accountCreateProcess.subscribe(listener);
             try {
               await accountCreateProcess.run();
@@ -207,7 +192,7 @@ const Test = () => {
         <h2>Other</h2>
         <button
           onClick={async () => {
-            const listener = new Listener(setProcessStatus);
+            const listener = new ProcessListener(setProcessStatus);
             const upgradeProcess = new UpgradeProcess();
             upgradeProcess.subscribe(listener);
             try {
@@ -222,7 +207,7 @@ const Test = () => {
         </button>
         <button
           onClick={async () => {
-            const listener = new Listener(setProcessStatus);
+            const listener = new ProcessListener(setProcessStatus);
             const reinstallProcess = new ReinstallProcess();
             reinstallProcess.subscribe(listener);
             try {
@@ -238,7 +223,7 @@ const Test = () => {
         <button
           onClick={async () => {
             const uninstallProcess = new UninstallProcess();
-            const listener = new Listener(setProcessStatus);
+            const listener = new ProcessListener(setProcessStatus);
             uninstallProcess.subscribe(listener);
             try {
               await uninstallProcess.run();
@@ -259,7 +244,7 @@ const Test = () => {
         <button
           onClick={async () => {
             const rebootProcess = new RebootProcess();
-            const listener = new Listener(setProcessStatus);
+            const listener = new ProcessListener(setProcessStatus);
             rebootProcess.subscribe(listener);
             try {
               await rebootProcess.run();
@@ -423,9 +408,9 @@ const Test = () => {
         <input type={'text'} value={migration1OwnerAddress} onChange={(event) => setMigration1OwnerAddress(event.target.value)} placeholder="Owner address" />
         <button
           onClick={async () => {
-            await migrationService.init();
-            const result = await migrationService.preBuildByKeystoresAndPassword(migration1OwnerAddress, [JSON.parse(migrationKeyStoreJson)], keyStorePassword);
-            console.log('key shares by keystore', result);
+            await ssvMigrationService.init();
+            const keyShares = await ssvMigrationService.buildByKeystoresAndPassword(migration1OwnerAddress, [JSON.parse(migrationKeyStoreJson)], keyStorePassword);
+            console.log('key shares by keystore', keyShares);
           }}
         >
           Build Keyshares by Keystore
@@ -437,9 +422,9 @@ const Test = () => {
         <input type={'text'} value={migration2OwnerAddress} onChange={(event) => setMigration2OwnerAddress(event.target.value)} placeholder="Owner address" />
         <button
           onClick={async () => {
-            await migrationService.init();
-            const result = await migrationService.preBuildByPrivateKeys(migration2OwnerAddress, [migration2PrivateKey]);
-            console.log('key shares by keystore', result);
+            await ssvMigrationService.init();
+            const keyShares = await ssvMigrationService.buildByPrivateKeys(migration2OwnerAddress, [migration2PrivateKey]);
+            console.log('key shares by private key', keyShares);
           }}
         >
           Build Keyshares by Private key
@@ -452,10 +437,37 @@ const Test = () => {
         <button
           onClick={async () => {
             const keysFromSeed = await getValidatorKeysFromSeed(mSeed, mValidatorsCount);
-            console.log('key stores by seed', keysFromSeed);
+            console.log('keys by seed', keysFromSeed);
           }}
         >
           Build Keystores from Seed
+        </button>
+      </div>
+      <h2>Migration process to SSV Network</h2>
+      <p/>
+      <div>
+        <input type={'text'} value={mSeed} onChange={(event) => setMSeed(event.target.value)} placeholder="Seed" />
+        <input type={'number'} value={mValidatorsCount} onChange={(event) => setMValidatorsCount(+event.target.value)} placeholder="Validators count" />
+        <input type={'text'} value={migration2OwnerAddress} onChange={(event) => setMigration2OwnerAddress(event.target.value)} placeholder="Owner address" />
+        <button
+          onClick={async () => {
+            // 1. extract private keys from seed
+            const keysFromSeed = await getValidatorKeysFromSeed(mSeed, mValidatorsCount);
+            const privateKeys = keysFromSeed.map((key) => key.privateKey);
+            // 2. build keyshares by private keys
+            await ssvMigrationService.init();
+            const keyShares = await ssvMigrationService.buildByPrivateKeys(migration2OwnerAddress, privateKeys);
+            console.log('keyshares', keyShares);
+            const filePath = await ssvMigrationService.storeKeyShares(keyShares);
+            console.log('keyshares stored at', filePath);
+            // 3. Uninstall provess run
+            /* ... */
+            // 4. Set flag to base store
+            const baseStore: BaseStore = new BaseStore();
+            await baseStore.set('ssvMigrationBuiltAt', new Date());
+          }}
+        >
+          Run Seed migration mode
         </button>
       </div>
       <p/>
