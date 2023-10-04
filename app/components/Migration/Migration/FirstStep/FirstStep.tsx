@@ -1,7 +1,9 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
+import { validateAddressInput } from '~app/utils/service';
 import Checkbox from '~app/common/components/Checkbox/Checkbox';
 import Buttons from '~app/components/Migration/Buttons/Buttons';
+import useMigrationData from '~app/components/Migration/useMigrationData';
 import {AdditionalText, Layout, Title} from '~app/components/Migration/styles';
 
 const Text = styled(AdditionalText)`
@@ -34,8 +36,37 @@ const Input = styled.input`
   background: #FFF;
 `;
 
-const FirstStep = ({nextStep}: {nextStep: () => void}) => {
+const ErrorMessage = styled.p`
+  color: red;
+`;
+
+const FirstStep = ({nextStep, cancelHandler}: {nextStep: () => void, cancelHandler: () => void}) => {
+  const {saveAddress, removeAddress, ownerAddress} = useMigrationData();
+  const [address, setAddress] = useState(ownerAddress);
   const [checked, setChecked] = useState(false);
+  const [error, setError] = useState({shouldDisplay: false, errorMessage: ''});
+  const disableBtnCondition = !address || !checked || error.shouldDisplay;
+
+  useEffect(() => {
+    if (address && !error.shouldDisplay) {
+      saveAddress(address);
+    }
+  }, [address]);
+
+  const errorHandler = (e: {shouldDisplay: boolean, errorMessage: string}) => {
+    setError(e);
+  };
+
+  const onInputChangeHandler = (e: any) => {
+    const {value} = e.target;
+    setAddress(value);
+    validateAddressInput(value, errorHandler);
+  };
+
+  const onCancelHandler = () => {
+    removeAddress();
+    cancelHandler();
+  };
 
   return (
     <div>
@@ -45,13 +76,14 @@ const FirstStep = ({nextStep}: {nextStep: () => void}) => {
         <Text> This wallet will be used to log-in to your SSV account and manage your validators on the SSV network.</Text>
         <InputWrapper>
           <InputLabel>Ethereum Address</InputLabel>
-          <Input />
+          <Input value={address} onChange={onInputChangeHandler} />
+          <ErrorMessage>{error.shouldDisplay && error.errorMessage}</ErrorMessage>
         </InputWrapper>
         <Checkbox checkboxStyle={{marginRight: 8}} checked={checked} onClick={setChecked}>
           I confirm I have access to this Ethereum wallet and it’s under my possession
         </Checkbox>
       </Layout>
-      <Buttons acceptAction={nextStep} disabled={!checked} cancelAction={null} acceptButtonLabel={'Migrate'} />
+      <Buttons acceptAction={nextStep} disabled={disableBtnCondition} cancelAction={onCancelHandler} acceptButtonLabel={'Migrate'} />
     </div>
   );
 };
