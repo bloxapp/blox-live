@@ -63,7 +63,7 @@ export default class SsvMigrationService {
 
   async buildByKeystoresAndPassword(ownerAddress: string, keyStores: any[], password: string): Promise<any> {
     // Get owner nonce from ssv-api
-    const ownerData: any = this.ssvApiService.getAccountData(ownerAddress);
+    const ownerData: any = await this.ssvApiService.getAccountData(ownerAddress);
     const { nonce } = ownerData.data.data;
 
     // Build key shares
@@ -89,7 +89,7 @@ export default class SsvMigrationService {
     await Bls.init(Bls.BLS12_381);
 
     // Get owner nonce from ssv-api
-    const ownerData: any = this.ssvApiService.getAccountData(ownerAddress);
+    const ownerData: any = await this.ssvApiService.getAccountData(ownerAddress);
     console.log(ownerData);
     const { nonce } = ownerData.data.data;
 
