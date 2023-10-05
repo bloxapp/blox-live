@@ -12,4 +12,8 @@ export default class SsvApiService {
   async getAccountData(address: string) {
     return await this.ssvApi.request(METHOD.GET, `/accounts/${address}`);
   }
+
+  async getOperatorsByIds(ids: string[] | number[]) {
+    return await this.ssvApi.request(METHOD.POST, '/operators', {ids});
+  }
 }

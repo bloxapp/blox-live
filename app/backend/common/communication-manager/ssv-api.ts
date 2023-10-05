@@ -4,7 +4,7 @@ import Http from '~app/backend/common/communication-manager/http';
 export default class SsvApi extends Http {
   constructor() {
     super();
-    this.baseUrl = config.env.SSV_API;
+    this.baseUrl = config.env.SSV_API_URL;
   }
 
   init = () => {
