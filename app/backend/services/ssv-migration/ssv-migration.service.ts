@@ -2,12 +2,11 @@ import * as Bls from 'bls-eth-wasm/browser';
 
 import fs from 'fs';
 import path from 'path';
-import axios from 'axios';
 import electron from 'electron';
 
-import config from '~app/backend/common/config';
-import SsvKeysService from '~app/backend/services/ssv-keys/ssv-keys.service';
+import SsvApi from '~app/backend/common/communication-manager/ssv-api';
 
+import SsvKeysService from '~app/backend/services/ssv-keys/ssv-keys.service';
 import { Log } from '~app/backend/common/logger/logger';
 
 type Operator = {
@@ -21,11 +20,14 @@ export default class SsvMigrationService {
   private operators: Operator[] = [];
   private ssvKeysService: SsvKeysService;
   private userDataPath: string;
+  private ssvApiService: SsvApi;
 
   constructor() {
     this.userDataPath = (electron.app || electron.remote.app).getPath('userData');
     this.logger = new Log(SsvMigrationService.name);
     this.ssvKeysService = new SsvKeysService();
+    this.ssvApiService = new SsvApi();
+    this.ssvApiService.init();
   }
 
   async init(): Promise<void> {
@@ -33,7 +35,7 @@ export default class SsvMigrationService {
     const operatorIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
     // Get operators data by IDs from ssv-api
-    const operatorData: any = await axios.post(`${config.env.SSV_API_URL}/operators`, { ids: operatorIds });
+    const operatorData: any = await this.ssvApiService.getOperatorsByIds(operatorIds);
     this.operators = operatorData.data.operators.map(operator => ({
       id: operator.id,
       publicKey: operator.public_key,
@@ -62,7 +64,7 @@ export default class SsvMigrationService {
 
   async buildByKeystoresAndPassword(ownerAddress: string, keyStores: any[], password: string): Promise<any> {
     // Get owner nonce from ssv-api
-    const ownerData: any = await axios.get(`${config.env.SSV_API_URL}/accounts/${ownerAddress}`);
+    const ownerData: any = await this.ssvApiService.getAccountData(ownerAddress);
     const { nonce } = ownerData.data.data;
 
     // Build key shares
@@ -88,7 +90,7 @@ export default class SsvMigrationService {
     await Bls.init(Bls.BLS12_381);
 
     // Get owner nonce from ssv-api
-    const ownerData: any = await axios.get(`${config.env.SSV_API_URL}/accounts/${ownerAddress}`);
+    const ownerData: any = await this.ssvApiService.getAccountData(ownerAddress);
     console.log(ownerData);
     const { nonce } = ownerData.data.data;
 

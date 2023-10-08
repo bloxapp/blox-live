@@ -31,7 +31,7 @@ const PreparationProgress = ({currentStep}: {currentStep: number}) => {
     <PreparationWrapper>
       <Title>SSV Migration Preparation</Title>
       <Lines>
-        {components.map((Component : any, index: number) => <Component style={currentStep >= index ? {backgroundColor: '#1BA5F8'} : null} />)}
+        {components.map((Component : any, index: number) => <Component key={index} style={currentStep >= index ? {backgroundColor: '#1BA5F8'} : null} />)}
       </Lines>
     </PreparationWrapper>
   );

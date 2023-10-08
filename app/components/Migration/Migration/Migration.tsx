@@ -24,13 +24,21 @@ const Migration = ({nextFlow}: {nextFlow: any}) => {
 
   const nextStep = () => setCurrentStep(currentStep === STEPS.FIRST_STEP ? STEPS.SECOND_STEP : STEPS.FIRST_STEP);
 
+  const cancelButtonHandler = () => {
+    if (currentStep > STEPS.FIRST_STEP) {
+      setCurrentStep(currentStep - 1);
+    } else {
+      nextFlow();
+    }
+  };
+
   const Component = components[currentStep];
-  nextFlow;
+
   return (
     <CustomWrapper>
       <MigrationProgress currentStep={currentStep} />
       <Wrapper>
-        <Component nextStep={nextStep} />
+        <Component nextStep={nextStep} cancelHandler={cancelButtonHandler} />
       </Wrapper>
     </CustomWrapper>
   );

@@ -25,7 +25,7 @@ const ProgressLogo = styled.div`
   background-image: url(${migrationProgressLogo});
 `;
 
-const SecondStep = ({nextStep}: {nextStep: () => void}) => (
+const SecondStep = ({nextStep, cancelHandler}: {nextStep: () => void, cancelHandler: () => void}) => (
   <div>
     <Title>Migration in progress...</Title>
     <Layout>
@@ -38,7 +38,7 @@ const SecondStep = ({nextStep}: {nextStep: () => void}) => (
         <ProgressLogo />
       </MigrationBlocksContainer>
     </Layout>
-    <Buttons acceptAction={nextStep} cancelAction={null} acceptButtonLabel={'Migrate'} />
+    <Buttons acceptAction={nextStep} cancelAction={cancelHandler} acceptButtonLabel={'Migrate'} />
   </div>
   );
 
