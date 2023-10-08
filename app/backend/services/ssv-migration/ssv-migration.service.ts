@@ -4,9 +4,9 @@ import fs from 'fs';
 import path from 'path';
 import electron from 'electron';
 
-import SsvApiService from '~app/backend/services/ssv-api/ssvApiService';
-import SsvKeysService from '~app/backend/services/ssv-keys/ssv-keys.service';
+import SsvApi from '~app/backend/common/communication-manager/ssv-api';
 
+import SsvKeysService from '~app/backend/services/ssv-keys/ssv-keys.service';
 import { Log } from '~app/backend/common/logger/logger';
 
 type Operator = {
@@ -20,13 +20,14 @@ export default class SsvMigrationService {
   private operators: Operator[] = [];
   private ssvKeysService: SsvKeysService;
   private userDataPath: string;
-  private ssvApiService: SsvApiService;
+  private ssvApiService: SsvApi;
 
   constructor() {
     this.userDataPath = (electron.app || electron.remote.app).getPath('userData');
     this.logger = new Log(SsvMigrationService.name);
     this.ssvKeysService = new SsvKeysService();
-    this.ssvApiService = new SsvApiService();
+    this.ssvApiService = new SsvApi();
+    this.ssvApiService.init();
   }
 
   async init(): Promise<void> {
