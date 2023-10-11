@@ -4,7 +4,7 @@ import { Log } from '~app/backend/common/logger/logger';
 import * as actionTypes from './actionTypes';
 import * as actions from './actions';
 
-import UsersService from 'backend/services/users/users.service';
+import UsersService, { SSVMigrationStatus } from 'backend/services/users/users.service';
 
 function* loadUserInfoSaga() {
   try {
@@ -14,6 +14,7 @@ function* loadUserInfoSaga() {
     const userInfo = yield call([usersService, 'get']);
     logger.info('org-id', userInfo.organizationId);
 
+    userInfo.migrationStatus = userInfo.migrationStatus || SSVMigrationStatus.NOT_STARTED;
     yield put(actions.loadUserInfoSuccess(userInfo));
   } catch (error) {
     yield error && put(actions.loadUserInfoFailure(error));

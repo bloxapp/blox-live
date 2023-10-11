@@ -16,6 +16,7 @@ import Dashboard from '~app/components/Dashboard/Dashboard';
 import { loadWallet } from '~app/components/Wizard/actions';
 import useAccounts from '~app/components/Accounts/useAccounts';
 import useVersions from '~app/components/Versions/useVersions';
+import * as userSelectors from '~app/components/User/selectors';
 import walletSaga from '~app/components/KeyVaultManagement/saga';
 import useEventLogs from '~app/components/EventLogs/useEventLogs';
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
@@ -28,6 +29,7 @@ import SettingsRoute from '~app/components/EntryPage/routes/SettingsRoute';
 import RewardAddresses from '~app/components/RewardAddresses/RewardAddresses';
 import * as keyvaultSelectors from '~app/components/KeyVaultManagement/selectors';
 import { keyvaultLoadLatestVersion } from '~app/components/KeyVaultManagement/actions';
+import { SSVMigrationStatus } from '../../backend/services/users/users.service';
 
 const DashboardWrapper = styled.div`
   width: 100%;
@@ -56,7 +58,7 @@ const walletKey = 'keyvaultManagement';
 
 const EntryPage = (props: Props) => {
   const {
-    callLoadWallet, loadWalletLatestVersion, walletStatus, walletVersion,
+    userInfo, callLoadWallet, loadWalletLatestVersion, walletStatus, walletVersion,
     isLoadingWallet, walletError, keyvaultCurrentVersion, isSeedless,
     keyvaultLatestVersion, isLoadingKeyvault, keyvaultError,
     dashboardActions, isFinishedWizard, wizardWallet, isOpenedWizard
@@ -122,6 +124,12 @@ const EntryPage = (props: Props) => {
   const haveAccounts = Boolean(accounts?.length);
   const showDashboard = (!haveAccounts && haveWallet && !isOpenedWizard) || isFinishedWizard;
   const showWizard = !showDashboard;
+  const { migrationStatus } = userInfo;
+
+  // TODO: use component specifically for this screen when ready from Jon
+  if (migrationStatus === SSVMigrationStatus.FINISHED) {
+    return <div>You has been finished migration to ssv.network. Now just close the app and uninstall it.</div>;
+  }
 
   return (
     <Switch>
@@ -195,6 +203,7 @@ const EntryPage = (props: Props) => {
 };
 
 type Props = {
+  userInfo: any;
   wizardWallet: any;
   isSeedless: boolean;
   walletError: string;
@@ -215,6 +224,7 @@ type Props = {
 };
 
 const mapStateToProps = (state: State) => ({
+  userInfo: userSelectors.getInfo(state),
   wizardWallet: wizardSelectors.getWallet(state),
   keyvaultError: keyvaultSelectors.getError(state),
   walletError: wizardSelectors.getWalletError(state),
