@@ -90,6 +90,13 @@ export default class ProcessClass implements Subject {
       if (action.hook) {
         // eslint-disable-next-line no-await-in-loop
         await action.hook(extra);
+        this.notify({
+          step: {
+            num: this.step,
+            numOf: actions.length
+          },
+          state: this.state,
+        });
       } else {
         // eslint-disable-next-line no-await-in-loop
         const result = await action.instance[action.method].bind(action.instance)(extra);

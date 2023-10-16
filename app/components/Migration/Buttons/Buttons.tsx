@@ -37,20 +37,34 @@ const SecondButton = styled.p`
   cursor: pointer;
 `;
 
-const Buttons = ({disabled,
-                  acceptAction,
-                  cancelAction,
-                  acceptButtonLabel,
-                  secondButtonLabel}:
-                   {disabled?: boolean,
-                    acceptAction: () => void,
-                    cancelAction: () => void,
-                    acceptButtonLabel?: string,
-                    secondButtonLabel?: string}) => (
-                      <Wrapper>
-                        <SecondButton onClick={cancelAction}>{secondButtonLabel || 'Back'}</SecondButton>
-                        <PrimaryButton onClick={acceptAction} disabled={disabled}>{acceptButtonLabel || 'Next'}</PrimaryButton>
-                      </Wrapper>
-  );
+const InvisiblePlaceholder = styled.div`
+  width: 252px;
+  height: 32px;
+  visibility: hidden;
+`;
+
+const Buttons = ({
+  disabled,
+  acceptAction,
+  cancelAction,
+  acceptButtonLabel,
+  secondButtonLabel,
+  showBackButton = true // default value is true
+}: {
+  disabled?: boolean,
+  acceptAction,
+  cancelAction,
+  acceptButtonLabel?: string,
+  secondButtonLabel?: string,
+  showBackButton?: boolean
+}) => (
+  <Wrapper>
+    {showBackButton
+      ? <SecondButton onClick={cancelAction}>{secondButtonLabel || 'Back'}</SecondButton>
+      : <InvisiblePlaceholder />
+    }
+    <PrimaryButton onClick={acceptAction} disabled={disabled}>{acceptButtonLabel || 'Next'}</PrimaryButton>
+  </Wrapper>
+);
 
 export default Buttons;

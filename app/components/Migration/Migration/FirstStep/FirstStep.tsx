@@ -5,6 +5,8 @@ import Checkbox from '~app/common/components/Checkbox/Checkbox';
 import Buttons from '~app/components/Migration/Buttons/Buttons';
 import useMigrationData from '~app/components/Migration/useMigrationData';
 import {AdditionalText, Layout, Title} from '~app/components/Migration/styles';
+import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
+import Connection from '~app/backend/common/store-manager/connection';
 
 const Text = styled(AdditionalText)`
   margin: 0;
@@ -40,12 +42,27 @@ const ErrorMessage = styled.p`
   color: red;
 `;
 
-const FirstStep = ({nextStep, cancelHandler}: {nextStep: () => void, cancelHandler: () => void}) => {
+const FirstStep = ({nextStep, cancelHandler, setOwnerAddress}) => {
   const {saveAddress, removeAddress, ownerAddress} = useMigrationData();
   const [address, setAddress] = useState(ownerAddress);
   const [checked, setChecked] = useState(false);
   const [error, setError] = useState({shouldDisplay: false, errorMessage: ''});
+
   const disableBtnCondition = !address || !checked || error.shouldDisplay;
+  const { checkIfPasswordIsNeeded } = usePasswordHandler();
+
+  const showPasswordProtectedDialog = (callback) => async () => {
+    const cryptoKey = 'temp';
+    const isTemporaryCryptoKeyValid = await Connection.db().isCryptoKeyValid(cryptoKey);
+    if (isTemporaryCryptoKeyValid) {
+      // If temp crypto key is valid - we should set it anyway
+      await Connection.db().setCryptoKey(cryptoKey);
+    }
+
+    return isTemporaryCryptoKeyValid
+      ? callback()
+      : checkIfPasswordIsNeeded(callback);
+  };
 
   useEffect(() => {
     if (address && !error.shouldDisplay) {
@@ -61,6 +78,7 @@ const FirstStep = ({nextStep, cancelHandler}: {nextStep: () => void, cancelHandl
     const {value} = e.target;
     setAddress(value);
     validateAddressInput(value, errorHandler);
+    setOwnerAddress(value);
   };
 
   const onCancelHandler = () => {
@@ -83,7 +101,7 @@ const FirstStep = ({nextStep, cancelHandler}: {nextStep: () => void, cancelHandl
           I confirm I have access to this Ethereum wallet and it’s under my possession
         </Checkbox>
       </Layout>
-      <Buttons acceptAction={nextStep} disabled={disableBtnCondition} cancelAction={onCancelHandler} acceptButtonLabel={'Migrate'} />
+      <Buttons acceptAction={showPasswordProtectedDialog(nextStep)} disabled={disableBtnCondition} cancelAction={onCancelHandler} acceptButtonLabel={'Migrate'} />
     </div>
   );
 };

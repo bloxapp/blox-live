@@ -1,6 +1,8 @@
 import React, {useState} from 'react';
 import styled from 'styled-components';
 import Checkbox from '~app/common/components/Checkbox';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import CheckCircle from '@material-ui/icons/CheckCircle';
 import {MigrationStepNumber} from '~app/components/Migration/styles';
 
 const Wrapper = styled.div`
@@ -44,7 +46,33 @@ const CustomLink = styled.p`
   cursor: pointer;
 `;
 
-const MigrationBlock = ({title, text, checkboxText, link, isChecked, onChangeHandler, checkboxId, stepNumber}: {title: string, text: string, checkboxText?: string, link?: string, isChecked?: boolean, onChangeHandler?: Function, checkboxId?: number, stepNumber?: number}) => {
+const SpinnerContainer = styled.div`
+  display: flex;
+  align-items: center;
+  color: #4CAF50;  // Green color for the success icon
+`;
+
+const MigrationBlock = ({
+  title,
+  text,
+  checkboxText,
+  link,
+  isChecked,
+  onChangeHandler,
+  checkboxId,
+  stepNumber,
+  status,
+}: {
+  title: string,
+  text: string,
+  checkboxText?: string,
+  link?: string,
+  isChecked?: boolean,
+  onChangeHandler?: Function,
+  checkboxId?: number,
+  stepNumber?: number,
+  status?: 'notStarted' | 'inProgress' | 'completed';
+}) => {
   const [checked, setChecked] = useState(isChecked);
 
   const checkboxHandler = () => {
@@ -56,7 +84,24 @@ const MigrationBlock = ({title, text, checkboxText, link, isChecked, onChangeHan
   return (
     <Wrapper>
       {stepNumber && <MigrationStepNumber>{stepNumber}</MigrationStepNumber>}
-      <Title>{title}</Title>
+      <SpinnerContainer>
+        {status === 'inProgress' && (
+          <CircularProgress size={24} style={{ marginRight: '8px' }} />
+        )}
+        {status === 'completed' && (
+          <CheckCircle style={{ marginRight: '8px' }} />
+        )}
+        {status === 'notStarted' && (
+          <div style={{
+            width: '24px',
+            height: '24px',
+            borderRadius: '50%',
+            border: '2px solid #D3D3D3',
+            marginRight: '8px'
+          }} />
+        )}
+        <Title>{title}</Title>
+      </SpinnerContainer>
       <Text>
         {text}
         {link && <CustomLink>{link}</CustomLink>}
