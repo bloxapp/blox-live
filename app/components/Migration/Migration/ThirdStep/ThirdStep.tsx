@@ -1,12 +1,13 @@
-import { ipcRenderer } from 'electron';
+import {ipcRenderer} from 'electron';
 
 import React, {useState} from 'react';
 import styled from 'styled-components';
 import {Layout, Title} from '~app/components/Migration/styles';
-import Buttons from '~app/components/Migration/Buttons/Buttons';
+import FooterWithButtons from '../../FooterWithButtons/FooterWithButtons';
 // @ts-ignore
-import MigrationBlockDownload from '~app/components/Migration/MigrationBlockDownload/MigrationBlockDownload';
+import MigrationDownloadFileBtn from '../../MigrationBlockDownload/MigrationDownloadFileBtn';
 import SsvMigrationService from '~app/backend/services/ssv-migration/ssv-migration.service';
+import { STATUSES } from '~app/components/Migration/interfaces';
 
 const MigrationBlocksContainer = styled.div`
   width: 100%;
@@ -16,15 +17,51 @@ const MigrationBlocksContainer = styled.div`
   align-items: center;
 `;
 
-const ThirdStep = ({nextStep, cancelHandler}: {nextStep: () => void, cancelHandler: () => void}) => {
-  const [downloadState, setDownloadState] = useState('initial'); // 'initial', 'inProgress', 'completed'
+const BlockWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  background-color: var(--gray-1, #F4F7FA);
+  width: 756px;
+  padding: 16px;
+  border-radius: 12px;
+`;
+
+const ContentWrapper = styled.div`
+  flex: 1; // This will make it take up all available vertical space
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin-right: 25px;
+`;
+
+const Subheader = styled.div`
+  color:  #0792E8;
+  font-feature-settings: 'clig' off, 'liga' off;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 162%;
+  margin-bottom: 15px;
+`;
+
+const Text = styled.div`
+  color: #34455A;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 26px;
+`;
+
+const ThirdStep = ({ nextStep }: { nextStep: () => void }) => {
+  const [downloadState, setDownloadState] = useState<STATUSES>(STATUSES.INITIAL);
 
   const ssvMigrationService = new SsvMigrationService();
 
-  const handleDownload = (filePath) => {
+  const handleDownload = (filePath: string) => {
     ipcRenderer.send('download-file', filePath);
 
-    ipcRenderer.once('download-file-response', (event, args) => {
+    ipcRenderer.once('download-file-response', (_event, args) => {
       if (args.success) {
         // Handle the file content, e.g., save it to a blob and then use
         // a link element to trigger a download in the renderer process
@@ -38,45 +75,44 @@ const ThirdStep = ({nextStep, cancelHandler}: {nextStep: () => void, cancelHandl
         a.click();
         URL.revokeObjectURL(url);
       } else {
-        // Handle the error, e.g., show a notification to the user
+        // TODO: Handle the error, e.g., show a notification to the user
         console.error('File download error:', args.error);
       }
     });
   };
 
   const handleDownloadClick = () => {
+    setDownloadState(STATUSES.IN_PROGRESS);
     try {
-      setDownloadState('inProgress');
       handleDownload(ssvMigrationService.userMigrationFile);
-      setDownloadState('completed');
+      setDownloadState(STATUSES.COMPLETE);
     } catch (error) {
       // Handle any download errors
       console.error('Download Error:', error);
-      setDownloadState('initial');
+      setDownloadState(STATUSES.INITIAL);
     }
   };
 
   return (
-    <div>
+    <>
       <Title>Download Migration Data</Title>
       <Layout>
         <MigrationBlocksContainer>
-          <MigrationBlockDownload
-            title="Migration Data"
-            text="Please download the migration data for your records."
-            downloadState={downloadState}
-            onDownloadClick={handleDownloadClick}
-          />
+          <BlockWrapper>
+            <ContentWrapper>
+              <Subheader>Download Migration File</Subheader>
+              <Text>Your migration is ready, make sure to download the file and store properly you will need it for registering your validators.</Text>
+            </ContentWrapper>
+            <MigrationDownloadFileBtn downloadState={downloadState} onDownloadClick={handleDownloadClick} />
+          </BlockWrapper>
         </MigrationBlocksContainer>
       </Layout>
-      <Buttons
+      <FooterWithButtons
         acceptAction={nextStep}
-        cancelAction={cancelHandler}
         acceptButtonLabel="Register Validators"
         disabled={downloadState !== 'completed'}
-        showBackButton={false}
       />
-    </div>
+    </>
   );
 };
 

@@ -1,6 +1,6 @@
-import AwsService from '~app/backend/services/aws/aws.service';
+// import AwsService from '~app/backend/services/aws/aws.service';
+// import WalletService from '~app/backend/services/wallet/wallet.service';
 import ProcessClass from '~app/backend/proccess-manager/process.class';
-import WalletService from '~app/backend/services/wallet/wallet.service';
 import Connection from '~app/backend/common/store-manager/connection';
 import SsvMigrationService from '~app/backend/services/ssv-migration/ssv-migration.service';
 import AccountService from '~app/backend/services/account/account.service';
@@ -10,8 +10,9 @@ import { getValidatorKeysFromSeed } from '~app/backend/services/validator-Keys/i
 export default class SsvMigrationProcess extends ProcessClass {
   private readonly ssvMigrationService: SsvMigrationService;
   private readonly accountService: AccountService;
-  private readonly awsService: AwsService;
-  private readonly walletService: WalletService;
+  // TODO: uncomment for full cycle testing
+  // private readonly awsService: AwsService;
+  // private readonly walletService: WalletService;
   public readonly actions: Array<any>;
 
   constructor({ ownerAddress }) {
@@ -32,7 +33,7 @@ export default class SsvMigrationProcess extends ProcessClass {
           await this.ssvMigrationService.init();
           const keyShares = await this.ssvMigrationService.buildByPrivateKeys(ownerAddress, privateKeys);
           console.log('keyshares', keyShares);
-          const filePath = await this.ssvMigrationService.storeKeyShares(keyShares);
+          const filePath = this.ssvMigrationService.storeKeyShares(keyShares);
           console.log('keyshares stored at', filePath);
         }
       },

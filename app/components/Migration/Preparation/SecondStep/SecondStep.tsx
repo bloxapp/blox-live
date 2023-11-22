@@ -1,6 +1,6 @@
 import React from 'react';
 import {Layout} from '~app/components/Migration/styles';
-import Buttons from '~app/components/Migration/Buttons/Buttons';
+import FooterWithButtons from '../../FooterWithButtons/FooterWithButtons';
 import MigrationBlock from '~app/components/Migration/MigrationBlock/MigrationBlock';
 import {PreparationItemsContainer, PreparationTitle} from '~app/components/Migration/Preparation/styles';
 
@@ -30,7 +30,7 @@ const SecondStep = ({goToNexStep, cancelHandler}: {goToNexStep: () => void, canc
           {MIGRATION_PREPARATION.map((data: any, index: number) => <MigrationBlock stepNumber={data.stepNumber} key={index} title={data.title} text={data.text} />)}
         </PreparationItemsContainer>
       </Layout>
-      <Buttons cancelAction={cancelHandler} acceptAction={goToNexStep} />
+      <FooterWithButtons cancelAction={cancelHandler} acceptAction={goToNexStep} />
     </div>
   );
 };

@@ -1,13 +1,14 @@
 import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
 import {Layout, Title} from '~app/components/Migration/styles';
-import Buttons from '~app/components/Migration/Buttons/Buttons';
+import FooterWithButtons from '../../FooterWithButtons/FooterWithButtons';
 import {MigrationTitle} from '~app/components/Migration/Migration/styles';
 // @ts-ignore
 import migrationProgressLogo from '~app/assets/images/migration_in_proccess.svg';
 import MigrationBlock from '~app/components/Migration/MigrationBlock/MigrationBlock';
 import SsvMigrationProcess from '~app/backend/proccess-manager/ssv-migration.process';
-import { Listener } from '~app/components/ProcessRunner/service';
+import {Listener} from '~app/components/ProcessRunner/service';
+import {STATUSES} from '~app/components/Migration/interfaces';
 
 const MigrationBlocksContainer = styled.div`
   width: 100%;
@@ -27,35 +28,41 @@ const ProgressLogo = styled.div`
   background-image: url(${migrationProgressLogo});
 `;
 
-const SecondStep = ({ nextStep, cancelHandler, ownerAddress }) => {
-  const [step1Status, setStep1Status] = useState('notStarted');
-  const [step2Status, setStep2Status] = useState('notStarted');
-  const [buttonLabel, setButtonLabel] = useState('Migrate');
+const enum BTN_LABELS {
+  MIGRATE = 'migrate',
+  RETRY = 'retry'
+}
+
+const SecondStep = ({ nextStep, ownerAddress }: { nextStep: () => void; ownerAddress: string }) => {
+  const [step1Status, setStep1Status] = useState<STATUSES>(STATUSES.INITIAL);
+  const [step2Status, setStep2Status] = useState<STATUSES>(STATUSES.INITIAL);
+  const [buttonLabel, setButtonLabel] = useState<BTN_LABELS>(BTN_LABELS.MIGRATE);
   const [runMigrationProcess, setRunMigrationProcess] = useState(null);
 
   useEffect(() => {
     const ssvMigrationProcess = new SsvMigrationProcess({ ownerAddress });
 
-    const callback = (subject, payload) => {
+    const callback = (_subject, payload) => {
       const { error, state, step } = payload;
 
       if (error) {
         console.log('+++ error', error);
-        setStep1Status('notStarted');
-        setStep2Status('notStarted');
-        setButtonLabel('Retry');
+        setStep1Status(STATUSES.INITIAL);
+        setStep2Status(STATUSES.INITIAL);
+        setButtonLabel(BTN_LABELS.RETRY);
       } else if (state === 'completed') {
         console.log('+++ completed', step);
       } else if (step.num === 1) {
-        setStep1Status('completed');
-        setStep2Status('inProgress');
+        setStep1Status(STATUSES.COMPLETE);
+        setStep2Status(STATUSES.IN_PROGRESS);
       } else if (step.num === 3) {
-        setStep2Status('completed');
+        setStep2Status(STATUSES.COMPLETE);
       }
     };
 
     const runMigrationProcessFunc = async () => {
-      setStep1Status('inProgress');
+      setStep1Status(STATUSES.IN_PROGRESS);
+      setButtonLabel(BTN_LABELS.MIGRATE);
       await ssvMigrationProcess.run();
     };
 
@@ -91,12 +98,10 @@ const SecondStep = ({ nextStep, cancelHandler, ownerAddress }) => {
           <ProgressLogo />
         </MigrationBlocksContainer>
       </Layout>
-      <Buttons
-        acceptAction={buttonLabel === 'Migrate' ? nextStep : runMigrationProcess}
-        cancelAction={cancelHandler}
+      <FooterWithButtons
+        acceptAction={buttonLabel === BTN_LABELS.MIGRATE ? nextStep : runMigrationProcess}
         acceptButtonLabel={buttonLabel}
-        disabled={buttonLabel === 'Migrate' && (step1Status !== 'completed' || step2Status !== 'completed')}
-        showBackButton={true}
+        disabled={step1Status === STATUSES.IN_PROGRESS || step2Status === STATUSES.IN_PROGRESS}
       />
     </div>
   );

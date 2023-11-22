@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
 import { validateAddressInput } from '~app/utils/service';
 import Checkbox from '~app/common/components/Checkbox/Checkbox';
-import Buttons from '~app/components/Migration/Buttons/Buttons';
+import FooterWithButtons from '../../FooterWithButtons/FooterWithButtons';
 import useMigrationData from '~app/components/Migration/useMigrationData';
 import {AdditionalText, Layout, Title} from '~app/components/Migration/styles';
 import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
@@ -15,12 +15,12 @@ const Text = styled(AdditionalText)`
 const InputWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  margin: 30px 0px 30px 0px;
+  margin: 30px 0;
 `;
 
 const InputLabel = styled.div`
   color: #878B92;
-  font-family: Avenir;
+  font-family: Avenir, sans-serif;
   font-size: 12px;
   font-style: normal;
   font-weight: 500;
@@ -42,7 +42,7 @@ const ErrorMessage = styled.p`
   color: red;
 `;
 
-const FirstStep = ({nextStep, cancelHandler, setOwnerAddress}) => {
+const FirstStep = ({ nextStep, cancelHandler, setOwnerAddress }) => {
   const {saveAddress, removeAddress, ownerAddress} = useMigrationData();
   const [address, setAddress] = useState(ownerAddress);
   const [checked, setChecked] = useState(false);
@@ -101,7 +101,7 @@ const FirstStep = ({nextStep, cancelHandler, setOwnerAddress}) => {
           I confirm I have access to this Ethereum wallet and it’s under my possession
         </Checkbox>
       </Layout>
-      <Buttons acceptAction={showPasswordProtectedDialog(nextStep)} disabled={disableBtnCondition} cancelAction={onCancelHandler} acceptButtonLabel={'Migrate'} />
+      <FooterWithButtons acceptAction={showPasswordProtectedDialog(nextStep)} disabled={disableBtnCondition} cancelAction={onCancelHandler} acceptButtonLabel={'Migrate'} />
     </div>
   );
 };

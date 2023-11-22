@@ -4,6 +4,7 @@ import Checkbox from '~app/common/components/Checkbox';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import CheckCircle from '@material-ui/icons/CheckCircle';
 import {MigrationStepNumber} from '~app/components/Migration/styles';
+import { STATUSES } from '~app/components/Migration/interfaces';
 
 const Wrapper = styled.div`
   width: 252px;
@@ -36,7 +37,7 @@ const Text = styled.div`
 const CustomLink = styled.p`
   color: #1BA5F8;
   font-feature-settings: 'clig' off, 'liga' off;
-  font-family: Avenir;
+  font-family: Avenir, sans-serif;
   font-size: 14px;
   font-style: normal;
   font-weight: 400;
@@ -46,10 +47,12 @@ const CustomLink = styled.p`
   cursor: pointer;
 `;
 
-const SpinnerContainer = styled.div`
-  display: flex;
-  align-items: center;
-  color: #4CAF50;  // Green color for the success icon
+const GreyCircle = styled.div`
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid #D3D3D3;
+  margin-right: 8px;
 `;
 
 const MigrationBlock = ({
@@ -61,7 +64,7 @@ const MigrationBlock = ({
   onChangeHandler,
   checkboxId,
   stepNumber,
-  status,
+  status = null,
 }: {
   title: string,
   text: string,
@@ -71,7 +74,7 @@ const MigrationBlock = ({
   onChangeHandler?: Function,
   checkboxId?: number,
   stepNumber?: number,
-  status?: 'notStarted' | 'inProgress' | 'completed';
+  status?: STATUSES;
 }) => {
   const [checked, setChecked] = useState(isChecked);
 
@@ -81,31 +84,24 @@ const MigrationBlock = ({
     onChangeHandler(checkboxId, result);
   };
 
+  const getLoaderPerStatus = () => {
+    console.log(status);
+    if (status === STATUSES.INITIAL) {
+      return <GreyCircle style={{ marginBottom: '10px' }} />;
+    }
+    if (status === STATUSES.IN_PROGRESS) {
+      return <CircularProgress size={24} style={{ marginBottom: '10px' }} />;
+    } // status === STATUSES.COMPLETE
+    return <CheckCircle style={{ marginBottom: '10px', color: '#4CAF50', fontSize: '32px' }} />;
+  };
+
   return (
     <Wrapper>
       {stepNumber && <MigrationStepNumber>{stepNumber}</MigrationStepNumber>}
-      <SpinnerContainer>
-        {status === 'inProgress' && (
-          <CircularProgress size={24} style={{ marginRight: '8px' }} />
-        )}
-        {status === 'completed' && (
-          <CheckCircle style={{ marginRight: '8px' }} />
-        )}
-        {status === 'notStarted' && (
-          <div style={{
-            width: '24px',
-            height: '24px',
-            borderRadius: '50%',
-            border: '2px solid #D3D3D3',
-            marginRight: '8px'
-          }} />
-        )}
-        <Title>{title}</Title>
-      </SpinnerContainer>
-      <Text>
-        {text}
-        {link && <CustomLink>{link}</CustomLink>}
-      </Text>
+      {status && getLoaderPerStatus()}
+      <Title>{title}</Title>
+      <Text>{text}</Text>
+      {link && <CustomLink>{link}</CustomLink>}
       {checkboxText && <Checkbox checkboxStyle={{marginRight: 8}} checked={checked} onClick={checkboxHandler}>{checkboxText}</Checkbox>}
     </Wrapper>
   );

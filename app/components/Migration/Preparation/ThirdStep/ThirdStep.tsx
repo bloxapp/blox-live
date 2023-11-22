@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import bloxToSsv from '~app/assets/images/blox-to-ssv.svg';
 // @ts-ignore
 import discordIcon from '~app/assets/images/discord-icon.svg';
-import Buttons from '~app/components/Migration/Buttons/Buttons';
+import FooterWithButtons from '../../FooterWithButtons/FooterWithButtons';
 import Checkbox from '~app/common/components/Checkbox/Checkbox';
 // @ts-ignore
 import ssvBackground from '~app/assets/images/ssv-background.svg';
@@ -38,7 +38,7 @@ const AssistanceAlertTextContainer = styled.div`
 
 const AssistanceTitle = styled.p`
   color: #0792E8;
-  font-family: Avenir;
+  font-family: Avenir, sans-serif;
   font-size: 14px;
   font-style: normal;
   font-weight: 800;
@@ -124,7 +124,7 @@ const ThirdStep = ({goToNexStep, cancelHandler}: {goToNexStep: () => void, cance
         </WarningAlertContainer>
         <Checkbox checkboxStyle={{marginRight: 8}} checked={checked} onClick={checkboxHandler}>I understand that by initiating the migration process my validators will be shut down and will stop accuring rewards</Checkbox>
       </SsvLayout>
-      <Buttons disabled={!checked} acceptAction={goToNexStep} cancelAction={cancelHandler} acceptButtonLabel={'Start Migration'} />
+      <FooterWithButtons disabled={!checked} acceptAction={goToNexStep} cancelAction={cancelHandler} acceptButtonLabel={'Start Migration'} />
     </div>
   );
 };
