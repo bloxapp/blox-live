@@ -8,7 +8,6 @@ import config from '~app/backend/common/config';
 import { SORT_TYPE } from '~app/common/constants';
 import { handlePageClick } from '~app/common/components/Table/service';
 import * as dashboardSelectors from '~app/components/Dashboard/selectors';
-import AddValidatorButtonWrapper from '~app/components/common/Header/components/AddValidatorButtonWrapper';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -18,20 +17,6 @@ const Wrapper = styled.div`
 const NoValidatorsText = styled.div`
   color: ${({theme}) => theme.gray600};
   display: inline-block;
-`;
-
-const AddValidatorButton = styled.button`
-  border: solid 1px ${({theme}) => theme.gray400};
-  background-color: transparent;
-  color: ${({theme}) => theme.primary900};
-  margin-left: 10px;
-  border-radius: 6px;
-  font-family: Avenir, serif;
-  font-size: 11px;
-  font-weight: 500;
-  width: 114px;
-  height: 28px;
-  cursor: pointer;
 `;
 
 const Title = styled.h1`
@@ -86,14 +71,10 @@ const Validators = ({ accounts, isTestNetShow, showNetworkSwitcher }) => {
   }
 
   if (!filteredAccounts?.length) {
-    const addValidatorButtonWrapperStyle = { display: 'inline-block' };
     return (
       <Wrapper>
         <Title>Validators</Title>
         <NoValidatorsText>There are no validators to show at the moment</NoValidatorsText>
-        <AddValidatorButtonWrapper style={addValidatorButtonWrapperStyle}>
-          <AddValidatorButton>Add Validator</AddValidatorButton>
-        </AddValidatorButtonWrapper>
       </Wrapper>
     );
   }
