@@ -16,35 +16,24 @@ const STEPS = {
   THIRD_STEP: 2,
 };
 
-const Migration = ({nextFlow}: {nextFlow: any}) => {
+const Migration = ({changeToPrevFlow}: {changeToPrevFlow: () => void}) => {
   const [currentStep, setCurrentStep] = useState(STEPS.FIRST_STEP);
-  const [ownerAddress, setOwnerAddress] = useState('');
 
   const components = {
-    [STEPS.FIRST_STEP]: (props) => <FirstStep {...props} setOwnerAddress={setOwnerAddress} />,
-    [STEPS.SECOND_STEP]: (props) => <SecondStep {...props} ownerAddress={ownerAddress} />,
-    [STEPS.THIRD_STEP]: ThirdStep
+    [STEPS.FIRST_STEP]: () => <FirstStep nextStep={nextStep} cancelHandler={cancelButtonHandler} />,
+    [STEPS.SECOND_STEP]: () => <SecondStep nextStep={nextStep} />,
+    [STEPS.THIRD_STEP]: () => <ThirdStep />
   };
 
   const nextStep = () => {
-    switch (currentStep) {
-      case STEPS.FIRST_STEP:
-        setCurrentStep(STEPS.SECOND_STEP);
-        break;
-      case STEPS.SECOND_STEP:
-        setCurrentStep(STEPS.THIRD_STEP);
-        break;
-      case STEPS.THIRD_STEP:
-        setCurrentStep(STEPS.THIRD_STEP);
-        break;
-    }
+    setCurrentStep(currentStep + 1);
   };
 
   const cancelButtonHandler = () => {
     if (currentStep > STEPS.FIRST_STEP) {
       setCurrentStep(currentStep - 1);
     } else {
-      nextFlow();
+      changeToPrevFlow();
     }
   };
 
@@ -54,7 +43,7 @@ const Migration = ({nextFlow}: {nextFlow: any}) => {
     <CustomWrapper>
       <MigrationProgress currentStep={currentStep} />
       <Wrapper>
-        <Component nextStep={nextStep} cancelHandler={cancelButtonHandler} />
+        <Component />
       </Wrapper>
     </CustomWrapper>
   );

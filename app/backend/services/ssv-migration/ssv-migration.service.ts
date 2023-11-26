@@ -62,6 +62,7 @@ export default class SsvMigrationService {
     return selectedOperators.map(operator => ({ id: operator.id, operatorKey: operator.publicKey }));
   }
 
+  // Used only by Test.tsx
   async buildByKeystoresAndPassword(ownerAddress: string, keyStores: any[], password: string): Promise<any> {
     // Get owner nonce from ssv-api
     const ownerData: any = await this.ssvApiService.getAccountData(ownerAddress);

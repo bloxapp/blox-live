@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import {useSelector} from 'react-redux';
 import styled from 'styled-components';
 import {Layout, Title} from '~app/components/Migration/styles';
 import FooterWithButtons from '../../FooterWithButtons/FooterWithButtons';
@@ -9,6 +10,7 @@ import MigrationBlock from '~app/components/Migration/MigrationBlock/MigrationBl
 import SsvMigrationProcess from '~app/backend/proccess-manager/ssv-migration.process';
 import {Listener} from '~app/components/ProcessRunner/service';
 import {STATUSES} from '~app/components/Migration/interfaces';
+import {getOwnerAddress} from '~app/components/Migration/selectors';
 
 const MigrationBlocksContainer = styled.div`
   width: 100%;
@@ -33,11 +35,13 @@ const enum BTN_LABELS {
   RETRY = 'retry'
 }
 
-const SecondStep = ({ nextStep, ownerAddress }: { nextStep: () => void; ownerAddress: string }) => {
+const SecondStep = ({ nextStep }: { nextStep: () => void }) => {
   const [step1Status, setStep1Status] = useState<STATUSES>(STATUSES.INITIAL);
   const [step2Status, setStep2Status] = useState<STATUSES>(STATUSES.INITIAL);
   const [buttonLabel, setButtonLabel] = useState<BTN_LABELS>(BTN_LABELS.MIGRATE);
   const [runMigrationProcess, setRunMigrationProcess] = useState(null);
+
+  const ownerAddress = useSelector(getOwnerAddress);
 
   useEffect(() => {
     const ssvMigrationProcess = new SsvMigrationProcess({ ownerAddress });

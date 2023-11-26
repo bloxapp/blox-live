@@ -1,12 +1,31 @@
-import React, {useEffect, useState} from 'react';
+import React, { useState} from 'react';
+import {useDispatch} from 'react-redux';
+import Web3 from 'web3';
 import styled from 'styled-components';
-import { validateAddressInput } from '~app/utils/service';
 import Checkbox from '~app/common/components/Checkbox/Checkbox';
 import FooterWithButtons from '../../FooterWithButtons/FooterWithButtons';
-import useMigrationData from '~app/components/Migration/useMigrationData';
 import {AdditionalText, Layout, Title} from '~app/components/Migration/styles';
 import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
 import Connection from '~app/backend/common/store-manager/connection';
+import {changeOwnerAddress} from '~app/components/Migration/actions';
+
+export const validateAddressInput = (value: string, isEmptyValid: boolean = false): string => {
+  const web3 = new Web3();
+  const regx = /^[A-Za-z0-9]+$/;
+  if (value.length === 0 && isEmptyValid) {
+    return '';
+  }
+  if (value.length === 0) {
+    return 'Please enter an operator address.';
+  }
+  if ((value.length !== 42 && value.startsWith('0x')) || (value.length !== 40 && !value.startsWith('0x')) || (!web3.utils.isAddress(value))) {
+    return 'Operator address must be a valid address format.';
+  }
+  if (!regx.test(value)) {
+    return 'Operator address should contain only alphanumeric characters.';
+  }
+  return '';
+};
 
 const Text = styled(AdditionalText)`
   margin: 0;
@@ -42,13 +61,18 @@ const ErrorMessage = styled.p`
   color: red;
 `;
 
-const FirstStep = ({ nextStep, cancelHandler, setOwnerAddress }) => {
-  const {saveAddress, removeAddress, ownerAddress} = useMigrationData();
-  const [address, setAddress] = useState(ownerAddress);
+const FirstStep = ({ nextStep, cancelHandler }: { nextStep: () => void; cancelHandler: () => void; }) => {
+  const [address, setAddress] = useState('');
   const [checked, setChecked] = useState(false);
-  const [error, setError] = useState({shouldDisplay: false, errorMessage: ''});
+  const [error, setError] = useState('');
 
-  const disableBtnCondition = !address || !checked || error.shouldDisplay;
+  const dispatch = useDispatch();
+
+  const removeAddress = () => {
+    dispatch(changeOwnerAddress(''));
+  };
+
+  const disableBtnCondition = !address || !checked || error !== '';
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
 
   const showPasswordProtectedDialog = (callback) => async () => {
@@ -64,21 +88,15 @@ const FirstStep = ({ nextStep, cancelHandler, setOwnerAddress }) => {
       : checkIfPasswordIsNeeded(callback);
   };
 
-  useEffect(() => {
-    if (address && !error.shouldDisplay) {
-      saveAddress(address);
-    }
-  }, [address]);
-
-  const errorHandler = (e: {shouldDisplay: boolean, errorMessage: string}) => {
-    setError(e);
-  };
-
   const onInputChangeHandler = (e: any) => {
     const {value} = e.target;
     setAddress(value);
-    validateAddressInput(value, errorHandler);
-    setOwnerAddress(value);
+    const errorMessage = validateAddressInput(value);
+    if (errorMessage) {
+      setError(errorMessage);
+    } else {
+      dispatch(changeOwnerAddress(value));
+    }
   };
 
   const onCancelHandler = () => {
@@ -95,7 +113,7 @@ const FirstStep = ({ nextStep, cancelHandler, setOwnerAddress }) => {
         <InputWrapper>
           <InputLabel>Ethereum Address</InputLabel>
           <Input value={address} onChange={onInputChangeHandler} />
-          <ErrorMessage>{error.shouldDisplay && error.errorMessage}</ErrorMessage>
+          {!!error && <ErrorMessage>{error}</ErrorMessage>}
         </InputWrapper>
         <Checkbox checkboxStyle={{marginRight: 8}} checked={checked} onClick={setChecked}>
           I confirm I have access to this Ethereum wallet and it’s under my possession

@@ -91,13 +91,13 @@ const MigrationProgress = ({currentStep}: {currentStep: number}) => (
     </FlowName>
     <ProgressBarWrapper>
       <MigrationFirstStepWrapper>
-        <MigrationStepNumber style={currentStep < 0 ? {borderColor: '#97A5BA'} : null}>1</MigrationStepNumber>
+        <MigrationStepNumber style={currentStep >= 0 ? {borderColor: '#97A5BA'} : null}>1</MigrationStepNumber>
         <StepTitle style={currentStep >= 0 ? {color: '#1BA5F8'} : null}>Define Owner Address</StepTitle>
       </MigrationFirstStepWrapper>
       <ProgressBarFirstLine style={currentStep > 0 ? {backgroundColor: '#1BA5F8'} : null} />
       <MigrationStepWrapper>
-        <MigrationStepNumber style={currentStep < 1 ? {borderColor: '#97A5BA'} : null}>2</MigrationStepNumber>
-        <StepTitle style={currentStep >= 1 ? {color: '#1BA5F8'} : null}>Migration file & KV Deletion</StepTitle>
+        <MigrationStepNumber style={currentStep > 0 ? {borderColor: '#97A5BA'} : null}>2</MigrationStepNumber>
+        <StepTitle style={currentStep > 0 ? {color: '#1BA5F8'} : null}>Migration file & KV Deletion</StepTitle>
       </MigrationStepWrapper>
       <ProgressBarLine />
       <MigrationThirdStepWrapper>

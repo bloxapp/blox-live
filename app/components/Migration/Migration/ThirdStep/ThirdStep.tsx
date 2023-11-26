@@ -53,7 +53,7 @@ const Text = styled.div`
   line-height: 26px;
 `;
 
-const ThirdStep = ({ nextStep }: { nextStep: () => void }) => {
+const ThirdStep = () => {
   const [downloadState, setDownloadState] = useState<STATUSES>(STATUSES.INITIAL);
 
   const ssvMigrationService = new SsvMigrationService();
@@ -93,6 +93,8 @@ const ThirdStep = ({ nextStep }: { nextStep: () => void }) => {
     }
   };
 
+  const handleFinishedMigrationPhase1 = () => {};
+
   return (
     <>
       <Title>Download Migration Data</Title>
@@ -108,7 +110,7 @@ const ThirdStep = ({ nextStep }: { nextStep: () => void }) => {
         </MigrationBlocksContainer>
       </Layout>
       <FooterWithButtons
-        acceptAction={nextStep}
+        acceptAction={handleFinishedMigrationPhase1}
         acceptButtonLabel="Register Validators"
         disabled={downloadState !== 'completed'}
       />
