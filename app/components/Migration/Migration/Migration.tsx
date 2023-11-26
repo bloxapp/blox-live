@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import {Wrapper} from '~app/components/Migration/styles';
 import FirstStep from '~app/components/Migration/Migration/FirstStep/FirstStep';
 import SecondStep from '~app/components/Migration/Migration/SecondStep/SecondStep';
+import ThirdStep from '~app/components/Migration/Migration/ThirdStep/ThirdStep';
 import MigrationProgress from '~app/components/Migration/Migration/MigrationProgress/MigrationProgress';
 
 const CustomWrapper = styled(Wrapper)`
@@ -12,23 +13,27 @@ const CustomWrapper = styled(Wrapper)`
 const STEPS = {
   FIRST_STEP: 0,
   SECOND_STEP: 1,
+  THIRD_STEP: 2,
 };
 
-const Migration = ({nextFlow}: {nextFlow: any}) => {
+const Migration = ({changeToPrevFlow}: {changeToPrevFlow: () => void}) => {
   const [currentStep, setCurrentStep] = useState(STEPS.FIRST_STEP);
 
   const components = {
-    [STEPS.FIRST_STEP]: FirstStep,
-    [STEPS.SECOND_STEP]: SecondStep
+    [STEPS.FIRST_STEP]: () => <FirstStep nextStep={nextStep} cancelHandler={cancelButtonHandler} />,
+    [STEPS.SECOND_STEP]: () => <SecondStep nextStep={nextStep} />,
+    [STEPS.THIRD_STEP]: () => <ThirdStep />
   };
 
-  const nextStep = () => setCurrentStep(currentStep === STEPS.FIRST_STEP ? STEPS.SECOND_STEP : STEPS.FIRST_STEP);
+  const nextStep = () => {
+    setCurrentStep(currentStep + 1);
+  };
 
   const cancelButtonHandler = () => {
     if (currentStep > STEPS.FIRST_STEP) {
       setCurrentStep(currentStep - 1);
     } else {
-      nextFlow();
+      changeToPrevFlow();
     }
   };
 
@@ -38,7 +43,7 @@ const Migration = ({nextFlow}: {nextFlow: any}) => {
     <CustomWrapper>
       <MigrationProgress currentStep={currentStep} />
       <Wrapper>
-        <Component nextStep={nextStep} cancelHandler={cancelButtonHandler} />
+        <Component />
       </Wrapper>
     </CustomWrapper>
   );

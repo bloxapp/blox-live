@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {Layout} from '~app/components/Migration/styles';
-import Buttons from '~app/components/Migration/Buttons/Buttons';
+import FooterWithButtons from '../../FooterWithButtons/FooterWithButtons';
 import MigrationBlock from '~app/components/Migration/MigrationBlock/MigrationBlock';
 import {PreparationItemsContainer, PreparationTitle} from '~app/components/Migration/Preparation/styles';
 
@@ -44,7 +44,7 @@ const FirstStep = ({goToNexStep, cancelHandler}: {goToNexStep: () => void, cance
           {MIGRATION_PREREQUISITES.map((data: any, index: number) => <MigrationBlock key={index} title={data.title} text={data.text} checkboxText={data.checkboxText} link={data.link} checkboxId={index} isChecked={checksToContinue[index]} onChangeHandler={onCheckboxChangeHandler} />)}
         </PreparationItemsContainer>
       </Layout>
-      <Buttons secondButtonLabel={'I\'ll do it later'} acceptAction={goToNexStep} disabled={buttonDisable} cancelAction={cancelHandler} />
+      <FooterWithButtons secondButtonLabel={'I\'ll do it later'} acceptAction={goToNexStep} disabled={buttonDisable} cancelAction={cancelHandler} />
     </div>
   );
 };

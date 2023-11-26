@@ -12,13 +12,13 @@ const STEPS = {
   THIRD_STEP: 2,
 };
 
-const Preparation = ({nextFlow}: {nextFlow: any}) => {
+const Preparation = ({changeToNextFlow}: {changeToNextFlow: () => void}) => {
   const { goToPage, ROUTES } = useRouting();
   const [currentStep, setCurrentStep] = useState<number>(STEPS.FIRST_STEP);
 
   const nextStepHandler = () => {
     if (currentStep === STEPS.THIRD_STEP) {
-      nextFlow();
+      changeToNextFlow();
     } else {
       setCurrentStep(currentStep === STEPS.SECOND_STEP ? STEPS.THIRD_STEP : STEPS.SECOND_STEP);
     }

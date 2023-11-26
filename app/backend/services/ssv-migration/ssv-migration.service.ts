@@ -19,11 +19,11 @@ export default class SsvMigrationService {
   private logger: Log;
   private operators: Operator[] = [];
   private ssvKeysService: SsvKeysService;
-  private userDataPath: string;
   private ssvApiService: SsvApi;
+  public userMigrationFile: string;
 
   constructor() {
-    this.userDataPath = (electron.app || electron.remote.app).getPath('userData');
+    this.userMigrationFile = path.join((electron.app || electron.remote.app).getPath('userData'), 'keyshares.json');
     this.logger = new Log(SsvMigrationService.name);
     this.ssvKeysService = new SsvKeysService();
     this.ssvApiService = new SsvApi();
@@ -36,7 +36,7 @@ export default class SsvMigrationService {
 
     // Get operators data by IDs from ssv-api
     const operatorData: any = await this.ssvApiService.getOperatorsByIds(operatorIds);
-    this.operators = operatorData.data.operators.map(operator => ({
+    this.operators = operatorData.operators.map(operator => ({
       id: operator.id,
       publicKey: operator.public_key,
       validatorCount: operator.validators_count,
@@ -62,10 +62,11 @@ export default class SsvMigrationService {
     return selectedOperators.map(operator => ({ id: operator.id, operatorKey: operator.publicKey }));
   }
 
+  // Used only by Test.tsx
   async buildByKeystoresAndPassword(ownerAddress: string, keyStores: any[], password: string): Promise<any> {
     // Get owner nonce from ssv-api
     const ownerData: any = await this.ssvApiService.getAccountData(ownerAddress);
-    const { nonce } = ownerData.data.data;
+    const { nonce } = ownerData.data;
 
     // Build key shares
     const keySharesList: any[] = [];
@@ -92,7 +93,7 @@ export default class SsvMigrationService {
     // Get owner nonce from ssv-api
     const ownerData: any = await this.ssvApiService.getAccountData(ownerAddress);
     console.log(ownerData);
-    const { nonce } = ownerData.data.data;
+    const { nonce } = ownerData.data;
 
     // Build key shares
     const keySharesList: any[] = [];
@@ -114,9 +115,8 @@ export default class SsvMigrationService {
   }
 
   storeKeyShares(keySharesList: any[]): string {
-    const outputPath = path.join(this.userDataPath, 'keyshares.json');
-    fs.writeFileSync(outputPath, JSON.stringify(keySharesList, null, 2));
-    this.logger.info(`build file saved in ${outputPath} file`);
-    return outputPath;
+    fs.writeFileSync(this.userMigrationFile, JSON.stringify(keySharesList, null, 2));
+    this.logger.info(`build file saved in ${this.userMigrationFile} file`);
+    return this.userMigrationFile;
   }
 }

@@ -1,5 +1,4 @@
 import os from 'os';
-import Web3 from 'web3';
 import moment from 'moment';
 import macOsRelease from 'macos-release';
 import windowsRelease from 'windows-release';
@@ -105,22 +104,4 @@ export const isVersionHigher = (current, compareWith) => {
     .replace(pattern, '');
 
   return +current > +compareWith;
-};
-
-export const validateAddressInput = (value: string, callback: any, skipEmpty: boolean = false): void => {
-    const web3 = new Web3();
-    const response = { shouldDisplay: true, errorMessage: '' };
-    const regx = /^[A-Za-z0-9]+$/;
-    if (value.length === 0 && skipEmpty) {
-        response.shouldDisplay = false;
-    } else if (value.length === 0) {
-        response.errorMessage = 'Please enter an operator address.';
-    } else if ((value.length !== 42 && value.startsWith('0x')) || (value.length !== 40 && !value.startsWith('0x')) || (!web3.utils.isAddress(value))) {
-        response.errorMessage = 'Operator address must be a valid address format.';
-    } else if (!regx.test(value)) {
-        response.errorMessage = 'Operator address should contain only alphanumeric characters.';
-    } else {
-        response.shouldDisplay = false;
-    }
-    callback(response);
 };
