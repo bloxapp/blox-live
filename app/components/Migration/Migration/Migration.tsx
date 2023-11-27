@@ -5,6 +5,7 @@ import FirstStep from '~app/components/Migration/Migration/FirstStep/FirstStep';
 import SecondStep from '~app/components/Migration/Migration/SecondStep/SecondStep';
 import ThirdStep from '~app/components/Migration/Migration/ThirdStep/ThirdStep';
 import MigrationProgress from '~app/components/Migration/Migration/MigrationProgress/MigrationProgress';
+import {SSVMigrationStatus} from '~app/backend/services/users/users.service';
 
 const CustomWrapper = styled(Wrapper)`
   padding: 0;
@@ -16,8 +17,8 @@ const STEPS = {
   THIRD_STEP: 2,
 };
 
-const Migration = ({changeToPrevFlow}: {changeToPrevFlow: () => void}) => {
-  const [currentStep, setCurrentStep] = useState(STEPS.FIRST_STEP);
+const Migration = ({ changeToPrevFlow, migrationStatus }: {changeToPrevFlow: () => void; migrationStatus: SSVMigrationStatus }) => {
+  const [currentStep, setCurrentStep] = useState(migrationStatus === SSVMigrationStatus.ONGOING ? STEPS.THIRD_STEP : STEPS.FIRST_STEP);
 
   const components = {
     [STEPS.FIRST_STEP]: () => <FirstStep nextStep={nextStep} cancelHandler={cancelButtonHandler} />,

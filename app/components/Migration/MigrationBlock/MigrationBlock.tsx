@@ -85,13 +85,12 @@ const MigrationBlock = ({
   };
 
   const getLoaderPerStatus = () => {
-    console.log(status);
     if (status === STATUSES.INITIAL) {
       return <GreyCircle style={{ marginBottom: '10px' }} />;
     }
     if (status === STATUSES.IN_PROGRESS) {
       return <CircularProgress size={24} style={{ marginBottom: '10px' }} />;
-    } // status === STATUSES.COMPLETE
+    } // STATUSES.COMPLETE
     return <CheckCircle style={{ marginBottom: '10px', color: '#4CAF50', fontSize: '32px' }} />;
   };
 

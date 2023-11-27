@@ -124,12 +124,7 @@ const EntryPage = (props: Props) => {
   const haveAccounts = Boolean(accounts?.length);
   const showDashboard = (!haveAccounts && haveWallet && !isOpenedWizard) || isFinishedWizard;
   const showWizard = !showDashboard;
-  const { migrationStatus } = userInfo;
-
-  // TODO: use component specifically for this screen when ready from Jon
-  if (migrationStatus === SSVMigrationStatus.FINISHED) {
-    return <div>You has been finished migration to ssv.network. Now just close the app and uninstall it.</div>;
-  }
+  const shouldShowMigration = userInfo.migrationStatus === SSVMigrationStatus.ONGOING;
 
   return (
     <Switch>
@@ -139,6 +134,9 @@ const EntryPage = (props: Props) => {
         render={() => {
           if (showWizard) {
             return <Redirect to={ROUTES.WIZARD} />;
+          }
+          if (shouldShowMigration) {
+            return <Redirect to={ROUTES.MIGRATION_FLOW} />;
           }
           return <Redirect to={ROUTES.DASHBOARD} />;
         }}
@@ -163,7 +161,7 @@ const EntryPage = (props: Props) => {
             <Header withMenu />
             <Content>
               <DashboardWrapper>
-                <MigrationFlow {...otherProps} />
+                <MigrationFlow migrationStatus={userInfo.migrationStatus} />
               </DashboardWrapper>
             </Content>
           </>
