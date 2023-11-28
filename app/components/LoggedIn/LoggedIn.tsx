@@ -47,6 +47,9 @@ import {
   getIsLoading as getIsLoadingWebsocket,
   getError as getWebSocketError
 } from '~app/components/WebSockets/selectors';
+import DashboardAfterMigrationPhase1 from '~app/components/Migration/Migration/DashboardAfterMigrationPhase1';
+import MigrationFinished from '~app/components/Migration/Migration/MigrationFinished';
+import {SSVMigrationStatus} from '~app/backend/services/users/users.service';
 
 const wizardKey = 'wizard';
 const accountsKey = 'accounts';
@@ -130,6 +133,14 @@ const LoggedIn = (props: Props) => {
   const RootPage = (rootPageProps: any) => {
     return <EntryPage {...rootPageProps} {...props} />;
   };
+
+  if (userInfo.migrationStatus === SSVMigrationStatus.DOWNLOADED_KEYSHARES) {
+    return <DashboardAfterMigrationPhase1 />;
+  }
+
+  if (userInfo.migrationStatus === SSVMigrationStatus.FINISHED) {
+    return <MigrationFinished />;
+  }
 
   return (
     <>

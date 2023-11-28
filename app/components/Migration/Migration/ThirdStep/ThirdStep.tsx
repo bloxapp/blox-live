@@ -7,7 +7,9 @@ import FooterWithButtons from '../../FooterWithButtons/FooterWithButtons';
 // @ts-ignore
 import MigrationDownloadFileBtn from '../../MigrationBlockDownload/MigrationDownloadFileBtn';
 import SsvMigrationService from '~app/backend/services/ssv-migration/ssv-migration.service';
-import { STATUSES } from '~app/components/Migration/interfaces';
+import {STATUSES} from '~app/components/Migration/interfaces';
+import useRouting from '~app/common/hooks/useRouting';
+import UsersService, {SSVMigrationStatus} from '~app/backend/services/users/users.service';
 
 const MigrationBlocksContainer = styled.div`
   width: 100%;
@@ -54,6 +56,8 @@ const Text = styled.div`
 `;
 
 const ThirdStep = () => {
+  const { goToPage, ROUTES } = useRouting();
+
   const [downloadState, setDownloadState] = useState<STATUSES>(STATUSES.INITIAL);
 
   const ssvMigrationService = new SsvMigrationService();
@@ -93,7 +97,11 @@ const ThirdStep = () => {
     }
   };
 
-  const handleFinishedMigrationPhase1 = () => {};
+  const handleFinishedMigrationPhase1 = async () => {
+    const usersService = UsersService.getInstance();
+    await usersService.update({ migrationStatus: SSVMigrationStatus.DOWNLOADED_KEYSHARES });
+    goToPage(ROUTES.DASHBOARD_AFTER_DOWNLOADING_KEYSHARES);
+  };
 
   return (
     <>
@@ -110,9 +118,9 @@ const ThirdStep = () => {
         </MigrationBlocksContainer>
       </Layout>
       <FooterWithButtons
-        acceptAction={handleFinishedMigrationPhase1}
+        acceptAction={downloadState === STATUSES.COMPLETE ? handleFinishedMigrationPhase1 : () => {}}
         acceptButtonLabel="Register Validators"
-        disabled={downloadState !== 'completed'}
+        disabled={downloadState !== STATUSES.COMPLETE}
       />
     </>
   );

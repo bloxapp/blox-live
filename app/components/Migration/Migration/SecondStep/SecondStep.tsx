@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react';
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import {Layout, Title} from '~app/components/Migration/styles';
-import FooterWithButtons from '../../FooterWithButtons/FooterWithButtons';
+import FooterWithButtons from '~app/components/Migration/FooterWithButtons/FooterWithButtons';
 import {MigrationTitle} from '~app/components/Migration/Migration/styles';
 // @ts-ignore
 import migrationProgressLogo from '~app/assets/images/migration_in_proccess.svg';
@@ -11,6 +11,7 @@ import SsvMigrationProcess from '~app/backend/proccess-manager/ssv-migration.pro
 import {Listener} from '~app/components/ProcessRunner/service';
 import {STATUSES} from '~app/components/Migration/interfaces';
 import {getOwnerAddress} from '~app/components/Migration/selectors';
+import UsersService, { SSVMigrationStatus } from '~app/backend/services/users/users.service';
 
 const MigrationBlocksContainer = styled.div`
   width: 100%;
@@ -31,8 +32,8 @@ const ProgressLogo = styled.div`
 `;
 
 const enum BTN_LABELS {
-  MIGRATE = 'migrate',
-  RETRY = 'retry'
+  MIGRATE = 'Migrate',
+  RETRY = 'Retry'
 }
 
 const SecondStep = ({ nextStep }: { nextStep: () => void }) => {
@@ -61,6 +62,8 @@ const SecondStep = ({ nextStep }: { nextStep: () => void }) => {
         setStep2Status(STATUSES.IN_PROGRESS);
       } else if (step.num === 3) {
         setStep2Status(STATUSES.COMPLETE);
+        const usersService = UsersService.getInstance();
+        usersService.update({ migrationStatus: SSVMigrationStatus.ONGOING });
       }
     };
 
@@ -103,7 +106,7 @@ const SecondStep = ({ nextStep }: { nextStep: () => void }) => {
         </MigrationBlocksContainer>
       </Layout>
       <FooterWithButtons
-        acceptAction={buttonLabel === BTN_LABELS.MIGRATE ? nextStep : runMigrationProcess}
+        acceptAction={step2Status === STATUSES.COMPLETE ? nextStep : runMigrationProcess}
         acceptButtonLabel={buttonLabel}
         disabled={step1Status === STATUSES.IN_PROGRESS || step2Status === STATUSES.IN_PROGRESS}
       />
