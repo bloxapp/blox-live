@@ -27,6 +27,9 @@ const userReducer = (state = initialState, action: Action) => produce(state, (dr
       draft.isLoading = false;
       draft.error = action.payload;
       break;
+    case actionTypes.UPDATE_USER_INFO_IN_STORE:
+      draft.info = { ...state.info, ...action.payload };
+      break;
     case LOGOUT:
     case actionTypes.CLEAR_USER_DATA:
       draft.info = initialState.info;

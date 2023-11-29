@@ -25,3 +25,8 @@ export const updateUserInfoFailure = (error: Record<string, any>) => ({
   type: actionTypes.UPDATE_USER_INFO_FAILURE,
   payload: { ...error }
 });
+
+export const updateUserInfoInStore = (info: Record<string, any>) => ({
+  type: actionTypes.UPDATE_USER_INFO_IN_STORE,
+  payload: info
+});

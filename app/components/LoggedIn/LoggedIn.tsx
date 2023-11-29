@@ -130,10 +130,6 @@ const LoggedIn = (props: Props) => {
     return <Loader />;
   }
 
-  const RootPage = (rootPageProps: any) => {
-    return <EntryPage {...rootPageProps} {...props} />;
-  };
-
   if (userInfo.migrationStatus === SSVMigrationStatus.DOWNLOADED_KEYSHARES) {
     return <DashboardAfterMigrationPhase1 />;
   }
@@ -141,6 +137,10 @@ const LoggedIn = (props: Props) => {
   if (userInfo.migrationStatus === SSVMigrationStatus.FINISHED) {
     return <MigrationFinished />;
   }
+
+  const RootPage = (rootPageProps: any) => {
+    return <EntryPage {...rootPageProps} {...props} />;
+  };
 
   return (
     <>

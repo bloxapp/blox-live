@@ -28,7 +28,7 @@ const Title = styled.h1`
   margin-bottom: 20px;
 `;
 
-const Validators = ({ accounts, isTestNetShow, showNetworkSwitcher }) => {
+const Validators = ({ accounts, isTestNetShow, showNetworkSwitcher, isInteractive = true }) => {
   const PAGE_SIZE = 10;
   const [pagedAccounts, setPagedAccounts] = React.useState([]);
   const [paginationInfo, setPaginationInfo] = React.useState(null);
@@ -93,6 +93,7 @@ const Validators = ({ accounts, isTestNetShow, showNetworkSwitcher }) => {
         onPageClick={onPageClick}
         selectedSorting={selectedSort}
         paginationInfo={paginationInfo}
+        isInteractive={isInteractive}
       />
     </Wrapper>
   );
@@ -101,7 +102,8 @@ const Validators = ({ accounts, isTestNetShow, showNetworkSwitcher }) => {
 Validators.propTypes = {
   accounts: PropTypes.array,
   isTestNetShow: PropTypes.bool,
-  showNetworkSwitcher: PropTypes.bool
+  showNetworkSwitcher: PropTypes.bool,
+  isInteractive: PropTypes.bool
 };
 
 const mapStateToProps = (state) => ({

@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+// eslint-disable-next-line import/no-cycle
 import { Header, Body, Footer } from './components';
 
 const Wrapper = styled.div`
@@ -17,7 +18,7 @@ const Table = (props: Props) => {
   const {
     data, columns, withHeader, isPagination, selectedSorting,
     sortType, onSortClick, customLoader, paginationInfo, onPageClick, totalCount,
-    navButtonWidth, rowMinHeight, headerHeight, footerHeight, withoutColumnBorder, withBlueHover } = props;
+    navButtonWidth, rowMinHeight, headerHeight, footerHeight, withoutColumnBorder, withBlueHover, isInteractive } = props;
 
   return (
     <Wrapper>
@@ -29,6 +30,7 @@ const Table = (props: Props) => {
           onSortClick={onSortClick}
           selectedSorting={selectedSorting}
           withoutColumnBorder={withoutColumnBorder}
+          isInteractive={isInteractive}
         />
       )}
       <Body
@@ -69,6 +71,7 @@ type Props = {
   footerHeight?: number | string;
   paginationInfo: Record<string, any>;
   onSortClick?: (sortKey: any, direction: any, compareFunction: any) => void;
+  isInteractive: boolean;
 };
 
 export default Table;

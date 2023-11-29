@@ -67,11 +67,16 @@ const Body = ({ data, columns, totalCount, rowMinHeight, customLoader, withoutCo
             withBlueHover={withBlueHover}
             gridTemplateColumns={gridTemplateColumns}
           >
-            {columns.map((column, index) => (
-              <Cell withoutColumnBorder={withoutColumnBorder} key={index} justifyContent={column.justifyContent}>
-                {column.valueRender(row[column.key], totalCount, row, dataIndex)}
-              </Cell>
-            ))}
+            {columns.map((column, index) => {
+              if (column.key === 'key') {
+                console.log(row);
+              }
+              return (
+                <Cell withoutColumnBorder={withoutColumnBorder} key={index} justifyContent={column.justifyContent}>
+                  {column.valueRender(row[column.key], totalCount, row, dataIndex)}
+                </Cell>
+              );
+            })}
           </Row>
         );
       })}
