@@ -82,7 +82,7 @@ const SecondStep = ({ nextStep }: { nextStep: () => void }) => {
         const usersService = UsersService.getInstance();
         usersService.update({ migrationStatus: SSVMigrationStatus.ONGOING });
       }
-    };// 0x43A95270F87Ea7d353aD0E75c7Ba3d6970940b25
+    };
 
     const runMigrationProcessFunc = async () => {
       setStep1Status(STATUSES.IN_PROGRESS);
