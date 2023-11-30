@@ -41,7 +41,7 @@ const Pencil = styled.div`
 
 `;
 
-const Header = ({columns, selectedSorting, sortType, onSortClick, height, withoutColumnBorder}) => {
+const Header = ({columns, selectedSorting, sortType, onSortClick, height, withoutColumnBorder, isInteractive}) => {
   const { goToPage, ROUTES } = useRouting();
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
 
@@ -106,7 +106,7 @@ const Header = ({columns, selectedSorting, sortType, onSortClick, height, withou
             withoutColumnBorder={withoutColumnBorder}
           >
             {title}
-            {writable && <Pencil onClick={goToRewardPage} />}
+            {writable && isInteractive && <Pencil onClick={goToRewardPage} />}
           </Cell>
         );
       })}
@@ -121,6 +121,7 @@ Header.propTypes = {
   selectedSorting: PropTypes.string,
   withoutColumnBorder: PropTypes.bool,
   height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  isInteractive: PropTypes.bool
 };
 
 Header.defaultProps = {
