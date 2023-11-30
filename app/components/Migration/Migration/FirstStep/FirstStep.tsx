@@ -5,8 +5,6 @@ import styled from 'styled-components';
 import Checkbox from '~app/common/components/Checkbox/Checkbox';
 import FooterWithButtons from '../../FooterWithButtons/FooterWithButtons';
 import {AdditionalText, Layout, Title} from '~app/components/Migration/styles';
-import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
-import Connection from '~app/backend/common/store-manager/connection';
 import {changeOwnerAddress} from '~app/components/Migration/actions';
 
 export const validateAddressInput = (value: string, isEmptyValid: boolean = false): string => {
@@ -73,20 +71,6 @@ const FirstStep = ({ nextStep, cancelHandler }: { nextStep: () => void; cancelHa
   };
 
   const disableBtnCondition = !address || !checked || error !== '';
-  const { checkIfPasswordIsNeeded } = usePasswordHandler();
-
-  const showPasswordProtectedDialog = (callback) => async () => {
-    const cryptoKey = 'temp';
-    const isTemporaryCryptoKeyValid = await Connection.db().isCryptoKeyValid(cryptoKey);
-    if (isTemporaryCryptoKeyValid) {
-      // If temp crypto key is valid - we should set it anyway
-      await Connection.db().setCryptoKey(cryptoKey);
-    }
-
-    return isTemporaryCryptoKeyValid
-      ? callback()
-      : checkIfPasswordIsNeeded(callback);
-  };
 
   const onInputChangeHandler = (e: any) => {
     const {value} = e.target;
@@ -119,7 +103,7 @@ const FirstStep = ({ nextStep, cancelHandler }: { nextStep: () => void; cancelHa
           I confirm I have access to this Ethereum wallet and it’s under my possession
         </Checkbox>
       </Layout>
-      <FooterWithButtons acceptAction={showPasswordProtectedDialog(nextStep)} disabled={disableBtnCondition} cancelAction={onCancelHandler} acceptButtonLabel={'Migrate'} />
+      <FooterWithButtons acceptAction={nextStep} disabled={disableBtnCondition} cancelAction={onCancelHandler} acceptButtonLabel={'Migrate'} />
     </div>
   );
 };

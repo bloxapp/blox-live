@@ -12,6 +12,8 @@ import {Listener} from '~app/components/ProcessRunner/service';
 import {STATUSES} from '~app/components/Migration/interfaces';
 import {getOwnerAddress} from '~app/components/Migration/selectors';
 import UsersService, { SSVMigrationStatus } from '~app/backend/services/users/users.service';
+import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
+import Connection from '~app/backend/common/store-manager/connection';
 
 const MigrationBlocksContainer = styled.div`
   width: 100%;
@@ -42,7 +44,22 @@ const SecondStep = ({ nextStep }: { nextStep: () => void }) => {
   const [buttonLabel, setButtonLabel] = useState<BTN_LABELS>(BTN_LABELS.MIGRATE);
   const [runMigrationProcess, setRunMigrationProcess] = useState(null);
 
+  const { checkIfPasswordIsNeeded } = usePasswordHandler();
+
   const ownerAddress = useSelector(getOwnerAddress);
+
+  const showPasswordProtectedDialog = (callback) => async () => {
+    const cryptoKey = 'temp';
+    const isTemporaryCryptoKeyValid = await Connection.db().isCryptoKeyValid(cryptoKey);
+    if (isTemporaryCryptoKeyValid) {
+      // If temp crypto key is valid - we should set it anyway
+      await Connection.db().setCryptoKey(cryptoKey);
+    }
+    console.log('isTemporaryCryptoKeyValid ', isTemporaryCryptoKeyValid);
+    return isTemporaryCryptoKeyValid
+      ? await callback()
+      : checkIfPasswordIsNeeded(callback);
+  };
 
   useEffect(() => {
     const ssvMigrationProcess = new SsvMigrationProcess({ ownerAddress });
@@ -65,7 +82,7 @@ const SecondStep = ({ nextStep }: { nextStep: () => void }) => {
         const usersService = UsersService.getInstance();
         usersService.update({ migrationStatus: SSVMigrationStatus.ONGOING });
       }
-    };
+    };// 0x43A95270F87Ea7d353aD0E75c7Ba3d6970940b25
 
     const runMigrationProcessFunc = async () => {
       setStep1Status(STATUSES.IN_PROGRESS);
@@ -73,8 +90,8 @@ const SecondStep = ({ nextStep }: { nextStep: () => void }) => {
       await ssvMigrationProcess.run();
     };
 
-    setRunMigrationProcess(() => runMigrationProcessFunc);
-    runMigrationProcessFunc();
+    setRunMigrationProcess(() => showPasswordProtectedDialog(runMigrationProcessFunc));
+    showPasswordProtectedDialog(runMigrationProcessFunc)();
 
     const listener = new Listener(callback);
     ssvMigrationProcess.subscribe(listener);
