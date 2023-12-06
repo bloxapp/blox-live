@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
-import {Layout} from '~app/components/Migration/styles';
-import FooterWithButtons from '../../FooterWithButtons/FooterWithButtons';
-import MigrationBlock from '~app/components/Migration/MigrationBlock/MigrationBlock';
-import {PreparationItemsContainer, PreparationTitle} from '~app/components/Migration/Preparation/styles';
+import {Layout} from '../styles';
+import FooterWithButtons from '../FooterWithButtons/FooterWithButtons';
+import MigrationBlock from '../MigrationBlock/MigrationBlock';
+import {PreparationItemsContainer, PreparationTitle} from './styles';
 
 const MIGRATION_PREREQUISITES = [
   {

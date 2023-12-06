@@ -124,7 +124,7 @@ const EntryPage = (props: Props) => {
   const haveAccounts = Boolean(accounts?.length);
   const showDashboard = (!haveAccounts && haveWallet && !isOpenedWizard) || isFinishedWizard;
   const showWizard = !showDashboard;
-  const shouldShowMigration = userInfo.migrationStatus === SSVMigrationStatus.ONGOING;
+  const shouldShowMigration = userInfo.migrationStatus === SSVMigrationStatus.CREATED_KEYSHARES;
 
   return (
     <Switch>

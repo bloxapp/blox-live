@@ -1,8 +1,8 @@
 import React from 'react';
-import {Layout} from '~app/components/Migration/styles';
-import FooterWithButtons from '../../FooterWithButtons/FooterWithButtons';
-import MigrationBlock from '~app/components/Migration/MigrationBlock/MigrationBlock';
-import {PreparationItemsContainer, PreparationTitle} from '~app/components/Migration/Preparation/styles';
+import {Layout} from '../styles';
+import FooterWithButtons from '../FooterWithButtons/FooterWithButtons';
+import MigrationBlock from '../MigrationBlock/MigrationBlock';
+import {PreparationItemsContainer, PreparationTitle} from './styles';
 
 const MIGRATION_PREPARATION = [
   {
@@ -11,7 +11,7 @@ const MIGRATION_PREPARATION = [
     text: 'Set  the Ethereum address that you will register your validators on the SSV Network with.',
   }, {
     stepNumber: 2,
-    title: 'Migration Folder prep & Key vault shutdown',
+    title: 'MigrationPhase1 Folder prep & Key vault shutdown',
     text: 'Prepare migration folder and turn off the KeyVault. After this, validators will be offline until registration.',
   }, {
     stepNumber: 3,

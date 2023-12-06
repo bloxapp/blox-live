@@ -2,15 +2,15 @@ import React, {useState} from 'react';
 import {shell} from 'electron';
 import styled from 'styled-components';
 // @ts-ignore
-import bloxToSsv from '~app/assets/images/blox-to-ssv.svg';
+import bloxToSsv from '../../../assets/images/blox-to-ssv.svg';
 // @ts-ignore
-import discordIcon from '~app/assets/images/discord-icon.svg';
-import FooterWithButtons from '../../FooterWithButtons/FooterWithButtons';
-import Checkbox from '~app/common/components/Checkbox/Checkbox';
+import discordIcon from '../../../assets/images/discord-icon.svg';
+import FooterWithButtons from '../FooterWithButtons/FooterWithButtons';
+import Checkbox from '../../../common/components/Checkbox/Checkbox';
 // @ts-ignore
-import ssvBackground from '~app/assets/images/ssv-background.svg';
-import {AdditionalText, Layout} from '~app/components/Migration/styles';
-import {PreparationTitle} from '~app/components/Migration/Preparation/styles';
+import ssvBackground from '../../../assets/images/ssv-background.svg';
+import {AdditionalText, Layout} from '../styles';
+import {PreparationTitle} from './styles';
 
 const SsvLayout = styled(Layout)`
   background-size: 260px 365px;

@@ -26,7 +26,7 @@ const ScreenWrapper = styled.div`
   background-color: #f7fcff;
 `;
 
-const DashboardAfterMigrationPhase1 = () => {
+const MigrationPhase2 = () => {
   const [accounts, setAccounts] = useState(null);
   const [accountsSummary, setAccountsSummary] = useState(null);
   const [eventLogs, setEventLogs] = React.useState(null);
@@ -123,4 +123,4 @@ const DashboardAfterMigrationPhase1 = () => {
   );
 };
 
-export default DashboardAfterMigrationPhase1;
+export default MigrationPhase2;

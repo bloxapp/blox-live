@@ -1,19 +1,18 @@
 import React, {useEffect, useState} from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import {Layout, Title} from '~app/components/Migration/styles';
-import FooterWithButtons from '~app/components/Migration/FooterWithButtons/FooterWithButtons';
-import {MigrationTitle} from '~app/components/Migration/Migration/styles';
+import {Layout, Title} from '../styles';
+import FooterWithButtons from '../FooterWithButtons/FooterWithButtons';
 // @ts-ignore
-import migrationProgressLogo from '~app/assets/images/migration_in_proccess.svg';
-import MigrationBlock from '~app/components/Migration/MigrationBlock/MigrationBlock';
-import SsvMigrationProcess from '~app/backend/proccess-manager/ssv-migration.process';
-import {Listener} from '~app/components/ProcessRunner/service';
-import {STATUSES} from '~app/components/Migration/interfaces';
-import {getOwnerAddress} from '~app/components/Migration/selectors';
-import UsersService, { SSVMigrationStatus } from '~app/backend/services/users/users.service';
-import usePasswordHandler from '~app/components/PasswordHandler/usePasswordHandler';
-import Connection from '~app/backend/common/store-manager/connection';
+import migrationProgressLogo from '../../../assets/images/migration_in_proccess.svg';
+import MigrationBlock from '../MigrationBlock/MigrationBlock';
+import SsvMigrationProcess from '../../../backend/proccess-manager/ssv-migration.process';
+import {Listener} from '../../ProcessRunner/service';
+import {STATUSES} from '../interfaces';
+import {getOwnerAddress} from '../selectors';
+import UsersService, { SSVMigrationStatus } from '../../../backend/services/users/users.service';
+import usePasswordHandler from '../../PasswordHandler/usePasswordHandler';
+import Connection from '../../../backend/common/store-manager/connection';
 
 const MigrationBlocksContainer = styled.div`
   width: 100%;
@@ -33,12 +32,22 @@ const ProgressLogo = styled.div`
   background-image: url(${migrationProgressLogo});
 `;
 
+export const MigrationTitle = styled.h1`
+  margin: 0;
+  color:  #067BC4;
+  font-family: Avenir, sans-serif;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 24px;
+`;
+
 const enum BTN_LABELS {
   MIGRATE = 'Migrate',
   RETRY = 'Retry'
 }
 
-const SecondStep = ({ nextStep }: { nextStep: () => void }) => {
+const Phase1Step2 = ({ nextStep }: { nextStep: () => void }) => {
   const [step1Status, setStep1Status] = useState<STATUSES>(STATUSES.INITIAL);
   const [step2Status, setStep2Status] = useState<STATUSES>(STATUSES.INITIAL);
   const [buttonLabel, setButtonLabel] = useState<BTN_LABELS>(BTN_LABELS.MIGRATE);
@@ -80,7 +89,7 @@ const SecondStep = ({ nextStep }: { nextStep: () => void }) => {
       } else if (step.num === 3) {
         setStep2Status(STATUSES.COMPLETE);
         const usersService = UsersService.getInstance();
-        usersService.update({ migrationStatus: SSVMigrationStatus.ONGOING });
+        usersService.update({ migrationStatus: SSVMigrationStatus.CREATED_KEYSHARES });
       }
     };
 
@@ -110,8 +119,8 @@ const SecondStep = ({ nextStep }: { nextStep: () => void }) => {
         </MigrationTitle>
         <MigrationBlocksContainer>
           <MigrationBlock
-            text={'The Migration file used to register your validator to its operators. This file is encrypted and can only be used by the operators it was defined for'}
-            title={'Creating Migration File'}
+            text={'The MigrationPhase1 file used to register your validator to its operators. This file is encrypted and can only be used by the operators it was defined for'}
+            title={'Creating MigrationPhase1 File'}
             status={step1Status}
           />
           <MigrationBlock
@@ -131,4 +140,4 @@ const SecondStep = ({ nextStep }: { nextStep: () => void }) => {
   );
 };
 
-export default SecondStep;
+export default Phase1Step2;

@@ -2,10 +2,10 @@ import React, { useState} from 'react';
 import {useDispatch} from 'react-redux';
 import Web3 from 'web3';
 import styled from 'styled-components';
-import Checkbox from '~app/common/components/Checkbox/Checkbox';
-import FooterWithButtons from '../../FooterWithButtons/FooterWithButtons';
-import {AdditionalText, Layout, Title} from '~app/components/Migration/styles';
-import {changeOwnerAddress} from '~app/components/Migration/actions';
+import Checkbox from '../../../common/components/Checkbox/Checkbox';
+import FooterWithButtons from '../FooterWithButtons/FooterWithButtons';
+import {AdditionalText, Layout, Title} from '../styles';
+import {changeOwnerAddress} from '../actions';
 
 export const validateAddressInput = (value: string, isEmptyValid: boolean = false): string => {
   const web3 = new Web3();
@@ -59,7 +59,7 @@ const ErrorMessage = styled.p`
   color: red;
 `;
 
-const FirstStep = ({ nextStep, cancelHandler }: { nextStep: () => void; cancelHandler: () => void; }) => {
+const Phase1Step1 = ({ nextStep, cancelHandler }: { nextStep: () => void; cancelHandler: () => void; }) => {
   const [address, setAddress] = useState('');
   const [checked, setChecked] = useState(false);
   const [error, setError] = useState('');
@@ -108,4 +108,4 @@ const FirstStep = ({ nextStep, cancelHandler }: { nextStep: () => void; cancelHa
   );
 };
 
-export default FirstStep;
+export default Phase1Step1;

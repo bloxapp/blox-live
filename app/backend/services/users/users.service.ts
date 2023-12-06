@@ -4,7 +4,7 @@ import { METHOD } from '../../common/communication-manager/constants';
 
 export enum SSVMigrationStatus {
   NOT_STARTED = 0,
-  ONGOING = 1,
+  CREATED_KEYSHARES = 1,
   DOWNLOADED_KEYSHARES = 2,
   FINISHED = 3,
 }
