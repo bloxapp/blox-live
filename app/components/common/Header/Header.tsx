@@ -3,13 +3,12 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { ClickAwayListener } from '@material-ui/core';
 import { withRouter, RouteComponentProps } from 'react-router-dom';
-import useRouting from '~app/common/hooks/useRouting';
 import HeaderLink from '~app/components/common/Header/HeaderLink';
 import { getWizardFinishedStatus } from '~app/components/Wizard/selectors';
 import { logout } from '~app/components/Login/components/CallbackPage/actions';
 import { FaqMenu, ProfileMenu } from '~app/components/common/Header/components';
 import { getUserData } from '~app/components/Login/components/CallbackPage/selectors';
-import AddValidatorButtonWrapper from '~app/components/common/Header/components/AddValidatorButtonWrapper';
+// @ts-ignore
 import imageSrc from 'assets/images/staking-logo.svg';
 
 const Wrapper = styled.div`
@@ -54,31 +53,10 @@ const Right = styled.div`
   justify-content: flex-end;
 `;
 
-const AddValidatorButton = styled.button`
-  width:136px;
-  height:32px;
-  background-color:${({ theme }) => theme.primary700};
-  color:${({ theme }) => theme.gray50};
-  margin-right:20px;
-  border:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size: 14px;
-  font-weight: 900;
-  border-radius:6px;
-  cursor:pointer;
-  &:hover {
-    color:${({ theme }) => theme.accent2200};
-  }
-`;
-
 const Header = (props: Props) => {
   const { withMenu, profile, logoutUser, hideProfileMenu } = props;
   const [isProfileMenuOpen, toggleProfileMenuOpenDisplay] = useState(false);
   const [isHelpMenuOpen, toggleHelpMenuOpenDisplay] = useState(false);
-  const { isOnPage, ROUTES } = useRouting();
-  const showAddValidatorButton = isOnPage(ROUTES.DASHBOARD);
   const hideTopNav = true;
 
   const handleProfileClickAway = () => {
@@ -103,11 +81,6 @@ const Header = (props: Props) => {
         </Center>
       )}
       <Right>
-        {showAddValidatorButton && (
-          <AddValidatorButtonWrapper>
-            <AddValidatorButton>Add Validator</AddValidatorButton>
-          </AddValidatorButtonWrapper>
-        )}
         <ClickAwayListener onClickAway={handleHelpClickAway}>
           <FaqMenu
             isOpen={isHelpMenuOpen}

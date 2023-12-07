@@ -18,7 +18,7 @@ const Wrapper = styled.div`
 `;
 
 const BoxWithTooltip = (props) => {
-  const { isActive, walletNeedsUpdate, bloxLiveNeedsUpdate, width, color, bigText, medText, tinyText, image, actions } = props;
+  const { isActive, walletNeedsUpdate, bloxLiveNeedsUpdate, width, color, bigText, medText, tinyText, image, actions, shouldShowInactiveWarning } = props;
   const { setModalDisplay } = actions;
   const { checkIfPasswordIsNeeded } = usePasswordHandler();
 
@@ -41,7 +41,7 @@ const BoxWithTooltip = (props) => {
       <Box width={width} color={color} bigText={bigText}
         medText={medText} tinyText={tinyText} image={image}
       />
-      {!isActive && (
+      {!isActive && shouldShowInactiveWarning && (
         <ReactivatePopper onClick={() => { showModal(MODAL_TYPES.REACTIVATION); }} />
       )}
       {walletNeedsUpdate && isActive && (
@@ -66,6 +66,7 @@ BoxWithTooltip.propTypes = {
   walletNeedsUpdate: PropTypes.bool,
   bloxLiveNeedsUpdate: PropTypes.bool,
   bigText: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  shouldShowInactiveWarning: PropTypes.bool
 };
 
 export default connect(null, mapDispatchToProps)(BoxWithTooltip);

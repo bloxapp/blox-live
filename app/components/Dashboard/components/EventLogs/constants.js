@@ -11,4 +11,5 @@ export const EVENTS = {
   validator_pending: {title: 'Pending Approval', color: COLOR.NEUTRAL, description: 'Validator {} became pending for approval'},
   validator_slashed: {title: 'Validator Slashed', color: COLOR.NEGATIVE, description: 'Validator {} was Slashed due to inactivity'},
   validator_exited: {title: 'Validator Exited', color: COLOR.NEGATIVE, description: 'Validator {} was exited'},
+  validator_exiting: {title: 'Validator Exiting', color: COLOR.NEGATIVE, description: 'Validator {} became exiting'},
 };

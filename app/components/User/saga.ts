@@ -4,16 +4,17 @@ import { Log } from '~app/backend/common/logger/logger';
 import * as actionTypes from './actionTypes';
 import * as actions from './actions';
 
-import UsersService from 'backend/services/users/users.service';
+import UsersService, { SSVMigrationStatus } from 'backend/services/users/users.service';
 
 function* loadUserInfoSaga() {
   try {
     const logger: Log = new Log('App');
 
-    const usersService = new UsersService();
+    const usersService = UsersService.getInstance();
     const userInfo = yield call([usersService, 'get']);
     logger.info('org-id', userInfo.organizationId);
 
+    userInfo.migrationStatus = userInfo.migrationStatus || SSVMigrationStatus.NOT_STARTED;
     yield put(actions.loadUserInfoSuccess(userInfo));
   } catch (error) {
     yield error && put(actions.loadUserInfoFailure(error));
@@ -23,7 +24,7 @@ function* loadUserInfoSaga() {
 function* updateUserInfoSaga(action) {
   const { payload } = action;
   try {
-    const usersService = new UsersService();
+    const usersService = UsersService.getInstance();
     yield call([usersService, 'update'], payload);
     yield put(actions.updateUserInfoSuccess());
   } catch (error) {

@@ -16,6 +16,7 @@ import {
 } from '~app/components/Dashboard/service';
 import { MODAL_TYPES } from '~app/components/Dashboard/constants';
 import * as actionsFromDashboard from '~app/components/Dashboard/actions';
+import MigrationAlert from '~app/components/Migration/Alert/MigrationAlert';
 import useProcessRunner from '~app/components/ProcessRunner/useProcessRunner';
 import { clearWizardPage, clearWizardPageData, clearWizardStep } from '~app/components/Wizard/actions';
 import useNetworkSwitcher from '~app/components/Dashboard/components/NetworkSwitcher/useNetworkSwitcher';
@@ -121,6 +122,8 @@ const Dashboard = (props) => {
         summary={accountsSummary}
         showNetworkSwitcher={showNetworkSwitcher}
       />
+
+      <MigrationAlert />
 
       <Validators
         accounts={normalizedAccounts}

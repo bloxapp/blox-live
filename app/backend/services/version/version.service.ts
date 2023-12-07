@@ -22,4 +22,8 @@ export default class VersionService {
   async getLatestBloxLiveVersion() {
     return await this.bloxApi.request(METHOD.GET, 'version/blox-live');
   }
+
+  async getKeyVaultVersionFromRemote() {
+    return await this.bloxApi.request(METHOD.GET, 'version/key-vault');
+  }
 }

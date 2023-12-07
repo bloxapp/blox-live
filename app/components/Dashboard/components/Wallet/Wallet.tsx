@@ -17,18 +17,18 @@ const TopPart = styled.div`
 `;
 
 const Wallet = (props) => {
-  const { isActive, isNeedUpdate, summary, version, showNetworkSwitcher, ...rest } = props;
+  const { isActive, isNeedUpdate, summary, version, showNetworkSwitcher, shouldShowInactiveWarning = true, ...rest } = props;
   return (
     <Wrapper>
       <UpdateBanner isNeedUpdate={isNeedUpdate} />
       {summary && (
         <TopPart>
-          <RefreshButton />
+          {shouldShowInactiveWarning && <RefreshButton />}
           { showNetworkSwitcher && <NetworkSwitcher />}
         </TopPart>
       )}
-      <StatusBar isActive={isActive} />
-      <Boxes bloxLiveNeedsUpdate={isNeedUpdate} isActive={isActive} summary={summary} walletVersion={version} {...rest} />
+      {shouldShowInactiveWarning && <StatusBar isActive={isActive} />}
+      <Boxes bloxLiveNeedsUpdate={isNeedUpdate} isActive={isActive} summary={summary} walletVersion={version} shouldShowInactiveWarning={shouldShowInactiveWarning} {...rest} />
     </Wrapper>
   );
 };
@@ -39,7 +39,8 @@ Wallet.propTypes = {
   walletNeedsUpdate: PropTypes.bool,
   showNetworkSwitcher: PropTypes.bool,
   summary: PropTypes.object,
-  version: PropTypes.string
+  version: PropTypes.string,
+  shouldShowInactiveWarning: PropTypes.bool
 };
 
 export default Wallet;

@@ -19,6 +19,11 @@ export default {
         use: {
           loader: 'babel-loader'
         }
+      },
+      {
+        test: /\.mjs$/,
+        include: /node_modules/,
+        type: 'javascript/auto'
       }
     ]
   },

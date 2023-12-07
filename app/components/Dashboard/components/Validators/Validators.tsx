@@ -8,7 +8,6 @@ import config from '~app/backend/common/config';
 import { SORT_TYPE } from '~app/common/constants';
 import { handlePageClick } from '~app/common/components/Table/service';
 import * as dashboardSelectors from '~app/components/Dashboard/selectors';
-import AddValidatorButtonWrapper from '~app/components/common/Header/components/AddValidatorButtonWrapper';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -20,20 +19,6 @@ const NoValidatorsText = styled.div`
   display: inline-block;
 `;
 
-const AddValidatorButton = styled.button`
-  border: solid 1px ${({theme}) => theme.gray400};
-  background-color: transparent;
-  color: ${({theme}) => theme.primary900};
-  margin-left: 10px;
-  border-radius: 6px;
-  font-family: Avenir, serif;
-  font-size: 11px;
-  font-weight: 500;
-  width: 114px;
-  height: 28px;
-  cursor: pointer;
-`;
-
 const Title = styled.h1`
   font-size: 26px;
   font-weight: 500;
@@ -43,7 +28,7 @@ const Title = styled.h1`
   margin-bottom: 20px;
 `;
 
-const Validators = ({ accounts, isTestNetShow, showNetworkSwitcher }) => {
+const Validators = ({ accounts, isTestNetShow, showNetworkSwitcher, isInteractive = true }) => {
   const PAGE_SIZE = 10;
   const [pagedAccounts, setPagedAccounts] = React.useState([]);
   const [paginationInfo, setPaginationInfo] = React.useState(null);
@@ -86,14 +71,10 @@ const Validators = ({ accounts, isTestNetShow, showNetworkSwitcher }) => {
   }
 
   if (!filteredAccounts?.length) {
-    const addValidatorButtonWrapperStyle = { display: 'inline-block' };
     return (
       <Wrapper>
         <Title>Validators</Title>
         <NoValidatorsText>There are no validators to show at the moment</NoValidatorsText>
-        <AddValidatorButtonWrapper style={addValidatorButtonWrapperStyle}>
-          <AddValidatorButton>Add Validator</AddValidatorButton>
-        </AddValidatorButtonWrapper>
       </Wrapper>
     );
   }
@@ -112,6 +93,7 @@ const Validators = ({ accounts, isTestNetShow, showNetworkSwitcher }) => {
         onPageClick={onPageClick}
         selectedSorting={selectedSort}
         paginationInfo={paginationInfo}
+        isInteractive={isInteractive}
       />
     </Wrapper>
   );
@@ -120,7 +102,8 @@ const Validators = ({ accounts, isTestNetShow, showNetworkSwitcher }) => {
 Validators.propTypes = {
   accounts: PropTypes.array,
   isTestNetShow: PropTypes.bool,
-  showNetworkSwitcher: PropTypes.bool
+  showNetworkSwitcher: PropTypes.bool,
+  isInteractive: PropTypes.bool
 };
 
 const mapStateToProps = (state) => ({

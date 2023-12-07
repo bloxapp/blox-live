@@ -1,12 +1,13 @@
+import { History } from 'history';
 import { combineReducers } from 'redux';
 import { connectRouter } from 'connected-react-router';
-import { History } from 'history';
 import user from '~app/components/User/reducer';
 import wizard from '~app/components/Wizard/reducer';
 import versions from '~app/components/Versions/reducer';
 import accounts from '~app/components/Accounts/reducer';
 import eventLogs from '~app/components/EventLogs/reducer';
 import dashboard from '~app/components/Dashboard/reducer';
+import migration from '~app/components/Migration/reducer';
 import websocket from '~app/components/WebSockets/reducer';
 import password from '~app/components/PasswordHandler/reducer';
 import organization from '~app/components/Organization/reducer';
@@ -29,5 +30,6 @@ export default function createRootReducer(history: History) {
     versions,
     eventLogs,
     user,
+    migration
   });
 }
