@@ -119,8 +119,8 @@ const Phase1Step2 = ({ nextStep }: { nextStep: () => void }) => {
         </MigrationTitle>
         <MigrationBlocksContainer>
           <MigrationBlock
-            text={'The MigrationPhase1 file used to register your validator to its operators. This file is encrypted and can only be used by the operators it was defined for'}
-            title={'Creating MigrationPhase1 File'}
+            text={'The Migration file used to register your validator to its operators. This file is encrypted and can only be used by the operators it was defined for'}
+            title={'Creating Migration File'}
             status={step1Status}
           />
           <MigrationBlock

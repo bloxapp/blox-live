@@ -88,7 +88,7 @@ const MigrationFAQ = ({ changeToNextFlow }: { changeToNextFlow: () => void }) =>
           <TabButtonsWrapper>
             <TabButton isActive={activeSection === 0} onClick={() => tabClickHadler({ tabNumber: 0 })}>Have you heard of SSV?</TabButton>
             <TabButton isActive={activeSection === 1} onClick={() => tabClickHadler({ tabNumber: 1 })}>FAQ</TabButton>
-            <TabButton isActive={activeSection === 2} onClick={() => tabClickHadler({ tabNumber: 2 })}>Bloxstacking vs SSV Network</TabButton>
+            <TabButton isActive={activeSection === 2} onClick={() => tabClickHadler({ tabNumber: 2 })}>Blox Stacking vs SSV Network</TabButton>
           </TabButtonsWrapper>
           <ContentWrapper>
             {activeSection === 0 && <FirstTabContent />}
