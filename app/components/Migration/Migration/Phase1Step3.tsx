@@ -3,13 +3,13 @@ import {ipcRenderer} from 'electron';
 import React, {useState} from 'react';
 import {useDispatch} from 'react-redux';
 import styled from 'styled-components';
-import {Layout, Title} from '~app/components/Migration/styles';
-import FooterWithButtons from '../../FooterWithButtons/FooterWithButtons';
-import MigrationDownloadFileBtn from '~app/components/Migration/MigrationBlockDownload/MigrationDownloadFileBtn';
-import SsvMigrationService from '~app/backend/services/ssv-migration/ssv-migration.service';
-import {STATUSES} from '~app/components/Migration/interfaces';
-import UsersService, {SSVMigrationStatus} from '~app/backend/services/users/users.service';
-import {updateUserInfoInStore} from '~app/components/User/actions';
+import {Layout, Title} from '../styles';
+import FooterWithButtons from '../FooterWithButtons/FooterWithButtons';
+import MigrationDownloadFileBtn from '../MigrationBlockDownload/MigrationDownloadFileBtn';
+import SsvMigrationService from '../../../backend/services/ssv-migration/ssv-migration.service';
+import {STATUSES} from '../interfaces';
+import UsersService, {SSVMigrationStatus} from '../../../backend/services/users/users.service';
+import {updateUserInfoInStore} from '../../User/actions';
 
 const MigrationBlocksContainer = styled.div`
   width: 100%;
@@ -55,7 +55,7 @@ const Text = styled.div`
   line-height: 26px;
 `;
 
-const ThirdStep = () => {
+const Phase1Step3 = () => {
   const dispatch = useDispatch();
 
   const [downloadState, setDownloadState] = useState<STATUSES>(STATUSES.INITIAL);
@@ -126,4 +126,4 @@ const ThirdStep = () => {
   );
 };
 
-export default ThirdStep;
+export default Phase1Step3;

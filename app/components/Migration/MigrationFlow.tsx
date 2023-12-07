@@ -1,19 +1,31 @@
 import React, {useState} from 'react';
-import Migration from '~app/components/Migration/Migration/Migration';
+import MigrationPhase1 from './Migration/MigrationPhase1';
 import Preparation from '~app/components/Migration/Preparation/Preparation';
 import {SSVMigrationStatus} from '~app/backend/services/users/users.service';
+import MigrationFAQ from './MigrationFAQ/MigrationFAQ';
 
 const MigrationFlow = ({ migrationStatus }: { migrationStatus: SSVMigrationStatus }) => {
-  const [currentFlow, setCurrentFlow] = useState(migrationStatus === SSVMigrationStatus.ONGOING ? 1 : 0);
+  const [currentFlow, setCurrentFlow] = useState(migrationStatus === SSVMigrationStatus.CREATED_KEYSHARES ? 2 : 0);
 
-  const changeFlowHandler = () => {
-    setCurrentFlow((currentFlow + 1) % 2);
+  const goBackHandler = () => {
+    if (currentFlow - 1 >= 0) {
+      setCurrentFlow(currentFlow - 1);
+    }
+  };
+
+  const moveForwardHandler = () => {
+    if (currentFlow + 1 <= 2) {
+      setCurrentFlow(currentFlow + 1);
+    }
   };
 
   if (currentFlow === 0) {
-    return <Preparation changeToNextFlow={changeFlowHandler} />;
+    return <MigrationFAQ changeToNextFlow={moveForwardHandler} />;
   }
-  return <Migration changeToPrevFlow={changeFlowHandler} migrationStatus={migrationStatus} />;
+  if (currentFlow === 1) {
+    return <Preparation changeToNextFlow={moveForwardHandler} changeToPrevFlow={goBackHandler} />;
+  }
+  return <MigrationPhase1 changeToPrevFlow={goBackHandler} migrationStatus={migrationStatus} />;
 };
 
 export default MigrationFlow;

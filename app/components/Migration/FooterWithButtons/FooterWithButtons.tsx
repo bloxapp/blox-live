@@ -17,6 +17,7 @@ const PrimaryButton = styled.button`
   border: none;
   color: white;
   cursor: pointer;
+  border-radius: 6px;
   &:hover {
     background-color: #2546b2;
   }
@@ -27,7 +28,7 @@ const PrimaryButton = styled.button`
 `;
 
 const SecondButton = styled.p`
-  color: #047FFF;
+  color: #97A5BA;
   text-align: center;
   font-family: Avenir, sans-serif;
   font-size: 14px;
